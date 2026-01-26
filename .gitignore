@@ -1,1 +1,9 @@
 data/wahapedia/
+
+# Scala/sbt
+target/
+project/target/
+project/project/
+
+# TODO
+TODO.md
