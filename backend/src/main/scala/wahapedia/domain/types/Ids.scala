@@ -2,6 +2,8 @@ package wahapedia.domain.types
 
 import wahapedia.errors.ParseError
 import wahapedia.errors.InvalidId
+import io.circe.{Encoder, Decoder}
+import cats.syntax.either.*
 
 opaque type DatasheetId = String
 opaque type FactionId = String
@@ -27,6 +29,9 @@ object FactionId {
     if (id.nonEmpty && id.matches("[A-Za-z]{2,3}")) Right(FactionId(id))
     else Left(InvalidId(id))
   }
+
+  given Encoder[FactionId] = Encoder.encodeString.contramap(value)
+  given Decoder[FactionId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
 }
 
 object AbilityId {

@@ -5,6 +5,7 @@ import cats.implicits.*
 import doobie.*
 import doobie.implicits.*
 import wahapedia.db.{Schema, DataLoader, ReferenceDataRepository}
+import wahapedia.http.HttpServer
 import wahapedia.errors.ParseException
 
 object Main extends IOApp.Simple {
@@ -19,9 +20,16 @@ object Main extends IOApp.Simple {
     val program = for {
       _ <- IO.println("Initializing database...")
       _ <- Schema.initialize(xa)
-      _ <- IO.println("Loading CSV data into database...")
-      _ <- DataLoader.loadAll(xa)
-      _ <- printSummary
+      tableCounts <- ReferenceDataRepository.counts(xa)
+      isPopulated = tableCounts.getOrElse("factions", 0) > 0
+      _ <- if (isPopulated) {
+        IO.println("Database already populated. Skipping CSV data loading.")
+      } else {
+        IO.println("Loading CSV data into database...") *> DataLoader.loadAll(xa)
+      }
+      _ <- printSummary(isPopulated)
+      _ <- IO.println("Starting HTTP server on port 8080...")
+      _ <- HttpServer.createServer(8080, xa).useForever
     } yield ()
 
     program.handleErrorWith {
@@ -33,13 +41,13 @@ object Main extends IOApp.Simple {
     }
   }
 
-  private def printSummary: IO[Unit] =
+  private def printSummary(isPopulated: Boolean): IO[Unit] =
     for {
       tableCounts <- ReferenceDataRepository.counts(xa)
       lastUpdate <- ReferenceDataRepository.lastUpdate(xa)
 
       _ <- IO.println("\n" + "=" * 60)
-      _ <- IO.println("DATABASE LOAD COMPLETE")
+      _ <- IO.println(if (isPopulated) "DATABASE STATUS" else "DATABASE LOAD COMPLETE")
       _ <- IO.println("=" * 60)
 
       _ <- IO.println(s"\nCORE ENTITIES:")

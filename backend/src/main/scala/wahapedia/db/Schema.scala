@@ -25,12 +25,11 @@ object Schema {
     )""",
 
     sql"""CREATE TABLE IF NOT EXISTS abilities (
-      id TEXT NOT NULL,
+      id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       legend TEXT,
-      faction_id TEXT NOT NULL,
-      description TEXT NOT NULL,
-      PRIMARY KEY (id, faction_id)
+      faction_id TEXT,
+      description TEXT NOT NULL
     )""",
 
     sql"""CREATE TABLE IF NOT EXISTS datasheets (
