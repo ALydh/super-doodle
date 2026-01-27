@@ -1,5 +1,5 @@
 # JVM fallback Dockerfile
-FROM eclipse-temurin:17-jre-alpine
+FROM --platform=linux/amd64 eclipse-temurin:17-jre-alpine
 
 # Install SQLite runtime
 RUN apk add --no-cache sqlite
