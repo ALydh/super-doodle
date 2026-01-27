@@ -82,7 +82,7 @@ object DataLoader {
           VALUES (${s.id}, ${s.name}, ${SourceType.asString(s.sourceType)}, ${s.edition}, ${s.version}, ${s.errataDate}, ${s.errataLink})""".update.run
 
   private def insertAbility(a: Ability): ConnectionIO[Int] =
-    sql"""INSERT INTO abilities (id, name, legend, faction_id, description)
+    sql"""INSERT OR REPLACE INTO abilities (id, name, legend, faction_id, description)
           VALUES (${a.id}, ${a.name}, ${a.legend}, ${a.factionId}, ${a.description})""".update.run
 
   private def insertDatasheet(d: Datasheet): ConnectionIO[Int] =
@@ -118,7 +118,7 @@ object DataLoader {
           VALUES (${o.datasheetId}, ${o.line}, ${o.button}, ${o.description})""".update.run
 
   private def insertDatasheetLeader(dl: DatasheetLeader): ConnectionIO[Int] =
-    sql"""INSERT INTO datasheet_leaders (leader_id, attached_id)
+    sql"""INSERT OR REPLACE INTO datasheet_leaders (leader_id, attached_id)
           VALUES (${dl.leaderId}, ${dl.attachedId})""".update.run
 
   private def insertStratagem(s: Stratagem): ConnectionIO[Int] =
