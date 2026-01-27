@@ -83,7 +83,7 @@ class AbilityParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   "parseStream integration" should "parse all abilities from Abilities.csv" in {
     val abilities = CsvProcessor.failFastParse(
-      "data/wahapedia/Abilities.csv",
+      "../data/wahapedia/Abilities.csv",
       AbilityParser
     ).unsafeRunSync()
 
@@ -92,7 +92,7 @@ class AbilityParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find Synapse ability" in {
     val abilities = CsvProcessor.failFastParse(
-      "data/wahapedia/Abilities.csv",
+      "../data/wahapedia/Abilities.csv",
       AbilityParser
     ).unsafeRunSync()
 
@@ -103,7 +103,7 @@ class AbilityParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find abilities with and without faction_id" in {
     val abilities = CsvProcessor.failFastParse(
-      "data/wahapedia/Abilities.csv",
+      "../data/wahapedia/Abilities.csv",
       AbilityParser
     ).unsafeRunSync()
 
@@ -117,7 +117,7 @@ class AbilityParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "preserve HTML content in descriptions" in {
     val abilities = CsvProcessor.failFastParse(
-      "data/wahapedia/Abilities.csv",
+      "../data/wahapedia/Abilities.csv",
       AbilityParser
     ).unsafeRunSync()
 

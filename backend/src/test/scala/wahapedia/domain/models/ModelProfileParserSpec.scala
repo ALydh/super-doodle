@@ -122,7 +122,7 @@ class ModelProfileParserSpec extends AnyFlatSpec with Matchers with EitherValues
 
   "parseStream integration" should "parse all model profiles from Datasheets_models.csv" in {
     val models = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_models.csv",
+      "../data/wahapedia/Datasheets_models.csv",
       ModelProfileParser
     ).unsafeRunSync()
 
@@ -131,7 +131,7 @@ class ModelProfileParserSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "find Warboss model" in {
     val models = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_models.csv",
+      "../data/wahapedia/Datasheets_models.csv",
       ModelProfileParser
     ).unsafeRunSync()
 
@@ -142,7 +142,7 @@ class ModelProfileParserSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "find models with invulnerable saves" in {
     val models = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_models.csv",
+      "../data/wahapedia/Datasheets_models.csv",
       ModelProfileParser
     ).unsafeRunSync()
 
@@ -152,7 +152,7 @@ class ModelProfileParserSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "find models with different leadership values" in {
     val models = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_models.csv",
+      "../data/wahapedia/Datasheets_models.csv",
       ModelProfileParser
     ).unsafeRunSync()
 

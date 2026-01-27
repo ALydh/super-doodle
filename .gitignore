@@ -1,9 +1,10 @@
 data/wahapedia/
 
-# Scala/sbt
-target/
-project/target/
-project/project/
+backend/target/
+backend/project/target/
+backend/project/project/
 
-# TODO
+frontend/node_modules/
+frontend/dist/
+
 TODO.md

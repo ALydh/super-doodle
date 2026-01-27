@@ -20,7 +20,7 @@ class UnitCompositionParserSpec extends AnyFlatSpec with Matchers with EitherVal
 
   "parseStream integration" should "parse all compositions" in {
     val comps = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_unit_composition.csv",
+      "../data/wahapedia/Datasheets_unit_composition.csv",
       UnitCompositionParser
     ).unsafeRunSync()
 

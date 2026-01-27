@@ -20,7 +20,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all keywords from CSV" in {
     val keywords = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_keywords.csv",
+      "../data/wahapedia/Datasheets_keywords.csv",
       DatasheetKeywordParser
     ).unsafeRunSync()
 
@@ -38,7 +38,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all ability associations from CSV" in {
     val abilities = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_abilities.csv",
+      "../data/wahapedia/Datasheets_abilities.csv",
       DatasheetAbilityParser
     ).unsafeRunSync()
 
@@ -55,7 +55,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all options from CSV" in {
     val options = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_options.csv",
+      "../data/wahapedia/Datasheets_options.csv",
       DatasheetOptionParser
     ).unsafeRunSync()
 
@@ -72,7 +72,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all leader rules from CSV" in {
     val leaders = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_leader.csv",
+      "../data/wahapedia/Datasheets_leader.csv",
       DatasheetLeaderParser
     ).unsafeRunSync()
 
@@ -90,7 +90,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all stratagems from CSV" in {
     val stratagems = CsvProcessor.failFastParse(
-      "data/wahapedia/Stratagems.csv",
+      "../data/wahapedia/Stratagems.csv",
       StratagemParser
     ).unsafeRunSync()
 
@@ -106,7 +106,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all stratagem associations from CSV" in {
     val assocs = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_stratagems.csv",
+      "../data/wahapedia/Datasheets_stratagems.csv",
       DatasheetStratagemParser
     ).unsafeRunSync()
 
@@ -124,7 +124,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all enhancements from CSV" in {
     val enhancements = CsvProcessor.failFastParse(
-      "data/wahapedia/Enhancements.csv",
+      "../data/wahapedia/Enhancements.csv",
       EnhancementParser
     ).unsafeRunSync()
 
@@ -140,7 +140,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all enhancement associations from CSV" in {
     val assocs = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_enhancements.csv",
+      "../data/wahapedia/Datasheets_enhancements.csv",
       DatasheetEnhancementParser
     ).unsafeRunSync()
 
@@ -157,7 +157,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all detachment abilities from CSV" in {
     val abilities = CsvProcessor.failFastParse(
-      "data/wahapedia/Detachment_abilities.csv",
+      "../data/wahapedia/Detachment_abilities.csv",
       DetachmentAbilityParser
     ).unsafeRunSync()
 
@@ -173,7 +173,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse all detachment ability associations from CSV" in {
     val assocs = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_detachment_abilities.csv",
+      "../data/wahapedia/Datasheets_detachment_abilities.csv",
       DatasheetDetachmentAbilityParser
     ).unsafeRunSync()
 
@@ -189,7 +189,7 @@ class AssociationParsersSpec extends AnyFlatSpec with Matchers with EitherValues
 
   it should "parse last update from CSV" in {
     val updates = CsvProcessor.failFastParse(
-      "data/wahapedia/Last_update.csv",
+      "../data/wahapedia/Last_update.csv",
       LastUpdateParser
     ).unsafeRunSync()
 

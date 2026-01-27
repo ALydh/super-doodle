@@ -81,7 +81,7 @@ class SourceParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   "parseStream integration" should "parse all sources from Source.csv" in {
     val sources = CsvProcessor.failFastParse(
-      "data/wahapedia/Source.csv",
+      "../data/wahapedia/Source.csv",
       SourceParser
     ).unsafeRunSync()
 
@@ -90,7 +90,7 @@ class SourceParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find Boarding Actions source" in {
     val sources = CsvProcessor.failFastParse(
-      "data/wahapedia/Source.csv",
+      "../data/wahapedia/Source.csv",
       SourceParser
     ).unsafeRunSync()
 
@@ -100,7 +100,7 @@ class SourceParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find sources with different types" in {
     val sources = CsvProcessor.failFastParse(
-      "data/wahapedia/Source.csv",
+      "../data/wahapedia/Source.csv",
       SourceParser
     ).unsafeRunSync()
 

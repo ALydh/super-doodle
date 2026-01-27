@@ -45,7 +45,7 @@ class WargearParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   "parseStream integration" should "parse all wargear from Datasheets_wargear.csv" in {
     val wargear = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_wargear.csv",
+      "../data/wahapedia/Datasheets_wargear.csv",
       WargearParser
     ).unsafeRunSync()
 
@@ -54,7 +54,7 @@ class WargearParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find Kombi-weapon" in {
     val wargear = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_wargear.csv",
+      "../data/wahapedia/Datasheets_wargear.csv",
       WargearParser
     ).unsafeRunSync()
 

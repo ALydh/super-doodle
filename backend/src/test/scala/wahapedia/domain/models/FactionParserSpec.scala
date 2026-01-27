@@ -108,7 +108,7 @@ class FactionParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   "parseStream integration" should "parse all factions from Factions.csv" in {
     val factions = CsvProcessor.failFastParse(
-      "data/wahapedia/Factions.csv",
+      "../data/wahapedia/Factions.csv",
       FactionParser
     ).unsafeRunSync()
 
@@ -118,7 +118,7 @@ class FactionParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find Imperial Agents faction" in {
     val factions = CsvProcessor.failFastParse(
-      "data/wahapedia/Factions.csv",
+      "../data/wahapedia/Factions.csv",
       FactionParser
     ).unsafeRunSync()
 
@@ -128,7 +128,7 @@ class FactionParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find Astra Militarum faction" in {
     val factions = CsvProcessor.failFastParse(
-      "data/wahapedia/Factions.csv",
+      "../data/wahapedia/Factions.csv",
       FactionParser
     ).unsafeRunSync()
 
@@ -137,7 +137,7 @@ class FactionParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "skip header row" in {
     val factions = CsvProcessor.failFastParse(
-      "data/wahapedia/Factions.csv",
+      "../data/wahapedia/Factions.csv",
       FactionParser
     ).unsafeRunSync()
 

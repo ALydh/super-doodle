@@ -83,7 +83,7 @@ object Main extends IOApp.Simple {
   ): IO[List[A]] = {
     for {
       _ <- IO.println(s"Parsing $filename...")
-      result <- CsvProcessor.failFastParse(s"data/wahapedia/$filename", parser)
+      result <- CsvProcessor.failFastParse(s"../data/wahapedia/$filename", parser)
       _ <- IO.println(s"Parsed ${result.length} records from $filename")
     } yield result
   }

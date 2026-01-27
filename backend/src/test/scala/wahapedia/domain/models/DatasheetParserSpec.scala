@@ -138,7 +138,7 @@ class DatasheetParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   "parseStream integration" should "parse all datasheets from Datasheets.csv" in {
     val datasheets = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets.csv",
+      "../data/wahapedia/Datasheets.csv",
       DatasheetParser
     ).unsafeRunSync()
 
@@ -147,7 +147,7 @@ class DatasheetParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find Custodian Guard datasheet" in {
     val datasheets = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets.csv",
+      "../data/wahapedia/Datasheets.csv",
       DatasheetParser
     ).unsafeRunSync()
 
@@ -159,7 +159,7 @@ class DatasheetParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find datasheets with transport capacity" in {
     val datasheets = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets.csv",
+      "../data/wahapedia/Datasheets.csv",
       DatasheetParser
     ).unsafeRunSync()
 
@@ -169,7 +169,7 @@ class DatasheetParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   it should "find datasheets with damage degradation" in {
     val datasheets = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets.csv",
+      "../data/wahapedia/Datasheets.csv",
       DatasheetParser
     ).unsafeRunSync()
 

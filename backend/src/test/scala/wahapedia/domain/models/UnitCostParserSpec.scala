@@ -21,7 +21,7 @@ class UnitCostParserSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   "parseStream integration" should "parse all costs" in {
     val costs = CsvProcessor.failFastParse(
-      "data/wahapedia/Datasheets_models_cost.csv",
+      "../data/wahapedia/Datasheets_models_cost.csv",
       UnitCostParser
     ).unsafeRunSync()
 
