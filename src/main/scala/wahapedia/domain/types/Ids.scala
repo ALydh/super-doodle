@@ -7,6 +7,7 @@ opaque type DatasheetId = String
 opaque type FactionId = String
 opaque type AbilityId = String
 opaque type SourceId = String
+opaque type DetachmentId = String
 
 object DatasheetId {
   def apply(id: String): DatasheetId = id
@@ -44,6 +45,16 @@ object SourceId {
 
   def parse(id: String): Either[ParseError, SourceId] = {
     if (id.matches("\\d{9}")) Right(SourceId(id))
+    else Left(InvalidId(id))
+  }
+}
+
+object DetachmentId {
+  def apply(id: String): DetachmentId = id
+  def value(id: DetachmentId): String = id
+
+  def parse(id: String): Either[ParseError, DetachmentId] = {
+    if (id.nonEmpty) Right(DetachmentId(id))
     else Left(InvalidId(id))
   }
 }
