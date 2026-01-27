@@ -1,0 +1,54 @@
+[
+  {
+    "name": "org.sqlite.JDBC",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "java.sql.Connection",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "java.sql.Statement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "java.sql.ResultSet",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.http4s.Header$Raw",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "io.circe.Json",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  }
+]

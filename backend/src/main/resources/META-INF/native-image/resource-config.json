@@ -1,0 +1,10 @@
+{
+  "resources": {
+    "includes": [
+      { "pattern": "\\.csv$" },
+      { "pattern": "application\\.conf.*" },
+      { "pattern": "\\.json$" },
+      { "pattern": "\\.properties$" }
+    ]
+  }
+}

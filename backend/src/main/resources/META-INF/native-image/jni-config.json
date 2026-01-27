@@ -1,0 +1,13 @@
+[
+  {
+    "name": "org.sqlite.NativeDB",
+    "jars": ["sqlite-jdbc"],
+    "methods": [
+      "open",
+      "close",
+      "exec",
+      "prepare",
+      "get_table_column_metadata"
+    ]
+  }
+]
