@@ -34,8 +34,8 @@ case class InvalidId(
   def field: String = "id"
 }
 
-case class ParseException(error: ParseError) 
-  extends RuntimeException(ParseError.formatError(error))
+case class ParseException(error: ParseError)
+  extends Throwable(ParseError.formatError(error))
 
 object ParseError {
   def formatError(error: ParseError): String = {

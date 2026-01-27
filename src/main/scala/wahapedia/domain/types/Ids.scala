@@ -31,9 +31,9 @@ object FactionId {
 object AbilityId {
   def apply(id: String): AbilityId = id
   def value(id: AbilityId): String = id
-  
+
   def parse(id: String): Either[ParseError, AbilityId] = {
-    if (id.matches("[a-z]{3}\\d{3}")) Right(AbilityId(id))
+    if (id.matches("\\d{9}")) Right(AbilityId(id))
     else Left(InvalidId(id))
   }
 }
@@ -41,9 +41,9 @@ object AbilityId {
 object SourceId {
   def apply(id: String): SourceId = id
   def value(id: SourceId): String = id
-  
+
   def parse(id: String): Either[ParseError, SourceId] = {
-    if (id.nonEmpty) Right(SourceId(id))
+    if (id.matches("\\d{9}")) Right(SourceId(id))
     else Left(InvalidId(id))
   }
 }
