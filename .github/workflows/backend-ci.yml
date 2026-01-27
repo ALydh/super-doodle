@@ -1,0 +1,36 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "backend/**"
+  pull_request:
+    branches: [master]
+    paths:
+      - "backend/**"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Set up sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Compile
+        run: sbt compile
+
+      - name: Run tests
+        run: sbt test
