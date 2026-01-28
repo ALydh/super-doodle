@@ -45,6 +45,8 @@ object AbilityId {
     if (id.matches("\\d{9}")) Right(AbilityId(id))
     else Left(InvalidId(id))
   }
+
+  given Encoder[AbilityId] = Encoder.encodeString.contramap(value)
 }
 
 object SourceId {

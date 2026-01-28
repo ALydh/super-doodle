@@ -18,7 +18,7 @@ export function DatasheetDetailPage() {
   if (error) return <div data-testid="error">{error}</div>;
   if (!detail) return <div>Loading...</div>;
 
-  const { datasheet, profiles, wargear, costs, keywords } = detail;
+  const { datasheet, profiles, wargear, costs, keywords, abilities } = detail;
 
   return (
     <div>
@@ -117,6 +117,23 @@ export function DatasheetDetailPage() {
               ))}
             </tbody>
           </table>
+        </>
+      )}
+
+      {abilities.length > 0 && (
+        <>
+          <h2>Abilities</h2>
+          <ul data-testid="abilities-list">
+            {abilities
+              .filter((a) => a.name)
+              .map((a, i) => (
+                <li key={i} data-testid="ability-item">
+                  <strong>{a.name}</strong>
+                  {a.abilityType && <span> ({a.abilityType})</span>}
+                  {a.description && <p>{a.description}</p>}
+                </li>
+              ))}
+          </ul>
         </>
       )}
 

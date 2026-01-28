@@ -28,7 +28,8 @@ case class DatasheetDetail(
   profiles: List[ModelProfile],
   wargear: List[Wargear],
   costs: List[UnitCost],
-  keywords: List[DatasheetKeyword]
+  keywords: List[DatasheetKeyword],
+  abilities: List[DatasheetAbility]
 )
 
 case class CreateArmyRequest(name: String, army: Army)
@@ -256,7 +257,8 @@ object HttpServer {
                 wargear <- ReferenceDataRepository.wargearForDatasheet(datasheetId)(xa)
                 costs <- ReferenceDataRepository.unitCostsForDatasheet(datasheetId)(xa)
                 keywords <- ReferenceDataRepository.keywordsForDatasheet(datasheetId)(xa)
-                resp <- Ok(DatasheetDetail(datasheet, profiles, wargear, costs, keywords))
+                abilities <- ReferenceDataRepository.abilitiesForDatasheet(datasheetId)(xa)
+                resp <- Ok(DatasheetDetail(datasheet, profiles, wargear, costs, keywords, abilities))
               } yield resp
           }
         case Left(_) =>

@@ -91,6 +91,10 @@ object ReferenceDataRepository {
     sql"SELECT datasheet_id, line, ability_id, model, name, description, ability_type, parameter FROM datasheet_abilities"
       .query[DatasheetAbility].to[List].transact(xa)
 
+  def abilitiesForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
+    sql"SELECT datasheet_id, line, ability_id, model, name, description, ability_type, parameter FROM datasheet_abilities WHERE datasheet_id = $datasheetId"
+      .query[DatasheetAbility].to[List].transact(xa)
+
   def allDatasheetOptions(xa: Transactor[IO]): IO[List[DatasheetOption]] =
     sql"SELECT datasheet_id, line, button, description FROM datasheet_options"
       .query[DatasheetOption].to[List].transact(xa)

@@ -73,6 +73,7 @@ export interface DatasheetDetail {
   wargear: Wargear[];
   costs: UnitCost[];
   keywords: DatasheetKeyword[];
+  abilities: DatasheetAbility[];
 }
 
 export type BattleSize = "Incursion" | "StrikeForce" | "Onslaught";
@@ -167,4 +168,15 @@ export interface DetachmentAbility {
   description: string;
   detachment: string;
   detachmentId: string;
+}
+
+export interface DatasheetAbility {
+  datasheetId: string;
+  line: number;
+  abilityId: string | null;
+  model: string | null;
+  name: string | null;
+  description: string | null;
+  abilityType: string | null;
+  parameter: string | null;
 }

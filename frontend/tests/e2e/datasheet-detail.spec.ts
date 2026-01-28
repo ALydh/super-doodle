@@ -58,3 +58,24 @@ test('unit detail stats match API response', async ({ page, request }) => {
     await expect(firstCostRow.getByTestId('cost-value')).toHaveText(String(detail.costs[0].cost));
   }
 });
+
+test('datasheet detail shows abilities section', async ({ page, request }) => {
+  await page.goto('/factions/NEC');
+  await expect(page.getByTestId('datasheet-list')).toBeVisible();
+
+  await page.getByTestId('datasheet-item').first().getByRole('link').click();
+  await expect(page.getByTestId('unit-name')).toBeVisible();
+
+  const url = page.url();
+  const datasheetId = url.split('/datasheets/')[1];
+
+  const apiResponse = await request.get(`${API_BASE}/api/datasheets/${datasheetId}`);
+  const detail = await apiResponse.json();
+
+  const abilitiesWithNames = detail.abilities.filter((a: { name: string | null }) => a.name);
+  if (abilitiesWithNames.length > 0) {
+    await expect(page.getByTestId('abilities-list')).toBeVisible();
+    const items = page.getByTestId('ability-item');
+    await expect(items).toHaveCount(abilitiesWithNames.length);
+  }
+});
