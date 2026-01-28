@@ -74,6 +74,7 @@ export interface DatasheetDetail {
   costs: UnitCost[];
   keywords: DatasheetKeyword[];
   abilities: DatasheetAbility[];
+  stratagems: Stratagem[];
 }
 
 export type BattleSize = "Incursion" | "StrikeForce" | "Onslaught";

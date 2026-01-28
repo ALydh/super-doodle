@@ -117,6 +117,14 @@ object ReferenceDataRepository {
     sql"SELECT datasheet_id, stratagem_id FROM datasheet_stratagems"
       .query[DatasheetStratagem].to[List].transact(xa)
 
+  def stratagemsByDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[Stratagem]] =
+    sql"""SELECT s.faction_id, s.name, s.id, s.stratagem_type, s.cp_cost, s.legend, s.turn, s.phase,
+           s.detachment, s.detachment_id, s.description
+           FROM stratagems s
+           JOIN datasheet_stratagems ds ON ds.stratagem_id = s.id
+           WHERE ds.datasheet_id = $datasheetId"""
+      .query[Stratagem].to[List].transact(xa)
+
   def allEnhancements(xa: Transactor[IO]): IO[List[Enhancement]] =
     sql"SELECT faction_id, id, name, cost, detachment, detachment_id, legend, description FROM enhancements"
       .query[Enhancement].to[List].transact(xa)

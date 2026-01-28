@@ -18,7 +18,7 @@ export function DatasheetDetailPage() {
   if (error) return <div data-testid="error">{error}</div>;
   if (!detail) return <div>Loading...</div>;
 
-  const { datasheet, profiles, wargear, costs, keywords, abilities } = detail;
+  const { datasheet, profiles, wargear, costs, keywords, abilities, stratagems } = detail;
 
   return (
     <div>
@@ -133,6 +133,22 @@ export function DatasheetDetailPage() {
                   {a.description && <p>{a.description}</p>}
                 </li>
               ))}
+          </ul>
+        </>
+      )}
+
+      {stratagems.length > 0 && (
+        <>
+          <h2>Unit Stratagems</h2>
+          <ul data-testid="unit-stratagems-list">
+            {stratagems.map((s) => (
+              <li key={s.id} data-testid="unit-stratagem-item">
+                <strong>{s.name}</strong>
+                {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
+                {s.phase && <span> - {s.phase}</span>}
+                <p>{s.description}</p>
+              </li>
+            ))}
           </ul>
         </>
       )}

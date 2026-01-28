@@ -79,3 +79,23 @@ test('datasheet detail shows abilities section', async ({ page, request }) => {
     await expect(items).toHaveCount(abilitiesWithNames.length);
   }
 });
+
+test('datasheet detail shows unit-specific stratagems', async ({ page, request }) => {
+  await page.goto('/factions/NEC');
+  await expect(page.getByTestId('datasheet-list')).toBeVisible();
+
+  await page.getByTestId('datasheet-item').first().getByRole('link').click();
+  await expect(page.getByTestId('unit-name')).toBeVisible();
+
+  const url = page.url();
+  const datasheetId = url.split('/datasheets/')[1];
+
+  const apiResponse = await request.get(`${API_BASE}/api/datasheets/${datasheetId}`);
+  const detail = await apiResponse.json();
+
+  if (detail.stratagems.length > 0) {
+    await expect(page.getByTestId('unit-stratagems-list')).toBeVisible();
+    const items = page.getByTestId('unit-stratagem-item');
+    await expect(items).toHaveCount(detail.stratagems.length);
+  }
+});
