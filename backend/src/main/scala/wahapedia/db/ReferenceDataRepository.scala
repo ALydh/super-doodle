@@ -29,6 +29,12 @@ object ReferenceDataRepository {
            FROM datasheets"""
       .query[Datasheet].to[List].transact(xa)
 
+  def datasheetById(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[Option[Datasheet]] =
+    sql"""SELECT id, name, faction_id, source_id, legend, role, loadout, transport,
+           virtual, leader_head, leader_footer, damaged_w, damaged_description, link
+           FROM datasheets WHERE id = $datasheetId"""
+      .query[Datasheet].option.transact(xa)
+
   def datasheetsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[Datasheet]] =
     sql"""SELECT id, name, faction_id, source_id, legend, role, loadout, transport,
            virtual, leader_head, leader_footer, damaged_w, damaged_description, link
@@ -130,6 +136,19 @@ object ReferenceDataRepository {
   def lastUpdate(xa: Transactor[IO]): IO[List[LastUpdate]] =
     sql"SELECT timestamp FROM last_update"
       .query[LastUpdate].to[List].transact(xa)
+
+  case class DetachmentInfo(name: String, detachmentId: String)
+
+  def detachmentsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DetachmentInfo]] =
+    sql"SELECT DISTINCT detachment, detachment_id FROM detachment_abilities WHERE faction_id = $factionId"
+      .query[DetachmentInfo].to[List].transact(xa)
+
+  def leadersByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DatasheetLeader]] =
+    sql"""SELECT dl.leader_id, dl.attached_id
+          FROM datasheet_leaders dl
+          JOIN datasheets d ON dl.leader_id = d.id
+          WHERE d.faction_id = $factionId"""
+      .query[DatasheetLeader].to[List].transact(xa)
 
   def loadReferenceData(xa: Transactor[IO]): IO[ReferenceData] =
     for {

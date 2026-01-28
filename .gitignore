@@ -5,6 +5,13 @@ backend/project/project/
 
 frontend/node_modules/
 frontend/dist/
+frontend/playwright-report/
+frontend/test-results/
 
-TODO.md
+.metals/
+.bloop/
+.bsp/
+
+*.log
 *.db
+TODO.md
