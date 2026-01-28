@@ -158,3 +158,13 @@ export interface Stratagem {
   detachmentId: string | null;
   description: string;
 }
+
+export interface DetachmentAbility {
+  id: string;
+  factionId: string;
+  name: string;
+  legend: string | null;
+  description: string;
+  detachment: string;
+  detachmentId: string;
+}

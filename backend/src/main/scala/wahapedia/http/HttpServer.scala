@@ -262,6 +262,8 @@ object HttpServer {
         case Left(_) =>
           BadRequest(Json.obj("error" -> Json.fromString(s"Invalid datasheet ID: $datasheetIdStr")))
       }
+    case GET -> Root / "api" / "detachments" / detachmentIdStr / "abilities" =>
+      ReferenceDataRepository.detachmentAbilitiesByDetachmentId(detachmentIdStr)(xa).flatMap(Ok(_))
     case req @ POST -> Root / "api" / "armies" / "validate" =>
       req.as[Army].flatMap { army =>
         validateArmy(army, xa).flatMap(Ok(_))

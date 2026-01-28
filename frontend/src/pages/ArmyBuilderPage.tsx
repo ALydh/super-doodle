@@ -2,13 +2,13 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
-  DetachmentInfo, DatasheetLeader, ValidationError, Army,
+  DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility,
 } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import {
   fetchDatasheetsByFaction, fetchDetachmentsByFaction,
   fetchEnhancementsByFaction, fetchLeadersByFaction,
-  fetchArmy, createArmy, updateArmy, validateArmy,
+  fetchArmy, createArmy, updateArmy, validateArmy, fetchDetachmentAbilities,
 } from "../api";
 import { fetchDatasheetDetail } from "../api";
 import { UnitPicker } from "./UnitPicker";
@@ -32,6 +32,8 @@ export function ArmyBuilderPage() {
   const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [leaders, setLeaders] = useState<DatasheetLeader[]>([]);
+  const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
+  const [abilitiesExpanded, setAbilitiesExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [resolvedFactionId, setResolvedFactionId] = useState<string>("");
 
@@ -76,6 +78,11 @@ export function ArmyBuilderPage() {
       setLoading(false);
     });
   }, [resolvedFactionId]);
+
+  useEffect(() => {
+    if (!detachmentId) return;
+    fetchDetachmentAbilities(detachmentId).then(setDetachmentAbilities);
+  }, [detachmentId]);
 
   const buildArmy = useCallback((): Army | null => {
     if (!resolvedFactionId || !detachmentId) return null;
@@ -185,6 +192,27 @@ export function ArmyBuilderPage() {
           </select>
         </label>
       </div>
+
+      {detachmentAbilities.length > 0 && (
+        <div data-testid="detachment-abilities-section">
+          <button
+            data-testid="detachment-abilities-toggle"
+            onClick={() => setAbilitiesExpanded(!abilitiesExpanded)}
+          >
+            Detachment Abilities ({detachmentAbilities.length}) {abilitiesExpanded ? "▼" : "▶"}
+          </button>
+          {abilitiesExpanded && (
+            <ul data-testid="detachment-abilities-list">
+              {detachmentAbilities.map((a) => (
+                <li key={a.id} data-testid="detachment-ability-item">
+                  <strong>{a.name}</strong>
+                  <p>{a.description}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div data-testid="points-total">
         Points: {pointsTotal} / {BATTLE_SIZE_POINTS[battleSize]}

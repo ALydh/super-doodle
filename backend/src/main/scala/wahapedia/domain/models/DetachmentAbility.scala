@@ -5,6 +5,7 @@ import wahapedia.errors.{ParseError, ParseException}
 import wahapedia.csv.{StreamingCsvParser, CsvParsing}
 import cats.effect.IO
 import cats.syntax.either.*
+import io.circe.Encoder
 
 opaque type DetachmentAbilityId = String
 
@@ -16,6 +17,8 @@ object DetachmentAbilityId {
     if (id.nonEmpty) Right(DetachmentAbilityId(id))
     else Left(wahapedia.errors.InvalidId(id))
   }
+
+  given Encoder[DetachmentAbilityId] = Encoder.encodeString.contramap(value)
 }
 
 case class DetachmentAbility(

@@ -1,7 +1,7 @@
 import type {
   Faction, Datasheet, DatasheetDetail, DetachmentInfo,
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
-  Army, ValidationResponse, Stratagem,
+  Army, ValidationResponse, Stratagem, DetachmentAbility,
 } from "./types";
 
 export async function fetchFactions(): Promise<Faction[]> {
@@ -43,6 +43,12 @@ export async function fetchLeadersByFaction(factionId: string): Promise<Datashee
 export async function fetchStratagemsByFaction(factionId: string): Promise<Stratagem[]> {
   const res = await fetch(`/api/factions/${factionId}/stratagems`);
   if (!res.ok) throw new Error(`Failed to fetch stratagems: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchDetachmentAbilities(detachmentId: string): Promise<DetachmentAbility[]> {
+  const res = await fetch(`/api/detachments/${detachmentId}/abilities`);
+  if (!res.ok) throw new Error(`Failed to fetch detachment abilities: ${res.status}`);
   return res.json();
 }
 

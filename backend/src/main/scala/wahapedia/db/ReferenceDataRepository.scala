@@ -129,6 +129,10 @@ object ReferenceDataRepository {
     sql"SELECT id, faction_id, name, legend, description, detachment, detachment_id FROM detachment_abilities"
       .query[DetachmentAbility].to[List].transact(xa)
 
+  def detachmentAbilitiesByDetachmentId(detachmentId: String)(xa: Transactor[IO]): IO[List[DetachmentAbility]] =
+    sql"SELECT id, faction_id, name, legend, description, detachment, detachment_id FROM detachment_abilities WHERE detachment_id = $detachmentId"
+      .query[DetachmentAbility].to[List].transact(xa)
+
   def allDatasheetDetachmentAbilities(xa: Transactor[IO]): IO[List[DatasheetDetachmentAbility]] =
     sql"SELECT datasheet_id, detachment_ability_id FROM datasheet_detachment_abilities"
       .query[DatasheetDetachmentAbility].to[List].transact(xa)

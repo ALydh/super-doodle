@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 const API_BASE = 'http://localhost:8080';
 const FACTION_ID = 'NEC';
+const DETACHMENT_ID = '000000815';
 
 test('detachment dropdown matches API data', async ({ page, request }) => {
   await page.goto(`/factions/${FACTION_ID}/armies/new`);
@@ -30,4 +31,25 @@ test('available units match faction datasheets', async ({ page, request }) => {
   const nonVirtual = datasheets.filter((ds: { virtual: boolean }) => !ds.virtual);
   const pickerItems = page.getByTestId('unit-picker-item');
   await expect(pickerItems).toHaveCount(nonVirtual.length);
+});
+
+test('detachment abilities appear when selecting a detachment', async ({ page, request }) => {
+  await page.goto(`/factions/${FACTION_ID}/armies/new`);
+  await expect(page.getByTestId('detachment-select')).toBeVisible();
+
+  await page.getByTestId('detachment-select').selectOption(DETACHMENT_ID);
+
+  await expect(page.getByTestId('detachment-abilities-section')).toBeVisible();
+  const toggle = page.getByTestId('detachment-abilities-toggle');
+  await expect(toggle).toBeVisible();
+
+  await toggle.click();
+  await expect(page.getByTestId('detachment-abilities-list')).toBeVisible();
+
+  const apiRes = await request.get(`${API_BASE}/api/detachments/${DETACHMENT_ID}/abilities`);
+  expect(apiRes.ok()).toBeTruthy();
+  const abilities = await apiRes.json();
+
+  const items = page.getByTestId('detachment-ability-item');
+  await expect(items).toHaveCount(abilities.length);
 });
