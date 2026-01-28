@@ -14,11 +14,14 @@ opaque type DetachmentId = String
 object DatasheetId {
   def apply(id: String): DatasheetId = id
   def value(id: DatasheetId): String = id
-  
+
   def parse(id: String): Either[ParseError, DatasheetId] = {
     if (id.matches("\\d{9}")) Right(DatasheetId(id))
     else Left(InvalidId(id))
   }
+
+  given Encoder[DatasheetId] = Encoder.encodeString.contramap(value)
+  given Decoder[DatasheetId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
 }
 
 object FactionId {
@@ -52,6 +55,9 @@ object SourceId {
     if (id.matches("\\d{9}")) Right(SourceId(id))
     else Left(InvalidId(id))
   }
+
+  given Encoder[SourceId] = Encoder.encodeString.contramap(value)
+  given Decoder[SourceId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
 }
 
 object DetachmentId {
@@ -62,4 +68,7 @@ object DetachmentId {
     if (id.nonEmpty) Right(DetachmentId(id))
     else Left(InvalidId(id))
   }
+
+  given Encoder[DetachmentId] = Encoder.encodeString.contramap(value)
+  given Decoder[DetachmentId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
 }

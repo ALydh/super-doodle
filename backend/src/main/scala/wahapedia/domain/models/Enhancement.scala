@@ -3,6 +3,7 @@ package wahapedia.domain.models
 import wahapedia.domain.types.FactionId
 import wahapedia.errors.{ParseError, ParseException}
 import wahapedia.csv.{StreamingCsvParser, CsvParsing}
+import io.circe.{Encoder, Decoder}
 import cats.effect.IO
 import cats.syntax.either.*
 
@@ -16,6 +17,9 @@ object EnhancementId {
     if (id.nonEmpty) Right(EnhancementId(id))
     else Left(wahapedia.errors.InvalidId(id))
   }
+
+  given Encoder[EnhancementId] = Encoder.encodeString.contramap(value)
+  given Decoder[EnhancementId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
 }
 
 case class Enhancement(
