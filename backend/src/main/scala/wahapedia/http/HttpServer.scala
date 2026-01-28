@@ -3,7 +3,7 @@ package wahapedia.http
 import cats.effect.{IO, Resource}
 import cats.implicits.*
 import com.comcast.ip4s.*
-import io.circe.{Json, Encoder, Decoder}
+import io.circe.{Json, Encoder, Decoder, jawn}
 import io.circe.generic.auto.*
 import io.circe.syntax.*
 import org.http4s.*
@@ -134,7 +134,8 @@ case class ArmyUnitRow(
   datasheetId: DatasheetId,
   sizeOptionLine: Int,
   enhancementId: Option[EnhancementId],
-  attachedLeaderId: Option[DatasheetId]
+  attachedLeaderId: Option[DatasheetId],
+  wargearSelections: Option[String]
 )
 
 case class ArmySummary(id: String, name: String, factionId: String, battleSize: String, updatedAt: String)
@@ -146,6 +147,27 @@ object HttpServer {
   given Encoder[UUID] = Encoder.encodeString.contramap(_.toString)
   given Decoder[UUID] = Decoder.decodeString.emap(s =>
     scala.util.Try(UUID.fromString(s)).toEither.left.map(_.getMessage)
+  )
+
+  given Encoder[WargearSelection] = Encoder.forProduct3("optionLine", "selected", "notes")(
+    (w: WargearSelection) => (w.optionLine, w.selected, w.notes)
+  )
+  given Decoder[WargearSelection] = Decoder.forProduct3("optionLine", "selected", "notes")(
+    WargearSelection.apply
+  )
+  
+  given Encoder[ArmyUnit] = Encoder.forProduct5("datasheetId", "sizeOptionLine", "enhancementId", "attachedLeaderId", "wargearSelections")(
+    (u: ArmyUnit) => (u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, u.wargearSelections)
+  )
+  given Decoder[ArmyUnit] = Decoder.forProduct5("datasheetId", "sizeOptionLine", "enhancementId", "attachedLeaderId", "wargearSelections")(
+    ArmyUnit.apply
+  )
+  
+  given Encoder[Army] = Encoder.forProduct5("factionId", "battleSize", "detachmentId", "warlordId", "units")(
+    (a: Army) => (a.factionId, a.battleSize, a.detachmentId, a.warlordId, a.units)
+  )
+  given Decoder[Army] = Decoder.forProduct5("factionId", "battleSize", "detachmentId", "warlordId", "units")(
+    Army.apply
   )
 
   def createServer(port: Int, xa: Transactor[IO]): Resource[IO, org.http4s.server.Server] =
@@ -162,9 +184,19 @@ object HttpServer {
       result <- rowOpt match {
         case None => IO.pure(None)
         case Some(row) =>
-          sql"SELECT id, army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id FROM army_units WHERE army_id = $armyId"
+          sql"SELECT id, army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections FROM army_units WHERE army_id = $armyId"
             .query[ArmyUnitRow].to[List].transact(xa).map { unitRows =>
-              val units = unitRows.map(u => ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId))
+              val units = unitRows.map { u =>
+                val wargearSelections = u.wargearSelections match {
+                  case None => List.empty[WargearSelection]
+                  case Some(jsonStr) => 
+                    jawn.decode[List[WargearSelection]](jsonStr) match {
+                      case Right(selections) => selections
+                      case Left(_) => List.empty[WargearSelection]
+                    }
+                }
+                ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, wargearSelections)
+              }
               val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units)
               Some(PersistedArmy(row.id, row.name, army, row.createdAt, row.updatedAt))
             }
@@ -176,8 +208,9 @@ object HttpServer {
       _ <- sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, created_at, updated_at)
                  VALUES ($armyId, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $now, $now)""".update.run
       _ <- army.units.traverse_ { unit =>
-        sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id)
-              VALUES ($armyId, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId})""".update.run
+        val wargearJson = if (unit.wargearSelections.isEmpty) None else Some(unit.wargearSelections.asJson.noSpaces)
+        sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections)
+              VALUES ($armyId, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId}, $wargearJson)""".update.run
       }
     } yield ()).transact(xa)
 
@@ -188,8 +221,9 @@ object HttpServer {
                  WHERE id = $armyId""".update.run
       _ <- sql"DELETE FROM army_units WHERE army_id = $armyId".update.run
       _ <- army.units.traverse_ { unit =>
-        sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id)
-              VALUES ($armyId, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId})""".update.run
+        val wargearJson = if (unit.wargearSelections.isEmpty) None else Some(unit.wargearSelections.asJson.noSpaces)
+        sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections)
+              VALUES ($armyId, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId}, $wargearJson)""".update.run
       }
     } yield ()).transact(xa)
 

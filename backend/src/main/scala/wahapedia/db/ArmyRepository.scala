@@ -6,10 +6,14 @@ import cats.effect.IO
 import cats.implicits.*
 import java.util.UUID
 import java.time.Instant
-import wahapedia.domain.army.{Army, ArmyUnit}
+import wahapedia.domain.army.{Army, ArmyUnit, WargearSelection}
 import wahapedia.domain.types.*
 import wahapedia.domain.models.EnhancementId
 import DoobieMeta.given
+import io.circe.{jawn, Encoder, Decoder}
+import io.circe.syntax.*
+import io.circe.generic.auto.*
+import io.circe.syntax.*
 
 case class PersistedArmy(
   id: UUID,
@@ -28,8 +32,9 @@ object ArmyRepository {
       _ <- sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, created_at, updated_at)
                  VALUES (${id.toString}, $name, ${army.factionId}, ${army.battleSize.toString}, ${army.detachmentId}, ${army.warlordId}, $now, $now)""".update.run
       _ <- army.units.traverse_ { unit =>
-        sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id)
-              VALUES (${id.toString}, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId})""".update.run
+        val wargearJson = if (unit.wargearSelections.isEmpty) None else Some(unit.wargearSelections.asJson.noSpaces)
+        sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections)
+              VALUES (${id.toString}, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId}, $wargearJson)""".update.run
       }
     } yield ()
     insert.transact(xa).as(PersistedArmy(id, name, army, now, now))
@@ -43,9 +48,21 @@ object ArmyRepository {
         .option
       result <- armyRow.traverse { case (_, name, factionId, battleSizeStr, detachmentId, warlordId, createdAt, updatedAt) =>
         val battleSize = parseBattleSize(battleSizeStr)
-        sql"""SELECT datasheet_id, size_option_line, enhancement_id, attached_leader_id
+        sql"""SELECT datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections
               FROM army_units WHERE army_id = ${id.toString}"""
-          .query[ArmyUnit].to[List].map { units =>
+          .query[(DatasheetId, Int, Option[EnhancementId], Option[DatasheetId], Option[String])]
+          .to[List].map { unitRows =>
+            val units = unitRows.map { case (datasheetId, sizeOptionLine, enhancementId, attachedLeaderId, wargearSelections) =>
+              val wargear = wargearSelections match {
+                case None => List.empty[WargearSelection]
+                case Some(jsonStr) => 
+                  jawn.decode[List[WargearSelection]](jsonStr) match {
+                    case Right(selections) => selections
+                    case Left(_) => List.empty[WargearSelection]
+                  }
+              }
+              ArmyUnit(datasheetId, sizeOptionLine, enhancementId, attachedLeaderId, wargear)
+            }
             PersistedArmy(id, name, Army(factionId, battleSize, detachmentId, warlordId, units), createdAt, updatedAt)
           }
       }
@@ -60,9 +77,21 @@ object ArmyRepository {
       armies <- rows.traverse { case (idStr, name, fId, battleSizeStr, detachmentId, warlordId, createdAt, updatedAt) =>
         val id = UUID.fromString(idStr)
         val battleSize = parseBattleSize(battleSizeStr)
-        sql"""SELECT datasheet_id, size_option_line, enhancement_id, attached_leader_id
+        sql"""SELECT datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections
               FROM army_units WHERE army_id = $idStr"""
-          .query[ArmyUnit].to[List].map { units =>
+          .query[(DatasheetId, Int, Option[EnhancementId], Option[DatasheetId], Option[String])]
+          .to[List].map { unitRows =>
+            val units = unitRows.map { case (datasheetId, sizeOptionLine, enhancementId, attachedLeaderId, wargearSelections) =>
+              val wargear = wargearSelections match {
+                case None => List.empty[WargearSelection]
+                case Some(jsonStr) => 
+                  jawn.decode[List[WargearSelection]](jsonStr) match {
+                    case Right(selections) => selections
+                    case Left(_) => List.empty[WargearSelection]
+                  }
+              }
+              ArmyUnit(datasheetId, sizeOptionLine, enhancementId, attachedLeaderId, wargear)
+            }
             PersistedArmy(id, name, Army(fId, battleSize, detachmentId, warlordId, units), createdAt, updatedAt)
           }
       }
@@ -80,8 +109,9 @@ object ArmyRepository {
                      warlord_id = ${army.warlordId}, updated_at = $now
                      WHERE id = ${id.toString}""".update.run
           _ <- army.units.traverse_ { unit =>
-            sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id)
-                  VALUES (${id.toString}, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId})""".update.run
+            val wargearJson = if (unit.wargearSelections.isEmpty) None else Some(unit.wargearSelections.asJson.noSpaces)
+            sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections)
+                  VALUES (${id.toString}, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId}, $wargearJson)""".update.run
           }
           createdAt <- sql"SELECT created_at FROM armies WHERE id = ${id.toString}".query[String].unique
         } yield PersistedArmy(id, name, army, createdAt, now)

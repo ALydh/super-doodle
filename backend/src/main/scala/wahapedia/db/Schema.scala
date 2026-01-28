@@ -203,6 +203,7 @@ object Schema {
       size_option_line INTEGER NOT NULL,
       enhancement_id TEXT,
       attached_leader_id TEXT,
+      wargear_selections TEXT,
       FOREIGN KEY (army_id) REFERENCES armies(id) ON DELETE CASCADE
     )"""
   )

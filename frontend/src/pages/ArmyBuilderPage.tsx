@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
-  DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem,
+  DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem, DatasheetOption,
 } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import {
@@ -33,6 +33,7 @@ export function ArmyBuilderPage() {
   const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [leaders, setLeaders] = useState<DatasheetLeader[]>([]);
+  const [allOptions, setAllOptions] = useState<DatasheetOption[]>([]);
   const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
   const [abilitiesExpanded, setAbilitiesExpanded] = useState(false);
   const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
@@ -48,7 +49,12 @@ export function ArmyBuilderPage() {
         setName(persisted.name);
         setBattleSize(persisted.army.battleSize);
         setDetachmentId(persisted.army.detachmentId);
-        setUnits(persisted.army.units);
+        // Ensure backward compatibility for units without wargearSelections
+        const unitsWithWargear = persisted.army.units.map(unit => ({
+          ...unit,
+          wargearSelections: unit.wargearSelections ?? []
+        }));
+        setUnits(unitsWithWargear);
         setWarlordId(persisted.army.warlordId);
         setResolvedFactionId(persisted.army.factionId);
       });
@@ -79,7 +85,9 @@ export function ArmyBuilderPage() {
       return Promise.all(dsIds.map((id) => fetchDatasheetDetail(id)));
     }).then((details) => {
       const costs = details.flatMap((d) => d.costs);
+      const options = details.flatMap((d) => d.options);
       setAllCosts(costs);
+      setAllOptions(options);
       setLoading(false);
     });
   }, [resolvedFactionId]);
@@ -121,10 +129,11 @@ export function ArmyBuilderPage() {
   }, 0);
 
   const handleAddUnit = (datasheetId: string, sizeOptionLine: number) => {
-    setUnits([...units, { datasheetId, sizeOptionLine, enhancementId: null, attachedLeaderId: null }]);
+    setUnits([...units, { datasheetId, sizeOptionLine, enhancementId: null, attachedLeaderId: null, wargearSelections: [] }]);
   };
 
   const handleUpdateUnit = (index: number, unit: ArmyUnit) => {
+    console.log('=== ArmyBuilder handleUpdateUnit called ===', index, 'with:', JSON.stringify(unit, null, 2));
     const next = [...units];
     next[index] = unit;
     setUnits(next);
@@ -141,6 +150,7 @@ export function ArmyBuilderPage() {
   const handleSave = async () => {
     const army = buildArmy();
     if (!army) return;
+    console.log('Saving army with units:', JSON.stringify(army.units, null, 2));
     if (isEdit && armyId) {
       await updateArmy(armyId, name, army);
       navigate(`/armies/${armyId}`);
@@ -259,6 +269,7 @@ export function ArmyBuilderPage() {
             <th>Size</th>
             <th>Enhancement</th>
             <th>Leader</th>
+            <th>Wargear</th>
             <th>Cost</th>
             <th>Warlord</th>
             <th></th>
@@ -277,6 +288,7 @@ export function ArmyBuilderPage() {
               )}
               leaders={leaders}
               datasheets={datasheets}
+              options={allOptions}
               isWarlord={warlordId === unit.datasheetId}
               onUpdate={handleUpdateUnit}
               onRemove={handleRemoveUnit}

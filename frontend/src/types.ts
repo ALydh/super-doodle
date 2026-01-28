@@ -86,11 +86,18 @@ export const BATTLE_SIZE_POINTS: Record<BattleSize, number> = {
   Onslaught: 3000,
 };
 
+export interface WargearSelection {
+  optionLine: number;
+  selected: boolean;
+  notes: string | null;
+}
+
 export interface ArmyUnit {
   datasheetId: string;
   sizeOptionLine: number;
   enhancementId: string | null;
   attachedLeaderId: string | null;
+  wargearSelections: WargearSelection[];
 }
 
 export interface Army {
