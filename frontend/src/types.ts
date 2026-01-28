@@ -144,3 +144,17 @@ export interface ValidationResponse {
   valid: boolean;
   errors: ValidationError[];
 }
+
+export interface Stratagem {
+  factionId: string | null;
+  name: string;
+  id: string;
+  stratagemType: string | null;
+  cpCost: number | null;
+  legend: string | null;
+  turn: string | null;
+  phase: string | null;
+  detachment: string | null;
+  detachmentId: string | null;
+  description: string;
+}

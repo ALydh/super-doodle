@@ -1,7 +1,7 @@
 import type {
   Faction, Datasheet, DatasheetDetail, DetachmentInfo,
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
-  Army, ValidationResponse,
+  Army, ValidationResponse, Stratagem,
 } from "./types";
 
 export async function fetchFactions(): Promise<Faction[]> {
@@ -37,6 +37,12 @@ export async function fetchEnhancementsByFaction(factionId: string): Promise<Enh
 export async function fetchLeadersByFaction(factionId: string): Promise<DatasheetLeader[]> {
   const res = await fetch(`/api/factions/${factionId}/leaders`);
   if (!res.ok) throw new Error(`Failed to fetch leaders: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchStratagemsByFaction(factionId: string): Promise<Stratagem[]> {
+  const res = await fetch(`/api/factions/${factionId}/stratagems`);
+  if (!res.ok) throw new Error(`Failed to fetch stratagems: ${res.status}`);
   return res.json();
 }
 

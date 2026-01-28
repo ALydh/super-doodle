@@ -1,18 +1,25 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import type { Datasheet } from "../types";
-import { fetchDatasheetsByFaction } from "../api";
+import type { Datasheet, Stratagem } from "../types";
+import { fetchDatasheetsByFaction, fetchStratagemsByFaction } from "../api";
 import { ArmyListSection } from "./ArmyListSection";
 
 export function FactionDetailPage() {
   const { factionId } = useParams<{ factionId: string }>();
   const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
+  const [stratagems, setStratagems] = useState<Stratagem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!factionId) return;
-    fetchDatasheetsByFaction(factionId)
-      .then(setDatasheets)
+    Promise.all([
+      fetchDatasheetsByFaction(factionId),
+      fetchStratagemsByFaction(factionId),
+    ])
+      .then(([ds, strat]) => {
+        setDatasheets(ds);
+        setStratagems(strat);
+      })
       .catch((e) => setError(e.message));
   }, [factionId]);
 
@@ -30,6 +37,22 @@ export function FactionDetailPage() {
         ))}
       </ul>
       {factionId && <ArmyListSection factionId={factionId} />}
+
+      {stratagems.length > 0 && (
+        <>
+          <h2>Stratagems</h2>
+          <ul data-testid="stratagems-list">
+            {stratagems.map((s) => (
+              <li key={s.id} data-testid="stratagem-item">
+                <strong>{s.name}</strong>
+                {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
+                {s.phase && <span> - {s.phase}</span>}
+                <p>{s.description}</p>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

@@ -229,6 +229,13 @@ object HttpServer {
         case Left(_) =>
           BadRequest(Json.obj("error" -> Json.fromString(s"Invalid faction ID: $factionIdStr")))
       }
+    case GET -> Root / "api" / "factions" / factionIdStr / "stratagems" =>
+      FactionId.parse(factionIdStr) match {
+        case Right(factionId) =>
+          ReferenceDataRepository.stratagemsByFaction(factionId)(xa).flatMap(Ok(_))
+        case Left(_) =>
+          BadRequest(Json.obj("error" -> Json.fromString(s"Invalid faction ID: $factionIdStr")))
+      }
     case GET -> Root / "api" / "factions" / factionIdStr / "armies" =>
       FactionId.parse(factionIdStr) match {
         case Right(factionId) =>

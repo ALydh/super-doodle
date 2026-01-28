@@ -5,6 +5,7 @@ import wahapedia.errors.{ParseError, ParseException}
 import wahapedia.csv.{StreamingCsvParser, CsvParsing}
 import cats.effect.IO
 import cats.syntax.either.*
+import io.circe.Encoder
 
 opaque type StratagemId = String
 
@@ -16,6 +17,8 @@ object StratagemId {
     if (id.nonEmpty) Right(StratagemId(id))
     else Left(wahapedia.errors.InvalidId(id))
   }
+
+  given Encoder[StratagemId] = Encoder.encodeString.contramap(value)
 }
 
 case class Stratagem(
