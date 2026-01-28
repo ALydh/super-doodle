@@ -76,6 +76,7 @@ export function DatasheetDetailPage() {
                 <th>S</th>
                 <th>AP</th>
                 <th>D</th>
+                <th>Abilities</th>
               </tr>
             </thead>
             <tbody>
@@ -91,6 +92,7 @@ export function DatasheetDetailPage() {
                     <td>{w.strength ?? "-"}</td>
                     <td>{w.armorPenetration ?? "-"}</td>
                     <td>{w.damage ?? "-"}</td>
+                    <td data-testid="weapon-abilities">{w.description ?? "-"}</td>
                   </tr>
                 ))}
             </tbody>

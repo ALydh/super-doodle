@@ -28,5 +28,5 @@ test('known Necron units are displayed', async ({ page }) => {
   await page.goto('/factions/NEC');
   await expect(page.getByTestId('datasheet-list')).toBeVisible();
 
-  await expect(page.getByText('Necron Warriors')).toBeVisible();
+  await expect(page.getByTestId('datasheet-list').getByRole('link', { name: 'Necron Warriors' })).toBeVisible();
 });

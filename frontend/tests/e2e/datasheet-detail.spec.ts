@@ -99,3 +99,20 @@ test('datasheet detail shows unit-specific stratagems', async ({ page, request }
     await expect(items).toHaveCount(detail.stratagems.length);
   }
 });
+
+test('weapons table includes abilities column', async ({ page }) => {
+  await page.goto('/factions/NEC');
+  await expect(page.getByTestId('datasheet-list')).toBeVisible();
+
+  await page.getByTestId('datasheet-item').first().getByRole('link').click();
+  await expect(page.getByTestId('unit-name')).toBeVisible();
+
+  const weaponsTable = page.getByTestId('weapons-table');
+  if (await weaponsTable.isVisible()) {
+    const headers = weaponsTable.locator('thead th');
+    await expect(headers.last()).toHaveText('Abilities');
+
+    const abilitiesCells = page.getByTestId('weapon-abilities');
+    expect(await abilitiesCells.count()).toBeGreaterThan(0);
+  }
+});
