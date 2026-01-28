@@ -92,7 +92,7 @@ export function DatasheetDetailPage() {
                     <td>{w.strength ?? "-"}</td>
                     <td>{w.armorPenetration ?? "-"}</td>
                     <td>{w.damage ?? "-"}</td>
-                    <td data-testid="weapon-abilities">{w.description ?? "-"}</td>
+                    <td data-testid="weapon-abilities" dangerouslySetInnerHTML={{ __html: w.description ?? "-" }} />
                   </tr>
                 ))}
             </tbody>
@@ -132,7 +132,7 @@ export function DatasheetDetailPage() {
                 <li key={i} data-testid="ability-item">
                   <strong>{a.name}</strong>
                   {a.abilityType && <span> ({a.abilityType})</span>}
-                  {a.description && <p>{a.description}</p>}
+                  {a.description && <p dangerouslySetInnerHTML={{ __html: a.description }} />}
                 </li>
               ))}
           </ul>
@@ -148,7 +148,7 @@ export function DatasheetDetailPage() {
                 <strong>{s.name}</strong>
                 {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
                 {s.phase && <span> - {s.phase}</span>}
-                <p>{s.description}</p>
+                <p dangerouslySetInnerHTML={{ __html: s.description }} />
               </li>
             ))}
           </ul>

@@ -206,7 +206,7 @@ export function ArmyBuilderPage() {
               {detachmentAbilities.map((a) => (
                 <li key={a.id} data-testid="detachment-ability-item">
                   <strong>{a.name}</strong>
-                  <p>{a.description}</p>
+                  <p dangerouslySetInnerHTML={{ __html: a.description }} />
                 </li>
               ))}
             </ul>

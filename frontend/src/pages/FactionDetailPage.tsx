@@ -47,7 +47,7 @@ export function FactionDetailPage() {
                 <strong>{s.name}</strong>
                 {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
                 {s.phase && <span> - {s.phase}</span>}
-                <p>{s.description}</p>
+                <p dangerouslySetInnerHTML={{ __html: s.description }} />
               </li>
             ))}
           </ul>
