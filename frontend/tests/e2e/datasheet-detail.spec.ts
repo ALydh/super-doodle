@@ -116,3 +116,18 @@ test('weapons table includes abilities column', async ({ page }) => {
     expect(await abilitiesCells.count()).toBeGreaterThan(0);
   }
 });
+
+test('datasheet detail shows wargear options', async ({ page, request }) => {
+  // Navigate to a unit known to have wargear options (Overlord)
+  await page.goto('/datasheets/000000523');
+  await expect(page.getByTestId('unit-name')).toBeVisible();
+
+  const apiResponse = await request.get(`${API_BASE}/api/datasheets/000000523`);
+  const detail = await apiResponse.json();
+
+  if (detail.options.length > 0) {
+    await expect(page.getByTestId('wargear-options-list')).toBeVisible();
+    const items = page.getByTestId('wargear-option-item');
+    await expect(items).toHaveCount(detail.options.length);
+  }
+});

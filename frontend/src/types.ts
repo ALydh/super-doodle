@@ -75,6 +75,7 @@ export interface DatasheetDetail {
   keywords: DatasheetKeyword[];
   abilities: DatasheetAbility[];
   stratagems: Stratagem[];
+  options: DatasheetOption[];
 }
 
 export type BattleSize = "Incursion" | "StrikeForce" | "Onslaught";
@@ -180,4 +181,11 @@ export interface DatasheetAbility {
   description: string | null;
   abilityType: string | null;
   parameter: string | null;
+}
+
+export interface DatasheetOption {
+  datasheetId: string;
+  line: number;
+  button: string | null;
+  description: string;
 }

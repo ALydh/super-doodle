@@ -18,7 +18,7 @@ export function DatasheetDetailPage() {
   if (error) return <div data-testid="error">{error}</div>;
   if (!detail) return <div>Loading...</div>;
 
-  const { datasheet, profiles, wargear, costs, keywords, abilities, stratagems } = detail;
+  const { datasheet, profiles, wargear, costs, keywords, abilities, stratagems, options } = detail;
 
   return (
     <div>
@@ -97,6 +97,17 @@ export function DatasheetDetailPage() {
                 ))}
             </tbody>
           </table>
+        </>
+      )}
+
+      {options.length > 0 && (
+        <>
+          <h2>Wargear Options</h2>
+          <ul data-testid="wargear-options-list">
+            {options.map((o, i) => (
+              <li key={i} data-testid="wargear-option-item" dangerouslySetInnerHTML={{ __html: o.description }} />
+            ))}
+          </ul>
         </>
       )}
 
