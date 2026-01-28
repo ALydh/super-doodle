@@ -2,13 +2,14 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
-  DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility,
+  DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem,
 } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import {
   fetchDatasheetsByFaction, fetchDetachmentsByFaction,
   fetchEnhancementsByFaction, fetchLeadersByFaction,
   fetchArmy, createArmy, updateArmy, validateArmy, fetchDetachmentAbilities,
+  fetchStratagemsByFaction,
 } from "../api";
 import { fetchDatasheetDetail } from "../api";
 import { UnitPicker } from "./UnitPicker";
@@ -34,6 +35,8 @@ export function ArmyBuilderPage() {
   const [leaders, setLeaders] = useState<DatasheetLeader[]>([]);
   const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
   const [abilitiesExpanded, setAbilitiesExpanded] = useState(false);
+  const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
+  const [strategemsExpanded, setStrategemsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [resolvedFactionId, setResolvedFactionId] = useState<string>("");
 
@@ -62,11 +65,13 @@ export function ArmyBuilderPage() {
       fetchDetachmentsByFaction(resolvedFactionId),
       fetchEnhancementsByFaction(resolvedFactionId),
       fetchLeadersByFaction(resolvedFactionId),
-    ]).then(([ds, det, enh, ldr]) => {
+      fetchStratagemsByFaction(resolvedFactionId),
+    ]).then(([ds, det, enh, ldr, strat]) => {
       setDatasheets(ds);
       setDetachments(det);
       setEnhancements(enh);
       setLeaders(ldr);
+      setAllStratagems(strat);
       if (!detachmentId && det.length > 0) {
         setDetachmentId(det[0].detachmentId);
       }
@@ -213,6 +218,32 @@ export function ArmyBuilderPage() {
           )}
         </div>
       )}
+
+      {(() => {
+        const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
+        return filteredStratagems.length > 0 && (
+          <div data-testid="detachment-stratagems-section">
+            <button
+              data-testid="detachment-stratagems-toggle"
+              onClick={() => setStrategemsExpanded(!strategemsExpanded)}
+            >
+              Detachment Stratagems ({filteredStratagems.length}) {strategemsExpanded ? "▼" : "▶"}
+            </button>
+            {strategemsExpanded && (
+              <ul data-testid="detachment-stratagems-list">
+                {filteredStratagems.map((s) => (
+                  <li key={s.id} data-testid="detachment-stratagem-item">
+                    <strong>{s.name}</strong>
+                    {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
+                    {s.phase && <span> - {s.phase}</span>}
+                    <p dangerouslySetInnerHTML={{ __html: s.description }} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })()}
 
       <div data-testid="points-total">
         Points: {pointsTotal} / {BATTLE_SIZE_POINTS[battleSize]}

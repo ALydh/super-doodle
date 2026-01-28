@@ -53,3 +53,25 @@ test('detachment abilities appear when selecting a detachment', async ({ page, r
   const items = page.getByTestId('detachment-ability-item');
   await expect(items).toHaveCount(abilities.length);
 });
+
+test('detachment stratagems appear filtered by selected detachment', async ({ page, request }) => {
+  await page.goto(`/factions/${FACTION_ID}/armies/new`);
+  await expect(page.getByTestId('detachment-select')).toBeVisible();
+
+  await page.getByTestId('detachment-select').selectOption(DETACHMENT_ID);
+
+  await expect(page.getByTestId('detachment-stratagems-section')).toBeVisible();
+  const toggle = page.getByTestId('detachment-stratagems-toggle');
+  await expect(toggle).toBeVisible();
+
+  await toggle.click();
+  await expect(page.getByTestId('detachment-stratagems-list')).toBeVisible();
+
+  const apiRes = await request.get(`${API_BASE}/api/factions/${FACTION_ID}/stratagems`);
+  expect(apiRes.ok()).toBeTruthy();
+  const allStratagems = await apiRes.json();
+  const filteredStratagems = allStratagems.filter((s: { detachmentId: string }) => s.detachmentId === DETACHMENT_ID);
+
+  const items = page.getByTestId('detachment-stratagem-item');
+  await expect(items).toHaveCount(filteredStratagems.length);
+});
