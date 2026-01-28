@@ -3,6 +3,7 @@ package wahapedia.domain.types
 import wahapedia.errors.ParseError
 import wahapedia.errors.InvalidFormat
 import cats.syntax.either.*
+import io.circe.{Encoder, Decoder}
 
 opaque type Save = Int
 
@@ -22,4 +23,7 @@ object Save {
   extension (s: Save) {
     def asString: String = s"${s}+"
   }
+
+  given Encoder[Save] = Encoder.encodeString.contramap(_.asString)
+  given Decoder[Save] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
 }

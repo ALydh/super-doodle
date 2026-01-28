@@ -1,6 +1,8 @@
 package wahapedia.domain.types
 
 import wahapedia.errors.{ParseError, InvalidFormat}
+import io.circe.{Encoder, Decoder}
+import cats.syntax.either.*
 
 enum Role:
   case Battleline
@@ -26,4 +28,7 @@ object Role {
     case Role.Fortifications => "Fortifications"
     case Role.Other => "Other"
   }
+
+  given Encoder[Role] = Encoder.encodeString.contramap(asString)
+  given Decoder[Role] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
 }
