@@ -211,7 +211,15 @@ export function ArmyBuilderPage() {
   const loadedDatasheets = datasheets ?? [];
 
   return (
-    <div data-faction={factionTheme}>
+    <div data-faction={factionTheme} className="army-builder-page">
+      {factionTheme && (
+        <img
+          src={`/icons/${factionTheme}.svg`}
+          alt=""
+          className="army-builder-bg-icon"
+          aria-hidden="true"
+        />
+      )}
       <h1 className="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
 
       <div>

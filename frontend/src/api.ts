@@ -1,7 +1,7 @@
 import type {
   Faction, Datasheet, DatasheetDetail, DetachmentInfo,
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
-  Army, ValidationResponse, Stratagem, DetachmentAbility,
+  Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
   User, AuthResponse, Invite,
 } from "./types";
 
@@ -135,6 +135,12 @@ export async function fetchArmiesByFaction(factionId: string): Promise<ArmySumma
   return res.json();
 }
 
+export async function fetchAllArmies(): Promise<ArmySummary[]> {
+  const res = await fetch("/api/armies");
+  if (!res.ok) throw new Error(`Failed to fetch armies: ${res.status}`);
+  return res.json();
+}
+
 export async function fetchArmy(armyId: string): Promise<PersistedArmy> {
   const res = await fetch(`/api/armies/${armyId}`);
   if (!res.ok) throw new Error(`Failed to fetch army: ${res.status}`);
@@ -185,5 +191,11 @@ export async function validateArmy(army: Army): Promise<ValidationResponse> {
     body: JSON.stringify(army),
   });
   if (!res.ok) throw new Error(`Failed to validate army: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchWeaponAbilities(): Promise<WeaponAbility[]> {
+  const res = await fetch("/api/weapon-abilities");
+  if (!res.ok) throw new Error(`Failed to fetch weapon abilities: ${res.status}`);
   return res.json();
 }

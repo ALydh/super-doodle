@@ -148,3 +148,84 @@
   --faction-emphasis: #5BC0BE;
   --faction-danger: #E6FFFA;
 }
+
+/* Adeptus Custodes */
+[data-faction="adeptus-custodes"] {
+  --faction-primary: #C9A227;
+  --faction-secondary: #4A3C1F;
+  --faction-trim: #8B0000;
+  --faction-emphasis: #FFD700;
+  --faction-danger: #DC143C;
+}
+
+/* Grey Knights */
+[data-faction="grey-knights"] {
+  --faction-primary: #7B8A99;
+  --faction-secondary: #3D4654;
+  --faction-trim: #C0C0C0;
+  --faction-emphasis: #4169E1;
+  --faction-danger: #FF4500;
+}
+
+/* Imperial Knights */
+[data-faction="imperial-knights"] {
+  --faction-primary: #1E3A5F;
+  --faction-secondary: #0D1B2A;
+  --faction-trim: #D4AF37;
+  --faction-emphasis: #FFFFFF;
+  --faction-danger: #B22222;
+}
+
+/* Chaos Knights */
+[data-faction="chaos-knights"] {
+  --faction-primary: #4A0E0E;
+  --faction-secondary: #1A0505;
+  --faction-trim: #8B4513;
+  --faction-emphasis: #FF4500;
+  --faction-danger: #8B0000;
+}
+
+/* Chaos Daemons */
+[data-faction="chaos-daemons"] {
+  --faction-primary: #6B0F1A;
+  --faction-secondary: #2D0A0A;
+  --faction-trim: #FF6347;
+  --faction-emphasis: #9932CC;
+  --faction-danger: #FF1493;
+}
+
+/* Death Guard */
+[data-faction="death-guard"] {
+  --faction-primary: #5C6B4A;
+  --faction-secondary: #2E3625;
+  --faction-trim: #8B7355;
+  --faction-emphasis: #9ACD32;
+  --faction-danger: #6B8E23;
+}
+
+/* Thousand Sons */
+[data-faction="thousand-sons"] {
+  --faction-primary: #1E4D7B;
+  --faction-secondary: #0F2840;
+  --faction-trim: #FFD700;
+  --faction-emphasis: #00CED1;
+  --faction-danger: #FF6347;
+}
+
+/* World Eaters */
+[data-faction="world-eaters"] {
+  --faction-primary: #8B0000;
+  --faction-secondary: #3D0000;
+  --faction-trim: #FFFFFF;
+  --faction-emphasis: #B8860B;
+  --faction-danger: #FF0000;
+}
+
+/* Emperor's Children */
+[data-faction="emperors-children"] {
+  --faction-primary: #5C2D7A;
+  --faction-secondary: #2D1640;
+  --faction-trim: #FFD700;
+  --faction-emphasis: #FF69B4;
+  --faction-danger: #DC143C;
+}

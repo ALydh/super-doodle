@@ -28,12 +28,18 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "astra-militarum": "guard",
     "imperial-guard": "guard",
 
+    // Imperial Agents (uses Astra Militarum icon)
+    "aoi": "guard",
+    "imperial-agents": "guard",
+
     // Adeptus Mechanicus
+    "adm": "mechanicus",
     "admech": "mechanicus",
     "mechanicus": "mechanicus",
     "adeptus-mechanicus": "mechanicus",
 
     // Adepta Sororitas
+    "as": "sororitas",
     "sob": "sororitas",
     "sororitas": "sororitas",
     "adepta-sororitas": "sororitas",
@@ -41,25 +47,29 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "sisters-of-battle": "sororitas",
 
     // Orks
-    "orks": "orks",
     "ork": "orks",
+    "orks": "orks",
 
     // Aeldari / Craftworlds
+    "ae": "aeldari",
     "aeldari": "aeldari",
     "eldar": "aeldari",
     "craftworlds": "aeldari",
     "craftworld": "aeldari",
 
     // Drukhari
+    "dru": "drukhari",
     "drukhari": "drukhari",
     "dark-eldar": "drukhari",
     "darkeldar": "drukhari",
 
     // Necrons
+    "nec": "necrons",
     "necrons": "necrons",
     "necron": "necrons",
 
     // Tyranids
+    "tyr": "tyranids",
     "tyranids": "tyranids",
     "tyranid": "tyranids",
     "nids": "tyranids",
@@ -70,14 +80,60 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "tau-empire": "tau",
 
     // Genestealer Cults
+    "gc": "genestealer-cults",
     "gsc": "genestealer-cults",
     "genestealer-cults": "genestealer-cults",
     "genestealers": "genestealer-cults",
 
     // Leagues of Votann
+    "lov": "votann",
     "votann": "votann",
     "leagues-of-votann": "votann",
     "squats": "votann",
+
+    // Adeptus Custodes
+    "ac": "adeptus-custodes",
+    "custodes": "adeptus-custodes",
+    "adeptus-custodes": "adeptus-custodes",
+
+    // Grey Knights
+    "gk": "grey-knights",
+    "grey-knights": "grey-knights",
+    "greyknights": "grey-knights",
+
+    // Imperial Knights
+    "qi": "imperial-knights",
+    "imperial-knights": "imperial-knights",
+
+    // Adeptus Titanicus (uses Imperial Knights icon)
+    "tl": "imperial-knights",
+    "adeptus-titanicus": "imperial-knights",
+
+    // Chaos Knights
+    "qt": "chaos-knights",
+    "chaos-knights": "chaos-knights",
+
+    // Chaos Daemons
+    "cd": "chaos-daemons",
+    "chaos-daemons": "chaos-daemons",
+    "daemons": "chaos-daemons",
+
+    // Death Guard
+    "dg": "death-guard",
+    "death-guard": "death-guard",
+
+    // Thousand Sons
+    "ts": "thousand-sons",
+    "thousand-sons": "thousand-sons",
+
+    // World Eaters
+    "we": "world-eaters",
+    "world-eaters": "world-eaters",
+
+    // Emperor's Children
+    "ec": "emperors-children",
+    "emperors-children": "emperors-children",
+    "emperor's-children": "emperors-children",
   };
 
   // Check for direct match

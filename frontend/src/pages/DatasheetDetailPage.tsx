@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import type { DatasheetDetail } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { getFactionTheme } from "../factionTheme";
+import { WeaponAbilityText } from "./WeaponAbilityText";
 
 export function DatasheetDetailPage() {
   const { datasheetId } = useParams<{ datasheetId: string }>();
@@ -94,7 +95,7 @@ export function DatasheetDetailPage() {
                     <td>{w.strength ?? "-"}</td>
                     <td>{w.armorPenetration ?? "-"}</td>
                     <td>{w.damage ?? "-"}</td>
-                    <td className="weapon-abilities" dangerouslySetInnerHTML={{ __html: w.description ?? "-" }} />
+                    <td className="weapon-abilities"><WeaponAbilityText text={w.description} /></td>
                   </tr>
                 ))}
             </tbody>

@@ -43,7 +43,15 @@ export function ArmyViewPage() {
   const factionTheme = getFactionTheme(army.army.factionId);
 
   return (
-    <div data-faction={factionTheme}>
+    <div data-faction={factionTheme} className="army-view-page">
+      {factionTheme && (
+        <img
+          src={`/icons/${factionTheme}.svg`}
+          alt=""
+          className="army-builder-bg-icon"
+          aria-hidden="true"
+        />
+      )}
       <Link to={`/factions/${army.army.factionId}`} className="back-link">
         &larr; Back to Faction
       </Link>

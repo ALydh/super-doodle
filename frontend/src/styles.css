@@ -816,3 +816,202 @@ button:disabled {
   gap: 4px;
   margin-bottom: 0;
 }
+
+/* =========================================================
+   WEAPON ABILITY TOOLTIPS
+   ========================================================= */
+
+.weapon-ability-tooltip {
+  position: relative;
+  text-decoration: underline dotted var(--faction-trim);
+  text-underline-offset: 2px;
+  cursor: help;
+}
+
+.weapon-ability-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--surface-page);
+  color: var(--text-body);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: normal;
+  width: max-content;
+  max-width: 300px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin-bottom: 8px;
+}
+
+.weapon-ability-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.weapon-abilities {
+  position: relative;
+}
+
+/* =========================================================
+   LANDING PAGE - ARMY CARDS
+   ========================================================= */
+
+.landing-page h1 {
+  margin-bottom: 32px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+}
+
+.army-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 48px;
+}
+
+.army-card {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--faction-secondary) 0%, var(--surface-card) 100%);
+  border-radius: 12px;
+  padding: 20px;
+  text-decoration: none;
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid var(--faction-primary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  min-height: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.army-card-icon {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  opacity: 0.15;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.army-card:hover .army-card-icon {
+  opacity: 0.25;
+  transform: scale(1.1);
+}
+
+.army-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--faction-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+}
+
+.army-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.army-card-faction {
+  color: var(--faction-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.army-card-size {
+  background-color: var(--faction-primary);
+  color: var(--surface-page);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.army-card-name {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 auto 0;
+  line-height: 1.3;
+}
+
+.army-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.army-card-battle-size {
+  color: var(--faction-trim);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.army-card-updated {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.new-army-section {
+  border-top: 1px solid var(--surface-border);
+  padding-top: 32px;
+}
+
+.new-army-section h2 {
+  margin-top: 0;
+}
+
+/* =========================================================
+   ARMY BUILDER PAGE - BACKGROUND ICON
+   ========================================================= */
+
+.army-builder-page,
+.army-view-page {
+  position: relative;
+}
+
+.army-builder-bg-icon {
+  position: fixed;
+  top: 50%;
+  right: -100px;
+  transform: translateY(-50%);
+  width: 500px;
+  height: 500px;
+  opacity: 0.05;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.army-builder-page > *:not(.army-builder-bg-icon),
+.army-view-page > *:not(.army-builder-bg-icon) {
+  position: relative;
+  z-index: 1;
+}

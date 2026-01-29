@@ -216,3 +216,9 @@ export interface DatasheetOption {
   button: string | null;
   description: string;
 }
+
+export interface WeaponAbility {
+  id: string;
+  name: string;
+  description: string;
+}
