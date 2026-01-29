@@ -14,6 +14,7 @@ interface Props {
   warlordId: string;
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
+  onCopy: (index: number) => void;
   onSetWarlord: (index: number) => void;
 }
 
@@ -32,7 +33,7 @@ interface UnitGroup {
 
 export function MergedUnitsDisplay({
   units, datasheets, costs, enhancements, leaders,
-  warlordId, onUpdate, onRemove, onSetWarlord,
+  warlordId, onUpdate, onRemove, onCopy, onSetWarlord,
 }: Props) {
   void leaders;
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
@@ -279,6 +280,7 @@ export function MergedUnitsDisplay({
                   </>
                 )}
                 <span className="unit-cost">{unitCost}pts</span>
+                <button className="btn-copy" onClick={() => onCopy(index)}>Copy</button>
                 <button className="btn-remove" onClick={() => onRemove(index)}>Remove</button>
               </div>
             </div>

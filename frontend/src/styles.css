@@ -370,7 +370,17 @@ button:disabled {
   background-color: #2da042;
 }
 
-/* Remove button */
+.btn-copy {
+  background-color: #4a7fcf;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  margin-right: 4px;
+}
+
+.btn-copy:hover {
+  background-color: #3a6ab8;
+}
+
 .btn-remove {
   background-color: var(--state-danger);
   padding: 6px 12px;
@@ -639,6 +649,11 @@ button:disabled {
   color: var(--text-muted);
   font-size: 0.85em;
   font-style: italic;
+}
+
+.unit-number {
+  color: var(--faction-trim);
+  font-weight: 600;
 }
 
 /* Inline mode styles */

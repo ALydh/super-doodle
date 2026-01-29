@@ -164,6 +164,17 @@ export function ArmyBuilderPage() {
     setUnits(units.filter((_, i) => i !== index));
   };
 
+  const handleCopyUnit = (index: number) => {
+    const unitToCopy = units[index];
+    const copiedUnit: ArmyUnit = {
+      ...unitToCopy,
+      enhancementId: null,
+      attachedLeaderId: null,
+      attachedToUnitIndex: null,
+    };
+    setUnits([...units, copiedUnit]);
+  };
+
   const handleSetWarlord = (index: number) => {
     setWarlordId(units[index].datasheetId);
   };
@@ -311,6 +322,7 @@ export function ArmyBuilderPage() {
             warlordId={warlordId}
             onUpdate={handleUpdateUnit}
             onRemove={handleRemoveUnit}
+            onCopy={handleCopyUnit}
             onSetWarlord={handleSetWarlord}
           />
         ) : (
@@ -339,6 +351,7 @@ export function ArmyBuilderPage() {
                 warlordId,
                 handleUpdateUnit,
                 handleRemoveUnit,
+                handleCopyUnit,
                 handleSetWarlord
               )}
             </tbody>

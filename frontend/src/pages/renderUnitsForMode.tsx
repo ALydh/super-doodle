@@ -15,6 +15,7 @@ interface RenderContext {
   warlordId: string;
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
+  onCopy: (index: number) => void;
   onSetWarlord: (index: number) => void;
 }
 
@@ -58,6 +59,7 @@ function renderTableMode(ctx: RenderContext): ReactElement[] {
       isWarlord={ctx.warlordId === unit.datasheetId}
       onUpdate={ctx.onUpdate}
       onRemove={ctx.onRemove}
+      onCopy={ctx.onCopy}
       onSetWarlord={ctx.onSetWarlord}
       displayMode="table"
       allUnits={ctx.units}
@@ -94,6 +96,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
           isWarlord={ctx.warlordId === unit.datasheetId}
           onUpdate={ctx.onUpdate}
           onRemove={ctx.onRemove}
+          onCopy={ctx.onCopy}
           onSetWarlord={ctx.onSetWarlord}
           displayMode="grouped"
           allUnits={ctx.units}
@@ -117,6 +120,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
             isWarlord={ctx.warlordId === bodyguardUnit.datasheetId}
             onUpdate={ctx.onUpdate}
             onRemove={ctx.onRemove}
+            onCopy={ctx.onCopy}
             onSetWarlord={ctx.onSetWarlord}
             displayMode="grouped"
             allUnits={ctx.units}
@@ -145,6 +149,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
         isWarlord={ctx.warlordId === unit.datasheetId}
         onUpdate={ctx.onUpdate}
         onRemove={ctx.onRemove}
+        onCopy={ctx.onCopy}
         onSetWarlord={ctx.onSetWarlord}
         displayMode="grouped"
         allUnits={ctx.units}
@@ -175,6 +180,7 @@ function renderInlineMode(ctx: RenderContext): ReactElement[] {
         isWarlord={ctx.warlordId === unit.datasheetId}
         onUpdate={ctx.onUpdate}
         onRemove={ctx.onRemove}
+        onCopy={ctx.onCopy}
         onSetWarlord={ctx.onSetWarlord}
         displayMode="inline"
         allUnits={ctx.units}
@@ -202,6 +208,7 @@ function renderInstanceMode(ctx: RenderContext): ReactElement[] {
       isWarlord={ctx.warlordId === unit.datasheetId}
       onUpdate={ctx.onUpdate}
       onRemove={ctx.onRemove}
+      onCopy={ctx.onCopy}
       onSetWarlord={ctx.onSetWarlord}
       displayMode="instance"
       allUnits={ctx.units}
@@ -220,11 +227,12 @@ export function renderUnitsForMode(
   warlordId: string,
   onUpdate: (index: number, unit: ArmyUnit) => void,
   onRemove: (index: number) => void,
+  onCopy: (index: number) => void,
   onSetWarlord: (index: number) => void
 ): ReactElement[] {
   const ctx: RenderContext = {
     units, datasheets, costs, enhancements, leaders, options,
-    warlordId, onUpdate, onRemove, onSetWarlord,
+    warlordId, onUpdate, onRemove, onCopy, onSetWarlord,
   };
 
   switch (mode) {

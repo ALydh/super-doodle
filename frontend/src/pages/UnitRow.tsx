@@ -13,6 +13,7 @@ interface Props {
   isWarlord: boolean;
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
+  onCopy: (index: number) => void;
   onSetWarlord: (index: number) => void;
   displayMode?: LeaderDisplayMode;
   allUnits?: ArmyUnit[];
@@ -23,7 +24,7 @@ interface Props {
 
 export function UnitRow({
   unit, index, datasheet, costs, enhancements, leaders, datasheets, options,
-  isWarlord, onUpdate, onRemove, onSetWarlord,
+  isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
   displayMode = "table", allUnits = [], isGroupParent = false, isGroupChild = false, attachedLeaderInfo,
 }: Props) {
   const [showWargear, setShowWargear] = useState(false);
@@ -40,6 +41,22 @@ export function UnitRow({
   const attachableUnitsInArmy = allUnits
     .map((u, i) => ({ unit: u, index: i, ds: datasheets.find(d => d.id === u.datasheetId) }))
     .filter(({ ds }) => ds && validLeaderTargets.includes(ds.id));
+
+  const getUnitNumber = (unitIndex: number, datasheetId: string): { num: number; total: number } => {
+    const sameTypeUnits = allUnits
+      .map((u, i) => ({ datasheetId: u.datasheetId, index: i }))
+      .filter(u => u.datasheetId === datasheetId);
+    const num = sameTypeUnits.findIndex(u => u.index === unitIndex) + 1;
+    return { num, total: sameTypeUnits.length };
+  };
+
+  const getUnitDisplayName = (ds: { name: string; id: string } | undefined, unitIndex: number): string => {
+    if (!ds) return "Unknown";
+    const { num, total } = getUnitNumber(unitIndex, ds.id);
+    return total > 1 ? `${ds.name} #${num}` : ds.name;
+  };
+
+  const thisUnitNumber = getUnitNumber(index, unit.datasheetId);
 
   const selectedCost = unitCosts.find((c) => c.line === unit.sizeOptionLine);
   const enhancementCost = unit.enhancementId
@@ -156,8 +173,8 @@ export function UnitRow({
           onChange={(e) => onUpdate(index, { ...unit, attachedLeaderId: e.target.value || null })}
         >
           <option value="">No attachment</option>
-          {attachableUnitsInArmy.map(({ ds }) => (
-            <option key={ds!.id} value={ds!.id}>{ds!.name}</option>
+          {attachableUnitsInArmy.map(({ index: unitIdx, ds }) => (
+            <option key={`${ds!.id}-${unitIdx}`} value={ds!.id}>{getUnitDisplayName(ds, unitIdx)}</option>
           ))}
         </select>
       );
@@ -172,6 +189,7 @@ export function UnitRow({
         <td className="unit-row-name">
           {isGroupChild && <span className="group-connector">└─ </span>}
           {datasheet?.name ?? unit.datasheetId}
+          {thisUnitNumber.total > 1 && <span className="unit-number"> #{thisUnitNumber.num}</span>}
           {isGroupParent && <span className="group-indicator"> (leading)</span>}
         </td>
         <td>
@@ -228,6 +246,7 @@ export function UnitRow({
           )}
         </td>
         <td>
+          <button className="btn-copy copy-unit" onClick={() => onCopy(index)}>Copy</button>
           <button className="btn-remove remove-unit" onClick={() => onRemove(index)}>Remove</button>
         </td>
       </tr>
