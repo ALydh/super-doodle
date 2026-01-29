@@ -62,6 +62,21 @@ export function DatasheetDetailPage() {
               ))}
             </tbody>
           </table>
+          <div className="stats-mobile">
+            {profiles.map((p, i) => (
+              <div key={i} className="stats-card">
+                <div className="stats-card-name">{p.name ?? datasheet.name}</div>
+                <div className="stats-card-values">
+                  <div className="stat-item"><span className="stat-label">M</span><span className="stat-value">{p.movement}</span></div>
+                  <div className="stat-item"><span className="stat-label">T</span><span className="stat-value">{p.toughness}</span></div>
+                  <div className="stat-item"><span className="stat-label">SV</span><span className="stat-value">{p.save}</span></div>
+                  <div className="stat-item"><span className="stat-label">W</span><span className="stat-value">{p.wounds}</span></div>
+                  <div className="stat-item"><span className="stat-label">LD</span><span className="stat-value">{p.leadership}</span></div>
+                  <div className="stat-item"><span className="stat-label">OC</span><span className="stat-value">{p.objectiveControl}</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </>
       )}
 
@@ -87,19 +102,39 @@ export function DatasheetDetailPage() {
                 .filter((w) => w.name)
                 .map((w, i) => (
                   <tr key={i} className="weapon-row">
-                    <td>{w.name}</td>
-                    <td>{w.range ?? "-"}</td>
-                    <td>{w.weaponType ?? "-"}</td>
-                    <td>{w.attacks ?? "-"}</td>
-                    <td>{w.ballisticSkill ?? "-"}</td>
-                    <td>{w.strength ?? "-"}</td>
-                    <td>{w.armorPenetration ?? "-"}</td>
-                    <td>{w.damage ?? "-"}</td>
+                    <td className="weapon-name">{w.name}</td>
+                    <td className="weapon-range">{w.range ?? "-"}</td>
+                    <td className="weapon-type">{w.weaponType ?? "-"}</td>
+                    <td className="weapon-attacks">{w.attacks ?? "-"}</td>
+                    <td className="weapon-skill">{w.ballisticSkill ?? "-"}</td>
+                    <td className="weapon-strength">{w.strength ?? "-"}</td>
+                    <td className="weapon-ap">{w.armorPenetration ?? "-"}</td>
+                    <td className="weapon-damage">{w.damage ?? "-"}</td>
                     <td className="weapon-abilities"><WeaponAbilityText text={w.description} /></td>
                   </tr>
                 ))}
             </tbody>
           </table>
+          <div className="weapons-mobile">
+            {wargear.filter((w) => w.name).map((w, i) => (
+              <div key={i} className="weapon-card">
+                <div className="weapon-card-header">
+                  <span className="weapon-card-name">{w.name}</span>
+                  <span className="weapon-card-range">
+                    {w.range?.toLowerCase() === "melee" ? "Melee" : `Ranged: ${w.range ?? "-"}`}
+                  </span>
+                </div>
+                <div className="weapon-card-values">
+                  <div className="stat-item"><span className="stat-label">A</span><span className="stat-value">{w.attacks ?? "-"}</span></div>
+                  <div className="stat-item"><span className="stat-label">BS/WS</span><span className="stat-value">{w.ballisticSkill ?? "-"}</span></div>
+                  <div className="stat-item"><span className="stat-label">S</span><span className="stat-value">{w.strength ?? "-"}</span></div>
+                  <div className="stat-item"><span className="stat-label">AP</span><span className="stat-value">{w.armorPenetration ?? "-"}</span></div>
+                  <div className="stat-item"><span className="stat-label">D</span><span className="stat-value">{w.damage ?? "-"}</span></div>
+                </div>
+                {w.description && <div className="weapon-card-abilities"><WeaponAbilityText text={w.description} /></div>}
+              </div>
+            ))}
+          </div>
         </>
       )}
 
@@ -145,26 +180,9 @@ export function DatasheetDetailPage() {
               .map((a, i) => (
                 <li key={i} className="ability-item">
                   <strong>{a.name}</strong>
-                  {a.abilityType && <span> ({a.abilityType})</span>}
                   {a.description && <p dangerouslySetInnerHTML={{ __html: a.description }} />}
                 </li>
               ))}
-          </ul>
-        </>
-      )}
-
-      {stratagems.length > 0 && (
-        <>
-          <h2>Unit Stratagems</h2>
-          <ul className="unit-stratagems-list">
-            {stratagems.map((s) => (
-              <li key={s.id} className="unit-stratagem-item">
-                <strong>{s.name}</strong>
-                {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
-                {s.phase && <span> - {s.phase}</span>}
-                <p dangerouslySetInnerHTML={{ __html: s.description }} />
-              </li>
-            ))}
           </ul>
         </>
       )}
@@ -181,6 +199,22 @@ export function DatasheetDetailPage() {
                 </span>
               ))}
           </div>
+        </>
+      )}
+
+      {stratagems.length > 0 && (
+        <>
+          <h2>Unit Stratagems</h2>
+          <ul className="unit-stratagems-list">
+            {stratagems.map((s) => (
+              <li key={s.id} className="unit-stratagem-item">
+                <strong>{s.name}</strong>
+                {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
+                {s.phase && <span> - {s.phase}</span>}
+                <p dangerouslySetInnerHTML={{ __html: s.description }} />
+              </li>
+            ))}
+          </ul>
         </>
       )}
     </div>

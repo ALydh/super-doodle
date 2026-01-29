@@ -1015,3 +1015,779 @@ button:disabled {
   position: relative;
   z-index: 1;
 }
+
+/* =========================================================
+   MOBILE ELEMENTS - Hidden on desktop
+   ========================================================= */
+
+.stats-mobile,
+.weapon-stats-mobile,
+.weapons-mobile {
+  display: none;
+}
+
+/* =========================================================
+   STATS CARD - Mobile Grid Layout
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .stats-table {
+    display: none;
+  }
+
+  .stats-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stats-card {
+    background-color: var(--surface-card);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-border);
+    border-left: 3px solid var(--faction-primary);
+  }
+
+  .stats-card-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .stats-card-values {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--surface-panel);
+    border-radius: 4px;
+    padding: 6px 4px;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+}
+
+/* =========================================================
+   WEAPONS CARD - Mobile Grid Layout
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .weapons-table {
+    display: none;
+  }
+
+  .weapons-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .weapon-card {
+    background-color: var(--surface-card);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-border);
+    border-left: 3px solid var(--faction-secondary);
+  }
+
+  .weapon-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .weapon-card-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+  }
+
+  .weapon-card-range {
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--text-body);
+    background-color: var(--surface-panel);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .weapon-card-values {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .weapon-card .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--surface-panel);
+    border-radius: 4px;
+    padding: 6px 4px;
+  }
+
+  .weapon-card .stat-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .weapon-card .stat-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .weapon-card-abilities {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--surface-border);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - BREAKPOINTS & UTILITIES
+   Mobile: 320-599px | Tablet: 600-899px | Desktop: 900px+
+   ========================================================= */
+
+@media (max-width: 599px) {
+  #root {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  button,
+  .btn-add,
+  .btn-copy,
+  .btn-remove,
+  .btn-toggle,
+  .btn-save,
+  .btn-delete {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  .btn-add,
+  .btn-copy,
+  .btn-remove {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  select {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 1rem;
+  }
+
+  input[type="text"],
+  input[type="search"] {
+    min-height: 44px;
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+  }
+
+  input[type="radio"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .back-link {
+    font-size: 1rem;
+    padding: 8px 0;
+  }
+
+  .points-total {
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    margin: 16px -12px 0;
+    border-radius: 0;
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    background-color: var(--surface-card);
+    border-top: 2px solid var(--faction-primary);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  #root {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - ARMY UNITS TABLE (ArmyBuilderPage)
+   Desktop: full table | Mobile: unit cards
+   ========================================================= */
+
+.army-units-table {
+  min-width: 0;
+}
+
+@media (max-width: 599px) {
+  .army-units-wrapper {
+    overflow-x: visible;
+  }
+
+  .army-units-table {
+    display: block;
+    min-width: 0;
+  }
+
+  .army-units-table thead {
+    display: none;
+  }
+
+  .army-units-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .army-units-table tbody tr.unit-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: var(--surface-card);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--surface-border);
+    border-left: 4px solid var(--faction-primary);
+  }
+
+  .army-units-table tbody tr.unit-row:hover {
+    background-color: var(--surface-card);
+  }
+
+  .army-units-table tbody tr.unit-row.group-parent {
+    border-left-color: var(--faction-primary);
+    background-color: var(--faction-secondary);
+  }
+
+  .army-units-table tbody tr.unit-row.group-child {
+    border-left-color: var(--faction-trim);
+    margin-left: 16px;
+  }
+
+  .army-units-table tbody td {
+    padding: 0;
+    display: block;
+  }
+
+  .army-units-table tbody td.unit-row-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .army-units-table tbody td.unit-cost {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--faction-trim);
+    order: -1;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  .army-units-table tbody tr.unit-row {
+    position: relative;
+    padding-right: 80px;
+  }
+
+  .army-units-table tbody td:empty {
+    display: none;
+  }
+
+  .army-units-table tbody td select {
+    width: 100%;
+  }
+
+  .army-units-table tbody td:last-child {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    border-top: 1px solid var(--surface-border);
+    margin-top: 4px;
+  }
+
+  .army-units-table tbody td:last-child button {
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .army-units-table tbody td label {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .army-units-table .wargear-section td {
+    padding: 0;
+  }
+
+  .army-units-table .wargear-section td > div {
+    padding: 16px;
+    margin: 0;
+  }
+
+  .army-units-table .wargear-section td[colspan] {
+    display: block;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .army-units-table {
+    font-size: 0.9rem;
+  }
+
+  .army-units-table th,
+  .army-units-table td {
+    padding: 10px 8px;
+  }
+
+  .army-units-table select {
+    font-size: 0.85rem;
+    padding: 6px 8px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - UNIT PICKER
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .unit-picker {
+    padding: 16px;
+    margin-top: 16px;
+  }
+
+  .unit-picker .unit-search {
+    max-width: 100%;
+  }
+
+  .unit-picker-list {
+    max-height: 50vh;
+  }
+
+  .unit-picker-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .unit-picker-list li .btn-add {
+    width: 100%;
+    order: 1;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - ARMY VIEW PAGE
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .army-units-list li {
+    padding: 16px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - MERGED UNITS DISPLAY
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .merged-group-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .merged-name {
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .merge-indicator {
+    order: 0;
+  }
+
+  .merged-cost {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .warlord-badge {
+    order: 3;
+  }
+
+  .expand-icon {
+    order: 4;
+  }
+
+  .merged-group-details {
+    padding: 12px;
+  }
+
+  .merged-unit-detail {
+    padding: 12px;
+  }
+
+  .merged-unit-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .merged-unit-controls select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .merged-group-actions {
+    flex-direction: column;
+  }
+
+  .merged-group-actions button {
+    width: 100%;
+  }
+
+  .standalone-unit-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .standalone-unit-row .unit-name {
+    min-width: 0;
+  }
+
+  .standalone-unit-row .unit-cost {
+    margin-left: 0;
+  }
+
+  .standalone-unit-row select {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - LANDING PAGE / ARMY CARDS
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .army-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .army-card {
+    min-height: 120px;
+    padding: 16px;
+  }
+
+  .army-card-name {
+    font-size: 1.1rem;
+  }
+
+  .empty-state {
+    padding: 24px 12px;
+  }
+
+  .new-army-section {
+    padding-top: 24px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - LISTS (stratagems, abilities, etc.)
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .faction-list li,
+  .datasheet-list li,
+  .army-list li {
+    padding: 14px 16px;
+  }
+
+  .stratagems-list li,
+  .unit-stratagems-list li,
+  .abilities-list li,
+  .detachment-abilities-list li,
+  .detachment-stratagems-list li {
+    padding: 14px;
+  }
+
+  .keywords-list {
+    gap: 6px;
+  }
+
+  .keyword {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - LEADER DISPLAY MODE SELECTOR
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .leader-display-mode-selector {
+    padding: 12px;
+  }
+
+  .leader-display-mode-selector label {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .leader-display-mode-selector select {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - VALIDATION ERRORS
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .validation-errors {
+    padding: 12px;
+    margin: 12px 0;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - WARGEAR SECTION
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .wargear-section select {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - WEAPON ABILITY TOOLTIPS
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .weapon-ability-tooltip::after {
+    position: fixed;
+    bottom: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: calc(100vw - 32px);
+    z-index: 1001;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - COSTS TABLE
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .costs-table {
+    font-size: 0.95rem;
+  }
+
+  .costs-table th,
+  .costs-table td {
+    padding: 10px 12px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - ARMY VIEW PAGE
+   ========================================================= */
+
+.army-view-unit-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.army-view-unit-enhancement {
+  color: var(--faction-trim);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 599px) {
+  .army-view-page .army-battle-size,
+  .army-view-page .army-detachment {
+    font-size: 0.95rem;
+    margin: 4px 0;
+  }
+
+  .army-units-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .army-view-unit {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 16px;
+  }
+
+  .army-view-unit-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+  }
+
+  .army-view-unit .warlord-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+  }
+
+  .army-view-page > div:last-child {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .army-view-page > div:last-child button {
+    flex: 1;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - ARMY BUILDER PAGE FORMS
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .army-builder-page > div > label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .army-builder-page .army-name-input {
+    max-width: 100%;
+  }
+
+  .army-builder-page .battle-size-select,
+  .army-builder-page .detachment-select {
+    width: 100%;
+  }
+
+  .army-builder-page .btn-save {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .army-builder-bg-icon {
+    display: none;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - FACTION DETAIL PAGE
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .role-section {
+    margin-bottom: 24px;
+  }
+
+  .role-heading {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .datasheet-list li {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .datasheet-list li a {
+    display: block;
+    width: 100%;
+    padding: 4px 0;
+  }
+
+  .army-list-section {
+    margin-top: 24px;
+    padding-top: 20px;
+  }
+
+  .create-army-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 14px 18px;
+  }
+
+  .army-list li {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}

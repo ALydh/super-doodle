@@ -64,9 +64,13 @@ export function ArmyViewPage() {
           const isWarlord = unit.datasheetId === army.army.warlordId;
           return (
             <li key={i} className="army-view-unit">
-              {ds?.name ?? unit.datasheetId}
-              {isWarlord && <strong> (Warlord)</strong>}
-              {unit.enhancementId && ` + Enhancement: ${unit.enhancementId}`}
+              <span className="army-view-unit-name">
+                {ds?.name ?? unit.datasheetId}
+                {isWarlord && <span className="warlord-badge">Warlord</span>}
+              </span>
+              {unit.enhancementId && (
+                <span className="army-view-unit-enhancement">+ {unit.enhancementId}</span>
+              )}
             </li>
           );
         })}
