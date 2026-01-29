@@ -15,6 +15,7 @@ import { fetchDatasheetDetail } from "../api";
 import { UnitPicker } from "./UnitPicker";
 import { UnitRow } from "./UnitRow";
 import { ValidationErrors } from "./ValidationErrors";
+import { getFactionTheme } from "../factionTheme";
 
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
@@ -162,8 +163,10 @@ export function ArmyBuilderPage() {
 
   if (loading) return <div>Loading...</div>;
 
+  const factionTheme = getFactionTheme(resolvedFactionId);
+
   return (
-    <div>
+    <div data-faction={factionTheme}>
       <h1 data-testid="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
 
       <div>

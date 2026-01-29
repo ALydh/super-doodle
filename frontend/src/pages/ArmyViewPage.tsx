@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import type { PersistedArmy, Datasheet } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import { fetchArmy, deleteArmy, fetchDatasheetsByFaction } from "../api";
+import { getFactionTheme } from "../factionTheme";
 
 export function ArmyViewPage() {
   const { armyId } = useParams<{ armyId: string }>();
@@ -37,9 +38,10 @@ export function ArmyViewPage() {
 
   const dsMap = new Map(datasheets.map((ds) => [ds.id, ds]));
   const maxPoints = BATTLE_SIZE_POINTS[army.army.battleSize];
+  const factionTheme = getFactionTheme(army.army.factionId);
 
   return (
-    <div>
+    <div data-faction={factionTheme}>
       <Link to={`/factions/${army.army.factionId}`} data-testid="back-to-faction">
         &larr; Back to Faction
       </Link>

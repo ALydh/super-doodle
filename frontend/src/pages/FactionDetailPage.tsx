@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import type { Datasheet, Stratagem } from "../types";
 import { fetchDatasheetsByFaction, fetchStratagemsByFaction } from "../api";
 import { ArmyListSection } from "./ArmyListSection";
+import { getFactionTheme } from "../factionTheme";
 
 export function FactionDetailPage() {
   const { factionId } = useParams<{ factionId: string }>();
@@ -25,8 +26,10 @@ export function FactionDetailPage() {
 
   if (error) return <div data-testid="error">{error}</div>;
 
+  const factionTheme = getFactionTheme(factionId);
+
   return (
-    <div>
+    <div data-faction={factionTheme}>
       <Link to="/" data-testid="back-to-factions">&larr; Back to Factions</Link>
       <h1 data-testid="faction-title">Datasheets for {factionId}</h1>
       <ul data-testid="datasheet-list">

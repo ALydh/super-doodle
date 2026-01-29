@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { DatasheetDetail } from "../types";
 import { fetchDatasheetDetail } from "../api";
+import { getFactionTheme } from "../factionTheme";
 
 export function DatasheetDetailPage() {
   const { datasheetId } = useParams<{ datasheetId: string }>();
@@ -19,9 +20,10 @@ export function DatasheetDetailPage() {
   if (!detail) return <div>Loading...</div>;
 
   const { datasheet, profiles, wargear, costs, keywords, abilities, stratagems, options } = detail;
+  const factionTheme = getFactionTheme(datasheet.factionId);
 
   return (
-    <div>
+    <div data-faction={factionTheme}>
       {datasheet.factionId && (
         <Link to={`/factions/${datasheet.factionId}`} data-testid="back-to-datasheets">
           &larr; Back to Datasheets
@@ -173,7 +175,7 @@ export function DatasheetDetailPage() {
             {keywords
               .filter((k) => k.keyword)
               .map((k, i) => (
-                <span key={i} data-testid="keyword" style={{ marginRight: "8px" }}>
+                <span key={i} data-testid="keyword">
                   {k.keyword}
                 </span>
               ))}
