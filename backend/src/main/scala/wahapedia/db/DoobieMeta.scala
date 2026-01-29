@@ -6,6 +6,10 @@ import wahapedia.domain.models.{StratagemId, EnhancementId, DetachmentAbilityId}
 
 object DoobieMeta {
 
+  given Meta[UserId] = Meta[String].imap(UserId(_))(UserId.value)
+  given Meta[SessionToken] = Meta[String].imap(SessionToken(_))(SessionToken.value)
+  given Meta[InviteCode] = Meta[String].imap(InviteCode(_))(InviteCode.value)
+
   given Meta[DatasheetId] = Meta[String].imap(DatasheetId(_))(DatasheetId.value)
   given Meta[FactionId] = Meta[String].imap(FactionId(_))(FactionId.value)
   given Meta[AbilityId] = Meta[String].imap(AbilityId(_))(AbilityId.value)

@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
   "org.jsoup" % "jsoup" % "1.17.2",
   "org.tpolecat"  %% "doobie-core" % "1.0.0-RC5",
   "org.xerial"     % "sqlite-jdbc" % "3.44.1.0",
+  "org.mindrot"    % "jbcrypt" % "0.4",
   "org.scalatest" %% "scalatest" % "3.2.17" % Test
 )
 
