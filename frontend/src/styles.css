@@ -899,6 +899,25 @@ button:disabled {
   border-left: 4px solid var(--faction-primary);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   min-height: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.army-card-icon {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  opacity: 0.15;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.army-card:hover .army-card-icon {
+  opacity: 0.25;
+  transform: scale(1.1);
 }
 
 .army-card:hover {
@@ -967,4 +986,32 @@ button:disabled {
 
 .new-army-section h2 {
   margin-top: 0;
+}
+
+/* =========================================================
+   ARMY BUILDER PAGE - BACKGROUND ICON
+   ========================================================= */
+
+.army-builder-page,
+.army-view-page {
+  position: relative;
+}
+
+.army-builder-bg-icon {
+  position: fixed;
+  top: 50%;
+  right: -100px;
+  transform: translateY(-50%);
+  width: 500px;
+  height: 500px;
+  opacity: 0.05;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.army-builder-page > *:not(.army-builder-bg-icon),
+.army-view-page > *:not(.army-builder-bg-icon) {
+  position: relative;
+  z-index: 1;
 }
