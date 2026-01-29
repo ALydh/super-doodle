@@ -9,12 +9,12 @@ test('clicking a faction navigates to its datasheets', async ({ page }) => {
   await page.getByRole('link', { name: 'Necrons' }).click();
 
   await expect(page).toHaveURL(/\/factions\/NEC$/);
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 });
 
 test('datasheet count matches API response', async ({ page, request }) => {
   await page.goto('/factions/NEC');
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   const apiResponse = await request.get(`${API_BASE}/api/factions/NEC/datasheets`);
   expect(apiResponse.ok()).toBeTruthy();
@@ -26,7 +26,7 @@ test('datasheet count matches API response', async ({ page, request }) => {
 
 test('known Necron units are displayed', async ({ page }) => {
   await page.goto('/factions/NEC');
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
-  await expect(page.locator('.datasheet-list').getByRole('link', { name: 'Necron Warriors' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Necron Warriors' })).toBeVisible();
 });

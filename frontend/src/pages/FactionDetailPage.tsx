@@ -28,17 +28,39 @@ export function FactionDetailPage() {
 
   const factionTheme = getFactionTheme(factionId);
 
+  const datasheetsByRole = datasheets.reduce<Record<string, Datasheet[]>>((acc, ds) => {
+    const role = ds.role ?? "Other";
+    if (!acc[role]) acc[role] = [];
+    acc[role].push(ds);
+    return acc;
+  }, {});
+
+  const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
+  const sortedRoles = Object.keys(datasheetsByRole).sort((a, b) => {
+    const aIndex = roleOrder.indexOf(a);
+    const bIndex = roleOrder.indexOf(b);
+    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
+  });
+
   return (
     <div data-faction={factionTheme}>
       <Link to="/" className="back-link">&larr; Back to Factions</Link>
       <h1 className="faction-title">Datasheets for {factionId}</h1>
-      <ul className="datasheet-list">
-        {datasheets.map((ds) => (
-          <li key={ds.id} className="datasheet-item">
-            <Link to={`/datasheets/${ds.id}`}>{ds.name}</Link>
-          </li>
-        ))}
-      </ul>
+      {sortedRoles.map((role) => (
+        <section key={role} className="role-section">
+          <h2 className="role-heading">{role}</h2>
+          <ul className="datasheet-list">
+            {datasheetsByRole[role].map((ds) => (
+              <li key={ds.id} className="datasheet-item">
+                <Link to={`/datasheets/${ds.id}`}>{ds.name}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
       {factionId && <ArmyListSection factionId={factionId} />}
 
       {stratagems.length > 0 && (
