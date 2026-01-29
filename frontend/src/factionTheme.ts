@@ -28,6 +28,10 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "astra-militarum": "guard",
     "imperial-guard": "guard",
 
+    // Imperial Agents (uses Astra Militarum icon)
+    "aoi": "guard",
+    "imperial-agents": "guard",
+
     // Adeptus Mechanicus
     "adm": "mechanicus",
     "admech": "mechanicus",
@@ -100,6 +104,10 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     // Imperial Knights
     "qi": "imperial-knights",
     "imperial-knights": "imperial-knights",
+
+    // Adeptus Titanicus (uses Imperial Knights icon)
+    "tl": "imperial-knights",
+    "adeptus-titanicus": "imperial-knights",
 
     // Chaos Knights
     "qt": "chaos-knights",
