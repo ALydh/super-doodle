@@ -58,6 +58,12 @@ export async function fetchArmiesByFaction(factionId: string): Promise<ArmySumma
   return res.json();
 }
 
+export async function fetchAllArmies(): Promise<ArmySummary[]> {
+  const res = await fetch("/api/armies");
+  if (!res.ok) throw new Error(`Failed to fetch armies: ${res.status}`);
+  return res.json();
+}
+
 export async function fetchArmy(armyId: string): Promise<PersistedArmy> {
   const res = await fetch(`/api/armies/${armyId}`);
   if (!res.ok) throw new Error(`Failed to fetch army: ${res.status}`);
