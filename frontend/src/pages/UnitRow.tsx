@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection } from "../types";
+import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode } from "../types";
 
 interface Props {
   unit: ArmyUnit;
@@ -14,11 +14,17 @@ interface Props {
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
   onSetWarlord: (index: number) => void;
+  displayMode?: LeaderDisplayMode;
+  allUnits?: ArmyUnit[];
+  isGroupParent?: boolean;
+  isGroupChild?: boolean;
+  attachedLeaderInfo?: { name: string; index: number };
 }
 
 export function UnitRow({
   unit, index, datasheet, costs, enhancements, leaders, datasheets, options,
   isWarlord, onUpdate, onRemove, onSetWarlord,
+  displayMode = "table", allUnits = [], isGroupParent = false, isGroupChild = false, attachedLeaderInfo,
 }: Props) {
   const [showWargear, setShowWargear] = useState(false);
 
@@ -31,7 +37,9 @@ export function UnitRow({
     .filter((l) => l.leaderId === unit.datasheetId)
     .map((l) => l.attachedId);
 
-  const attachableUnits = datasheets.filter((ds) => validLeaderTargets.includes(ds.id));
+  const attachableUnitsInArmy = allUnits
+    .map((u, i) => ({ unit: u, index: i, ds: datasheets.find(d => d.id === u.datasheetId) }))
+    .filter(({ ds }) => ds && validLeaderTargets.includes(ds.id));
 
   const selectedCost = unitCosts.find((c) => c.line === unit.sizeOptionLine);
   const enhancementCost = unit.enhancementId
@@ -96,10 +104,76 @@ export function UnitRow({
     }).filter(choice => choice.length > 0);
   };
 
+  const nonCharacterUnitsWithIndices = allUnits
+    .map((u, i) => ({ unit: u, index: i, ds: datasheets.find(d => d.id === u.datasheetId) }))
+    .filter(({ ds }) => ds?.role !== "Characters");
+
+  const rowClassName = [
+    "unit-row",
+    isGroupParent ? "group-parent" : "",
+    isGroupChild ? "group-child" : "",
+  ].filter(Boolean).join(" ");
+
+  const renderLeaderCell = () => {
+    if (displayMode === "inline") {
+      if (attachedLeaderInfo) {
+        return <span className="attached-leader-badge">👤 {attachedLeaderInfo.name}</span>;
+      }
+      return null;
+    }
+
+    if (displayMode === "instance" && isCharacter) {
+      return (
+        <select
+          className="unit-leader-select"
+          value={unit.attachedToUnitIndex ?? ""}
+          onChange={(e) => onUpdate(index, {
+            ...unit,
+            attachedToUnitIndex: e.target.value ? Number(e.target.value) : null,
+            attachedLeaderId: null,
+          })}
+        >
+          <option value="">No attachment</option>
+          {nonCharacterUnitsWithIndices
+            .filter(({ index: unitIdx }) => {
+              const targetDatasheet = datasheets.find(d => d.id === allUnits[unitIdx].datasheetId);
+              return validLeaderTargets.includes(targetDatasheet?.id ?? "");
+            })
+            .map(({ index: unitIdx, ds }) => (
+              <option key={unitIdx} value={unitIdx}>
+                {ds?.name} (Unit #{unitIdx + 1})
+              </option>
+            ))}
+        </select>
+      );
+    }
+
+    if (isCharacter && attachableUnitsInArmy.length > 0) {
+      return (
+        <select
+          className="unit-leader-select"
+          value={unit.attachedLeaderId ?? ""}
+          onChange={(e) => onUpdate(index, { ...unit, attachedLeaderId: e.target.value || null })}
+        >
+          <option value="">No attachment</option>
+          {attachableUnitsInArmy.map(({ ds }) => (
+            <option key={ds!.id} value={ds!.id}>{ds!.name}</option>
+          ))}
+        </select>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <>
-      <tr className="unit-row">
-        <td className="unit-row-name">{datasheet?.name ?? unit.datasheetId}</td>
+      <tr className={rowClassName}>
+        <td className="unit-row-name">
+          {isGroupChild && <span className="group-connector">└─ </span>}
+          {datasheet?.name ?? unit.datasheetId}
+          {isGroupParent && <span className="group-indicator"> (leading)</span>}
+        </td>
         <td>
           <select
             className="unit-size-select"
@@ -126,18 +200,7 @@ export function UnitRow({
           )}
         </td>
         <td>
-          {isCharacter && attachableUnits.length > 0 && (
-            <select
-              className="unit-leader-select"
-              value={unit.attachedLeaderId ?? ""}
-              onChange={(e) => onUpdate(index, { ...unit, attachedLeaderId: e.target.value || null })}
-            >
-              <option value="">No attachment</option>
-              {attachableUnits.map((ds) => (
-                <option key={ds.id} value={ds.id}>{ds.name}</option>
-              ))}
-            </select>
-          )}
+          {renderLeaderCell()}
         </td>
         <td>
           {unitOptions.length > 0 && (

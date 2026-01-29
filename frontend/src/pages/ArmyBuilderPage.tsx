@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
   DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem, DatasheetOption,
+  LeaderDisplayMode,
 } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import {
@@ -13,9 +14,10 @@ import {
 } from "../api";
 import { fetchDatasheetDetail } from "../api";
 import { UnitPicker } from "./UnitPicker";
-import { UnitRow } from "./UnitRow";
 import { ValidationErrors } from "./ValidationErrors";
 import { getFactionTheme } from "../factionTheme";
+import { MergedUnitsDisplay } from "./MergedUnitsDisplay";
+import { renderUnitsForMode } from "./renderUnitsForMode";
 
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
@@ -28,6 +30,7 @@ export function ArmyBuilderPage() {
   const [units, setUnits] = useState<ArmyUnit[]>([]);
   const [warlordId, setWarlordId] = useState("");
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [leaderDisplayMode, setLeaderDisplayMode] = useState<LeaderDisplayMode>("table");
 
   const [datasheets, setDatasheets] = useState<Datasheet[] | null>(null);
   const [allCosts, setAllCosts] = useState<UnitCost[]>([]);
@@ -62,10 +65,11 @@ export function ArmyBuilderPage() {
         setBattleSize(persisted.army.battleSize);
         setDetachmentId(persisted.army.detachmentId);
         detachmentInitializedRef.current = true;
-        // Ensure backward compatibility for units without wargearSelections
+        // Ensure backward compatibility for units without wargearSelections or attachedToUnitIndex
         const unitsWithWargear = persisted.army.units.map(unit => ({
           ...unit,
-          wargearSelections: unit.wargearSelections ?? []
+          wargearSelections: unit.wargearSelections ?? [],
+          attachedToUnitIndex: unit.attachedToUnitIndex ?? null,
         }));
         setUnits(unitsWithWargear);
         setWarlordId(persisted.army.warlordId);
@@ -146,7 +150,7 @@ export function ArmyBuilderPage() {
   }, 0);
 
   const handleAddUnit = (datasheetId: string, sizeOptionLine: number) => {
-    setUnits([...units, { datasheetId, sizeOptionLine, enhancementId: null, attachedLeaderId: null, wargearSelections: [] }]);
+    setUnits([...units, { datasheetId, sizeOptionLine, enhancementId: null, attachedLeaderId: null, attachedToUnitIndex: null, wargearSelections: [] }]);
   };
 
   const handleUpdateUnit = (index: number, unit: ArmyUnit) => {
@@ -279,45 +283,67 @@ export function ArmyBuilderPage() {
         Points: {pointsTotal} / {BATTLE_SIZE_POINTS[battleSize]}
       </div>
 
-      <ValidationErrors errors={validationErrors} />
+      <ValidationErrors errors={validationErrors} datasheets={loadedDatasheets} />
 
       <h2>Units</h2>
+      <div className="leader-display-mode-selector">
+        <label>Leader Display Mode: </label>
+        <select
+          value={leaderDisplayMode}
+          onChange={(e) => setLeaderDisplayMode(e.target.value as LeaderDisplayMode)}
+        >
+          <option value="table">Default (Table)</option>
+          <option value="grouped">Visual Grouping</option>
+          <option value="inline">Inline Display</option>
+          <option value="merged">Merged Groups</option>
+          <option value="instance">Instance-based</option>
+        </select>
+      </div>
       <div className="army-units-wrapper">
-        <table className="army-units-table">
-          <thead>
-            <tr>
-              <th>Unit</th>
-              <th>Size</th>
-              <th>Enhancement</th>
-              <th>Leader</th>
-              <th>Wargear</th>
-              <th>Cost</th>
-              <th>Warlord</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {units.map((unit, i) => (
-              <UnitRow
-                key={i}
-                unit={unit}
-                index={i}
-                datasheet={loadedDatasheets.find((ds) => ds.id === unit.datasheetId)}
-                costs={allCosts}
-                enhancements={enhancements.filter(
-                  (e) => !e.detachmentId || e.detachmentId === detachmentId
-                )}
-                leaders={leaders}
-                datasheets={loadedDatasheets}
-                options={allOptions}
-                isWarlord={warlordId === unit.datasheetId}
-                onUpdate={handleUpdateUnit}
-                onRemove={handleRemoveUnit}
-                onSetWarlord={handleSetWarlord}
-              />
-            ))}
-          </tbody>
-        </table>
+        {leaderDisplayMode === "merged" ? (
+          <MergedUnitsDisplay
+            units={units}
+            datasheets={loadedDatasheets}
+            costs={allCosts}
+            enhancements={enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId)}
+            leaders={leaders}
+            options={allOptions}
+            warlordId={warlordId}
+            onUpdate={handleUpdateUnit}
+            onRemove={handleRemoveUnit}
+            onSetWarlord={handleSetWarlord}
+          />
+        ) : (
+          <table className="army-units-table">
+            <thead>
+              <tr>
+                <th>Unit</th>
+                <th>Size</th>
+                <th>Enhancement</th>
+                <th>{leaderDisplayMode === "inline" ? "Attached Leader" : "Leader"}</th>
+                <th>Wargear</th>
+                <th>Cost</th>
+                <th>Warlord</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {renderUnitsForMode(
+                leaderDisplayMode,
+                units,
+                loadedDatasheets,
+                allCosts,
+                enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId),
+                leaders,
+                allOptions,
+                warlordId,
+                handleUpdateUnit,
+                handleRemoveUnit,
+                handleSetWarlord
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
