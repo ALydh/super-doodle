@@ -35,6 +35,7 @@ object DataLoader {
       _ <- loadFile("Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa)
       _ <- loadFile("Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa)
       _ <- loadFile("Last_update.csv", LastUpdateParser, insertLastUpdate)(xa)
+      _ <- loadFile("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
     } yield ()
 
   private def loadFile[A](
@@ -51,6 +52,7 @@ object DataLoader {
 
   private def clearAll(xa: Transactor[IO]): IO[Unit] = {
     val deletes = List(
+      sql"DELETE FROM weapon_abilities",
       sql"DELETE FROM datasheet_detachment_abilities",
       sql"DELETE FROM detachment_abilities",
       sql"DELETE FROM datasheet_enhancements",
@@ -147,4 +149,10 @@ object DataLoader {
 
   private def insertLastUpdate(lu: LastUpdate): ConnectionIO[Int] =
     sql"INSERT INTO last_update (timestamp) VALUES (${lu.timestamp})".update.run
+
+  private def insertWeaponAbility(wa: WeaponAbility): ConnectionIO[Int] =
+    sql"INSERT INTO weapon_abilities (id, name, description) VALUES (${wa.id}, ${wa.name}, ${wa.description})".update.run
+
+  def loadWeaponAbilities(xa: Transactor[IO]): IO[Unit] =
+    loadFile("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
 }

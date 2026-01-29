@@ -273,6 +273,9 @@ object HttpServer {
         case Left(_) =>
           BadRequest(Json.obj("error" -> Json.fromString(s"Invalid faction ID: $factionIdStr")))
       }
+    case GET -> Root / "api" / "armies" =>
+      sql"SELECT id, name, faction_id, battle_size, updated_at FROM armies ORDER BY updated_at DESC"
+        .query[ArmySummary].to[List].transact(xa).flatMap(Ok(_))
     case GET -> Root / "api" / "factions" / factionIdStr / "armies" =>
       FactionId.parse(factionIdStr) match {
         case Right(factionId) =>
@@ -304,6 +307,8 @@ object HttpServer {
       }
     case GET -> Root / "api" / "detachments" / detachmentIdStr / "abilities" =>
       ReferenceDataRepository.detachmentAbilitiesByDetachmentId(detachmentIdStr)(xa).flatMap(Ok(_))
+    case GET -> Root / "api" / "weapon-abilities" =>
+      ReferenceDataRepository.allWeaponAbilities(xa).flatMap(Ok(_))
     case req @ POST -> Root / "api" / "armies" / "validate" =>
       req.as[Army].flatMap { army =>
         validateArmy(army, xa).flatMap(Ok(_))

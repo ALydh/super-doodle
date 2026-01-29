@@ -185,6 +185,12 @@ object Schema {
       PRIMARY KEY (datasheet_id, detachment_ability_id)
     )""",
 
+    sql"""CREATE TABLE IF NOT EXISTS weapon_abilities (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL
+    )""",
+
     sql"""CREATE TABLE IF NOT EXISTS armies (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,

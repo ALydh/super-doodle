@@ -238,7 +238,7 @@
         "platform": {
             "name": "jvm",
             "config": {
-                "home": "/Library/Java/JavaVirtualMachines/graalvm-jdk-25.0.2+10.1/Contents/Home",
+                "home": "/opt/homebrew/Cellar/openjdk/25.0.2/libexec/openjdk.jdk/Contents/Home",
                 "options": [
                     "-Duser.dir=/Users/alexanderlydh/Repositories/super-doodle/backend/project"
                 ]
@@ -247,7 +247,7 @@
                 
             ],
             "runtimeConfig": {
-                "home": "/Library/Java/JavaVirtualMachines/graalvm-jdk-25.0.2+10.1/Contents/Home",
+                "home": "/opt/homebrew/Cellar/openjdk/25.0.2/libexec/openjdk.jdk/Contents/Home",
                 "options": [
                     "-Duser.dir=/Users/alexanderlydh/Repositories/super-doodle/backend/project"
                 ]

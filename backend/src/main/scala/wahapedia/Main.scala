@@ -27,6 +27,10 @@ object Main extends IOApp.Simple {
       } else {
         IO.println("Loading CSV data into database...") *> DataLoader.loadAll(xa)
       }
+      weaponAbilitiesCount = tableCounts.getOrElse("weapon_abilities", 0)
+      _ <- if (weaponAbilitiesCount == 0) {
+        IO.println("Loading weapon abilities...") *> DataLoader.loadWeaponAbilities(xa)
+      } else IO.unit
       _ <- printSummary(isPopulated)
       _ <- IO.println("Starting HTTP server on port 8080...")
       _ <- HttpServer.createServer(8080, xa).useForever

@@ -157,6 +157,10 @@ object ReferenceDataRepository {
     sql"SELECT timestamp FROM last_update"
       .query[LastUpdate].to[List].transact(xa)
 
+  def allWeaponAbilities(xa: Transactor[IO]): IO[List[WeaponAbility]] =
+    sql"SELECT id, name, description FROM weapon_abilities"
+      .query[WeaponAbility].to[List].transact(xa)
+
   case class DetachmentInfo(name: String, detachmentId: String)
 
   def detachmentsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DetachmentInfo]] =
@@ -187,7 +191,7 @@ object ReferenceDataRepository {
       "datasheet_abilities", "datasheet_options", "datasheet_leaders",
       "stratagems", "datasheet_stratagems", "enhancements",
       "datasheet_enhancements", "detachment_abilities",
-      "datasheet_detachment_abilities"
+      "datasheet_detachment_abilities", "weapon_abilities"
     )
     tables.traverse { table =>
       Fragment.const(s"SELECT COUNT(*) FROM $table").query[Int].unique.transact(xa).map(table -> _)
