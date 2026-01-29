@@ -56,7 +56,6 @@ export function FactionListPage() {
             {armies.map((army) => {
               const faction = factionMap.get(army.factionId);
               const factionTheme = getFactionTheme(army.factionId);
-              const maxPoints = BATTLE_SIZE_POINTS[army.battleSize as keyof typeof BATTLE_SIZE_POINTS] || 2000;
 
               return (
                 <Link
@@ -74,13 +73,24 @@ export function FactionListPage() {
                     />
                   )}
                   <div className="army-card-header">
-                    <span className="army-card-faction">{faction?.name || army.factionId}</span>
-                    <span className="army-card-size">{maxPoints} pts</span>
+                    <span className="army-card-faction">
+                      {faction?.name || army.factionId}
+                    </span>
+                    <span className="army-card-size">
+                      {army.totalPoints} pts
+                    </span>
                   </div>
                   <h3 className="army-card-name">{army.name}</h3>
+                  {army.warlordName && (
+                    <div className="army-card-warlord">{army.warlordName}</div>
+                  )}
                   <div className="army-card-footer">
-                    <span className="army-card-battle-size">{army.battleSize}</span>
-                    <span className="army-card-updated">{formatDate(army.updatedAt)}</span>
+                    <span className="army-card-battle-size">
+                      {army.battleSize}
+                    </span>
+                    <span className="army-card-updated">
+                      {formatDate(army.updatedAt)}
+                    </span>
                   </div>
                 </Link>
               );

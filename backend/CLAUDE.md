@@ -28,6 +28,7 @@
 - Data files live at `../data/wahapedia/` (relative to `backend/`).
 
 ## Git
+- Use `gh` CLI for all git operations.
 - Conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`.
 
 ## Rules for Claude
