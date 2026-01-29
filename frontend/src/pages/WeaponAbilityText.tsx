@@ -9,17 +9,18 @@ function useWeaponAbilities(): WeaponAbility[] {
   const [abilities, setAbilities] = useState<WeaponAbility[]>(cachedAbilities ?? []);
 
   useEffect(() => {
-    if (cachedAbilities) {
-      setAbilities(cachedAbilities);
-      return;
-    }
+    if (cachedAbilities) return;
     if (!fetchPromise) {
       fetchPromise = fetchWeaponAbilities().then((data) => {
         cachedAbilities = data;
         return data;
       });
     }
-    fetchPromise.then(setAbilities);
+    let cancelled = false;
+    fetchPromise.then((data) => {
+      if (!cancelled) setAbilities(data);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   return abilities;
