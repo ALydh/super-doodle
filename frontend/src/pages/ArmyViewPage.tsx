@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import type { PersistedArmy, Datasheet } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import { fetchArmy, deleteArmy, fetchDatasheetsByFaction } from "../api";
+import { getFactionTheme } from "../factionTheme";
 
 export function ArmyViewPage() {
   const { armyId } = useParams<{ armyId: string }>();
@@ -32,28 +33,29 @@ export function ArmyViewPage() {
     }
   };
 
-  if (error) return <div data-testid="error">{error}</div>;
+  if (error) return <div className="error-message">{error}</div>;
   if (!army) return <div>Loading...</div>;
 
   const dsMap = new Map(datasheets.map((ds) => [ds.id, ds]));
   const maxPoints = BATTLE_SIZE_POINTS[army.army.battleSize];
+  const factionTheme = getFactionTheme(army.army.factionId);
 
   return (
-    <div>
-      <Link to={`/factions/${army.army.factionId}`} data-testid="back-to-faction">
+    <div data-faction={factionTheme}>
+      <Link to={`/factions/${army.army.factionId}`} className="back-link">
         &larr; Back to Faction
       </Link>
-      <h1 data-testid="army-name">{army.name}</h1>
-      <p data-testid="army-battle-size">Battle Size: {army.army.battleSize} ({maxPoints}pts)</p>
-      <p data-testid="army-detachment">Detachment: {army.army.detachmentId}</p>
+      <h1 className="army-name">{army.name}</h1>
+      <p className="army-battle-size">Battle Size: {army.army.battleSize} ({maxPoints}pts)</p>
+      <p className="army-detachment">Detachment: {army.army.detachmentId}</p>
 
       <h2>Units</h2>
-      <ul data-testid="army-units-list">
+      <ul className="army-units-list">
         {army.army.units.map((unit, i) => {
           const ds = dsMap.get(unit.datasheetId);
           const isWarlord = unit.datasheetId === army.army.warlordId;
           return (
-            <li key={i} data-testid="army-view-unit">
+            <li key={i} className="army-view-unit">
               {ds?.name ?? unit.datasheetId}
               {isWarlord && <strong> (Warlord)</strong>}
               {unit.enhancementId && ` + Enhancement: ${unit.enhancementId}`}
@@ -64,9 +66,9 @@ export function ArmyViewPage() {
 
       <div style={{ marginTop: "16px" }}>
         <Link to={`/armies/${armyId}/edit`}>
-          <button data-testid="edit-army">Edit</button>
+          <button className="edit-army">Edit</button>
         </Link>{" "}
-        <button data-testid="delete-army" onClick={handleDelete}>Delete</button>
+        <button className="btn-delete delete-army" onClick={handleDelete}>Delete</button>
       </div>
     </div>
   );

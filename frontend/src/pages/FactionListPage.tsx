@@ -11,14 +11,14 @@ export function FactionListPage() {
     fetchFactions().then(setFactions).catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <div data-testid="error">{error}</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div>
       <h1>Factions</h1>
-      <ul data-testid="faction-list">
+      <ul className="faction-list">
         {factions.map((f) => (
-          <li key={f.id} data-testid="faction-item">
+          <li key={f.id} className="faction-item">
             <Link to={`/factions/${f.id}`}>{f.name}</Link>
           </li>
         ))}

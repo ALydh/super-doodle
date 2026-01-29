@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
@@ -15,6 +15,7 @@ import { fetchDatasheetDetail } from "../api";
 import { UnitPicker } from "./UnitPicker";
 import { UnitRow } from "./UnitRow";
 import { ValidationErrors } from "./ValidationErrors";
+import { getFactionTheme } from "../factionTheme";
 
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
@@ -28,7 +29,7 @@ export function ArmyBuilderPage() {
   const [warlordId, setWarlordId] = useState("");
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
 
-  const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
+  const [datasheets, setDatasheets] = useState<Datasheet[] | null>(null);
   const [allCosts, setAllCosts] = useState<UnitCost[]>([]);
   const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
@@ -38,10 +39,21 @@ export function ArmyBuilderPage() {
   const [abilitiesExpanded, setAbilitiesExpanded] = useState(false);
   const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
   const [strategemsExpanded, setStrategemsExpanded] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [resolvedFactionId, setResolvedFactionId] = useState<string>("");
+  const [loadedArmyFactionId, setLoadedArmyFactionId] = useState<string>("");
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const detachmentInitializedRef = useRef(false);
+
+  // Derive effective faction ID: for edit mode use loaded army's faction, for create use URL param
+  const effectiveFactionId = useMemo(() => {
+    if (isEdit) {
+      return loadedArmyFactionId;
+    }
+    return factionId ?? "";
+  }, [isEdit, loadedArmyFactionId, factionId]);
+
+  // Derive loading state from data presence
+  const loading = effectiveFactionId !== "" && datasheets === null;
 
   useEffect(() => {
     if (isEdit && armyId) {
@@ -49,6 +61,7 @@ export function ArmyBuilderPage() {
         setName(persisted.name);
         setBattleSize(persisted.army.battleSize);
         setDetachmentId(persisted.army.detachmentId);
+        detachmentInitializedRef.current = true;
         // Ensure backward compatibility for units without wargearSelections
         const unitsWithWargear = persisted.army.units.map(unit => ({
           ...unit,
@@ -56,41 +69,45 @@ export function ArmyBuilderPage() {
         }));
         setUnits(unitsWithWargear);
         setWarlordId(persisted.army.warlordId);
-        setResolvedFactionId(persisted.army.factionId);
+        setLoadedArmyFactionId(persisted.army.factionId);
       });
-    } else if (factionId) {
-      setResolvedFactionId(factionId);
     }
-  }, [isEdit, armyId, factionId]);
+  }, [isEdit, armyId]);
 
   useEffect(() => {
-    if (!resolvedFactionId) return;
-    setLoading(true);
+    if (!effectiveFactionId) return;
+    let cancelled = false;
+
     Promise.all([
-      fetchDatasheetsByFaction(resolvedFactionId),
-      fetchDetachmentsByFaction(resolvedFactionId),
-      fetchEnhancementsByFaction(resolvedFactionId),
-      fetchLeadersByFaction(resolvedFactionId),
-      fetchStratagemsByFaction(resolvedFactionId),
+      fetchDatasheetsByFaction(effectiveFactionId),
+      fetchDetachmentsByFaction(effectiveFactionId),
+      fetchEnhancementsByFaction(effectiveFactionId),
+      fetchLeadersByFaction(effectiveFactionId),
+      fetchStratagemsByFaction(effectiveFactionId),
     ]).then(([ds, det, enh, ldr, strat]) => {
-      setDatasheets(ds);
+      if (cancelled) return;
       setDetachments(det);
       setEnhancements(enh);
       setLeaders(ldr);
       setAllStratagems(strat);
-      if (!detachmentId && det.length > 0) {
+      // Set default detachment only if not already initialized
+      if (!detachmentInitializedRef.current && det.length > 0) {
         setDetachmentId(det[0].detachmentId);
+        detachmentInitializedRef.current = true;
       }
       const dsIds = [...new Set(ds.map((d) => d.id))];
-      return Promise.all(dsIds.map((id) => fetchDatasheetDetail(id)));
-    }).then((details) => {
-      const costs = details.flatMap((d) => d.costs);
-      const options = details.flatMap((d) => d.options);
-      setAllCosts(costs);
-      setAllOptions(options);
-      setLoading(false);
+      return Promise.all(dsIds.map((id) => fetchDatasheetDetail(id))).then((details) => {
+        if (cancelled) return;
+        const costs = details.flatMap((d) => d.costs);
+        const options = details.flatMap((d) => d.options);
+        setAllCosts(costs);
+        setAllOptions(options);
+        setDatasheets(ds);
+      });
     });
-  }, [resolvedFactionId]);
+
+    return () => { cancelled = true; };
+  }, [effectiveFactionId]);
 
   useEffect(() => {
     if (!detachmentId) return;
@@ -98,15 +115,15 @@ export function ArmyBuilderPage() {
   }, [detachmentId]);
 
   const buildArmy = useCallback((): Army | null => {
-    if (!resolvedFactionId || !detachmentId) return null;
+    if (!effectiveFactionId || !detachmentId) return null;
     return {
-      factionId: resolvedFactionId,
+      factionId: effectiveFactionId,
       battleSize,
       detachmentId,
       warlordId: warlordId || (units[0]?.datasheetId ?? ""),
       units,
     };
-  }, [resolvedFactionId, battleSize, detachmentId, warlordId, units]);
+  }, [effectiveFactionId, battleSize, detachmentId, warlordId, units]);
 
   useEffect(() => {
     if (loading) return;
@@ -162,15 +179,18 @@ export function ArmyBuilderPage() {
 
   if (loading) return <div>Loading...</div>;
 
+  const factionTheme = getFactionTheme(effectiveFactionId);
+  const loadedDatasheets = datasheets ?? [];
+
   return (
-    <div>
-      <h1 data-testid="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
+    <div data-faction={factionTheme}>
+      <h1 className="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
 
       <div>
         <label>
           Army Name:{" "}
           <input
-            data-testid="army-name-input"
+            className="army-name-input"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -182,7 +202,7 @@ export function ArmyBuilderPage() {
         <label>
           Battle Size:{" "}
           <select
-            data-testid="battle-size-select"
+            className="battle-size-select"
             value={battleSize}
             onChange={(e) => setBattleSize(e.target.value as BattleSize)}
           >
@@ -197,7 +217,7 @@ export function ArmyBuilderPage() {
         <label>
           Detachment:{" "}
           <select
-            data-testid="detachment-select"
+            className="detachment-select"
             value={detachmentId}
             onChange={(e) => setDetachmentId(e.target.value)}
           >
@@ -209,17 +229,17 @@ export function ArmyBuilderPage() {
       </div>
 
       {detachmentAbilities.length > 0 && (
-        <div data-testid="detachment-abilities-section">
+        <div className="detachment-abilities-section">
           <button
-            data-testid="detachment-abilities-toggle"
+            className="btn-toggle detachment-abilities-toggle"
             onClick={() => setAbilitiesExpanded(!abilitiesExpanded)}
           >
             Detachment Abilities ({detachmentAbilities.length}) {abilitiesExpanded ? "▼" : "▶"}
           </button>
           {abilitiesExpanded && (
-            <ul data-testid="detachment-abilities-list">
+            <ul className="detachment-abilities-list">
               {detachmentAbilities.map((a) => (
-                <li key={a.id} data-testid="detachment-ability-item">
+                <li key={a.id} className="detachment-ability-item">
                   <strong>{a.name}</strong>
                   <p dangerouslySetInnerHTML={{ __html: a.description }} />
                 </li>
@@ -232,17 +252,17 @@ export function ArmyBuilderPage() {
       {(() => {
         const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
         return filteredStratagems.length > 0 && (
-          <div data-testid="detachment-stratagems-section">
+          <div className="detachment-stratagems-section">
             <button
-              data-testid="detachment-stratagems-toggle"
+              className="btn-toggle detachment-stratagems-toggle"
               onClick={() => setStrategemsExpanded(!strategemsExpanded)}
             >
               Detachment Stratagems ({filteredStratagems.length}) {strategemsExpanded ? "▼" : "▶"}
             </button>
             {strategemsExpanded && (
-              <ul data-testid="detachment-stratagems-list">
+              <ul className="detachment-stratagems-list">
                 {filteredStratagems.map((s) => (
-                  <li key={s.id} data-testid="detachment-stratagem-item">
+                  <li key={s.id} className="detachment-stratagem-item">
                     <strong>{s.name}</strong>
                     {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
                     {s.phase && <span> - {s.phase}</span>}
@@ -255,14 +275,14 @@ export function ArmyBuilderPage() {
         );
       })()}
 
-      <div data-testid="points-total">
+      <div className="points-total">
         Points: {pointsTotal} / {BATTLE_SIZE_POINTS[battleSize]}
       </div>
 
       <ValidationErrors errors={validationErrors} />
 
       <h2>Units</h2>
-      <table data-testid="army-units-table">
+      <table className="army-units-table">
         <thead>
           <tr>
             <th>Unit</th>
@@ -281,13 +301,13 @@ export function ArmyBuilderPage() {
               key={i}
               unit={unit}
               index={i}
-              datasheet={datasheets.find((ds) => ds.id === unit.datasheetId)}
+              datasheet={loadedDatasheets.find((ds) => ds.id === unit.datasheetId)}
               costs={allCosts}
               enhancements={enhancements.filter(
                 (e) => !e.detachmentId || e.detachmentId === detachmentId
               )}
               leaders={leaders}
-              datasheets={datasheets}
+              datasheets={loadedDatasheets}
               options={allOptions}
               isWarlord={warlordId === unit.datasheetId}
               onUpdate={handleUpdateUnit}
@@ -298,10 +318,10 @@ export function ArmyBuilderPage() {
         </tbody>
       </table>
 
-      <UnitPicker datasheets={datasheets} costs={allCosts} onAdd={handleAddUnit} />
+      <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
 
       <div style={{ marginTop: "16px" }}>
-        <button data-testid="save-army" onClick={handleSave} disabled={!name.trim()}>
+        <button className="btn-save save-army" onClick={handleSave} disabled={!name.trim()}>
           {isEdit ? "Update Army" : "Save Army"}
         </button>
       </div>
