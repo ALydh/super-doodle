@@ -29,11 +29,13 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "imperial-guard": "guard",
 
     // Adeptus Mechanicus
+    "adm": "mechanicus",
     "admech": "mechanicus",
     "mechanicus": "mechanicus",
     "adeptus-mechanicus": "mechanicus",
 
     // Adepta Sororitas
+    "as": "sororitas",
     "sob": "sororitas",
     "sororitas": "sororitas",
     "adepta-sororitas": "sororitas",
@@ -41,25 +43,29 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "sisters-of-battle": "sororitas",
 
     // Orks
-    "orks": "orks",
     "ork": "orks",
+    "orks": "orks",
 
     // Aeldari / Craftworlds
+    "ae": "aeldari",
     "aeldari": "aeldari",
     "eldar": "aeldari",
     "craftworlds": "aeldari",
     "craftworld": "aeldari",
 
     // Drukhari
+    "dru": "drukhari",
     "drukhari": "drukhari",
     "dark-eldar": "drukhari",
     "darkeldar": "drukhari",
 
     // Necrons
+    "nec": "necrons",
     "necrons": "necrons",
     "necron": "necrons",
 
     // Tyranids
+    "tyr": "tyranids",
     "tyranids": "tyranids",
     "tyranid": "tyranids",
     "nids": "tyranids",
@@ -70,11 +76,13 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "tau-empire": "tau",
 
     // Genestealer Cults
+    "gc": "genestealer-cults",
     "gsc": "genestealer-cults",
     "genestealer-cults": "genestealer-cults",
     "genestealers": "genestealer-cults",
 
     // Leagues of Votann
+    "lov": "votann",
     "votann": "votann",
     "leagues-of-votann": "votann",
     "squats": "votann",

@@ -65,6 +65,14 @@ export function FactionListPage() {
                   className="army-card"
                   data-faction={factionTheme}
                 >
+                  {factionTheme && (
+                    <img
+                      src={`/icons/${factionTheme}.svg`}
+                      alt=""
+                      className="army-card-icon"
+                      aria-hidden="true"
+                    />
+                  )}
                   <div className="army-card-header">
                     <span className="army-card-faction">{faction?.name || army.factionId}</span>
                     <span className="army-card-size">{maxPoints} pts</span>
