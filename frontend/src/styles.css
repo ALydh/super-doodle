@@ -1,0 +1,601 @@
+/* =========================================================
+   GLOBAL STYLES
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background-color: var(--surface-app);
+  color: var(--text-body);
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: var(--surface-page);
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+
+h1, h2, h3, h4 {
+  color: var(--text-primary);
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--faction-primary);
+  padding-bottom: 12px;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  color: var(--faction-primary);
+}
+
+h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+
+h4 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+p {
+  margin: 8px 0;
+}
+
+strong {
+  color: var(--text-primary);
+}
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+a {
+  color: var(--faction-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--faction-trim);
+  text-decoration: underline;
+}
+
+/* Back links */
+a[data-testid="back-to-factions"],
+a[data-testid="back-to-datasheets"],
+a[data-testid="back-to-faction"] {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+a[data-testid="back-to-factions"]:hover,
+a[data-testid="back-to-datasheets"]:hover,
+a[data-testid="back-to-faction"]:hover {
+  color: var(--faction-primary);
+}
+
+/* =========================================================
+   LISTS
+   ========================================================= */
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul[data-testid="faction-list"] li,
+ul[data-testid="datasheet-list"] li,
+ul[data-testid="army-list"] li {
+  padding: 12px 16px;
+  background-color: var(--surface-card);
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border-left: 3px solid var(--faction-primary);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+ul[data-testid="faction-list"] li:hover,
+ul[data-testid="datasheet-list"] li:hover,
+ul[data-testid="army-list"] li:hover {
+  background-color: var(--surface-panel);
+  border-left-color: var(--faction-trim);
+}
+
+ul[data-testid="faction-list"] li a,
+ul[data-testid="datasheet-list"] li a,
+ul[data-testid="army-list"] li a {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Stratagems and abilities lists */
+ul[data-testid="stratagems-list"] li,
+ul[data-testid="unit-stratagems-list"] li,
+ul[data-testid="abilities-list"] li,
+ul[data-testid="detachment-abilities-list"] li,
+ul[data-testid="detachment-stratagems-list"] li {
+  padding: 16px;
+  background-color: var(--surface-card);
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+}
+
+ul[data-testid="stratagems-list"] li strong,
+ul[data-testid="unit-stratagems-list"] li strong,
+ul[data-testid="abilities-list"] li strong,
+ul[data-testid="detachment-abilities-list"] li strong,
+ul[data-testid="detachment-stratagems-list"] li strong {
+  color: var(--faction-primary);
+  font-size: 1.1rem;
+}
+
+ul[data-testid="stratagems-list"] li span,
+ul[data-testid="unit-stratagems-list"] li span,
+ul[data-testid="detachment-stratagems-list"] li span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Wargear options list */
+ul[data-testid="wargear-options-list"] li {
+  padding: 8px 12px;
+  background-color: var(--surface-panel);
+  margin-bottom: 6px;
+  border-radius: 4px;
+  border-left: 2px solid var(--faction-secondary);
+}
+
+/* Army units list */
+ul[data-testid="army-units-list"] li {
+  padding: 12px 16px;
+  background-color: var(--surface-card);
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border-left: 3px solid var(--faction-secondary);
+}
+
+ul[data-testid="army-units-list"] li strong {
+  color: var(--faction-trim);
+}
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--surface-panel);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+thead {
+  background-color: var(--faction-secondary);
+}
+
+thead th {
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--faction-primary);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--surface-border);
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background-color: var(--surface-card);
+}
+
+tbody td {
+  padding: 12px 16px;
+  color: var(--text-body);
+}
+
+/* Stats table specific */
+table[data-testid="stats-table"] td,
+table[data-testid="weapons-table"] td {
+  text-align: center;
+}
+
+table[data-testid="stats-table"] td:first-child,
+table[data-testid="weapons-table"] td:first-child {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+table[data-testid="stats-table"] th,
+table[data-testid="weapons-table"] th {
+  text-align: center;
+}
+
+table[data-testid="stats-table"] th:first-child,
+table[data-testid="weapons-table"] th:first-child {
+  text-align: left;
+}
+
+/* Costs table */
+table[data-testid="costs-table"] td[data-testid="cost-value"] {
+  color: var(--faction-trim);
+  font-weight: 600;
+}
+
+/* Army units table */
+table[data-testid="army-units-table"] {
+  margin-bottom: 24px;
+}
+
+/* =========================================================
+   FORMS
+   ========================================================= */
+
+label {
+  color: var(--text-body);
+  display: block;
+  margin-bottom: 16px;
+}
+
+input[type="text"],
+input[type="search"] {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 400px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus {
+  outline: none;
+  border-color: var(--faction-primary);
+  box-shadow: 0 0 0 3px rgba(30, 90, 168, 0.2);
+}
+
+input[type="text"]::placeholder,
+input[type="search"]::placeholder {
+  color: var(--text-muted);
+}
+
+select {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--faction-primary);
+}
+
+select option {
+  background-color: var(--surface-panel);
+  color: var(--text-body);
+}
+
+input[type="checkbox"] {
+  accent-color: var(--faction-primary);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+input[type="radio"] {
+  accent-color: var(--faction-primary);
+  cursor: pointer;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+button {
+  background-color: var(--faction-primary);
+  color: var(--text-primary);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background-color: var(--faction-secondary);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  background-color: var(--state-disabled);
+  cursor: not-allowed;
+}
+
+/* Add button */
+button[data-testid="add-unit-button"] {
+  background-color: var(--state-success);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+button[data-testid="add-unit-button"]:hover {
+  background-color: #2da042;
+}
+
+/* Remove button */
+button[data-testid="remove-unit"] {
+  background-color: var(--state-danger);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+button[data-testid="remove-unit"]:hover {
+  background-color: #c9432e;
+}
+
+/* Delete button */
+button[data-testid="delete-army"] {
+  background-color: var(--state-danger);
+}
+
+button[data-testid="delete-army"]:hover {
+  background-color: #c9432e;
+}
+
+/* Toggle buttons */
+button[data-testid="detachment-abilities-toggle"],
+button[data-testid="detachment-stratagems-toggle"],
+button[data-testid="wargear-toggle"] {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  color: var(--text-body);
+  padding: 8px 14px;
+}
+
+button[data-testid="detachment-abilities-toggle"]:hover,
+button[data-testid="detachment-stratagems-toggle"]:hover,
+button[data-testid="wargear-toggle"]:hover {
+  background-color: var(--surface-panel);
+  border-color: var(--faction-primary);
+}
+
+/* Save button */
+button[data-testid="save-army"] {
+  background-color: var(--state-success);
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+button[data-testid="save-army"]:hover {
+  background-color: #2da042;
+}
+
+button[data-testid="save-army"]:disabled {
+  background-color: var(--state-disabled);
+}
+
+/* =========================================================
+   SECTIONS & PANELS
+   ========================================================= */
+
+div[data-testid="unit-picker"] {
+  background-color: var(--surface-panel);
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 24px;
+  border: 1px solid var(--surface-border);
+}
+
+div[data-testid="unit-picker"] h3 {
+  margin-top: 0;
+  color: var(--faction-primary);
+}
+
+div[data-testid="unit-picker-list"] {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 16px;
+}
+
+div[data-testid="unit-picker-list"] li,
+ul[data-testid="unit-picker-list"] li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background-color: var(--surface-card);
+  margin-bottom: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+}
+
+div[data-testid="unit-picker-list"] li:hover,
+ul[data-testid="unit-picker-list"] li:hover {
+  border-color: var(--faction-primary);
+}
+
+div[data-testid="army-list-section"] {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--surface-border);
+}
+
+div[data-testid="army-list-section"] a[data-testid="create-army-link"] {
+  display: inline-block;
+  background-color: var(--faction-primary);
+  color: var(--text-primary);
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  transition: background-color 0.2s ease;
+}
+
+div[data-testid="army-list-section"] a[data-testid="create-army-link"]:hover {
+  background-color: var(--faction-secondary);
+  text-decoration: none;
+}
+
+/* Detachment abilities/stratagems sections */
+div[data-testid="detachment-abilities-section"],
+div[data-testid="detachment-stratagems-section"] {
+  margin: 16px 0;
+}
+
+/* Points total */
+div[data-testid="points-total"] {
+  background-color: var(--surface-card);
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-left: 4px solid var(--faction-primary);
+  margin: 20px 0;
+}
+
+/* Keywords */
+div[data-testid="keywords-list"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+div[data-testid="keywords-list"] span {
+  background-color: var(--surface-card);
+  color: var(--faction-trim);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  border: 1px solid var(--surface-border);
+}
+
+/* =========================================================
+   VALIDATION ERRORS
+   ========================================================= */
+
+div[data-testid="validation-errors"] {
+  background-color: rgba(229, 83, 61, 0.1);
+  border: 1px solid var(--state-danger);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+div[data-testid="validation-errors"] strong {
+  color: var(--state-danger);
+}
+
+div[data-testid="validation-errors"] ul {
+  margin-top: 8px;
+}
+
+div[data-testid="validation-errors"] li {
+  color: var(--state-danger);
+  padding: 4px 0;
+}
+
+/* =========================================================
+   WARGEAR SECTION (inline styles override)
+   ========================================================= */
+
+tr[data-testid="wargear-section"] td > div {
+  background-color: var(--surface-card) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 8px;
+}
+
+tr[data-testid="wargear-section"] h4 {
+  color: var(--faction-primary);
+  margin-bottom: 12px;
+}
+
+tr[data-testid="wargear-section"] label {
+  margin-bottom: 0;
+}
+
+tr[data-testid="wargear-section"] select {
+  min-width: 200px;
+}
+
+/* =========================================================
+   LOADING & ERROR STATES
+   ========================================================= */
+
+div[data-testid="error"] {
+  background-color: rgba(229, 83, 61, 0.1);
+  border: 1px solid var(--state-danger);
+  color: var(--state-danger);
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+/* =========================================================
+   SCROLLBAR STYLING
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-panel);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--state-disabled);
+}

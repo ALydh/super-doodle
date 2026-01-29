@@ -171,7 +171,7 @@ export function UnitRow({
       {showWargear && unitOptions.length > 0 && (
         <tr data-testid="wargear-section">
           <td colSpan={8}>
-            <div style={{ padding: '12px', backgroundColor: '#f5f5f5', border: '1px solid #ddd' }}>
+            <div style={{ padding: '12px' }}>
               <h4>Wargear Options:</h4>
               {unitOptions.map((option) => {
                 const selection = getWargearSelection(option.line);
@@ -202,7 +202,7 @@ export function UnitRow({
                           data-testid={`wargear-choice-${option.line}`}
                           value={selection?.notes ?? ''}
                           onChange={(e) => handleWargearNotesChange(option.line, e.target.value)}
-                          style={{ padding: '4px', minWidth: '200px' }}
+                          style={{ minWidth: '200px' }}
                         >
                           <option value="">Select wargear...</option>
                           {choices.map((choice, index) => (

@@ -43,7 +43,7 @@ export function ValidationErrors({ errors }: Props) {
   if (errors.length === 0) return null;
 
   return (
-    <div data-testid="validation-errors" style={{ color: "red", marginTop: "8px" }}>
+    <div data-testid="validation-errors">
       <strong>Validation Errors:</strong>
       <ul>
         {errors.map((err, i) => (
