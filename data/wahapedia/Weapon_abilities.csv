@@ -1,0 +1,21 @@
+id|name|description
+assault|Assault|Can be shot even if the bearer's unit Advanced.
+blast|Blast|Add 1 to the Attacks characteristic for every five models in the target unit (rounding down). Can never be used against a target that is within Engagement Range of any friendly units.
+devastating-wounds|Devastating Wounds|Saving throws cannot be made against Critical Wounds scored by this weapon (including invulnerable saving throws). Such attacks inflict mortal wounds equal to the Damage characteristic instead of normal damage.
+heavy|Heavy|Add 1 to Hit rolls if the bearer's unit Remained Stationary this turn.
+ignores-cover|Ignores Cover|Each time an attack is made with such a weapon, the target cannot have the Benefit of Cover against that attack.
+indirect-fire|Indirect Fire|Can target and make attacks against units that are not visible to the attacking unit. If no models are visible, subtract 1 from Hit rolls and the target has the Benefit of Cover.
+lethal-hits|Lethal Hits|Each time an attack is made with such a weapon, a Critical Hit automatically wounds the target.
+pistol|Pistol|Can be shot even if the bearer's unit is within Engagement Range of enemy units, but must target one of those enemy units. Cannot be shot alongside non-Pistol weapons.
+rapid-fire|Rapid Fire|Increase the Attacks characteristic by the specified amount when targeting units within half range.
+sustained-hits|Sustained Hits|Each Critical Hit scores the specified number of additional hits on the target.
+torrent|Torrent|Each time an attack is made with such a weapon, that attack automatically hits the target.
+twin-linked|Twin-linked|Each time an attack is made with such a weapon, you can re-roll that attack's Wound roll.
+precision|Precision|When targeting an Attached unit, the attacking model can allocate hits to a Character model in that unit if it is visible to the attacker.
+anti|Anti|An unmodified Wound roll of the specified value or higher against a target with the matching keyword scores a Critical Wound.
+hazardous|Hazardous|After a unit shoots or fights, roll one D6 for each Hazardous weapon used. For each 1, one model equipped with a Hazardous weapon is destroyed (or suffers 3 mortal wounds if a Character, Monster, or Vehicle).
+melta|Melta|Each time an attack is made with such a weapon against a target within half range, increase the Damage characteristic by the specified amount.
+lance|Lance|Each time an attack is made with such a weapon, if the bearer made a Charge move this turn, add 1 to that attack's Wound roll.
+one-shot|One Shot|The bearer can only shoot with this weapon once per battle.
+extra-attacks|Extra Attacks|The bearer can attack with this weapon in addition to any other weapons it can make attacks with.
+psychic|Psychic|This is a Psychic weapon. If a unit is targeted by one or more Psychic weapons, after resolving those attacks it must take a Battle-shock test.
