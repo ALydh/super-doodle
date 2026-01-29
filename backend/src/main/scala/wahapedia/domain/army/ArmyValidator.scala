@@ -170,10 +170,10 @@ object ArmyValidator {
     army.units.flatMap { unit =>
       unit.attachedLeaderId match {
         case None => Nil
-        case Some(bodyguardId) =>
-          val validTargets = leaderIndex.getOrElse(unit.datasheetId, Nil).map(_.attachedId)
-          if (validTargets.contains(bodyguardId)) Nil
-          else List(InvalidLeaderAttachment(unit.datasheetId, bodyguardId))
+        case Some(leaderId) =>
+          val validBodyguards = leaderIndex.getOrElse(leaderId, Nil).map(_.attachedId)
+          if (validBodyguards.contains(unit.datasheetId)) Nil
+          else List(InvalidLeaderAttachment(leaderId, unit.datasheetId))
       }
     }
   }

@@ -13,10 +13,14 @@ import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.CORS
-import wahapedia.db.ReferenceDataRepository
+import org.http4s.headers.`WWW-Authenticate`
+import org.http4s.Challenge
+import wahapedia.db.{ReferenceDataRepository, UserRepository, SessionRepository, InviteRepository}
 import wahapedia.domain.types.*
 import wahapedia.domain.models.*
 import wahapedia.domain.army.*
+import wahapedia.domain.auth.{AuthenticatedUser, Invite}
+import wahapedia.auth.PasswordHasher
 import doobie.*
 import doobie.implicits.*
 import wahapedia.db.DoobieMeta.given
@@ -113,9 +117,16 @@ case class PersistedArmy(
   id: String,
   name: String,
   army: Army,
+  ownerId: Option[String],
   createdAt: String,
   updatedAt: String
 )
+
+case class RegisterRequest(username: String, password: String, inviteCode: Option[String])
+case class LoginRequest(username: String, password: String)
+case class AuthResponse(token: String, user: UserResponse)
+case class UserResponse(id: String, username: String)
+case class InviteResponse(code: String, createdAt: String, used: Boolean)
 
 case class ArmyRow(
   id: String,
@@ -124,6 +135,7 @@ case class ArmyRow(
   battleSize: BattleSize,
   detachmentId: DetachmentId,
   warlordId: DatasheetId,
+  ownerId: Option[UserId],
   createdAt: String,
   updatedAt: String
 )
@@ -179,7 +191,7 @@ object HttpServer {
 
   private def loadArmy(armyId: String, xa: Transactor[IO]): IO[Option[PersistedArmy]] =
     for {
-      rowOpt <- sql"SELECT id, name, faction_id, battle_size, detachment_id, warlord_id, created_at, updated_at FROM armies WHERE id = $armyId"
+      rowOpt <- sql"SELECT id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at FROM armies WHERE id = $armyId"
         .query[ArmyRow].option.transact(xa)
       result <- rowOpt match {
         case None => IO.pure(None)
@@ -189,7 +201,7 @@ object HttpServer {
               val units = unitRows.map { u =>
                 val wargearSelections = u.wargearSelections match {
                   case None => List.empty[WargearSelection]
-                  case Some(jsonStr) => 
+                  case Some(jsonStr) =>
                     jawn.decode[List[WargearSelection]](jsonStr) match {
                       case Right(selections) => selections
                       case Left(_) => List.empty[WargearSelection]
@@ -198,15 +210,15 @@ object HttpServer {
                 ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, wargearSelections)
               }
               val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units)
-              Some(PersistedArmy(row.id, row.name, army, row.createdAt, row.updatedAt))
+              Some(PersistedArmy(row.id, row.name, army, row.ownerId.map(UserId.value), row.createdAt, row.updatedAt))
             }
       }
     } yield result
 
-  private def saveArmy(armyId: String, name: String, army: Army, now: String, xa: Transactor[IO]): IO[Unit] =
+  private def saveArmy(armyId: String, name: String, army: Army, ownerId: Option[UserId], now: String, xa: Transactor[IO]): IO[Unit] =
     (for {
-      _ <- sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, created_at, updated_at)
-                 VALUES ($armyId, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $now, $now)""".update.run
+      _ <- sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at)
+                 VALUES ($armyId, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $ownerId, $now, $now)""".update.run
       _ <- army.units.traverse_ { unit =>
         val wargearJson = if (unit.wargearSelections.isEmpty) None else Some(unit.wargearSelections.asJson.noSpaces)
         sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections)
@@ -233,9 +245,127 @@ object HttpServer {
       ValidationResponse(errors.isEmpty, errors)
     }
 
+  private def isOwner(army: PersistedArmy, user: Option[AuthenticatedUser]): Boolean =
+    (army.ownerId, user) match {
+      case (None, _) => true
+      case (Some(ownerId), Some(u)) => ownerId == UserId.value(u.id)
+      case _ => false
+    }
+
+  private val bearerChallenge = `WWW-Authenticate`(Challenge("Bearer", "api"))
+
+  private def unauthorized(message: String): IO[Response[IO]] =
+    Unauthorized(bearerChallenge, Json.obj("error" -> Json.fromString(message)))
+
   def routes(xa: Transactor[IO]): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "health" =>
       Ok(Json.obj("status" -> Json.fromString("ok")))
+
+    case req @ POST -> Root / "api" / "auth" / "register" =>
+      req.as[RegisterRequest].flatMap { regReq =>
+        for {
+          userCount <- UserRepository.count(xa)
+          existingUser <- UserRepository.findByUsername(regReq.username)(xa)
+          result <- existingUser match {
+            case Some(_) =>
+              Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
+            case None =>
+              val needsInvite = userCount > 0
+              if (needsInvite && regReq.inviteCode.isEmpty) {
+                Forbidden(Json.obj("error" -> Json.fromString("Invite code required")))
+              } else if (needsInvite) {
+                val code = InviteCode(regReq.inviteCode.get)
+                InviteRepository.findUnusedByCode(code)(xa).flatMap {
+                  case None =>
+                    Forbidden(Json.obj("error" -> Json.fromString("Invalid or used invite code")))
+                  case Some(_) =>
+                    for {
+                      hash <- PasswordHasher.hash(regReq.password)
+                      user <- UserRepository.create(regReq.username, hash)(xa)
+                      _ <- InviteRepository.markUsed(code, user.id)(xa)
+                      session <- SessionRepository.create(user.id)(xa)
+                      resp <- Created(AuthResponse(
+                        SessionToken.value(session.token),
+                        UserResponse(UserId.value(user.id), user.username)
+                      ))
+                    } yield resp
+                }
+              } else {
+                for {
+                  hash <- PasswordHasher.hash(regReq.password)
+                  user <- UserRepository.create(regReq.username, hash)(xa)
+                  session <- SessionRepository.create(user.id)(xa)
+                  resp <- Created(AuthResponse(
+                    SessionToken.value(session.token),
+                    UserResponse(UserId.value(user.id), user.username)
+                  ))
+                } yield resp
+              }
+          }
+        } yield result
+      }
+
+    case req @ POST -> Root / "api" / "auth" / "login" =>
+      req.as[LoginRequest].flatMap { loginReq =>
+        UserRepository.findByUsername(loginReq.username)(xa).flatMap {
+          case None =>
+            unauthorized("Invalid credentials")
+          case Some(user) =>
+            PasswordHasher.verify(loginReq.password, user.passwordHash).flatMap {
+              case false =>
+                unauthorized("Invalid credentials")
+              case true =>
+                SessionRepository.create(user.id)(xa).flatMap { session =>
+                  Ok(AuthResponse(
+                    SessionToken.value(session.token),
+                    UserResponse(UserId.value(user.id), user.username)
+                  ))
+                }
+            }
+        }
+      }
+
+    case req @ POST -> Root / "api" / "auth" / "logout" =>
+      AuthMiddleware.extractUser(req, xa).flatMap {
+        case None => Ok(Json.obj("message" -> Json.fromString("Logged out")))
+        case Some(_) =>
+          req.headers.get[headers.Authorization].flatMap { auth =>
+            auth.credentials match {
+              case Credentials.Token(AuthScheme.Bearer, token) => Some(token)
+              case _ => None
+            }
+          }.orElse(req.cookies.find(_.name == "session").map(_.content)) match {
+            case Some(tokenStr) =>
+              SessionRepository.delete(SessionToken(tokenStr))(xa) *> Ok(Json.obj("message" -> Json.fromString("Logged out")))
+            case None =>
+              Ok(Json.obj("message" -> Json.fromString("Logged out")))
+          }
+      }
+
+    case req @ GET -> Root / "api" / "auth" / "me" =>
+      AuthMiddleware.extractUser(req, xa).flatMap {
+        case None => unauthorized("Not authenticated")
+        case Some(user) => Ok(UserResponse(UserId.value(user.id), user.username))
+      }
+
+    case req @ POST -> Root / "api" / "invites" =>
+      AuthMiddleware.extractUser(req, xa).flatMap {
+        case None => unauthorized("Authentication required")
+        case Some(user) =>
+          InviteRepository.create(Some(user.id))(xa).flatMap { invite =>
+            Created(InviteResponse(InviteCode.value(invite.code), invite.createdAt.toString, false))
+          }
+      }
+
+    case req @ GET -> Root / "api" / "invites" =>
+      AuthMiddleware.extractUser(req, xa).flatMap {
+        case None => unauthorized("Authentication required")
+        case Some(_) =>
+          InviteRepository.listAll(xa).flatMap { invites =>
+            Ok(invites.map(i => InviteResponse(InviteCode.value(i.code), i.createdAt.toString, i.usedBy.isDefined)))
+          }
+      }
+
     case GET -> Root / "api" / "factions" =>
       ReferenceDataRepository.allFactions(xa).flatMap(Ok(_))
     case GET -> Root / "api" / "factions" / factionIdStr / "datasheets" =>
@@ -314,15 +444,19 @@ object HttpServer {
         validateArmy(army, xa).flatMap(Ok(_))
       }
     case req @ POST -> Root / "api" / "armies" =>
-      req.as[CreateArmyRequest].flatMap { createReq =>
-        val armyId = UUID.randomUUID().toString
-        val now = Instant.now().toString
-        saveArmy(armyId, createReq.name, createReq.army, now, xa).flatMap { _ =>
-          loadArmy(armyId, xa).flatMap {
-            case Some(persisted) => Created(persisted)
-            case None => InternalServerError(Json.obj("error" -> Json.fromString("Failed to load created army")))
+      AuthMiddleware.extractUser(req, xa).flatMap {
+        case None => unauthorized("Authentication required")
+        case Some(user) =>
+          req.as[CreateArmyRequest].flatMap { createReq =>
+            val armyId = UUID.randomUUID().toString
+            val now = Instant.now().toString
+            saveArmy(armyId, createReq.name, createReq.army, Some(user.id), now, xa).flatMap { _ =>
+              loadArmy(armyId, xa).flatMap {
+                case Some(persisted) => Created(persisted)
+                case None => InternalServerError(Json.obj("error" -> Json.fromString("Failed to load created army")))
+              }
+            }
           }
-        }
       }
     case GET -> Root / "api" / "armies" / armyId =>
       loadArmy(armyId, xa).flatMap {
@@ -330,26 +464,38 @@ object HttpServer {
         case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
       }
     case req @ PUT -> Root / "api" / "armies" / armyId =>
-      loadArmy(armyId, xa).flatMap {
-        case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
-        case Some(_) =>
-          req.as[CreateArmyRequest].flatMap { updateReq =>
-            val now = Instant.now().toString
-            updateArmy(armyId, updateReq.name, updateReq.army, now, xa).flatMap { _ =>
-              loadArmy(armyId, xa).flatMap {
-                case Some(persisted) => Ok(persisted)
-                case None => InternalServerError(Json.obj("error" -> Json.fromString("Failed to load updated army")))
+      AuthMiddleware.extractUser(req, xa).flatMap { userOpt =>
+        loadArmy(armyId, xa).flatMap {
+          case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
+          case Some(existingArmy) =>
+            if (!isOwner(existingArmy, userOpt)) {
+              Forbidden(Json.obj("error" -> Json.fromString("Not authorized to edit this army")))
+            } else {
+              req.as[CreateArmyRequest].flatMap { updateReq =>
+                val now = Instant.now().toString
+                updateArmy(armyId, updateReq.name, updateReq.army, now, xa).flatMap { _ =>
+                  loadArmy(armyId, xa).flatMap {
+                    case Some(persisted) => Ok(persisted)
+                    case None => InternalServerError(Json.obj("error" -> Json.fromString("Failed to load updated army")))
+                  }
+                }
               }
             }
-          }
+        }
       }
-    case DELETE -> Root / "api" / "armies" / armyId =>
-      loadArmy(armyId, xa).flatMap {
-        case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
-        case Some(_) =>
-          sql"DELETE FROM armies WHERE id = $armyId".update.run.transact(xa).flatMap { _ =>
-            NoContent()
-          }
+    case req @ DELETE -> Root / "api" / "armies" / armyId =>
+      AuthMiddleware.extractUser(req, xa).flatMap { userOpt =>
+        loadArmy(armyId, xa).flatMap {
+          case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
+          case Some(existingArmy) =>
+            if (!isOwner(existingArmy, userOpt)) {
+              Forbidden(Json.obj("error" -> Json.fromString("Not authorized to delete this army")))
+            } else {
+              sql"DELETE FROM armies WHERE id = $armyId".update.run.transact(xa).flatMap { _ =>
+                NoContent()
+              }
+            }
+        }
       }
     case _ =>
       NotFound("Not Found")

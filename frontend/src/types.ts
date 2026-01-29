@@ -115,8 +115,25 @@ export interface PersistedArmy {
   id: string;
   name: string;
   army: Army;
+  ownerId: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface User {
+  id: string;
+  username: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+export interface Invite {
+  code: string;
+  createdAt: string;
+  used: boolean;
 }
 
 export interface ArmySummary {

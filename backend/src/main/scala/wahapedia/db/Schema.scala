@@ -2,10 +2,36 @@ package wahapedia.db
 
 import doobie.*
 import doobie.implicits.*
+import doobie.free.connection.ConnectionIO
+import doobie.free.{connection => FC}
 import cats.effect.IO
 import cats.implicits.*
 
 object Schema {
+
+  private val authTables: List[Fragment] = List(
+    sql"""CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS sessions (
+      token TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS invites (
+      code TEXT PRIMARY KEY,
+      created_by TEXT,
+      created_at TEXT NOT NULL,
+      used_by TEXT,
+      used_at TEXT
+    )"""
+  )
 
   private val tables: List[Fragment] = List(
     sql"""CREATE TABLE IF NOT EXISTS factions (
@@ -198,6 +224,7 @@ object Schema {
       battle_size TEXT NOT NULL,
       detachment_id TEXT NOT NULL,
       warlord_id TEXT NOT NULL,
+      owner_id TEXT REFERENCES users(id),
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )""",
@@ -214,6 +241,16 @@ object Schema {
     )"""
   )
 
+  private val migrateArmies: ConnectionIO[Unit] = for {
+    hasOwnerCol <- sql"PRAGMA table_info(armies)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.exists(_._2 == "owner_id"))
+    _ <- if (!hasOwnerCol) {
+      sql"DROP TABLE IF EXISTS army_units".update.run *>
+      sql"DROP TABLE IF EXISTS armies".update.run
+    } else {
+      FC.unit
+    }
+  } yield ()
+
   def initialize(xa: Transactor[IO]): IO[Unit] =
-    tables.traverse_(_.update.run).transact(xa)
+    (authTables.traverse_(_.update.run) *> migrateArmies *> tables.traverse_(_.update.run)).transact(xa)
 }

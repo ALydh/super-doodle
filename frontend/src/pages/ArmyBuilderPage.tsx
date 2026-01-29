@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
   DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem, DatasheetOption,
@@ -22,6 +23,7 @@ import { renderUnitsForMode } from "./renderUnitsForMode";
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const isEdit = !!armyId;
 
   const [name, setName] = useState("");
@@ -191,6 +193,17 @@ export function ArmyBuilderPage() {
       navigate(`/armies/${persisted.id}`);
     }
   };
+
+  if (authLoading) return <div>Loading...</div>;
+
+  if (!user) {
+    return (
+      <div>
+        <p>You must be logged in to create or edit armies.</p>
+        <Link to="/login">Login</Link> or <Link to="/register">Register</Link>
+      </div>
+    );
+  }
 
   if (loading) return <div>Loading...</div>;
 

@@ -2,7 +2,84 @@ import type {
   Faction, Datasheet, DatasheetDetail, DetachmentInfo,
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
   Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
+  User, AuthResponse, Invite,
 } from "./types";
+
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+}
+
+export function getAuthToken(): string | null {
+  return authToken;
+}
+
+function authHeaders(): Record<string, string> {
+  if (authToken) {
+    return { Authorization: `Bearer ${authToken}` };
+  }
+  return {};
+}
+
+export async function register(username: string, password: string, inviteCode?: string): Promise<AuthResponse> {
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password, inviteCode }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || `Registration failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function login(username: string, password: string): Promise<AuthResponse> {
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || `Login failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function logout(): Promise<void> {
+  await fetch("/api/auth/logout", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+export async function getCurrentUser(): Promise<User | null> {
+  if (!authToken) return null;
+  const res = await fetch("/api/auth/me", {
+    headers: authHeaders(),
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function createInvite(): Promise<Invite> {
+  const res = await fetch("/api/invites", {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error(`Failed to create invite: ${res.status}`);
+  return res.json();
+}
+
+export async function listInvites(): Promise<Invite[]> {
+  const res = await fetch("/api/invites", {
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Failed to list invites: ${res.status}`);
+  return res.json();
+}
 
 export async function fetchFactions(): Promise<Faction[]> {
   const res = await fetch("/api/factions");
@@ -73,26 +150,38 @@ export async function fetchArmy(armyId: string): Promise<PersistedArmy> {
 export async function createArmy(name: string, army: Army): Promise<PersistedArmy> {
   const res = await fetch("/api/armies", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
     body: JSON.stringify({ name, army }),
   });
-  if (!res.ok) throw new Error(`Failed to create army: ${res.status}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Failed to create army: ${res.status}`);
+  }
   return res.json();
 }
 
 export async function updateArmy(armyId: string, name: string, army: Army): Promise<PersistedArmy> {
   const res = await fetch(`/api/armies/${armyId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
     body: JSON.stringify({ name, army }),
   });
-  if (!res.ok) throw new Error(`Failed to update army: ${res.status}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Failed to update army: ${res.status}`);
+  }
   return res.json();
 }
 
 export async function deleteArmy(armyId: string): Promise<void> {
-  const res = await fetch(`/api/armies/${armyId}`, { method: "DELETE" });
-  if (!res.ok) throw new Error(`Failed to delete army: ${res.status}`);
+  const res = await fetch(`/api/armies/${armyId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Failed to delete army: ${res.status}`);
+  }
 }
 
 export async function validateArmy(army: Army): Promise<ValidationResponse> {

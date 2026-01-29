@@ -4,10 +4,12 @@ import type { PersistedArmy, Datasheet } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import { fetchArmy, deleteArmy, fetchDatasheetsByFaction } from "../api";
 import { getFactionTheme } from "../factionTheme";
+import { useAuth } from "../context/AuthContext";
 
 export function ArmyViewPage() {
   const { armyId } = useParams<{ armyId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [army, setArmy] = useState<PersistedArmy | null>(null);
   const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -72,12 +74,14 @@ export function ArmyViewPage() {
         })}
       </ul>
 
-      <div style={{ marginTop: "16px" }}>
-        <Link to={`/armies/${armyId}/edit`}>
-          <button className="edit-army">Edit</button>
-        </Link>{" "}
-        <button className="btn-delete delete-army" onClick={handleDelete}>Delete</button>
-      </div>
+      {(army.ownerId === null || army.ownerId === user?.id) && (
+        <div style={{ marginTop: "16px" }}>
+          <Link to={`/armies/${armyId}/edit`}>
+            <button className="edit-army">Edit</button>
+          </Link>{" "}
+          <button className="btn-delete delete-army" onClick={handleDelete}>Delete</button>
+        </div>
+      )}
     </div>
   );
 }
