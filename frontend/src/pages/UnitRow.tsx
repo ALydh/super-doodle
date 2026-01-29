@@ -192,17 +192,19 @@ export function UnitRow({
           {thisUnitNumber.total > 1 && <span className="unit-number"> #{thisUnitNumber.num}</span>}
           {isGroupParent && <span className="group-indicator"> (leading)</span>}
         </td>
-        <td>
-          <select
-            className="unit-size-select"
-            value={unit.sizeOptionLine}
-            onChange={(e) => onUpdate(index, { ...unit, sizeOptionLine: Number(e.target.value) })}
-          >
-            {unitCosts.map((c) => (
-              <option key={c.line} value={c.line}>{c.description} ({c.cost}pts)</option>
-            ))}
-          </select>
-        </td>
+        {unitCosts.length > 1 && (
+          <td>
+            <select
+              className="unit-size-select"
+              value={unit.sizeOptionLine}
+              onChange={(e) => onUpdate(index, { ...unit, sizeOptionLine: Number(e.target.value) })}
+            >
+              {unitCosts.map((c) => (
+                <option key={c.line} value={c.line}>{c.description} ({c.cost}pts)</option>
+              ))}
+            </select>
+          </td>
+        )}
         <td>
           {isCharacter && (
             <select
@@ -230,7 +232,7 @@ export function UnitRow({
             </button>
           )}
         </td>
-        <td className="unit-cost">{totalCost}pts</td>
+        <td className="unit-cost"><span>{totalCost}pts</span></td>
         <td>
           {isCharacter && (
             <label>

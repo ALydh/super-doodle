@@ -51,13 +51,9 @@ export function UnitPicker({ datasheets, costs, onAdd }: Props) {
               const minCost = dsCosts.length > 0 ? Math.min(...dsCosts.map((c) => c.cost)) : 0;
               return (
                 <li key={ds.id} className="unit-picker-item">
-                  <button
-                    className="btn-add add-unit-button"
-                    onClick={() => onAdd(ds.id, firstLine)}
-                  >
-                    Add
-                  </button>
-                  {" "}{ds.name} — {minCost}pts
+                  <span className="unit-picker-name">{ds.name}</span>
+                  <span className="unit-picker-cost-pill">{minCost}</span>
+                  <button className="btn-add-icon" onClick={() => onAdd(ds.id, firstLine)}>+</button>
                 </li>
               );
             })}
