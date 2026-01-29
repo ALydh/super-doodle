@@ -16,6 +16,7 @@ export function Header() {
       <nav className="header-nav">
         {user ? (
           <>
+            <Link to="/admin">Admin</Link>
             <span className="header-user">{user.username}</span>
             <button onClick={handleLogout} className="btn-link">Logout</button>
           </>
