@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
@@ -29,7 +29,7 @@ export function ArmyBuilderPage() {
   const [warlordId, setWarlordId] = useState("");
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
 
-  const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
+  const [datasheets, setDatasheets] = useState<Datasheet[] | null>(null);
   const [allCosts, setAllCosts] = useState<UnitCost[]>([]);
   const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
@@ -39,10 +39,21 @@ export function ArmyBuilderPage() {
   const [abilitiesExpanded, setAbilitiesExpanded] = useState(false);
   const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
   const [strategemsExpanded, setStrategemsExpanded] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [resolvedFactionId, setResolvedFactionId] = useState<string>("");
+  const [loadedArmyFactionId, setLoadedArmyFactionId] = useState<string>("");
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const detachmentInitializedRef = useRef(false);
+
+  // Derive effective faction ID: for edit mode use loaded army's faction, for create use URL param
+  const effectiveFactionId = useMemo(() => {
+    if (isEdit) {
+      return loadedArmyFactionId;
+    }
+    return factionId ?? "";
+  }, [isEdit, loadedArmyFactionId, factionId]);
+
+  // Derive loading state from data presence
+  const loading = effectiveFactionId !== "" && datasheets === null;
 
   useEffect(() => {
     if (isEdit && armyId) {
@@ -50,6 +61,7 @@ export function ArmyBuilderPage() {
         setName(persisted.name);
         setBattleSize(persisted.army.battleSize);
         setDetachmentId(persisted.army.detachmentId);
+        detachmentInitializedRef.current = true;
         // Ensure backward compatibility for units without wargearSelections
         const unitsWithWargear = persisted.army.units.map(unit => ({
           ...unit,
@@ -57,41 +69,45 @@ export function ArmyBuilderPage() {
         }));
         setUnits(unitsWithWargear);
         setWarlordId(persisted.army.warlordId);
-        setResolvedFactionId(persisted.army.factionId);
+        setLoadedArmyFactionId(persisted.army.factionId);
       });
-    } else if (factionId) {
-      setResolvedFactionId(factionId);
     }
-  }, [isEdit, armyId, factionId]);
+  }, [isEdit, armyId]);
 
   useEffect(() => {
-    if (!resolvedFactionId) return;
-    setLoading(true);
+    if (!effectiveFactionId) return;
+    let cancelled = false;
+
     Promise.all([
-      fetchDatasheetsByFaction(resolvedFactionId),
-      fetchDetachmentsByFaction(resolvedFactionId),
-      fetchEnhancementsByFaction(resolvedFactionId),
-      fetchLeadersByFaction(resolvedFactionId),
-      fetchStratagemsByFaction(resolvedFactionId),
+      fetchDatasheetsByFaction(effectiveFactionId),
+      fetchDetachmentsByFaction(effectiveFactionId),
+      fetchEnhancementsByFaction(effectiveFactionId),
+      fetchLeadersByFaction(effectiveFactionId),
+      fetchStratagemsByFaction(effectiveFactionId),
     ]).then(([ds, det, enh, ldr, strat]) => {
-      setDatasheets(ds);
+      if (cancelled) return;
       setDetachments(det);
       setEnhancements(enh);
       setLeaders(ldr);
       setAllStratagems(strat);
-      if (!detachmentId && det.length > 0) {
+      // Set default detachment only if not already initialized
+      if (!detachmentInitializedRef.current && det.length > 0) {
         setDetachmentId(det[0].detachmentId);
+        detachmentInitializedRef.current = true;
       }
       const dsIds = [...new Set(ds.map((d) => d.id))];
-      return Promise.all(dsIds.map((id) => fetchDatasheetDetail(id)));
-    }).then((details) => {
-      const costs = details.flatMap((d) => d.costs);
-      const options = details.flatMap((d) => d.options);
-      setAllCosts(costs);
-      setAllOptions(options);
-      setLoading(false);
+      return Promise.all(dsIds.map((id) => fetchDatasheetDetail(id))).then((details) => {
+        if (cancelled) return;
+        const costs = details.flatMap((d) => d.costs);
+        const options = details.flatMap((d) => d.options);
+        setAllCosts(costs);
+        setAllOptions(options);
+        setDatasheets(ds);
+      });
     });
-  }, [resolvedFactionId]);
+
+    return () => { cancelled = true; };
+  }, [effectiveFactionId]);
 
   useEffect(() => {
     if (!detachmentId) return;
@@ -99,15 +115,15 @@ export function ArmyBuilderPage() {
   }, [detachmentId]);
 
   const buildArmy = useCallback((): Army | null => {
-    if (!resolvedFactionId || !detachmentId) return null;
+    if (!effectiveFactionId || !detachmentId) return null;
     return {
-      factionId: resolvedFactionId,
+      factionId: effectiveFactionId,
       battleSize,
       detachmentId,
       warlordId: warlordId || (units[0]?.datasheetId ?? ""),
       units,
     };
-  }, [resolvedFactionId, battleSize, detachmentId, warlordId, units]);
+  }, [effectiveFactionId, battleSize, detachmentId, warlordId, units]);
 
   useEffect(() => {
     if (loading) return;
@@ -163,7 +179,8 @@ export function ArmyBuilderPage() {
 
   if (loading) return <div>Loading...</div>;
 
-  const factionTheme = getFactionTheme(resolvedFactionId);
+  const factionTheme = getFactionTheme(effectiveFactionId);
+  const loadedDatasheets = datasheets ?? [];
 
   return (
     <div data-faction={factionTheme}>
@@ -284,13 +301,13 @@ export function ArmyBuilderPage() {
               key={i}
               unit={unit}
               index={i}
-              datasheet={datasheets.find((ds) => ds.id === unit.datasheetId)}
+              datasheet={loadedDatasheets.find((ds) => ds.id === unit.datasheetId)}
               costs={allCosts}
               enhancements={enhancements.filter(
                 (e) => !e.detachmentId || e.detachmentId === detachmentId
               )}
               leaders={leaders}
-              datasheets={datasheets}
+              datasheets={loadedDatasheets}
               options={allOptions}
               isWarlord={warlordId === unit.datasheetId}
               onUpdate={handleUpdateUnit}
@@ -301,7 +318,7 @@ export function ArmyBuilderPage() {
         </tbody>
       </table>
 
-      <UnitPicker datasheets={datasheets} costs={allCosts} onAdd={handleAddUnit} />
+      <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
 
       <div style={{ marginTop: "16px" }}>
         <button className="btn-save save-army" onClick={handleSave} disabled={!name.trim()}>
