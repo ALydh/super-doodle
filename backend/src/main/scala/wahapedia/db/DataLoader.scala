@@ -7,6 +7,7 @@ import cats.implicits.*
 import wahapedia.domain.models.*
 import wahapedia.domain.types.*
 import wahapedia.csv.{CsvProcessor, StreamingCsvParser}
+import java.nio.file.{Files, Paths}
 import DoobieMeta.given
 
 object DataLoader {
@@ -35,7 +36,7 @@ object DataLoader {
       _ <- loadFile("Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa)
       _ <- loadFile("Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa)
       _ <- loadFile("Last_update.csv", LastUpdateParser, insertLastUpdate)(xa)
-      _ <- loadFile("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
+      _ <- loadFileIfExists("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
     } yield ()
 
   private def loadFile[A](
@@ -49,6 +50,18 @@ object DataLoader {
       _ <- records.traverse_(insert).transact(xa)
       _ <- IO.println(s"  Loaded ${records.length} records from $filename")
     } yield ()
+
+  private def loadFileIfExists[A](
+    filename: String,
+    parser: StreamingCsvParser[A],
+    insert: A => ConnectionIO[Int]
+  )(xa: Transactor[IO]): IO[Unit] = {
+    val path = Paths.get(s"$dataDir/$filename")
+    IO(Files.exists(path)).flatMap {
+      case true  => loadFile(filename, parser, insert)(xa)
+      case false => IO.println(s"Skipping $filename (file not found)")
+    }
+  }
 
   private def clearAll(xa: Transactor[IO]): IO[Unit] = {
     val deletes = List(
@@ -154,5 +167,5 @@ object DataLoader {
     sql"INSERT INTO weapon_abilities (id, name, description) VALUES (${wa.id}, ${wa.name}, ${wa.description})".update.run
 
   def loadWeaponAbilities(xa: Transactor[IO]): IO[Unit] =
-    loadFile("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
+    loadFileIfExists("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
 }

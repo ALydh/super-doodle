@@ -6,7 +6,7 @@ test('full navigation flow: factions -> faction -> unit -> back -> back', async 
 
   await page.getByRole('link', { name: 'Necrons' }).click();
   await expect(page).toHaveURL(/\/factions\/NEC$/);
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.locator('.datasheet-item').first().getByRole('link').click();
   await expect(page).toHaveURL(/\/datasheets\/\d{9}$/);
@@ -14,7 +14,7 @@ test('full navigation flow: factions -> faction -> unit -> back -> back', async 
 
   await page.locator('.back-link').click();
   await expect(page).toHaveURL(/\/factions\/NEC$/);
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.locator('.back-link').click();
   await expect(page).toHaveURL(/\/$/);
@@ -26,13 +26,13 @@ test('browser back button works through navigation', async ({ page }) => {
   await expect(page.locator('.faction-list')).toBeVisible();
 
   await page.getByRole('link', { name: 'Necrons' }).click();
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.locator('.datasheet-item').first().getByRole('link').click();
   await expect(page.locator('.unit-name')).toBeVisible();
 
   await page.goBack();
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.goBack();
   await expect(page.locator('.faction-list')).toBeVisible();

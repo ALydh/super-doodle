@@ -19,6 +19,8 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.17" % Test
 )
 
+Compile / run / fork := true
+
 // Native Image Configuration
 Compile / mainClass := Some("wahapedia.Main")
 

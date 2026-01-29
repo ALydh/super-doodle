@@ -4,7 +4,7 @@ const API_BASE = 'http://localhost:8080';
 
 test('clicking a unit shows its detail page', async ({ page }) => {
   await page.goto('/factions/NEC');
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   const firstUnit = page.locator('.datasheet-item').first();
   const unitName = await firstUnit.textContent();
@@ -16,7 +16,7 @@ test('clicking a unit shows its detail page', async ({ page }) => {
 
 test('unit detail shows stats, weapons, and costs', async ({ page }) => {
   await page.goto('/factions/NEC');
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.locator('.datasheet-item').first().getByRole('link').click();
   await expect(page.locator('.unit-name')).toBeVisible();
@@ -28,7 +28,7 @@ test('unit detail shows stats, weapons, and costs', async ({ page }) => {
 
 test('unit detail stats match API response', async ({ page, request }) => {
   await page.goto('/factions/NEC');
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.locator('.datasheet-item').first().getByRole('link').click();
   await expect(page.locator('.unit-name')).toBeVisible();
@@ -61,7 +61,7 @@ test('unit detail stats match API response', async ({ page, request }) => {
 
 test('datasheet detail shows abilities section', async ({ page, request }) => {
   await page.goto('/factions/NEC');
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.locator('.datasheet-item').first().getByRole('link').click();
   await expect(page.locator('.unit-name')).toBeVisible();
@@ -82,7 +82,7 @@ test('datasheet detail shows abilities section', async ({ page, request }) => {
 
 test('datasheet detail shows unit-specific stratagems', async ({ page, request }) => {
   await page.goto('/factions/NEC');
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.locator('.datasheet-item').first().getByRole('link').click();
   await expect(page.locator('.unit-name')).toBeVisible();
@@ -102,7 +102,7 @@ test('datasheet detail shows unit-specific stratagems', async ({ page, request }
 
 test('weapons table includes abilities column', async ({ page }) => {
   await page.goto('/factions/NEC');
-  await expect(page.locator('.datasheet-list')).toBeVisible();
+  await expect(page.locator('.datasheet-list').first()).toBeVisible();
 
   await page.locator('.datasheet-item').first().getByRole('link').click();
   await expect(page.locator('.unit-name')).toBeVisible();

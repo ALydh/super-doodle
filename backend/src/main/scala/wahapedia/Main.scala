@@ -29,12 +29,13 @@ object Main extends IOApp.Simple {
       }
       weaponAbilitiesCount = tableCounts.getOrElse("weapon_abilities", 0)
       _ <- if (weaponAbilitiesCount == 0) {
-        IO.println("Loading weapon abilities...") *> DataLoader.loadWeaponAbilities(xa)
+        DataLoader.loadWeaponAbilities(xa)
       } else IO.unit
       _ <- printSummary(isPopulated)
       _ <- IO.println("Starting HTTP server on port 8080...")
       _ <- HttpServer.createServer(8080, xa).useForever
     } yield ()
+
 
     program.handleErrorWith {
       case pe: ParseException =>

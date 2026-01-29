@@ -1,6 +1,8 @@
-import type { ValidationError } from "../types";
+import type { ValidationError, Datasheet } from "../types";
 
-function errorMessage(err: ValidationError): string {
+function errorMessage(err: ValidationError, datasheets: Datasheet[]): string {
+  const getUnitName = (id: string) => datasheets.find(d => d.id === id)?.name ?? id;
+
   switch (err.errorType) {
     case "PointsExceeded":
       return `Points exceeded: ${err.total}/${err.limit}`;
@@ -16,8 +18,11 @@ function errorMessage(err: ValidationError): string {
       return `${err.unitName}: ${err.count} copies exceeds max of ${err.maxAllowed}`;
     case "DuplicateEpicHero":
       return `${err.unitName} is an Epic Hero and can only appear once`;
-    case "InvalidLeaderAttachment":
-      return "Invalid leader attachment";
+    case "InvalidLeaderAttachment": {
+      const leaderName = getUnitName(err.leaderId as string);
+      const targetName = getUnitName(err.attachedToId as string);
+      return `${leaderName} cannot attach to ${targetName}`;
+    }
     case "TooManyEnhancements":
       return `Too many enhancements: ${err.count} (max 3)`;
     case "DuplicateEnhancement":
@@ -37,9 +42,10 @@ function errorMessage(err: ValidationError): string {
 
 interface Props {
   errors: ValidationError[];
+  datasheets?: Datasheet[];
 }
 
-export function ValidationErrors({ errors }: Props) {
+export function ValidationErrors({ errors, datasheets = [] }: Props) {
   if (errors.length === 0) return null;
 
   return (
@@ -47,7 +53,7 @@ export function ValidationErrors({ errors }: Props) {
       <strong>Validation Errors:</strong>
       <ul>
         {errors.map((err, i) => (
-          <li key={i} className="validation-error">{errorMessage(err)}</li>
+          <li key={i} className="validation-error">{errorMessage(err, datasheets)}</li>
         ))}
       </ul>
     </div>

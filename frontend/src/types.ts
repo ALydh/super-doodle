@@ -97,8 +97,11 @@ export interface ArmyUnit {
   sizeOptionLine: number;
   enhancementId: string | null;
   attachedLeaderId: string | null;
+  attachedToUnitIndex: number | null;
   wargearSelections: WargearSelection[];
 }
+
+export type LeaderDisplayMode = "table" | "grouped" | "inline" | "merged" | "instance";
 
 export interface Army {
   factionId: string;
