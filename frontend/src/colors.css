@@ -1,0 +1,150 @@
+/* =========================================================
+   GLOBAL BASE COLORS (Semantic, faction-agnostic)
+   ========================================================= */
+
+:root {
+  /* Surfaces */
+  --surface-app: #0B0D10;      /* App shell / body */
+  --surface-page: #12151B;     /* Main page background */
+  --surface-panel: #1A1F27;    /* Panels, lists, tables */
+  --surface-card: #232A34;     /* Raised cards, tiles */
+  --surface-border: #2E3744;   /* Borders, dividers */
+
+  /* States */
+  --state-disabled: #3A4453;   /* Disabled / inactive */
+  --state-success: #3FB950;    /* Valid / success */
+  --state-danger: #E5533D;     /* Errors / invalid */
+
+  /* Text */
+  --text-muted: #8A93A3;       /* Metadata, hints */
+  --text-body: #C9CFDA;        /* Body copy */
+  --text-primary: #E6EAF2;     /* Headings, key values */
+
+  /* Faction flavor defaults (fallback) */
+  --faction-primary: #888888;
+  --faction-secondary: #666666;
+  --faction-trim: #AAAAAA;
+  --faction-emphasis: #CCCCCC;
+  --faction-danger: #FFFFFF;
+}
+
+/* =========================================================
+   FACTION FLAVOR COLORS (Semantic, intent-based)
+   ========================================================= */
+
+/* Space Marines */
+[data-faction="space-marines"] {
+  --faction-primary: #1E5AA8;
+  --faction-secondary: #0B2E59;
+  --faction-trim: #D4AF37;
+  --faction-emphasis: #FFFFFF;
+  --faction-danger: #C62828;
+}
+
+/* Chaos Space Marines */
+[data-faction="chaos"] {
+  --faction-primary: #8B0000;
+  --faction-secondary: #2B0B0B;
+  --faction-trim: #B08D57;
+  --faction-emphasis: #5E0F0F;
+  --faction-danger: #FF3B3B;
+}
+
+/* Astra Militarum */
+[data-faction="guard"] {
+  --faction-primary: #4B5320;
+  --faction-secondary: #2F3B1F;
+  --faction-trim: #C2B280;
+  --faction-emphasis: #7A7F6A;
+  --faction-danger: #D9531E;
+}
+
+/* Adeptus Mechanicus */
+[data-faction="mechanicus"] {
+  --faction-primary: #B11226;
+  --faction-secondary: #6A0F1A;
+  --faction-trim: #D4AF37;
+  --faction-emphasis: #00B3A4;
+  --faction-danger: #FF4D4D;
+}
+
+/* Adepta Sororitas */
+[data-faction="sororitas"] {
+  --faction-primary: #B11226;
+  --faction-secondary: #2B0E0E;
+  --faction-trim: #F2E6C9;
+  --faction-emphasis: #FFD700;
+  --faction-danger: #FF6A00;
+}
+
+/* Orks */
+[data-faction="orks"] {
+  --faction-primary: #3C7A1E;
+  --faction-secondary: #1F3D12;
+  --faction-trim: #D4A017;
+  --faction-emphasis: #F5F5F5;
+  --faction-danger: #9E2A2B;
+}
+
+/* Aeldari (Craftworlds) */
+[data-faction="aeldari"] {
+  --faction-primary: #3A6EA5;
+  --faction-secondary: #1E3558;
+  --faction-trim: #D8CFC4;
+  --faction-emphasis: #8A4FFF;
+  --faction-danger: #4DEEEA;
+}
+
+/* Drukhari */
+[data-faction="drukhari"] {
+  --faction-primary: #5E2B8C;
+  --faction-secondary: #2B143F;
+  --faction-trim: #00A86B;
+  --faction-emphasis: #E056FD;
+  --faction-danger: #B00020;
+}
+
+/* Necrons */
+[data-faction="necrons"] {
+  --faction-primary: #00FF9C;
+  --faction-secondary: #0A3F2A;
+  --faction-trim: #8FA6A0;
+  --faction-emphasis: #00C2FF;
+  --faction-danger: #C9B037;
+}
+
+/* Tyranids */
+[data-faction="tyranids"] {
+  --faction-primary: #7A1E3A;
+  --faction-secondary: #3D0F1F;
+  --faction-trim: #4B3B4F;
+  --faction-emphasis: #9B59B6;
+  --faction-danger: #C4D600;
+}
+
+/* T'au Empire */
+[data-faction="tau"] {
+  --faction-primary: #E8E6E1;
+  --faction-secondary: #AEB4BC;
+  --faction-trim: #FF6F00;
+  --faction-emphasis: #3FA9F5;
+  --faction-danger: #5FD3BC;
+}
+
+/* Genestealer Cults */
+[data-faction="genestealer-cults"] {
+  --faction-primary: #6A0DAD;
+  --faction-secondary: #3A075F;
+  --faction-trim: #1B75BC;
+  --faction-emphasis: #FF4F9A;
+  --faction-danger: #F5C542;
+}
+
+/* Leagues of Votann */
+[data-faction="votann"] {
+  --faction-primary: #D47F2A;
+  --faction-secondary: #7A4A1A;
+  --faction-trim: #9FA8B0;
+  --faction-emphasis: #5BC0BE;
+  --faction-danger: #E6FFFA;
+}
