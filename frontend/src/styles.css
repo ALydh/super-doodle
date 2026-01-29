@@ -466,6 +466,21 @@ button:disabled {
   border-color: var(--faction-primary);
 }
 
+.unit-picker-role-group {
+  margin-bottom: 16px;
+}
+
+.unit-picker-role-heading {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 16px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
 .army-list-section {
   margin-top: 32px;
   padding-top: 24px;
@@ -995,6 +1010,19 @@ button:disabled {
 .army-builder-page,
 .army-view-page {
   position: relative;
+}
+
+.army-view-role-group {
+  margin-bottom: 24px;
+}
+
+.army-view-role-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--faction-primary);
+  margin: 16px 0 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .army-builder-bg-icon {

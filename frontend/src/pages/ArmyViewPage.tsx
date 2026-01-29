@@ -60,23 +60,49 @@ export function ArmyViewPage() {
       <p className="army-detachment">Detachment: {army.army.detachmentId}</p>
 
       <h2>Units</h2>
-      <ul className="army-units-list">
-        {army.army.units.map((unit, i) => {
+      {(() => {
+        const unitsByRole = army.army.units.reduce<Record<string, { unit: typeof army.army.units[0]; index: number; ds: Datasheet | undefined }[]>>((acc, unit, i) => {
           const ds = dsMap.get(unit.datasheetId);
-          const isWarlord = unit.datasheetId === army.army.warlordId;
-          return (
-            <li key={i} className="army-view-unit">
-              <span className="army-view-unit-name">
-                {ds?.name ?? unit.datasheetId}
-                {isWarlord && <span className="warlord-badge">Warlord</span>}
-              </span>
-              {unit.enhancementId && (
-                <span className="army-view-unit-enhancement">+ {unit.enhancementId}</span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+          const role = ds?.role ?? "Other";
+          if (!acc[role]) acc[role] = [];
+          acc[role].push({ unit, index: i, ds });
+          return acc;
+        }, {});
+
+        const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
+        const sortedRoles = Object.keys(unitsByRole).sort((a, b) => {
+          const aIndex = roleOrder.indexOf(a);
+          const bIndex = roleOrder.indexOf(b);
+          if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          return aIndex - bIndex;
+        });
+
+        return sortedRoles.map((role) => (
+          <div key={role} className="army-view-role-group">
+            <h3 className="army-view-role-heading">{role}</h3>
+            <ul className="army-units-list">
+              {unitsByRole[role]
+                .sort((a, b) => (a.ds?.name ?? a.unit.datasheetId).localeCompare(b.ds?.name ?? b.unit.datasheetId))
+                .map(({ unit, ds }) => {
+                  const isWarlord = unit.datasheetId === army.army.warlordId;
+                  return (
+                    <li key={unit.datasheetId + Math.random()} className="army-view-unit">
+                      <span className="army-view-unit-name">
+                        {ds?.name ?? unit.datasheetId}
+                        {isWarlord && <span className="warlord-badge">Warlord</span>}
+                      </span>
+                      {unit.enhancementId && (
+                        <span className="army-view-unit-enhancement">+ {unit.enhancementId}</span>
+                      )}
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
+        ));
+      })()}
 
       {(army.ownerId === null || army.ownerId === user?.id) && (
         <div style={{ marginTop: "16px" }}>
