@@ -23,6 +23,7 @@ help:
 
 install:
 	cd $(FRONTEND_DIR) && npm install
+	cd $(FRONTEND_DIR) && npx playwright install
 	cd $(BACKEND_DIR) && nice -n 19 sbt compile
 
 dev:
