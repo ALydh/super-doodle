@@ -4,7 +4,6 @@ import { useAuth } from "../context/useAuth";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
   DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem, DatasheetOption,
-  LeaderDisplayMode,
 } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import {
@@ -17,7 +16,6 @@ import { fetchDatasheetDetail } from "../api";
 import { UnitPicker } from "./UnitPicker";
 import { ValidationErrors } from "./ValidationErrors";
 import { getFactionTheme } from "../factionTheme";
-import { MergedUnitsDisplay } from "./MergedUnitsDisplay";
 import { renderUnitsForMode } from "./renderUnitsForMode";
 
 export function ArmyBuilderPage() {
@@ -32,7 +30,6 @@ export function ArmyBuilderPage() {
   const [units, setUnits] = useState<ArmyUnit[]>([]);
   const [warlordId, setWarlordId] = useState("");
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
-  const [leaderDisplayMode, setLeaderDisplayMode] = useState<LeaderDisplayMode>("table");
 
   const [datasheets, setDatasheets] = useState<Datasheet[] | null>(null);
   const [allCosts, setAllCosts] = useState<UnitCost[]>([]);
@@ -210,8 +207,10 @@ export function ArmyBuilderPage() {
   const factionTheme = getFactionTheme(effectiveFactionId);
   const loadedDatasheets = datasheets ?? [];
 
+  const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
+
   return (
-    <div data-faction={factionTheme} className="army-builder-page">
+    <div data-faction={factionTheme} className="army-builder-page layout-a">
       {factionTheme && (
         <img
           src={`/icons/${factionTheme}.svg`}
@@ -220,172 +219,144 @@ export function ArmyBuilderPage() {
           aria-hidden="true"
         />
       )}
-      <h1 className="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
 
-      <div>
-        <label>
-          Army Name:{" "}
-          <input
-            className="army-name-input"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
+      <div className="builder-header">
+        <h1 className="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
       </div>
 
-      <div>
-        <label>
-          Battle Size:{" "}
-          <select
-            className="battle-size-select"
-            value={battleSize}
-            onChange={(e) => setBattleSize(e.target.value as BattleSize)}
-          >
-            <option value="Incursion">Incursion (1000pts)</option>
-            <option value="StrikeForce">Strike Force (2000pts)</option>
-            <option value="Onslaught">Onslaught (3000pts)</option>
-          </select>
-        </label>
-      </div>
-
-      <div>
-        <label>
-          Detachment:{" "}
-          <select
-            className="detachment-select"
-            value={detachmentId}
-            onChange={(e) => setDetachmentId(e.target.value)}
-          >
-            {detachments.map((d) => (
-              <option key={d.detachmentId} value={d.detachmentId}>{d.name}</option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      {detachmentAbilities.length > 0 && (
-        <div className="detachment-abilities-section">
-          <button
-            className="btn-toggle detachment-abilities-toggle"
-            onClick={() => setAbilitiesExpanded(!abilitiesExpanded)}
-          >
-            Detachment Abilities ({detachmentAbilities.length}) {abilitiesExpanded ? "▼" : "▶"}
-          </button>
-          {abilitiesExpanded && (
-            <ul className="detachment-abilities-list">
-              {detachmentAbilities.map((a) => (
-                <li key={a.id} className="detachment-ability-item">
-                  <strong>{a.name}</strong>
-                  <p dangerouslySetInnerHTML={{ __html: a.description }} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      {(() => {
-        const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
-        return filteredStratagems.length > 0 && (
-          <div className="detachment-stratagems-section">
-            <button
-              className="btn-toggle detachment-stratagems-toggle"
-              onClick={() => setStrategemsExpanded(!strategemsExpanded)}
-            >
-              Detachment Stratagems ({filteredStratagems.length}) {strategemsExpanded ? "▼" : "▶"}
-            </button>
-            {strategemsExpanded && (
-              <ul className="detachment-stratagems-list">
-                {filteredStratagems.map((s) => (
-                  <li key={s.id} className="detachment-stratagem-item">
-                    <strong>{s.name}</strong>
-                    {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
-                    {s.phase && <span> - {s.phase}</span>}
-                    <p dangerouslySetInnerHTML={{ __html: s.description }} />
-                  </li>
+      <div className="builder-content">
+        <div className="builder-col builder-col-info">
+          <div className="col-header">Army Info</div>
+          <div className="army-settings-section">
+            <label>
+              Army Name
+              <input
+                className="army-name-input"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </label>
+            <label>
+              Battle Size
+              <select
+                className="battle-size-select"
+                value={battleSize}
+                onChange={(e) => setBattleSize(e.target.value as BattleSize)}
+              >
+                <option value="Incursion">Incursion (1000pts)</option>
+                <option value="StrikeForce">Strike Force (2000pts)</option>
+                <option value="Onslaught">Onslaught (3000pts)</option>
+              </select>
+            </label>
+            <label>
+              Detachment
+              <select
+                className="detachment-select"
+                value={detachmentId}
+                onChange={(e) => setDetachmentId(e.target.value)}
+              >
+                {detachments.map((d) => (
+                  <option key={d.detachmentId} value={d.detachmentId}>{d.name}</option>
                 ))}
-              </ul>
-            )}
+              </select>
+            </label>
           </div>
-        );
-      })()}
-
-      <div className="points-total">
-        Points: {pointsTotal} / {BATTLE_SIZE_POINTS[battleSize]}
-      </div>
-
-      <ValidationErrors errors={validationErrors} datasheets={loadedDatasheets} />
-
-      <h2>Units</h2>
-      <div className="leader-display-mode-selector">
-        <label>Leader Display Mode: </label>
-        <select
-          value={leaderDisplayMode}
-          onChange={(e) => setLeaderDisplayMode(e.target.value as LeaderDisplayMode)}
-        >
-          <option value="table">Default (Table)</option>
-          <option value="grouped">Visual Grouping</option>
-          <option value="inline">Inline Display</option>
-          <option value="merged">Merged Groups</option>
-          <option value="instance">Instance-based</option>
-        </select>
-      </div>
-      <div className="army-units-wrapper">
-        {leaderDisplayMode === "merged" ? (
-          <MergedUnitsDisplay
-            units={units}
-            datasheets={loadedDatasheets}
-            costs={allCosts}
-            enhancements={enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId)}
-            leaders={leaders}
-            options={allOptions}
-            warlordId={warlordId}
-            onUpdate={handleUpdateUnit}
-            onRemove={handleRemoveUnit}
-            onCopy={handleCopyUnit}
-            onSetWarlord={handleSetWarlord}
-          />
-        ) : (
-          <table className="army-units-table">
-            <thead>
-              <tr>
-                <th>Unit</th>
-                <th>Size</th>
-                <th>Enhancement</th>
-                <th>{leaderDisplayMode === "inline" ? "Attached Leader" : "Leader"}</th>
-                <th>Wargear</th>
-                <th>Cost</th>
-                <th>Warlord</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {renderUnitsForMode(
-                leaderDisplayMode,
-                units,
-                loadedDatasheets,
-                allCosts,
-                enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId),
-                leaders,
-                allOptions,
-                warlordId,
-                handleUpdateUnit,
-                handleRemoveUnit,
-                handleCopyUnit,
-                handleSetWarlord
+          <div
+            className={`points-total ${pointsTotal > BATTLE_SIZE_POINTS[battleSize] ? "over-budget" : ""}`}
+            style={{ "--points-percent": `${Math.min((pointsTotal / BATTLE_SIZE_POINTS[battleSize]) * 100, 100)}%` } as React.CSSProperties}
+          >
+            <div className="points-bar" />
+            <span className="points-text">{pointsTotal} / {BATTLE_SIZE_POINTS[battleSize]} pts</span>
+          </div>
+          {detachmentAbilities.length > 0 && (
+            <div className="detachment-abilities-section">
+              <button
+                className="btn-toggle detachment-abilities-toggle"
+                onClick={() => setAbilitiesExpanded(!abilitiesExpanded)}
+              >
+                Abilities ({detachmentAbilities.length}) {abilitiesExpanded ? "▼" : "▶"}
+              </button>
+              {abilitiesExpanded && (
+                <ul className="detachment-abilities-list">
+                  {detachmentAbilities.map((a) => (
+                    <li key={a.id} className="detachment-ability-item">
+                      <strong>{a.name}</strong>
+                      <p dangerouslySetInnerHTML={{ __html: a.description }} />
+                    </li>
+                  ))}
+                </ul>
               )}
-            </tbody>
-          </table>
-        )}
-      </div>
+            </div>
+          )}
+          {filteredStratagems.length > 0 && (
+            <div className="detachment-stratagems-section">
+              <button
+                className="btn-toggle detachment-stratagems-toggle"
+                onClick={() => setStrategemsExpanded(!strategemsExpanded)}
+              >
+                Stratagems ({filteredStratagems.length}) {strategemsExpanded ? "▼" : "▶"}
+              </button>
+              {strategemsExpanded && (
+                <ul className="detachment-stratagems-list">
+                  {filteredStratagems.map((s) => (
+                    <li key={s.id} className="detachment-stratagem-item">
+                      <strong>{s.name}</strong>
+                      {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
+                      {s.phase && <span> - {s.phase}</span>}
+                      <p dangerouslySetInnerHTML={{ __html: s.description }} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          <button className="btn-save save-army" onClick={handleSave} disabled={!name.trim()}>
+            {isEdit ? "Update Army" : "Save Army"}
+          </button>
+        </div>
 
-      <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
+        <div className="builder-col builder-col-units">
+          <div className="col-header">Selected Units</div>
+          <ValidationErrors errors={validationErrors} datasheets={loadedDatasheets} />
+          <div className="army-units-wrapper">
+            <table className="army-units-table">
+              <thead>
+                <tr>
+                  <th>Unit</th>
+                  <th>Size</th>
+                  <th>Enhancement</th>
+                  <th>Leader</th>
+                  <th>Wargear</th>
+                  <th>Cost</th>
+                  <th>Warlord</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {renderUnitsForMode(
+                  "grouped",
+                  units,
+                  loadedDatasheets,
+                  allCosts,
+                  enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId),
+                  leaders,
+                  allOptions,
+                  warlordId,
+                  handleUpdateUnit,
+                  handleRemoveUnit,
+                  handleCopyUnit,
+                  handleSetWarlord
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-      <div style={{ marginTop: "16px" }}>
-        <button className="btn-save save-army" onClick={handleSave} disabled={!name.trim()}>
-          {isEdit ? "Update Army" : "Save Army"}
-        </button>
+        <div className="builder-col builder-col-picker">
+          <div className="col-header">Add Units</div>
+          <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
+        </div>
       </div>
     </div>
   );

@@ -9,7 +9,9 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    sans-serif;
   background-color: var(--surface-app);
   color: var(--text-body);
   line-height: 1.5;
@@ -23,11 +25,83 @@ body {
   margin: 0 auto;
 }
 
+#root:has(.army-builder-page) {
+  max-width: 1800px;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.header-brand {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.header-brand:hover {
+  color: var(--faction-primary);
+  text-decoration: none;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.header-nav a {
+  color: var(--text-muted);
+}
+
+.header-nav a:hover {
+  color: var(--faction-primary);
+  text-decoration: none;
+}
+
+.header-separator {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.header-user {
+  color: var(--text-secondary);
+}
+
+.header-logout {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.header-logout:hover {
+  color: var(--faction-primary);
+}
+
 /* =========================================================
    TYPOGRAPHY
    ========================================================= */
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   color: var(--text-primary);
   margin-top: 0;
 }
@@ -109,7 +183,9 @@ ul {
   margin-bottom: 8px;
   border-radius: 6px;
   border-left: 3px solid var(--faction-primary);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .faction-list li:hover,
@@ -254,12 +330,140 @@ tbody td {
 
 /* Army units table */
 .army-units-wrapper {
-  overflow-x: auto;
   margin-bottom: 24px;
 }
 
 .army-units-table {
-  min-width: 800px;
+  display: block;
+  width: 100%;
+}
+
+.army-units-table thead {
+  display: none;
+}
+
+.army-units-table tbody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.army-units-table tbody tr.unit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  padding: 16px;
+  padding-right: 160px;
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid var(--faction-primary);
+  position: relative;
+}
+
+.army-units-table tbody tr.unit-row:hover {
+  border-color: var(--faction-primary);
+  border-left-color: var(--faction-primary);
+}
+
+.army-units-table tbody tr.unit-row.group-parent {
+  border-left-color: var(--faction-primary);
+  background-color: var(--faction-secondary);
+}
+
+.army-units-table tbody tr.unit-row.group-child {
+  border-left-color: var(--faction-trim);
+  margin-left: 24px;
+}
+
+.army-units-table tbody td {
+  padding: 0;
+  display: block;
+}
+
+.army-units-table tbody td.unit-row-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.army-units-table tbody td.unit-cost {
+  position: absolute;
+  top: 16px;
+  right: 96px;
+  padding: 0;
+}
+
+.army-units-table tbody td.unit-cost span {
+  background: var(--surface-border);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.army-units-table tbody td:empty {
+  display: none;
+}
+
+.army-units-table tbody td select {
+  width: 100%;
+  max-width: 300px;
+}
+
+.army-units-table tbody td:last-child {
+  display: flex;
+  gap: 8px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 0;
+}
+
+.army-units-table tbody td:last-child button {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.army-units-table tbody td:last-child button::before {
+  font-size: 1.2rem;
+}
+
+.army-units-table tbody td:last-child button.btn-copy::before {
+  content: "⧉";
+}
+
+.army-units-table tbody td:last-child button.btn-remove::before {
+  content: "×";
+}
+
+.army-units-table tbody td label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.army-units-table .wargear-section td {
+  padding: 0;
+}
+
+.army-units-table .wargear-section td > div {
+  padding: 16px;
+  margin: 0;
+}
+
+.army-units-table .wargear-section td[colspan] {
+  display: block;
 }
 
 /* =========================================================
@@ -282,7 +486,9 @@ input[type="search"] {
   font-size: 1rem;
   width: 100%;
   max-width: 400px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 input[type="text"]:focus,
@@ -343,7 +549,9 @@ button {
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 button:hover {
@@ -371,24 +579,24 @@ button:disabled {
 }
 
 .btn-copy {
-  background-color: #4a7fcf;
+  background-color: var(--faction-emphasis);
   padding: 6px 12px;
   font-size: 0.85rem;
   margin-right: 4px;
 }
 
 .btn-copy:hover {
-  background-color: #3a6ab8;
+  background-color: var(--faction-emphasis-dark);
 }
 
 .btn-remove {
-  background-color: var(--state-danger);
+  background-color: var(--faction-danger);
   padding: 6px 12px;
   font-size: 0.85rem;
 }
 
 .btn-remove:hover {
-  background-color: #c9432e;
+  background-color: var(--faction-danger-dark);
 }
 
 /* Delete button */
@@ -481,6 +689,39 @@ button:disabled {
   border-bottom: 1px solid var(--surface-border);
 }
 
+.unit-picker-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.unit-picker-cost-pill {
+  background: var(--surface-border);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.btn-add-icon {
+  background: var(--faction-primary);
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-add-icon:hover {
+  background-color: var(--faction-primary-dark);
+}
+
 .army-list-section {
   margin-top: 32px;
   padding-top: 24px;
@@ -511,14 +752,40 @@ button:disabled {
 
 /* Points total */
 .points-total {
+  position: relative;
   background-color: var(--surface-card);
   padding: 16px 20px;
   border-radius: 8px;
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
-  border-left: 4px solid var(--faction-primary);
   margin: 20px 0;
+  overflow: hidden;
+}
+
+.points-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--points-percent, 0%);
+  background: linear-gradient(90deg, var(--faction-secondary) 0%, var(--faction-primary) 100%);
+  opacity: 0.3;
+  transition: width 0.3s ease;
+}
+
+.points-text {
+  position: relative;
+  z-index: 1;
+}
+
+.points-total.over-budget .points-bar {
+  background: linear-gradient(90deg, var(--faction-danger) 0%, var(--state-danger) 100%);
+  opacity: 0.4;
+}
+
+.points-total.over-budget .points-text {
+  color: var(--state-danger);
 }
 
 /* Keywords */
@@ -862,7 +1129,9 @@ button:disabled {
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   margin-bottom: 8px;
@@ -906,13 +1175,20 @@ button:disabled {
 .army-card {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, var(--faction-secondary) 0%, var(--surface-card) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--faction-secondary) 0%,
+    var(--surface-card) 100%
+  );
   border-radius: 12px;
   padding: 20px;
   text-decoration: none;
   border: 1px solid var(--surface-border);
   border-left: 4px solid var(--faction-primary);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
   min-height: 140px;
   position: relative;
   overflow: hidden;
@@ -927,7 +1203,9 @@ button:disabled {
   opacity: 0.15;
   filter: brightness(0) invert(1);
   pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .army-card:hover .army-card-icon {
@@ -1027,21 +1305,171 @@ button:disabled {
 
 .army-builder-bg-icon {
   position: fixed;
-  top: 50%;
-  right: -100px;
-  transform: translateY(-50%);
-  width: 500px;
-  height: 500px;
-  opacity: 0.05;
+  width: 50vw;
+  height: 50vw;
+  opacity: 0.04;
   filter: brightness(0) invert(1);
   pointer-events: none;
   z-index: 0;
 }
 
+/* Layout A: Large centered */
+.layout-a .army-builder-bg-icon {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 70vw;
+  opacity: 0.03;
+}
+
+
 .army-builder-page > *:not(.army-builder-bg-icon),
 .army-view-page > *:not(.army-builder-bg-icon) {
   position: relative;
   z-index: 1;
+}
+
+/* =========================================================
+   ARMY BUILDER - DESKTOP LAYOUTS
+   ========================================================= */
+
+.builder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.builder-header .builder-title {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.builder-col {
+  background: var(--surface-panel);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--surface-border);
+}
+
+.col-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--faction-primary);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.builder-col .army-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.builder-col .army-settings-section label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.builder-col .army-settings-section input,
+.builder-col .army-settings-section select {
+  margin-top: 4px;
+}
+
+.builder-col .points-total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 16px;
+  background: var(--surface-card);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.builder-col .points-total .points-text {
+  color: var(--faction-trim);
+}
+
+.builder-col .points-total.over-budget .points-text {
+  color: var(--state-danger);
+}
+
+.builder-col .btn-save {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.builder-col-units {
+  overflow: hidden;
+}
+
+.builder-col-units .army-units-wrapper {
+  margin: 0;
+}
+
+.builder-col-picker .unit-picker {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.builder-col-picker .unit-picker h3 {
+  display: none;
+}
+
+/* Layout A: Info left, Units center (wide), Picker right */
+.army-builder-page.layout-a .builder-content {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.army-builder-page.layout-a .builder-col-info,
+.army-builder-page.layout-a .builder-col-picker {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+/* Mobile: single column */
+@media (max-width: 1199px) {
+  .army-builder-page .builder-content {
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .army-builder-page .builder-col {
+    position: static !important;
+    max-height: none !important;
+    order: unset !important;
+    width: 100%;
+  }
+
+  .col-header {
+    display: none;
+  }
+
+  .builder-col-picker .unit-picker h3 {
+    display: block;
+  }
+
+  .army-units-table tbody tr.unit-row {
+    padding-right: 120px;
+  }
 }
 
 /* =========================================================
@@ -1238,6 +1666,13 @@ button:disabled {
     font-size: 0.9rem;
   }
 
+  .btn-add-icon {
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+  }
+
   select {
     min-height: 44px;
     padding: 10px 12px;
@@ -1295,131 +1730,6 @@ button:disabled {
   }
 }
 
-/* =========================================================
-   RESPONSIVE - ARMY UNITS TABLE (ArmyBuilderPage)
-   Desktop: full table | Mobile: unit cards
-   ========================================================= */
-
-.army-units-table {
-  min-width: 0;
-}
-
-@media (max-width: 599px) {
-  .army-units-wrapper {
-    overflow-x: visible;
-  }
-
-  .army-units-table {
-    display: block;
-    min-width: 0;
-  }
-
-  .army-units-table thead {
-    display: none;
-  }
-
-  .army-units-table tbody {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .army-units-table tbody tr.unit-row {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background-color: var(--surface-card);
-    border-radius: 8px;
-    padding: 16px;
-    border: 1px solid var(--surface-border);
-    border-left: 4px solid var(--faction-primary);
-  }
-
-  .army-units-table tbody tr.unit-row:hover {
-    background-color: var(--surface-card);
-  }
-
-  .army-units-table tbody tr.unit-row.group-parent {
-    border-left-color: var(--faction-primary);
-    background-color: var(--faction-secondary);
-  }
-
-  .army-units-table tbody tr.unit-row.group-child {
-    border-left-color: var(--faction-trim);
-    margin-left: 16px;
-  }
-
-  .army-units-table tbody td {
-    padding: 0;
-    display: block;
-  }
-
-  .army-units-table tbody td.unit-row-name {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: var(--text-primary);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .army-units-table tbody td.unit-cost {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--faction-trim);
-    order: -1;
-    position: absolute;
-    top: 16px;
-    right: 16px;
-  }
-
-  .army-units-table tbody tr.unit-row {
-    position: relative;
-    padding-right: 80px;
-  }
-
-  .army-units-table tbody td:empty {
-    display: none;
-  }
-
-  .army-units-table tbody td select {
-    width: 100%;
-  }
-
-  .army-units-table tbody td:last-child {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    padding-top: 8px;
-    border-top: 1px solid var(--surface-border);
-    margin-top: 4px;
-  }
-
-  .army-units-table tbody td:last-child button {
-    flex: 1;
-    min-width: 80px;
-  }
-
-  .army-units-table tbody td label {
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .army-units-table .wargear-section td {
-    padding: 0;
-  }
-
-  .army-units-table .wargear-section td > div {
-    padding: 16px;
-    margin: 0;
-  }
-
-  .army-units-table .wargear-section td[colspan] {
-    display: block;
-  }
-}
-
 @media (min-width: 600px) and (max-width: 899px) {
   .army-units-table {
     font-size: 0.9rem;
@@ -1455,15 +1765,7 @@ button:disabled {
   }
 
   .unit-picker-list li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
     padding: 12px;
-  }
-
-  .unit-picker-list li .btn-add {
-    width: 100%;
-    order: 1;
   }
 }
 
@@ -1771,7 +2073,14 @@ button:disabled {
   }
 
   .army-builder-bg-icon {
-    display: none;
+    width: 60vw;
+    height: 60vw;
+    top: auto;
+    bottom: -10vw;
+    right: -15vw;
+    left: auto;
+    transform: none;
+    opacity: 0.06;
   }
 }
 

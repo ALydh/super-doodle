@@ -17,12 +17,15 @@ export function Header() {
         {user ? (
           <>
             <Link to="/admin">Admin</Link>
+            <span className="header-separator">·</span>
             <span className="header-user">{user.username}</span>
-            <button onClick={handleLogout} className="btn-link">Logout</button>
+            <span className="header-separator">·</span>
+            <button onClick={handleLogout} className="header-logout">Logout</button>
           </>
         ) : (
           <>
             <Link to="/login">Login</Link>
+            <span className="header-separator">·</span>
             <Link to="/register">Register</Link>
           </>
         )}

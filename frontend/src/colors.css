@@ -26,6 +26,11 @@
   --faction-trim: #AAAAAA;
   --faction-emphasis: #CCCCCC;
   --faction-danger: #FFFFFF;
+  --faction-primary-dark: #6a6a6a;
+  --faction-secondary-dark: #4d4d4d;
+  --faction-trim-dark: #8a8a8a;
+  --faction-emphasis-dark: #a6a6a6;
+  --faction-danger-dark: #d9d9d9;
 }
 
 /* =========================================================
@@ -39,6 +44,11 @@
   --faction-trim: #D4AF37;
   --faction-emphasis: #FFFFFF;
   --faction-danger: #C62828;
+  --faction-primary-dark: #174785;
+  --faction-secondary-dark: #081f3d;
+  --faction-trim-dark: #a8892c;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #9e2020;
 }
 
 /* Chaos Space Marines */
@@ -48,6 +58,11 @@
   --faction-trim: #B08D57;
   --faction-emphasis: #5E0F0F;
   --faction-danger: #FF3B3B;
+  --faction-primary-dark: #6f0000;
+  --faction-secondary-dark: #1f0808;
+  --faction-trim-dark: #8d7146;
+  --faction-emphasis-dark: #4a0c0c;
+  --faction-danger-dark: #cc2f2f;
 }
 
 /* Astra Militarum */
@@ -57,6 +72,11 @@
   --faction-trim: #C2B280;
   --faction-emphasis: #7A7F6A;
   --faction-danger: #D9531E;
+  --faction-primary-dark: #3c421a;
+  --faction-secondary-dark: #232c17;
+  --faction-trim-dark: #9b8e66;
+  --faction-emphasis-dark: #626655;
+  --faction-danger-dark: #ae4218;
 }
 
 /* Adeptus Mechanicus */
@@ -66,6 +86,11 @@
   --faction-trim: #D4AF37;
   --faction-emphasis: #00B3A4;
   --faction-danger: #FF4D4D;
+  --faction-primary-dark: #8e0e1e;
+  --faction-secondary-dark: #550c15;
+  --faction-trim-dark: #a98c2c;
+  --faction-emphasis-dark: #008f83;
+  --faction-danger-dark: #cc3e3e;
 }
 
 /* Adepta Sororitas */
@@ -75,6 +100,11 @@
   --faction-trim: #F2E6C9;
   --faction-emphasis: #FFD700;
   --faction-danger: #FF6A00;
+  --faction-primary-dark: #8e0e1e;
+  --faction-secondary-dark: #1f0a0a;
+  --faction-trim-dark: #c2b8a1;
+  --faction-emphasis-dark: #ccac00;
+  --faction-danger-dark: #cc5500;
 }
 
 /* Orks */
@@ -84,6 +114,11 @@
   --faction-trim: #D4A017;
   --faction-emphasis: #F5F5F5;
   --faction-danger: #9E2A2B;
+  --faction-primary-dark: #306218;
+  --faction-secondary-dark: #182e0e;
+  --faction-trim-dark: #a98012;
+  --faction-emphasis-dark: #c4c4c4;
+  --faction-danger-dark: #7e2222;
 }
 
 /* Aeldari (Craftworlds) */
@@ -93,6 +128,11 @@
   --faction-trim: #D8CFC4;
   --faction-emphasis: #8A4FFF;
   --faction-danger: #4DEEEA;
+  --faction-primary-dark: #2e5884;
+  --faction-secondary-dark: #172a46;
+  --faction-trim-dark: #ada69d;
+  --faction-emphasis-dark: #6e3fcc;
+  --faction-danger-dark: #3ebebc;
 }
 
 /* Drukhari */
@@ -102,6 +142,11 @@
   --faction-trim: #00A86B;
   --faction-emphasis: #E056FD;
   --faction-danger: #B00020;
+  --faction-primary-dark: #4b2270;
+  --faction-secondary-dark: #211032;
+  --faction-trim-dark: #008656;
+  --faction-emphasis-dark: #b345ca;
+  --faction-danger-dark: #8c001a;
 }
 
 /* Necrons */
@@ -111,6 +156,11 @@
   --faction-trim: #8FA6A0;
   --faction-emphasis: #00C2FF;
   --faction-danger: #C9B037;
+  --faction-primary-dark: #00cc7d;
+  --faction-secondary-dark: #083221;
+  --faction-trim-dark: #728580;
+  --faction-emphasis-dark: #009bcc;
+  --faction-danger-dark: #a18d2c;
 }
 
 /* Tyranids */
@@ -120,6 +170,11 @@
   --faction-trim: #4B3B4F;
   --faction-emphasis: #9B59B6;
   --faction-danger: #C4D600;
+  --faction-primary-dark: #62182e;
+  --faction-secondary-dark: #2e0b17;
+  --faction-trim-dark: #3c2f3f;
+  --faction-emphasis-dark: #7c4792;
+  --faction-danger-dark: #9dab00;
 }
 
 /* T'au Empire */
@@ -129,6 +184,11 @@
   --faction-trim: #FF6F00;
   --faction-emphasis: #3FA9F5;
   --faction-danger: #5FD3BC;
+  --faction-primary-dark: #bab8b4;
+  --faction-secondary-dark: #8b9096;
+  --faction-trim-dark: #cc5900;
+  --faction-emphasis-dark: #3287c4;
+  --faction-danger-dark: #4ca996;
 }
 
 /* Genestealer Cults */
@@ -138,6 +198,11 @@
   --faction-trim: #1B75BC;
   --faction-emphasis: #FF4F9A;
   --faction-danger: #F5C542;
+  --faction-primary-dark: #550a8a;
+  --faction-secondary-dark: #2d064c;
+  --faction-trim-dark: #165e96;
+  --faction-emphasis-dark: #cc3f7b;
+  --faction-danger-dark: #c49e35;
 }
 
 /* Leagues of Votann */
@@ -147,6 +212,11 @@
   --faction-trim: #9FA8B0;
   --faction-emphasis: #5BC0BE;
   --faction-danger: #E6FFFA;
+  --faction-primary-dark: #a96622;
+  --faction-secondary-dark: #623b15;
+  --faction-trim-dark: #7f868d;
+  --faction-emphasis-dark: #499a98;
+  --faction-danger-dark: #b8ccc8;
 }
 
 /* Adeptus Custodes */
@@ -156,6 +226,11 @@
   --faction-trim: #8B0000;
   --faction-emphasis: #FFD700;
   --faction-danger: #DC143C;
+  --faction-primary-dark: #a1821f;
+  --faction-secondary-dark: #3b3019;
+  --faction-trim-dark: #6f0000;
+  --faction-emphasis-dark: #ccac00;
+  --faction-danger-dark: #b01030;
 }
 
 /* Grey Knights */
@@ -165,6 +240,11 @@
   --faction-trim: #C0C0C0;
   --faction-emphasis: #4169E1;
   --faction-danger: #FF4500;
+  --faction-primary-dark: #626e7a;
+  --faction-secondary-dark: #313843;
+  --faction-trim-dark: #9a9a9a;
+  --faction-emphasis-dark: #3454b4;
+  --faction-danger-dark: #cc3700;
 }
 
 /* Imperial Knights */
@@ -174,6 +254,11 @@
   --faction-trim: #D4AF37;
   --faction-emphasis: #FFFFFF;
   --faction-danger: #B22222;
+  --faction-primary-dark: #182e4c;
+  --faction-secondary-dark: #0a1521;
+  --faction-trim-dark: #a98c2c;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #8e1b1b;
 }
 
 /* Chaos Knights */
@@ -183,6 +268,11 @@
   --faction-trim: #8B4513;
   --faction-emphasis: #FF4500;
   --faction-danger: #8B0000;
+  --faction-primary-dark: #3b0b0b;
+  --faction-secondary-dark: #140404;
+  --faction-trim-dark: #6f370f;
+  --faction-emphasis-dark: #cc3700;
+  --faction-danger-dark: #6f0000;
 }
 
 /* Chaos Daemons */
@@ -192,6 +282,11 @@
   --faction-trim: #FF6347;
   --faction-emphasis: #9932CC;
   --faction-danger: #FF1493;
+  --faction-primary-dark: #560c15;
+  --faction-secondary-dark: #230808;
+  --faction-trim-dark: #cc4f39;
+  --faction-emphasis-dark: #7a28a3;
+  --faction-danger-dark: #cc1076;
 }
 
 /* Death Guard */
@@ -201,6 +296,11 @@
   --faction-trim: #8B7355;
   --faction-emphasis: #9ACD32;
   --faction-danger: #6B8E23;
+  --faction-primary-dark: #4a563b;
+  --faction-secondary-dark: #252b1e;
+  --faction-trim-dark: #6f5c44;
+  --faction-emphasis-dark: #7ba428;
+  --faction-danger-dark: #56721c;
 }
 
 /* Thousand Sons */
@@ -210,6 +310,11 @@
   --faction-trim: #FFD700;
   --faction-emphasis: #00CED1;
   --faction-danger: #FF6347;
+  --faction-primary-dark: #183e62;
+  --faction-secondary-dark: #0c2033;
+  --faction-trim-dark: #ccac00;
+  --faction-emphasis-dark: #00a5a7;
+  --faction-danger-dark: #cc4f39;
 }
 
 /* World Eaters */
@@ -219,6 +324,11 @@
   --faction-trim: #FFFFFF;
   --faction-emphasis: #B8860B;
   --faction-danger: #FF0000;
+  --faction-primary-dark: #6f0000;
+  --faction-secondary-dark: #310000;
+  --faction-trim-dark: #d9d9d9;
+  --faction-emphasis-dark: #936b09;
+  --faction-danger-dark: #cc0000;
 }
 
 /* Emperor's Children */
@@ -228,4 +338,9 @@
   --faction-trim: #FFD700;
   --faction-emphasis: #FF69B4;
   --faction-danger: #DC143C;
+  --faction-primary-dark: #4a2462;
+  --faction-secondary-dark: #231133;
+  --faction-trim-dark: #ccac00;
+  --faction-emphasis-dark: #cc5490;
+  --faction-danger-dark: #b01030;
 }
