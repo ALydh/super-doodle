@@ -253,8 +253,13 @@ tbody td {
 }
 
 /* Army units table */
-.army-units-table {
+.army-units-wrapper {
+  overflow-x: auto;
   margin-bottom: 24px;
+}
+
+.army-units-table {
+  min-width: 800px;
 }
 
 /* =========================================================

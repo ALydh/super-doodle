@@ -282,41 +282,43 @@ export function ArmyBuilderPage() {
       <ValidationErrors errors={validationErrors} />
 
       <h2>Units</h2>
-      <table className="army-units-table">
-        <thead>
-          <tr>
-            <th>Unit</th>
-            <th>Size</th>
-            <th>Enhancement</th>
-            <th>Leader</th>
-            <th>Wargear</th>
-            <th>Cost</th>
-            <th>Warlord</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {units.map((unit, i) => (
-            <UnitRow
-              key={i}
-              unit={unit}
-              index={i}
-              datasheet={loadedDatasheets.find((ds) => ds.id === unit.datasheetId)}
-              costs={allCosts}
-              enhancements={enhancements.filter(
-                (e) => !e.detachmentId || e.detachmentId === detachmentId
-              )}
-              leaders={leaders}
-              datasheets={loadedDatasheets}
-              options={allOptions}
-              isWarlord={warlordId === unit.datasheetId}
-              onUpdate={handleUpdateUnit}
-              onRemove={handleRemoveUnit}
-              onSetWarlord={handleSetWarlord}
-            />
-          ))}
-        </tbody>
-      </table>
+      <div className="army-units-wrapper">
+        <table className="army-units-table">
+          <thead>
+            <tr>
+              <th>Unit</th>
+              <th>Size</th>
+              <th>Enhancement</th>
+              <th>Leader</th>
+              <th>Wargear</th>
+              <th>Cost</th>
+              <th>Warlord</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {units.map((unit, i) => (
+              <UnitRow
+                key={i}
+                unit={unit}
+                index={i}
+                datasheet={loadedDatasheets.find((ds) => ds.id === unit.datasheetId)}
+                costs={allCosts}
+                enhancements={enhancements.filter(
+                  (e) => !e.detachmentId || e.detachmentId === detachmentId
+                )}
+                leaders={leaders}
+                datasheets={loadedDatasheets}
+                options={allOptions}
+                isWarlord={warlordId === unit.datasheetId}
+                onUpdate={handleUpdateUnit}
+                onRemove={handleRemoveUnit}
+                onSetWarlord={handleSetWarlord}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
 
