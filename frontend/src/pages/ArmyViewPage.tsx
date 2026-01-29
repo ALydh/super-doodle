@@ -4,7 +4,7 @@ import type { PersistedArmy, Datasheet } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import { fetchArmy, deleteArmy, fetchDatasheetsByFaction } from "../api";
 import { getFactionTheme } from "../factionTheme";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 export function ArmyViewPage() {
   const { armyId } = useParams<{ armyId: string }>();
