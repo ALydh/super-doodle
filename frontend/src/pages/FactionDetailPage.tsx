@@ -53,7 +53,7 @@ export function FactionDetailPage() {
         <section key={role} className="role-section">
           <h2 className="role-heading">{role}</h2>
           <ul className="datasheet-list">
-            {datasheetsByRole[role].map((ds) => (
+            {datasheetsByRole[role].sort((a, b) => a.name.localeCompare(b.name)).map((ds) => (
               <li key={ds.id} className="datasheet-item">
                 <Link to={`/datasheets/${ds.id}`}>{ds.name}</Link>
               </li>

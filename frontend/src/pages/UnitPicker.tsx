@@ -14,6 +14,23 @@ export function UnitPicker({ datasheets, costs, onAdd }: Props) {
     (ds) => !ds.virtual && ds.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const filteredByRole = filtered.reduce<Record<string, typeof filtered>>((acc, ds) => {
+    const role = ds.role ?? "Other";
+    if (!acc[role]) acc[role] = [];
+    acc[role].push(ds);
+    return acc;
+  }, {});
+
+  const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
+  const sortedRoles = Object.keys(filteredByRole).sort((a, b) => {
+    const aIndex = roleOrder.indexOf(a);
+    const bIndex = roleOrder.indexOf(b);
+    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
+  });
+
   return (
     <div className="unit-picker">
       <h3>Add Units</h3>
@@ -24,24 +41,29 @@ export function UnitPicker({ datasheets, costs, onAdd }: Props) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <ul className="unit-picker-list">
-        {filtered.map((ds) => {
-          const dsCosts = costs.filter((c) => c.datasheetId === ds.id);
-          const firstLine = dsCosts[0]?.line ?? 1;
-          const minCost = dsCosts.length > 0 ? Math.min(...dsCosts.map((c) => c.cost)) : 0;
-          return (
-            <li key={ds.id} className="unit-picker-item">
-              <button
-                className="btn-add add-unit-button"
-                onClick={() => onAdd(ds.id, firstLine)}
-              >
-                Add
-              </button>
-              {" "}{ds.name} {ds.role && `(${ds.role})`} — {minCost}pts
-            </li>
-          );
-        })}
-      </ul>
+      {sortedRoles.map((role) => (
+        <div key={role} className="unit-picker-role-group">
+          <h4 className="unit-picker-role-heading">{role}</h4>
+          <ul className="unit-picker-list">
+            {filteredByRole[role].sort((a, b) => a.name.localeCompare(b.name)).map((ds) => {
+              const dsCosts = costs.filter((c) => c.datasheetId === ds.id);
+              const firstLine = dsCosts[0]?.line ?? 1;
+              const minCost = dsCosts.length > 0 ? Math.min(...dsCosts.map((c) => c.cost)) : 0;
+              return (
+                <li key={ds.id} className="unit-picker-item">
+                  <button
+                    className="btn-add add-unit-button"
+                    onClick={() => onAdd(ds.id, firstLine)}
+                  >
+                    Add
+                  </button>
+                  {" "}{ds.name} — {minCost}pts
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 }
