@@ -15,24 +15,24 @@ export function UnitPicker({ datasheets, costs, onAdd }: Props) {
   );
 
   return (
-    <div data-testid="unit-picker">
+    <div className="unit-picker">
       <h3>Add Units</h3>
       <input
-        data-testid="unit-search"
+        className="unit-search"
         type="text"
         placeholder="Search units..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <ul data-testid="unit-picker-list">
+      <ul className="unit-picker-list">
         {filtered.map((ds) => {
           const dsCosts = costs.filter((c) => c.datasheetId === ds.id);
           const firstLine = dsCosts[0]?.line ?? 1;
           const minCost = dsCosts.length > 0 ? Math.min(...dsCosts.map((c) => c.cost)) : 0;
           return (
-            <li key={ds.id} data-testid="unit-picker-item">
+            <li key={ds.id} className="unit-picker-item">
               <button
-                data-testid="add-unit-button"
+                className="btn-add add-unit-button"
                 onClick={() => onAdd(ds.id, firstLine)}
               >
                 Add

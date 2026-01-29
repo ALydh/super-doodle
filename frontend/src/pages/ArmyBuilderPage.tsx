@@ -167,13 +167,13 @@ export function ArmyBuilderPage() {
 
   return (
     <div data-faction={factionTheme}>
-      <h1 data-testid="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
+      <h1 className="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
 
       <div>
         <label>
           Army Name:{" "}
           <input
-            data-testid="army-name-input"
+            className="army-name-input"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -185,7 +185,7 @@ export function ArmyBuilderPage() {
         <label>
           Battle Size:{" "}
           <select
-            data-testid="battle-size-select"
+            className="battle-size-select"
             value={battleSize}
             onChange={(e) => setBattleSize(e.target.value as BattleSize)}
           >
@@ -200,7 +200,7 @@ export function ArmyBuilderPage() {
         <label>
           Detachment:{" "}
           <select
-            data-testid="detachment-select"
+            className="detachment-select"
             value={detachmentId}
             onChange={(e) => setDetachmentId(e.target.value)}
           >
@@ -212,17 +212,17 @@ export function ArmyBuilderPage() {
       </div>
 
       {detachmentAbilities.length > 0 && (
-        <div data-testid="detachment-abilities-section">
+        <div className="detachment-abilities-section">
           <button
-            data-testid="detachment-abilities-toggle"
+            className="btn-toggle detachment-abilities-toggle"
             onClick={() => setAbilitiesExpanded(!abilitiesExpanded)}
           >
             Detachment Abilities ({detachmentAbilities.length}) {abilitiesExpanded ? "▼" : "▶"}
           </button>
           {abilitiesExpanded && (
-            <ul data-testid="detachment-abilities-list">
+            <ul className="detachment-abilities-list">
               {detachmentAbilities.map((a) => (
-                <li key={a.id} data-testid="detachment-ability-item">
+                <li key={a.id} className="detachment-ability-item">
                   <strong>{a.name}</strong>
                   <p dangerouslySetInnerHTML={{ __html: a.description }} />
                 </li>
@@ -235,17 +235,17 @@ export function ArmyBuilderPage() {
       {(() => {
         const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
         return filteredStratagems.length > 0 && (
-          <div data-testid="detachment-stratagems-section">
+          <div className="detachment-stratagems-section">
             <button
-              data-testid="detachment-stratagems-toggle"
+              className="btn-toggle detachment-stratagems-toggle"
               onClick={() => setStrategemsExpanded(!strategemsExpanded)}
             >
               Detachment Stratagems ({filteredStratagems.length}) {strategemsExpanded ? "▼" : "▶"}
             </button>
             {strategemsExpanded && (
-              <ul data-testid="detachment-stratagems-list">
+              <ul className="detachment-stratagems-list">
                 {filteredStratagems.map((s) => (
-                  <li key={s.id} data-testid="detachment-stratagem-item">
+                  <li key={s.id} className="detachment-stratagem-item">
                     <strong>{s.name}</strong>
                     {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
                     {s.phase && <span> - {s.phase}</span>}
@@ -258,14 +258,14 @@ export function ArmyBuilderPage() {
         );
       })()}
 
-      <div data-testid="points-total">
+      <div className="points-total">
         Points: {pointsTotal} / {BATTLE_SIZE_POINTS[battleSize]}
       </div>
 
       <ValidationErrors errors={validationErrors} />
 
       <h2>Units</h2>
-      <table data-testid="army-units-table">
+      <table className="army-units-table">
         <thead>
           <tr>
             <th>Unit</th>
@@ -304,7 +304,7 @@ export function ArmyBuilderPage() {
       <UnitPicker datasheets={datasheets} costs={allCosts} onAdd={handleAddUnit} />
 
       <div style={{ marginTop: "16px" }}>
-        <button data-testid="save-army" onClick={handleSave} disabled={!name.trim()}>
+        <button className="btn-save save-army" onClick={handleSave} disabled={!name.trim()}>
           {isEdit ? "Update Army" : "Save Army"}
         </button>
       </div>

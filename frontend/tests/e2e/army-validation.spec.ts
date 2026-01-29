@@ -48,17 +48,17 @@ test('points exceeded shows validation error', async ({ page, request }) => {
   expect(validation.errors.some((e: { errorType: string }) => e.errorType === 'PointsExceeded')).toBeTruthy();
 
   await page.goto(`/factions/${FACTION_ID}/armies/new`);
-  await page.getByTestId('battle-size-select').selectOption('Incursion');
+  await page.locator('.battle-size-select').selectOption('Incursion');
 
   for (let i = 0; i < 6; i++) {
-    const blItem = page.locator('[data-testid="unit-picker-item"]').filter({ hasText: battleline.name });
-    await blItem.first().getByTestId('add-unit-button').click();
+    const blItem = page.locator('.unit-picker-item').filter({ hasText: battleline.name });
+    await blItem.first().locator('.add-unit-button').click();
   }
 
-  const charItem = page.locator('[data-testid="unit-picker-item"]').filter({ hasText: character.name });
-  await charItem.first().getByTestId('add-unit-button').click();
+  const charItem = page.locator('.unit-picker-item').filter({ hasText: character.name });
+  await charItem.first().locator('.add-unit-button').click();
 
-  await expect(page.getByTestId('validation-errors')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('.validation-errors')).toBeVisible({ timeout: 5000 });
 });
 
 test('no character shows validation error', async ({ request }) => {
@@ -110,19 +110,19 @@ test('points total updates live when adding and removing units', async ({ page, 
   const { battleline } = await getFactionData(request);
 
   await page.goto(`/factions/${FACTION_ID}/armies/new`);
-  await expect(page.getByTestId('unit-picker')).toBeVisible();
+  await expect(page.locator('.unit-picker')).toBeVisible();
 
-  const pointsBefore = await page.getByTestId('points-total').textContent();
+  const pointsBefore = await page.locator('.points-total').textContent();
   expect(pointsBefore).toContain('Points: 0');
 
-  const blItem = page.locator('[data-testid="unit-picker-item"]').filter({ hasText: battleline.name });
-  await blItem.first().getByTestId('add-unit-button').click();
+  const blItem = page.locator('.unit-picker-item').filter({ hasText: battleline.name });
+  await blItem.first().locator('.add-unit-button').click();
 
-  const pointsAfter = await page.getByTestId('points-total').textContent();
+  const pointsAfter = await page.locator('.points-total').textContent();
   expect(pointsAfter).not.toContain('Points: 0');
 
-  await page.getByTestId('remove-unit').first().click();
+  await page.locator('.remove-unit').first().click();
 
-  const pointsFinal = await page.getByTestId('points-total').textContent();
+  const pointsFinal = await page.locator('.points-total').textContent();
   expect(pointsFinal).toContain('Points: 0');
 });

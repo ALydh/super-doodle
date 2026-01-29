@@ -16,7 +16,7 @@ export function DatasheetDetailPage() {
       .catch((e) => setError(e.message));
   }, [datasheetId]);
 
-  if (error) return <div data-testid="error">{error}</div>;
+  if (error) return <div className="error-message">{error}</div>;
   if (!detail) return <div>Loading...</div>;
 
   const { datasheet, profiles, wargear, costs, keywords, abilities, stratagems, options } = detail;
@@ -25,17 +25,17 @@ export function DatasheetDetailPage() {
   return (
     <div data-faction={factionTheme}>
       {datasheet.factionId && (
-        <Link to={`/factions/${datasheet.factionId}`} data-testid="back-to-datasheets">
+        <Link to={`/factions/${datasheet.factionId}`} className="back-link">
           &larr; Back to Datasheets
         </Link>
       )}
-      <h1 data-testid="unit-name">{datasheet.name}</h1>
-      {datasheet.role && <p data-testid="unit-role">Role: {datasheet.role}</p>}
+      <h1 className="unit-name">{datasheet.name}</h1>
+      {datasheet.role && <p className="unit-role">Role: {datasheet.role}</p>}
 
       {profiles.length > 0 && (
         <>
           <h2>Stats</h2>
-          <table data-testid="stats-table">
+          <table className="stats-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -49,14 +49,14 @@ export function DatasheetDetailPage() {
             </thead>
             <tbody>
               {profiles.map((p, i) => (
-                <tr key={i} data-testid="stats-row">
+                <tr key={i} className="stats-row">
                   <td>{p.name ?? datasheet.name}</td>
-                  <td data-testid="stat-m">{p.movement}</td>
-                  <td data-testid="stat-t">{p.toughness}</td>
-                  <td data-testid="stat-sv">{p.save}</td>
-                  <td data-testid="stat-w">{p.wounds}</td>
-                  <td data-testid="stat-ld">{p.leadership}</td>
-                  <td data-testid="stat-oc">{p.objectiveControl}</td>
+                  <td className="stat-m">{p.movement}</td>
+                  <td className="stat-t">{p.toughness}</td>
+                  <td className="stat-sv">{p.save}</td>
+                  <td className="stat-w">{p.wounds}</td>
+                  <td className="stat-ld">{p.leadership}</td>
+                  <td className="stat-oc">{p.objectiveControl}</td>
                 </tr>
               ))}
             </tbody>
@@ -67,7 +67,7 @@ export function DatasheetDetailPage() {
       {wargear.length > 0 && (
         <>
           <h2>Weapons</h2>
-          <table data-testid="weapons-table">
+          <table className="weapons-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -85,7 +85,7 @@ export function DatasheetDetailPage() {
               {wargear
                 .filter((w) => w.name)
                 .map((w, i) => (
-                  <tr key={i} data-testid="weapon-row">
+                  <tr key={i} className="weapon-row">
                     <td>{w.name}</td>
                     <td>{w.range ?? "-"}</td>
                     <td>{w.weaponType ?? "-"}</td>
@@ -94,7 +94,7 @@ export function DatasheetDetailPage() {
                     <td>{w.strength ?? "-"}</td>
                     <td>{w.armorPenetration ?? "-"}</td>
                     <td>{w.damage ?? "-"}</td>
-                    <td data-testid="weapon-abilities" dangerouslySetInnerHTML={{ __html: w.description ?? "-" }} />
+                    <td className="weapon-abilities" dangerouslySetInnerHTML={{ __html: w.description ?? "-" }} />
                   </tr>
                 ))}
             </tbody>
@@ -105,9 +105,9 @@ export function DatasheetDetailPage() {
       {options.length > 0 && (
         <>
           <h2>Wargear Options</h2>
-          <ul data-testid="wargear-options-list">
+          <ul className="wargear-options-list">
             {options.map((o, i) => (
-              <li key={i} data-testid="wargear-option-item" dangerouslySetInnerHTML={{ __html: o.description }} />
+              <li key={i} className="wargear-option-item" dangerouslySetInnerHTML={{ __html: o.description }} />
             ))}
           </ul>
         </>
@@ -116,7 +116,7 @@ export function DatasheetDetailPage() {
       {costs.length > 0 && (
         <>
           <h2>Point Costs</h2>
-          <table data-testid="costs-table">
+          <table className="costs-table">
             <thead>
               <tr>
                 <th>Description</th>
@@ -125,9 +125,9 @@ export function DatasheetDetailPage() {
             </thead>
             <tbody>
               {costs.map((c, i) => (
-                <tr key={i} data-testid="cost-row">
+                <tr key={i} className="cost-row">
                   <td>{c.description}</td>
-                  <td data-testid="cost-value">{c.cost}</td>
+                  <td className="cost-value">{c.cost}</td>
                 </tr>
               ))}
             </tbody>
@@ -138,11 +138,11 @@ export function DatasheetDetailPage() {
       {abilities.length > 0 && (
         <>
           <h2>Abilities</h2>
-          <ul data-testid="abilities-list">
+          <ul className="abilities-list">
             {abilities
               .filter((a) => a.name)
               .map((a, i) => (
-                <li key={i} data-testid="ability-item">
+                <li key={i} className="ability-item">
                   <strong>{a.name}</strong>
                   {a.abilityType && <span> ({a.abilityType})</span>}
                   {a.description && <p dangerouslySetInnerHTML={{ __html: a.description }} />}
@@ -155,9 +155,9 @@ export function DatasheetDetailPage() {
       {stratagems.length > 0 && (
         <>
           <h2>Unit Stratagems</h2>
-          <ul data-testid="unit-stratagems-list">
+          <ul className="unit-stratagems-list">
             {stratagems.map((s) => (
-              <li key={s.id} data-testid="unit-stratagem-item">
+              <li key={s.id} className="unit-stratagem-item">
                 <strong>{s.name}</strong>
                 {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
                 {s.phase && <span> - {s.phase}</span>}
@@ -171,11 +171,11 @@ export function DatasheetDetailPage() {
       {keywords.length > 0 && (
         <>
           <h2>Keywords</h2>
-          <div data-testid="keywords-list">
+          <div className="keywords-list">
             {keywords
               .filter((k) => k.keyword)
               .map((k, i) => (
-                <span key={i} data-testid="keyword">
+                <span key={i} className="keyword">
                   {k.keyword}
                 </span>
               ))}

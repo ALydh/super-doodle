@@ -15,15 +15,15 @@ export function ArmyListSection({ factionId }: Props) {
   }, [factionId]);
 
   return (
-    <div data-testid="army-list-section">
+    <div className="army-list-section">
       <h2>Armies</h2>
-      <Link to={`/factions/${factionId}/armies/new`} data-testid="create-army-link">
+      <Link to={`/factions/${factionId}/armies/new`} className="create-army-link">
         Create Army
       </Link>
       {armies.length > 0 && (
-        <ul data-testid="army-list">
+        <ul className="army-list">
           {armies.map((a) => (
-            <li key={a.id} data-testid="army-list-item">
+            <li key={a.id} className="army-list-item">
               <Link to={`/armies/${a.id}`}>{a.name}</Link>
               {" "}— {a.battleSize}
             </li>

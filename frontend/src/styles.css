@@ -80,18 +80,14 @@ a:hover {
 }
 
 /* Back links */
-a[data-testid="back-to-factions"],
-a[data-testid="back-to-datasheets"],
-a[data-testid="back-to-faction"] {
+.back-link {
   display: inline-block;
   margin-bottom: 16px;
   color: var(--text-muted);
   font-size: 0.9rem;
 }
 
-a[data-testid="back-to-factions"]:hover,
-a[data-testid="back-to-datasheets"]:hover,
-a[data-testid="back-to-faction"]:hover {
+.back-link:hover {
   color: var(--faction-primary);
 }
 
@@ -105,9 +101,9 @@ ul {
   margin: 0;
 }
 
-ul[data-testid="faction-list"] li,
-ul[data-testid="datasheet-list"] li,
-ul[data-testid="army-list"] li {
+.faction-list li,
+.datasheet-list li,
+.army-list li {
   padding: 12px 16px;
   background-color: var(--surface-card);
   margin-bottom: 8px;
@@ -116,26 +112,26 @@ ul[data-testid="army-list"] li {
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-ul[data-testid="faction-list"] li:hover,
-ul[data-testid="datasheet-list"] li:hover,
-ul[data-testid="army-list"] li:hover {
+.faction-list li:hover,
+.datasheet-list li:hover,
+.army-list li:hover {
   background-color: var(--surface-panel);
   border-left-color: var(--faction-trim);
 }
 
-ul[data-testid="faction-list"] li a,
-ul[data-testid="datasheet-list"] li a,
-ul[data-testid="army-list"] li a {
+.faction-list li a,
+.datasheet-list li a,
+.army-list li a {
   color: var(--text-primary);
   font-weight: 500;
 }
 
 /* Stratagems and abilities lists */
-ul[data-testid="stratagems-list"] li,
-ul[data-testid="unit-stratagems-list"] li,
-ul[data-testid="abilities-list"] li,
-ul[data-testid="detachment-abilities-list"] li,
-ul[data-testid="detachment-stratagems-list"] li {
+.stratagems-list li,
+.unit-stratagems-list li,
+.abilities-list li,
+.detachment-abilities-list li,
+.detachment-stratagems-list li {
   padding: 16px;
   background-color: var(--surface-card);
   margin-bottom: 12px;
@@ -143,24 +139,24 @@ ul[data-testid="detachment-stratagems-list"] li {
   border: 1px solid var(--surface-border);
 }
 
-ul[data-testid="stratagems-list"] li strong,
-ul[data-testid="unit-stratagems-list"] li strong,
-ul[data-testid="abilities-list"] li strong,
-ul[data-testid="detachment-abilities-list"] li strong,
-ul[data-testid="detachment-stratagems-list"] li strong {
+.stratagems-list li strong,
+.unit-stratagems-list li strong,
+.abilities-list li strong,
+.detachment-abilities-list li strong,
+.detachment-stratagems-list li strong {
   color: var(--faction-primary);
   font-size: 1.1rem;
 }
 
-ul[data-testid="stratagems-list"] li span,
-ul[data-testid="unit-stratagems-list"] li span,
-ul[data-testid="detachment-stratagems-list"] li span {
+.stratagems-list li span,
+.unit-stratagems-list li span,
+.detachment-stratagems-list li span {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
 
 /* Wargear options list */
-ul[data-testid="wargear-options-list"] li {
+.wargear-options-list li {
   padding: 8px 12px;
   background-color: var(--surface-panel);
   margin-bottom: 6px;
@@ -169,7 +165,7 @@ ul[data-testid="wargear-options-list"] li {
 }
 
 /* Army units list */
-ul[data-testid="army-units-list"] li {
+.army-units-list li {
   padding: 12px 16px;
   background-color: var(--surface-card);
   margin-bottom: 8px;
@@ -177,7 +173,7 @@ ul[data-testid="army-units-list"] li {
   border-left: 3px solid var(--faction-secondary);
 }
 
-ul[data-testid="army-units-list"] li strong {
+.army-units-list li strong {
   color: var(--faction-trim);
 }
 
@@ -228,36 +224,36 @@ tbody td {
 }
 
 /* Stats table specific */
-table[data-testid="stats-table"] td,
-table[data-testid="weapons-table"] td {
+.stats-table td,
+.weapons-table td {
   text-align: center;
 }
 
-table[data-testid="stats-table"] td:first-child,
-table[data-testid="weapons-table"] td:first-child {
+.stats-table td:first-child,
+.weapons-table td:first-child {
   text-align: left;
   font-weight: 500;
   color: var(--text-primary);
 }
 
-table[data-testid="stats-table"] th,
-table[data-testid="weapons-table"] th {
+.stats-table th,
+.weapons-table th {
   text-align: center;
 }
 
-table[data-testid="stats-table"] th:first-child,
-table[data-testid="weapons-table"] th:first-child {
+.stats-table th:first-child,
+.weapons-table th:first-child {
   text-align: left;
 }
 
 /* Costs table */
-table[data-testid="costs-table"] td[data-testid="cost-value"] {
+.cost-value {
   color: var(--faction-trim);
   font-weight: 600;
 }
 
 /* Army units table */
-table[data-testid="army-units-table"] {
+.army-units-table {
   margin-bottom: 24px;
 }
 
@@ -359,65 +355,61 @@ button:disabled {
 }
 
 /* Add button */
-button[data-testid="add-unit-button"] {
+.btn-add {
   background-color: var(--state-success);
   padding: 6px 12px;
   font-size: 0.85rem;
 }
 
-button[data-testid="add-unit-button"]:hover {
+.btn-add:hover {
   background-color: #2da042;
 }
 
 /* Remove button */
-button[data-testid="remove-unit"] {
+.btn-remove {
   background-color: var(--state-danger);
   padding: 6px 12px;
   font-size: 0.85rem;
 }
 
-button[data-testid="remove-unit"]:hover {
+.btn-remove:hover {
   background-color: #c9432e;
 }
 
 /* Delete button */
-button[data-testid="delete-army"] {
+.btn-delete {
   background-color: var(--state-danger);
 }
 
-button[data-testid="delete-army"]:hover {
+.btn-delete:hover {
   background-color: #c9432e;
 }
 
 /* Toggle buttons */
-button[data-testid="detachment-abilities-toggle"],
-button[data-testid="detachment-stratagems-toggle"],
-button[data-testid="wargear-toggle"] {
+.btn-toggle {
   background-color: var(--surface-card);
   border: 1px solid var(--surface-border);
   color: var(--text-body);
   padding: 8px 14px;
 }
 
-button[data-testid="detachment-abilities-toggle"]:hover,
-button[data-testid="detachment-stratagems-toggle"]:hover,
-button[data-testid="wargear-toggle"]:hover {
+.btn-toggle:hover {
   background-color: var(--surface-panel);
   border-color: var(--faction-primary);
 }
 
 /* Save button */
-button[data-testid="save-army"] {
+.btn-save {
   background-color: var(--state-success);
   padding: 12px 24px;
   font-size: 1rem;
 }
 
-button[data-testid="save-army"]:hover {
+.btn-save:hover {
   background-color: #2da042;
 }
 
-button[data-testid="save-army"]:disabled {
+.btn-save:disabled {
   background-color: var(--state-disabled);
 }
 
@@ -425,7 +417,7 @@ button[data-testid="save-army"]:disabled {
    SECTIONS & PANELS
    ========================================================= */
 
-div[data-testid="unit-picker"] {
+.unit-picker {
   background-color: var(--surface-panel);
   padding: 20px;
   border-radius: 8px;
@@ -433,19 +425,18 @@ div[data-testid="unit-picker"] {
   border: 1px solid var(--surface-border);
 }
 
-div[data-testid="unit-picker"] h3 {
+.unit-picker h3 {
   margin-top: 0;
   color: var(--faction-primary);
 }
 
-div[data-testid="unit-picker-list"] {
+.unit-picker-list {
   max-height: 400px;
   overflow-y: auto;
   margin-top: 16px;
 }
 
-div[data-testid="unit-picker-list"] li,
-ul[data-testid="unit-picker-list"] li {
+.unit-picker-list li {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -456,18 +447,17 @@ ul[data-testid="unit-picker-list"] li {
   border: 1px solid var(--surface-border);
 }
 
-div[data-testid="unit-picker-list"] li:hover,
-ul[data-testid="unit-picker-list"] li:hover {
+.unit-picker-list li:hover {
   border-color: var(--faction-primary);
 }
 
-div[data-testid="army-list-section"] {
+.army-list-section {
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid var(--surface-border);
 }
 
-div[data-testid="army-list-section"] a[data-testid="create-army-link"] {
+.create-army-link {
   display: inline-block;
   background-color: var(--faction-primary);
   color: var(--text-primary);
@@ -478,19 +468,19 @@ div[data-testid="army-list-section"] a[data-testid="create-army-link"] {
   transition: background-color 0.2s ease;
 }
 
-div[data-testid="army-list-section"] a[data-testid="create-army-link"]:hover {
+.create-army-link:hover {
   background-color: var(--faction-secondary);
   text-decoration: none;
 }
 
 /* Detachment abilities/stratagems sections */
-div[data-testid="detachment-abilities-section"],
-div[data-testid="detachment-stratagems-section"] {
+.detachment-abilities-section,
+.detachment-stratagems-section {
   margin: 16px 0;
 }
 
 /* Points total */
-div[data-testid="points-total"] {
+.points-total {
   background-color: var(--surface-card);
   padding: 16px 20px;
   border-radius: 8px;
@@ -502,13 +492,13 @@ div[data-testid="points-total"] {
 }
 
 /* Keywords */
-div[data-testid="keywords-list"] {
+.keywords-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-div[data-testid="keywords-list"] span {
+.keyword {
   background-color: var(--surface-card);
   color: var(--faction-trim);
   padding: 6px 12px;
@@ -521,7 +511,7 @@ div[data-testid="keywords-list"] span {
    VALIDATION ERRORS
    ========================================================= */
 
-div[data-testid="validation-errors"] {
+.validation-errors {
   background-color: rgba(229, 83, 61, 0.1);
   border: 1px solid var(--state-danger);
   border-radius: 8px;
@@ -529,39 +519,39 @@ div[data-testid="validation-errors"] {
   margin: 16px 0;
 }
 
-div[data-testid="validation-errors"] strong {
+.validation-errors strong {
   color: var(--state-danger);
 }
 
-div[data-testid="validation-errors"] ul {
+.validation-errors ul {
   margin-top: 8px;
 }
 
-div[data-testid="validation-errors"] li {
+.validation-errors li {
   color: var(--state-danger);
   padding: 4px 0;
 }
 
 /* =========================================================
-   WARGEAR SECTION (inline styles override)
+   WARGEAR SECTION
    ========================================================= */
 
-tr[data-testid="wargear-section"] td > div {
-  background-color: var(--surface-card) !important;
-  border: 1px solid var(--surface-border) !important;
+.wargear-section td > div {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
   border-radius: 8px;
 }
 
-tr[data-testid="wargear-section"] h4 {
+.wargear-section h4 {
   color: var(--faction-primary);
   margin-bottom: 12px;
 }
 
-tr[data-testid="wargear-section"] label {
+.wargear-section label {
   margin-bottom: 0;
 }
 
-tr[data-testid="wargear-section"] select {
+.wargear-section select {
   min-width: 200px;
 }
 
@@ -569,7 +559,7 @@ tr[data-testid="wargear-section"] select {
    LOADING & ERROR STATES
    ========================================================= */
 
-div[data-testid="error"] {
+.error-message {
   background-color: rgba(229, 83, 61, 0.1);
   border: 1px solid var(--state-danger);
   color: var(--state-danger);

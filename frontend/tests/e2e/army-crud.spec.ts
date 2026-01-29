@@ -45,29 +45,29 @@ async function createArmyViaApi(request: import('@playwright/test').APIRequestCo
 
 test('create army via UI and cross-check with API', async ({ page, request }) => {
   await page.goto(`/factions/${FACTION_ID}/armies/new`);
-  await expect(page.getByTestId('builder-title')).toHaveText('Create Army');
+  await expect(page.locator('.builder-title')).toHaveText('Create Army');
 
-  await page.getByTestId('army-name-input').fill('My Necron Host');
-  await page.getByTestId('battle-size-select').selectOption('StrikeForce');
+  await page.locator('.army-name-input').fill('My Necron Host');
+  await page.locator('.battle-size-select').selectOption('StrikeForce');
 
-  await page.getByTestId('unit-search').fill('');
-  const addButtons = page.getByTestId('add-unit-button');
+  await page.locator('.unit-search').fill('');
+  const addButtons = page.locator('.add-unit-button');
   await addButtons.first().click();
 
-  const charItems = page.locator('[data-testid="unit-picker-item"]').filter({ hasText: 'Characters' });
+  const charItems = page.locator('.unit-picker-item').filter({ hasText: 'Characters' });
   if (await charItems.count() > 0) {
-    await charItems.first().getByTestId('add-unit-button').click();
+    await charItems.first().locator('.add-unit-button').click();
   }
 
-  const unitRows = page.getByTestId('unit-row');
+  const unitRows = page.locator('.unit-row');
   expect(await unitRows.count()).toBeGreaterThan(0);
 
-  const warlordRadios = page.getByTestId('warlord-radio');
+  const warlordRadios = page.locator('.warlord-radio');
   if (await warlordRadios.count() > 0) {
     await warlordRadios.first().click({ force: true });
   }
 
-  await page.getByTestId('save-army').click();
+  await page.locator('.save-army').click();
   await expect(page).toHaveURL(/\/armies\/[a-f0-9-]+$/);
 
   const armyId = page.url().split('/armies/')[1];
@@ -82,7 +82,7 @@ test('army appears in faction list after creation', async ({ page, request }) =>
   const persisted = await createArmyViaApi(request);
 
   await page.goto(`/factions/${FACTION_ID}`);
-  await expect(page.getByTestId('army-list-section')).toBeVisible();
+  await expect(page.locator('.army-list-section')).toBeVisible();
   await expect(page.getByText(persisted.name).first()).toBeVisible();
 
   const apiRes = await request.get(`${API_BASE}/api/factions/${FACTION_ID}/armies`);
@@ -94,10 +94,10 @@ test('edit army via UI and cross-check with API', async ({ page, request }) => {
   const persisted = await createArmyViaApi(request);
 
   await page.goto(`/armies/${persisted.id}/edit`);
-  await expect(page.getByTestId('builder-title')).toHaveText('Edit Army');
+  await expect(page.locator('.builder-title')).toHaveText('Edit Army');
 
-  await page.getByTestId('army-name-input').fill('Updated Army Name');
-  await page.getByTestId('save-army').click();
+  await page.locator('.army-name-input').fill('Updated Army Name');
+  await page.locator('.save-army').click();
   await expect(page).toHaveURL(`/armies/${persisted.id}`);
 
   const apiRes = await request.get(`${API_BASE}/api/armies/${persisted.id}`);
@@ -109,9 +109,9 @@ test('delete army via UI and cross-check with API', async ({ page, request }) =>
   const persisted = await createArmyViaApi(request);
 
   await page.goto(`/armies/${persisted.id}`);
-  await expect(page.getByTestId('army-name')).toHaveText(persisted.name);
+  await expect(page.locator('.army-name')).toHaveText(persisted.name);
 
-  await page.getByTestId('delete-army').click();
+  await page.locator('.delete-army').click();
   await expect(page).toHaveURL(`/factions/${FACTION_ID}`);
 
   const apiRes = await request.get(`${API_BASE}/api/armies/${persisted.id}`);
@@ -122,9 +122,9 @@ test('view army shows correct composition', async ({ page, request }) => {
   const persisted = await createArmyViaApi(request);
 
   await page.goto(`/armies/${persisted.id}`);
-  await expect(page.getByTestId('army-name')).toHaveText(persisted.name);
-  await expect(page.getByTestId('army-battle-size')).toContainText('StrikeForce');
+  await expect(page.locator('.army-name')).toHaveText(persisted.name);
+  await expect(page.locator('.army-battle-size')).toContainText('StrikeForce');
 
-  const unitItems = page.getByTestId('army-view-unit');
+  const unitItems = page.locator('.army-view-unit');
   await expect(unitItems).toHaveCount(persisted.army.units.length);
 });

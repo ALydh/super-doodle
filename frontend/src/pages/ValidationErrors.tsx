@@ -43,11 +43,11 @@ export function ValidationErrors({ errors }: Props) {
   if (errors.length === 0) return null;
 
   return (
-    <div data-testid="validation-errors">
+    <div className="validation-errors">
       <strong>Validation Errors:</strong>
       <ul>
         {errors.map((err, i) => (
-          <li key={i} data-testid="validation-error">{errorMessage(err)}</li>
+          <li key={i} className="validation-error">{errorMessage(err)}</li>
         ))}
       </ul>
     </div>
