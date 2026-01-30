@@ -94,6 +94,18 @@ export function ArmyViewPage() {
     [datasheetDetails]
   );
 
+  const totalPoints = useMemo(() => {
+    if (!army) return 0;
+    const detachmentEnh = enhancements.filter(e => e.detachmentId === army.army.detachmentId);
+    return army.army.units.reduce((sum, unit) => {
+      const unitCost = allCosts.find(c => c.datasheetId === unit.datasheetId && c.line === unit.sizeOptionLine);
+      const enhancementCost = unit.enhancementId
+        ? detachmentEnh.find(e => e.id === unit.enhancementId)?.cost ?? 0
+        : 0;
+      return sum + (unitCost?.cost ?? 0) + enhancementCost;
+    }, 0);
+  }, [army, allCosts, enhancements]);
+
   const handleDelete = async () => {
     if (!armyId) return;
     await deleteArmy(armyId);
@@ -140,7 +152,7 @@ export function ArmyViewPage() {
         <div className="army-view-header-text">
           <h1 className="army-name">{army.name}</h1>
           <p className="army-meta">
-            {army.army.battleSize} - {maxPoints}pts | {detachmentName}
+            {army.army.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
           </p>
         </div>
         {(army.ownerId === null || army.ownerId === user?.id) && (

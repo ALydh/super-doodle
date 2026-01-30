@@ -15,8 +15,8 @@ function areUnitsIdentical(a: ArmyUnit, b: ArmyUnit): boolean {
   if (a.datasheetId !== b.datasheetId) return false;
   if (a.sizeOptionLine !== b.sizeOptionLine) return false;
   if (a.enhancementId !== b.enhancementId) return false;
-  if (a.attachedLeaderId !== null || b.attachedLeaderId !== null) return false;
-  if (a.attachedToUnitIndex !== null || b.attachedToUnitIndex !== null) return false;
+  if (a.attachedLeaderId || b.attachedLeaderId) return false;
+  if (a.attachedToUnitIndex != null || b.attachedToUnitIndex != null) return false;
 
   const aSelections = a.wargearSelections.filter(s => s.selected).sort((x, y) => x.optionLine - y.optionLine);
   const bSelections = b.wargearSelections.filter(s => s.selected).sort((x, y) => x.optionLine - y.optionLine);
@@ -47,10 +47,10 @@ function groupIdenticalUnits(units: ArmyUnit[], warlordId: string): { stacks: St
     if (processed.has(i)) continue;
 
     const unit = units[i];
-    const isWarlord = warlordId === unit.datasheetId && units.filter(u => u.datasheetId === unit.datasheetId).findIndex((_, idx) => idx === i) === 0;
+    const isWarlord = warlordId === unit.datasheetId && units.findIndex(u => u.datasheetId === warlordId) === i;
     const isClaimedBodyguard = claimedBodyguardIndices.has(i);
 
-    if (isWarlord || unit.attachedLeaderId || unit.attachedToUnitIndex !== null || isClaimedBodyguard) {
+    if (isWarlord || unit.attachedLeaderId || unit.attachedToUnitIndex != null || isClaimedBodyguard) {
       singles.push({ unit, index: i });
       processed.add(i);
       continue;
