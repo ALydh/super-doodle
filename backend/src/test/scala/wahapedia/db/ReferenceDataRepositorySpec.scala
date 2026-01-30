@@ -33,8 +33,8 @@ class ReferenceDataRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
 
   private val orkFaction = FactionId("Ork")
   private val smFaction = FactionId("SM")
-  private val faction1 = Faction(orkFaction, "Orks", "/orks")
-  private val faction2 = Faction(smFaction, "Space Marines", "/sm")
+  private val faction1 = Faction(orkFaction, "Orks", "/orks", None)
+  private val faction2 = Faction(smFaction, "Space Marines", "/sm", None)
 
   private val ds1 = Datasheet(
     DatasheetId("000000001"), "Warboss", Some(orkFaction), None, None,

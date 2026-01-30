@@ -50,7 +50,9 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
   )
 
   "create" should "persist an army and return it with an id" in {
-    val persisted = ArmyRepository.create("My Ork Army", testArmy)(xa).unsafeRunSync()
+    val id = UUID.randomUUID().toString
+    val persisted = ArmyRepository.create(id, "My Ork Army", testArmy, None)(xa).unsafeRunSync()
+    persisted.id shouldBe id
     persisted.name shouldBe "My Ork Army"
     persisted.army shouldBe testArmy
     persisted.createdAt should not be empty
@@ -58,7 +60,8 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
   }
 
   "findById" should "return a previously created army" in {
-    val created = ArmyRepository.create("My Ork Army", testArmy)(xa).unsafeRunSync()
+    val id = UUID.randomUUID().toString
+    val created = ArmyRepository.create(id, "My Ork Army", testArmy, None)(xa).unsafeRunSync()
     val found = ArmyRepository.findById(created.id)(xa).unsafeRunSync()
     found shouldBe defined
     found.get.name shouldBe "My Ork Army"
@@ -67,12 +70,13 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
   }
 
   it should "return None for non-existent id" in {
-    val found = ArmyRepository.findById(UUID.randomUUID())(xa).unsafeRunSync()
+    val found = ArmyRepository.findById(UUID.randomUUID().toString)(xa).unsafeRunSync()
     found shouldBe None
   }
 
   it should "preserve unit details including enhancement and leader" in {
-    val created = ArmyRepository.create("Test", testArmy)(xa).unsafeRunSync()
+    val id = UUID.randomUUID().toString
+    val created = ArmyRepository.create(id, "Test", testArmy, None)(xa).unsafeRunSync()
     val found = ArmyRepository.findById(created.id)(xa).unsafeRunSync().get
     val warbossUnit = found.army.units.find(_.datasheetId == warbossId).get
     warbossUnit.enhancementId shouldBe Some(enhId)
@@ -80,22 +84,23 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
     boyzUnit.attachedLeaderId shouldBe Some(warbossId)
   }
 
-  "listByFaction" should "return only armies for the given faction" in {
-    ArmyRepository.create("Ork Army 1", testArmy)(xa).unsafeRunSync()
-    ArmyRepository.create("Ork Army 2", testArmy)(xa).unsafeRunSync()
+  "listSummariesByFaction" should "return only armies for the given faction" in {
+    ArmyRepository.create(UUID.randomUUID().toString, "Ork Army 1", testArmy, None)(xa).unsafeRunSync()
+    ArmyRepository.create(UUID.randomUUID().toString, "Ork Army 2", testArmy, None)(xa).unsafeRunSync()
 
     val smArmy = testArmy.copy(factionId = FactionId("SM"))
-    ArmyRepository.create("SM Army", smArmy)(xa).unsafeRunSync()
+    ArmyRepository.create(UUID.randomUUID().toString, "SM Army", smArmy, None)(xa).unsafeRunSync()
 
-    val orks = ArmyRepository.listByFaction(orkFaction)(xa).unsafeRunSync()
+    val orks = ArmyRepository.listSummariesByFaction(orkFaction)(xa).unsafeRunSync()
     orks.size shouldBe 2
 
-    val sm = ArmyRepository.listByFaction(FactionId("SM"))(xa).unsafeRunSync()
+    val sm = ArmyRepository.listSummariesByFaction(FactionId("SM"))(xa).unsafeRunSync()
     sm.size shouldBe 1
   }
 
   "update" should "modify an existing army" in {
-    val created = ArmyRepository.create("Old Name", testArmy)(xa).unsafeRunSync()
+    val id = UUID.randomUUID().toString
+    val created = ArmyRepository.create(id, "Old Name", testArmy, None)(xa).unsafeRunSync()
     val newArmy = testArmy.copy(battleSize = BattleSize.Onslaught, units = List(ArmyUnit(warbossId, 1, None, None)))
     val updated = ArmyRepository.update(created.id, "New Name", newArmy)(xa).unsafeRunSync()
     updated shouldBe defined
@@ -107,26 +112,28 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
   }
 
   it should "return None for non-existent id" in {
-    val result = ArmyRepository.update(UUID.randomUUID(), "Name", testArmy)(xa).unsafeRunSync()
+    val result = ArmyRepository.update(UUID.randomUUID().toString, "Name", testArmy)(xa).unsafeRunSync()
     result shouldBe None
   }
 
   "delete" should "remove an existing army" in {
-    val created = ArmyRepository.create("To Delete", testArmy)(xa).unsafeRunSync()
+    val id = UUID.randomUUID().toString
+    val created = ArmyRepository.create(id, "To Delete", testArmy, None)(xa).unsafeRunSync()
     val deleted = ArmyRepository.delete(created.id)(xa).unsafeRunSync()
     deleted shouldBe true
     ArmyRepository.findById(created.id)(xa).unsafeRunSync() shouldBe None
   }
 
   it should "return false for non-existent id" in {
-    val deleted = ArmyRepository.delete(UUID.randomUUID())(xa).unsafeRunSync()
+    val deleted = ArmyRepository.delete(UUID.randomUUID().toString)(xa).unsafeRunSync()
     deleted shouldBe false
   }
 
   it should "cascade delete army units" in {
-    val created = ArmyRepository.create("Cascade Test", testArmy)(xa).unsafeRunSync()
+    val id = UUID.randomUUID().toString
+    val created = ArmyRepository.create(id, "Cascade Test", testArmy, None)(xa).unsafeRunSync()
     ArmyRepository.delete(created.id)(xa).unsafeRunSync()
-    val unitCount = sql"SELECT COUNT(*) FROM army_units WHERE army_id = ${created.id.toString}"
+    val unitCount = sql"SELECT COUNT(*) FROM army_units WHERE army_id = ${created.id}"
       .query[Int].unique.transact(xa).unsafeRunSync()
     unitCount shouldBe 0
   }
