@@ -218,6 +218,18 @@ object Schema {
       description TEXT NOT NULL
     )""",
 
+    sql"""CREATE TABLE IF NOT EXISTS parsed_wargear_options (
+      datasheet_id TEXT NOT NULL,
+      option_line INTEGER NOT NULL,
+      choice_index INTEGER NOT NULL,
+      group_id INTEGER NOT NULL,
+      action TEXT NOT NULL,
+      weapon_name TEXT NOT NULL,
+      model_target TEXT,
+      count_per_n_models INTEGER NOT NULL,
+      max_count INTEGER NOT NULL
+    )""",
+
     sql"""CREATE TABLE IF NOT EXISTS armies (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,

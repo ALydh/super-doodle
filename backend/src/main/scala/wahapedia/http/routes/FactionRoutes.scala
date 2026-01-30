@@ -47,6 +47,7 @@ object FactionRoutes {
                   abilities <- ReferenceDataRepository.abilitiesForDatasheets(ids)(xa)
                   options <- ReferenceDataRepository.optionsForDatasheets(ids)(xa)
                   stratagemsWithDs <- ReferenceDataRepository.stratagemsByDatasheets(ids)(xa)
+                  parsedWargearOpts <- ReferenceDataRepository.parsedWargearOptionsForDatasheets(ids)(xa)
                   profilesByDs = profiles.groupBy(_.datasheetId)
                   wargearByDs = wargear.groupBy(_.datasheetId)
                   costsByDs = costs.groupBy(_.datasheetId)
@@ -54,6 +55,7 @@ object FactionRoutes {
                   abilitiesByDs = abilities.groupBy(_.datasheetId)
                   optionsByDs = options.groupBy(_.datasheetId)
                   stratagemsByDs = stratagemsWithDs.groupBy(_._1).view.mapValues(_.map(_._2)).toMap
+                  parsedWargearOptsByDs = parsedWargearOpts.groupBy(_.datasheetId)
                   details = datasheets.map { ds =>
                     DatasheetDetail(
                       ds,
@@ -63,7 +65,8 @@ object FactionRoutes {
                       keywordsByDs.getOrElse(ds.id, Nil),
                       abilitiesByDs.getOrElse(ds.id, Nil),
                       stratagemsByDs.getOrElse(ds.id, Nil),
-                      optionsByDs.getOrElse(ds.id, Nil)
+                      optionsByDs.getOrElse(ds.id, Nil),
+                      parsedWargearOptsByDs.getOrElse(ds.id, Nil)
                     )
                   }
                   resp <- Ok(details)

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode, DatasheetDetail } from "../types";
+import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode, DatasheetDetail, Wargear } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 
@@ -83,6 +83,80 @@ export function UnitRow({
   const wargearCount = useMemo(() =>
     unit.wargearSelections.filter(s => s.selected).length
   , [unit.wargearSelections]);
+
+  const filteredWargear = useMemo((): Wargear[] => {
+    if (!detail) return [];
+
+    const matchesWeaponPrefix = (weaponName: string, prefix: string): boolean => {
+      const normalizedWeapon = weaponName.toLowerCase();
+      const normalizedPrefix = prefix.toLowerCase();
+      return normalizedWeapon === normalizedPrefix || normalizedWeapon.startsWith(normalizedPrefix + " ");
+    };
+
+    const addedWeapons = new Set<string>();
+    const removedWeapons = new Set<string>();
+    for (const p of detail.parsedWargearOptions) {
+      if (p.action === "add") addedWeapons.add(p.weaponName.toLowerCase());
+      else if (p.action === "remove") removedWeapons.add(p.weaponName.toLowerCase());
+    }
+
+    const weaponMap = new Map<string, Wargear>();
+    for (const w of detail.wargear) {
+      if (!w.name) continue;
+      const isOptional = Array.from(addedWeapons).some(added =>
+        matchesWeaponPrefix(w.name!, added) && !Array.from(removedWeapons).some(removed => matchesWeaponPrefix(w.name!, removed))
+      );
+      if (!isOptional) {
+        weaponMap.set(w.name.toLowerCase(), w);
+      }
+    }
+
+    if (detail.parsedWargearOptions.length === 0) {
+      return Array.from(weaponMap.values());
+    }
+
+    const getSelectedChoiceIndex = (notes: string | null, optionLine: number): number | null => {
+      if (!notes) return null;
+      const normalizedNotes = notes.toLowerCase().trim();
+      const addOptions = detail.parsedWargearOptions.filter(
+        p => p.optionLine === optionLine && p.action === "add" && p.choiceIndex > 0
+      );
+      for (const opt of addOptions) {
+        if (normalizedNotes.includes(opt.weaponName.toLowerCase())) {
+          return opt.choiceIndex;
+        }
+      }
+      return null;
+    };
+
+    const activeSelections = unit.wargearSelections.filter(s => s.selected);
+    for (const selection of activeSelections) {
+      const selectedChoiceIndex = getSelectedChoiceIndex(selection.notes, selection.optionLine);
+
+      const parsed = detail.parsedWargearOptions.filter(
+        p => p.optionLine === selection.optionLine &&
+             (p.choiceIndex === 0 || (selectedChoiceIndex !== null && p.choiceIndex === selectedChoiceIndex))
+      );
+
+      for (const p of parsed) {
+        const targetName = p.weaponName.toLowerCase();
+        if (p.action === "remove") {
+          for (const [key, w] of weaponMap) {
+            if (matchesWeaponPrefix(w.name ?? "", targetName)) {
+              weaponMap.delete(key);
+            }
+          }
+        } else if (p.action === "add") {
+          const weapons = detail.wargear.filter(w => matchesWeaponPrefix(w.name ?? "", targetName));
+          for (const w of weapons) {
+            weaponMap.set(w.name!.toLowerCase(), w);
+          }
+        }
+      }
+    }
+
+    return Array.from(weaponMap.values());
+  }, [detail, unit.wargearSelections]);
 
   const handleWargearSelectionChange = (optionLine: number, selected: boolean) => {
     const existingSelection = unit.wargearSelections.find(s => s.optionLine === optionLine);
@@ -290,11 +364,11 @@ export function UnitRow({
                     </div>
                   )}
 
-                  {detail.wargear.filter(w => w.name).length > 0 && (
+                  {filteredWargear.length > 0 && (
                     <div className="weapons-preview">
                       <h5>Weapons</h5>
                       <div className="weapons-list">
-                        {detail.wargear.filter(w => w.name).map((w, i) => (
+                        {filteredWargear.map((w, i) => (
                           <div key={i} className="weapon-line">
                             <span className="weapon-name">{w.name}</span>
                             <span className="weapon-stat">{w.attacks ? `A:${w.attacks}` : ''}</span>
