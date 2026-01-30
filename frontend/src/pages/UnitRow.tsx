@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode, DatasheetDetail, Wargear, ParsedWargearOption } from "../types";
+import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode, DatasheetDetail, Wargear } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 
