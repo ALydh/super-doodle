@@ -743,6 +743,16 @@ tbody td {
   font-size: 0.8rem;
 }
 
+.weapon-abilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weapon-ability-item {
+  display: block;
+}
+
 .wargear-options {
   margin-top: 16px;
   padding-top: 16px;
