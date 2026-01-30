@@ -139,17 +139,14 @@ export function StackedUnitRow({
                         {detail.wargear.filter(w => w.name).map((w, i) => (
                           <div key={i} className="weapon-line">
                             <span className="weapon-name">{w.name}</span>
-                            <span className="weapon-stats">
-                              {w.range && w.range !== "Melee" && <span>{w.range}</span>}
-                              {w.attacks && <span>A:{w.attacks}</span>}
-                              {w.ballisticSkill && <span>BS:{w.ballisticSkill}</span>}
-                              {w.strength && <span>S:{w.strength}</span>}
-                              {w.armorPenetration && <span>AP:{w.armorPenetration}</span>}
-                              {w.damage && <span>D:{w.damage}</span>}
+                            <span className="weapon-stat">{w.attacks ? `A:${w.attacks}` : ''}</span>
+                            <span className="weapon-stat">{w.ballisticSkill ? `BS:${w.ballisticSkill}` : ''}</span>
+                            <span className="weapon-stat">{w.strength ? `S:${w.strength}` : ''}</span>
+                            <span className="weapon-stat">{w.armorPenetration ? `AP:${w.armorPenetration}` : ''}</span>
+                            <span className="weapon-stat">{w.damage ? `D:${w.damage}` : ''}</span>
+                            <span className="weapon-abilities">
+                              {w.description && <WeaponAbilityText text={w.description} />}
                             </span>
-                            {w.description && (
-                              <span className="weapon-abilities"><WeaponAbilityText text={w.description} /></span>
-                            )}
                           </div>
                         ))}
                       </div>

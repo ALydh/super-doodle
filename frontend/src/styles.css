@@ -718,9 +718,10 @@ tbody td {
 }
 
 .weapon-line {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 40px 45px 35px 45px 50px 1fr;
   gap: 8px;
+  align-items: baseline;
   padding: 8px;
   background: var(--surface-card);
   border-radius: 4px;
@@ -730,16 +731,10 @@ tbody td {
 .weapon-name {
   font-weight: 600;
   color: var(--text-primary);
-  min-width: 150px;
 }
 
-.weapon-stats {
-  display: flex;
-  gap: 8px;
+.weapon-stat {
   color: var(--text-secondary);
-}
-
-.weapon-stats span {
   white-space: nowrap;
 }
 
@@ -3385,16 +3380,13 @@ button:disabled {
   }
 
   .weapon-line {
-    flex-direction: column;
-    gap: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
   }
 
   .weapon-name {
-    min-width: auto;
-  }
-
-  .weapon-stats {
-    flex-wrap: wrap;
+    flex-basis: 100%;
   }
 
   .wargear-options {
