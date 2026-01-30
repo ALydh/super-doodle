@@ -35,7 +35,8 @@ object DatasheetRoutes {
                 abilities <- ReferenceDataRepository.abilitiesForDatasheet(datasheetId)(xa)
                 stratagems <- ReferenceDataRepository.stratagemsByDatasheet(datasheetId)(xa)
                 options <- ReferenceDataRepository.optionsForDatasheet(datasheetId)(xa)
-                resp <- Ok(DatasheetDetail(datasheet, profiles, wargear, costs, keywords, abilities, stratagems, options))
+                parsedWargearOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheet(datasheetId)(xa)
+                resp <- Ok(DatasheetDetail(datasheet, profiles, wargear, costs, keywords, abilities, stratagems, options, parsedWargearOptions))
               } yield resp.putHeaders(cacheHeaders)
           }
         case Left(_) =>

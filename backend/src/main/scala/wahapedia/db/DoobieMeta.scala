@@ -2,7 +2,7 @@ package wahapedia.db
 
 import doobie.Meta
 import wahapedia.domain.types.*
-import wahapedia.domain.models.{StratagemId, EnhancementId, DetachmentAbilityId}
+import wahapedia.domain.models.{StratagemId, EnhancementId, DetachmentAbilityId, WargearAction}
 
 object DoobieMeta {
 
@@ -34,4 +34,8 @@ object DoobieMeta {
     case "Onslaught" => BattleSize.Onslaught
     case s => throw new IllegalArgumentException(s"Invalid battle size: $s")
   }(_.toString)
+
+  given Meta[WargearAction] = Meta[String].imap(s =>
+    WargearAction.parse(s).fold(_ => throw new IllegalArgumentException(s"Invalid wargear action: $s"), identity)
+  )(WargearAction.asString)
 }

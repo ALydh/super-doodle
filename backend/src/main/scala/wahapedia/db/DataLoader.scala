@@ -37,6 +37,7 @@ object DataLoader {
       _ <- loadFile("Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa)
       _ <- loadFile("Last_update.csv", LastUpdateParser, insertLastUpdate)(xa)
       _ <- loadFileIfExists("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
+      _ <- loadFileIfExists("Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa)
     } yield ()
 
   private def loadFile[A](
@@ -65,6 +66,7 @@ object DataLoader {
 
   private def clearAll(xa: Transactor[IO]): IO[Unit] = {
     val deletes = List(
+      sql"DELETE FROM parsed_wargear_options",
       sql"DELETE FROM weapon_abilities",
       sql"DELETE FROM datasheet_detachment_abilities",
       sql"DELETE FROM detachment_abilities",
@@ -166,6 +168,41 @@ object DataLoader {
   private def insertWeaponAbility(wa: WeaponAbility): ConnectionIO[Int] =
     sql"INSERT INTO weapon_abilities (id, name, description) VALUES (${wa.id}, ${wa.name}, ${wa.description})".update.run
 
-  def loadWeaponAbilities(xa: Transactor[IO]): IO[Unit] =
-    loadFileIfExists("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
+  private def insertParsedWargearOption(p: ParsedWargearOption): ConnectionIO[Int] =
+    sql"""INSERT INTO parsed_wargear_options (datasheet_id, option_line, choice_index, group_id, action, weapon_name, model_target, count_per_n_models, max_count)
+          VALUES (${p.datasheetId}, ${p.optionLine}, ${p.choiceIndex}, ${p.groupId}, ${WargearAction.asString(p.action)}, ${p.weaponName}, ${p.modelTarget}, ${p.countPerNModels}, ${p.maxCount})""".update.run
+
+  private def loadIfEmpty[A](
+    tableName: String,
+    filename: String,
+    parser: StreamingCsvParser[A],
+    insert: A => ConnectionIO[Int]
+  )(xa: Transactor[IO], counts: Map[String, Int]): IO[Unit] =
+    if (counts.getOrElse(tableName, 0) == 0) loadFileIfExists(filename, parser, insert)(xa)
+    else IO.unit
+
+  def loadMissing(xa: Transactor[IO], counts: Map[String, Int]): IO[Unit] =
+    for {
+      _ <- loadIfEmpty("factions", "Factions.csv", FactionParser, insertFaction)(xa, counts)
+      _ <- loadIfEmpty("sources", "Source.csv", SourceParser, insertSource)(xa, counts)
+      _ <- loadIfEmpty("abilities", "Abilities.csv", AbilityParser, insertAbility)(xa, counts)
+      _ <- loadIfEmpty("datasheets", "Datasheets.csv", DatasheetParser, insertDatasheet)(xa, counts)
+      _ <- loadIfEmpty("model_profiles", "Datasheets_models.csv", ModelProfileParser, insertModelProfile)(xa, counts)
+      _ <- loadIfEmpty("wargear", "Datasheets_wargear.csv", WargearParser, insertWargear)(xa, counts)
+      _ <- loadIfEmpty("unit_composition", "Datasheets_unit_composition.csv", UnitCompositionParser, insertUnitComposition)(xa, counts)
+      _ <- loadIfEmpty("unit_cost", "Datasheets_models_cost.csv", UnitCostParser, insertUnitCost)(xa, counts)
+      _ <- loadIfEmpty("datasheet_keywords", "Datasheets_keywords.csv", DatasheetKeywordParser, insertDatasheetKeyword)(xa, counts)
+      _ <- loadIfEmpty("datasheet_abilities", "Datasheets_abilities.csv", DatasheetAbilityParser, insertDatasheetAbility)(xa, counts)
+      _ <- loadIfEmpty("datasheet_options", "Datasheets_options.csv", DatasheetOptionParser, insertDatasheetOption)(xa, counts)
+      _ <- loadIfEmpty("datasheet_leaders", "Datasheets_leader.csv", DatasheetLeaderParser, insertDatasheetLeader)(xa, counts)
+      _ <- loadIfEmpty("stratagems", "Stratagems.csv", StratagemParser, insertStratagem)(xa, counts)
+      _ <- loadIfEmpty("datasheet_stratagems", "Datasheets_stratagems.csv", DatasheetStratagemParser, insertDatasheetStratagem)(xa, counts)
+      _ <- loadIfEmpty("enhancements", "Enhancements.csv", EnhancementParser, insertEnhancement)(xa, counts)
+      _ <- loadIfEmpty("datasheet_enhancements", "Datasheets_enhancements.csv", DatasheetEnhancementParser, insertDatasheetEnhancement)(xa, counts)
+      _ <- loadIfEmpty("detachment_abilities", "Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa, counts)
+      _ <- loadIfEmpty("datasheet_detachment_abilities", "Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa, counts)
+      _ <- loadIfEmpty("last_update", "Last_update.csv", LastUpdateParser, insertLastUpdate)(xa, counts)
+      _ <- loadIfEmpty("weapon_abilities", "Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa, counts)
+      _ <- loadIfEmpty("parsed_wargear_options", "Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa, counts)
+    } yield ()
 }

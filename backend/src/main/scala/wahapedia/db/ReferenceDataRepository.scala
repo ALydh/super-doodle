@@ -199,6 +199,16 @@ object ReferenceDataRepository {
     sql"SELECT id, name, description FROM weapon_abilities"
       .query[WeaponAbility].to[List].transact(xa)
 
+  def parsedWargearOptionsForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[ParsedWargearOption]] =
+    sql"""SELECT datasheet_id, option_line, choice_index, group_id, action, weapon_name, model_target, count_per_n_models, max_count
+          FROM parsed_wargear_options WHERE datasheet_id = $datasheetId"""
+      .query[ParsedWargearOption].to[List].transact(xa)
+
+  def parsedWargearOptionsForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[ParsedWargearOption]] =
+    (fr"""SELECT datasheet_id, option_line, choice_index, group_id, action, weapon_name, model_target, count_per_n_models, max_count
+          FROM parsed_wargear_options WHERE """ ++ Fragments.in(fr"datasheet_id", datasheetIds))
+      .query[ParsedWargearOption].to[List].transact(xa)
+
   case class DetachmentInfo(name: String, detachmentId: String)
 
   def detachmentsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DetachmentInfo]] =
@@ -229,7 +239,7 @@ object ReferenceDataRepository {
       "datasheet_abilities", "datasheet_options", "datasheet_leaders",
       "stratagems", "datasheet_stratagems", "enhancements",
       "datasheet_enhancements", "detachment_abilities",
-      "datasheet_detachment_abilities", "weapon_abilities"
+      "datasheet_detachment_abilities", "last_update", "weapon_abilities", "parsed_wargear_options"
     )
     tables.traverse { table =>
       Fragment.const(s"SELECT COUNT(*) FROM $table").query[Int].unique.transact(xa).map(table -> _)

@@ -76,6 +76,7 @@ export interface DatasheetDetail {
   abilities: DatasheetAbility[];
   stratagems: Stratagem[];
   options: DatasheetOption[];
+  parsedWargearOptions: ParsedWargearOption[];
 }
 
 export type BattleSize = "Incursion" | "StrikeForce" | "Onslaught";
@@ -223,4 +224,18 @@ export interface WeaponAbility {
   id: string;
   name: string;
   description: string;
+}
+
+export type WargearAction = "remove" | "add";
+
+export interface ParsedWargearOption {
+  datasheetId: string;
+  optionLine: number;
+  choiceIndex: number;
+  groupId: number;
+  action: WargearAction;
+  weaponName: string;
+  modelTarget: string | null;
+  countPerNModels: number;
+  maxCount: number;
 }

@@ -15,7 +15,8 @@ case class DatasheetDetail(
   keywords: List[DatasheetKeyword],
   abilities: List[DatasheetAbility],
   stratagems: List[Stratagem],
-  options: List[DatasheetOption]
+  options: List[DatasheetOption],
+  parsedWargearOptions: List[ParsedWargearOption]
 )
 
 case class CreateArmyRequest(name: String, army: Army)
