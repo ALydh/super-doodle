@@ -9,7 +9,8 @@ import cats.syntax.either.*
 case class Faction(
   id: FactionId,
   name: String,
-  link: String
+  link: String,
+  group: Option[String]
 )
 
 object FactionParser extends StreamingCsvParser[Faction] {
@@ -33,6 +34,6 @@ object FactionParser extends StreamingCsvParser[Faction] {
       id <- CsvParsing.parseWith("id", cols(0), FactionId.parse)
       name <- CsvParsing.parseString("name", cols(1))
       link <- CsvParsing.parseString("link", cols(2))
-    } yield Faction(id, name, link)
+    } yield Faction(id, name, link, None)
   }
 }

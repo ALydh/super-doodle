@@ -8,9 +8,9 @@ frontend/dist/
 frontend/playwright-report/
 frontend/test-results/
 
-.metals/
-.bloop/
-.bsp/
+**/.metals/
+**/.bloop/
+**/.bsp/
 
 *.log
 *.db
