@@ -21,17 +21,8 @@ object Main extends IOApp.Simple {
       _ <- IO.println("Initializing database...")
       _ <- Schema.initialize(xa)
       tableCounts <- ReferenceDataRepository.counts(xa)
-      isPopulated = tableCounts.getOrElse("factions", 0) > 0
-      _ <- if (isPopulated) {
-        IO.println("Database already populated. Skipping CSV data loading.")
-      } else {
-        IO.println("Loading CSV data into database...") *> DataLoader.loadAll(xa)
-      }
-      weaponAbilitiesCount = tableCounts.getOrElse("weapon_abilities", 0)
-      _ <- if (weaponAbilitiesCount == 0) {
-        DataLoader.loadWeaponAbilities(xa)
-      } else IO.unit
-      _ <- printSummary(isPopulated)
+      _ <- DataLoader.loadMissing(xa, tableCounts)
+      _ <- printSummary(tableCounts)
       _ <- IO.println("Starting HTTP server on port 8080...")
       _ <- HttpServer.createServer(8080, xa).useForever
     } yield ()
@@ -46,13 +37,14 @@ object Main extends IOApp.Simple {
     }
   }
 
-  private def printSummary(isPopulated: Boolean): IO[Unit] =
+  private def printSummary(initialCounts: Map[String, Int]): IO[Unit] =
     for {
       tableCounts <- ReferenceDataRepository.counts(xa)
       lastUpdate <- ReferenceDataRepository.lastUpdate(xa)
+      loaded = tableCounts.exists { case (k, v) => initialCounts.getOrElse(k, 0) < v }
 
       _ <- IO.println("\n" + "=" * 60)
-      _ <- IO.println(if (isPopulated) "DATABASE STATUS" else "DATABASE LOAD COMPLETE")
+      _ <- IO.println(if (loaded) "DATABASE LOAD COMPLETE" else "DATABASE STATUS")
       _ <- IO.println("=" * 60)
 
       _ <- IO.println(s"\nCORE ENTITIES:")
