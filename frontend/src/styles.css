@@ -364,6 +364,21 @@ tbody td {
   min-width: 0;
 }
 
+/* Role Header */
+.role-header-row {
+  display: flex;
+  width: 100%;
+}
+
+.role-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 8px 0 4px 0;
+}
+
 /* Unit Card Builder */
 .unit-card-builder {
   background-color: var(--surface-card);
@@ -373,6 +388,93 @@ tbody td {
   overflow: hidden;
   container-type: inline-size;
   width: 100%;
+}
+
+/* Stacked Unit Cards */
+.stacked-row {
+  position: relative;
+}
+
+.stacked-card {
+  position: relative;
+  z-index: 1;
+}
+
+.stacked-card-shadow {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: -4px;
+  bottom: -4px;
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border-left: 4px solid var(--faction-primary);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+.stacked-card-shadow:nth-child(2) {
+  top: 8px;
+  left: 8px;
+  right: -8px;
+  bottom: -8px;
+  opacity: 0.3;
+  z-index: -2;
+}
+
+.stacked-count {
+  background-color: var(--faction-primary);
+  color: var(--surface-app);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 4px;
+}
+
+.stacked-total {
+  font-weight: 700;
+}
+
+.stacked-units-list {
+  padding: 12px 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.stacked-units-list h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.stacked-unit-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 0.9rem;
+}
+
+.stacked-unit-item span:first-child {
+  flex: 1;
+  color: var(--text-secondary);
+}
+
+.stacked-unit-item span:nth-child(2) {
+  color: var(--text-muted);
+}
+
+.btn-remove-small {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 1rem;
+}
+
+.btn-remove-small:hover {
+  color: var(--status-error);
 }
 
 

@@ -4,6 +4,81 @@ import type {
   DatasheetLeader, DatasheetOption, LeaderDisplayMode,
 } from "../types";
 import { UnitRow } from "./UnitRow";
+import { StackedUnitRow } from "./StackedUnitRow";
+
+interface StackedUnit {
+  unit: ArmyUnit;
+  index: number;
+}
+
+function areUnitsIdentical(a: ArmyUnit, b: ArmyUnit): boolean {
+  if (a.datasheetId !== b.datasheetId) return false;
+  if (a.sizeOptionLine !== b.sizeOptionLine) return false;
+  if (a.enhancementId !== b.enhancementId) return false;
+  if (a.attachedLeaderId !== null || b.attachedLeaderId !== null) return false;
+  if (a.attachedToUnitIndex !== null || b.attachedToUnitIndex !== null) return false;
+
+  const aSelections = a.wargearSelections.filter(s => s.selected).sort((x, y) => x.optionLine - y.optionLine);
+  const bSelections = b.wargearSelections.filter(s => s.selected).sort((x, y) => x.optionLine - y.optionLine);
+
+  if (aSelections.length !== bSelections.length) return false;
+  for (let i = 0; i < aSelections.length; i++) {
+    if (aSelections[i].optionLine !== bSelections[i].optionLine) return false;
+    if (aSelections[i].notes !== bSelections[i].notes) return false;
+  }
+
+  return true;
+}
+
+function groupIdenticalUnits(units: ArmyUnit[], warlordId: string): { stacks: StackedUnit[][]; singles: StackedUnit[] } {
+  const stacks: StackedUnit[][] = [];
+  const singles: StackedUnit[] = [];
+  const processed = new Set<number>();
+
+  const claimedBodyguardIndices = new Set<number>();
+  units.forEach((u) => {
+    if (u.attachedLeaderId) {
+      const bodyguardIdx = units.findIndex(bg => bg.datasheetId === u.attachedLeaderId);
+      if (bodyguardIdx >= 0) claimedBodyguardIndices.add(bodyguardIdx);
+    }
+  });
+
+  for (let i = 0; i < units.length; i++) {
+    if (processed.has(i)) continue;
+
+    const unit = units[i];
+    const isWarlord = warlordId === unit.datasheetId && units.filter(u => u.datasheetId === unit.datasheetId).findIndex((_, idx) => idx === i) === 0;
+    const isClaimedBodyguard = claimedBodyguardIndices.has(i);
+
+    if (isWarlord || unit.attachedLeaderId || unit.attachedToUnitIndex !== null || isClaimedBodyguard) {
+      singles.push({ unit, index: i });
+      processed.add(i);
+      continue;
+    }
+
+    const stack: StackedUnit[] = [{ unit, index: i }];
+    processed.add(i);
+
+    for (let j = i + 1; j < units.length; j++) {
+      if (processed.has(j)) continue;
+      if (claimedBodyguardIndices.has(j)) continue;
+      const otherUnit = units[j];
+
+      if (areUnitsIdentical(unit, otherUnit)) {
+        stack.push({ unit: otherUnit, index: j });
+        processed.add(j);
+      }
+    }
+
+    if (stack.length > 1) {
+      stacks.push(stack);
+    } else {
+      singles.push(stack[0]);
+    }
+  }
+
+  return { stacks, singles };
+}
 
 interface RenderContext {
   units: ArmyUnit[];
@@ -45,37 +120,63 @@ function getAttachedLeaderForUnit(
 }
 
 function renderTableMode(ctx: RenderContext): ReactElement[] {
-  return ctx.units.map((unit, i) => (
-    <UnitRow
-      key={i}
-      unit={unit}
-      index={i}
-      datasheet={ctx.datasheets.find((ds) => ds.id === unit.datasheetId)}
-      costs={ctx.costs}
-      enhancements={ctx.enhancements}
-      leaders={ctx.leaders}
-      datasheets={ctx.datasheets}
-      options={ctx.options}
-      isWarlord={ctx.warlordId === unit.datasheetId}
-      onUpdate={ctx.onUpdate}
-      onRemove={ctx.onRemove}
-      onCopy={ctx.onCopy}
-      onSetWarlord={ctx.onSetWarlord}
-      displayMode="table"
-      allUnits={ctx.units}
-    />
-  ));
+  const { stacks, singles } = groupIdenticalUnits(ctx.units, ctx.warlordId);
+  const result: ReactElement[] = [];
+
+  for (const stack of stacks) {
+    const firstUnit = stack[0].unit;
+    result.push(
+      <StackedUnitRow
+        key={`stack-${stack[0].index}`}
+        stackedUnits={stack}
+        datasheet={ctx.datasheets.find((ds) => ds.id === firstUnit.datasheetId)}
+        costs={ctx.costs}
+        onUpdate={ctx.onUpdate}
+        onRemove={ctx.onRemove}
+        onCopy={ctx.onCopy}
+      />
+    );
+  }
+
+  for (const { unit, index } of singles) {
+    result.push(
+      <UnitRow
+        key={index}
+        unit={unit}
+        index={index}
+        datasheet={ctx.datasheets.find((ds) => ds.id === unit.datasheetId)}
+        costs={ctx.costs}
+        enhancements={ctx.enhancements}
+        leaders={ctx.leaders}
+        datasheets={ctx.datasheets}
+        options={ctx.options}
+        isWarlord={ctx.warlordId === unit.datasheetId}
+        onUpdate={ctx.onUpdate}
+        onRemove={ctx.onRemove}
+        onCopy={ctx.onCopy}
+        onSetWarlord={ctx.onSetWarlord}
+        displayMode="table"
+        allUnits={ctx.units}
+      />
+    );
+  }
+
+  return result;
 }
 
 function renderGroupedMode(ctx: RenderContext): ReactElement[] {
+  const { stacks, singles } = groupIdenticalUnits(ctx.units, ctx.warlordId);
   const rendered: ReactElement[] = [];
   const renderedIndices = new Set<number>();
 
-  ctx.units.forEach((unit, i) => {
-    if (renderedIndices.has(i)) return;
+  const findWarlordIndex = (): number => {
+    return ctx.units.findIndex(u => u.datasheetId === ctx.warlordId);
+  };
 
+  const renderUnitWithAttachment = (unit: ArmyUnit, index: number) => {
     const datasheet = ctx.datasheets.find(ds => ds.id === unit.datasheetId);
     const isCharacter = datasheet?.role === "Characters";
+    const isWarlord = ctx.warlordId === unit.datasheetId && findWarlordIndex() === index;
 
     if (isCharacter && unit.attachedLeaderId) {
       const bodyguardIndex = ctx.units.findIndex(u => u.datasheetId === unit.attachedLeaderId);
@@ -84,16 +185,16 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
 
       rendered.push(
         <UnitRow
-          key={i}
+          key={index}
           unit={unit}
-          index={i}
+          index={index}
           datasheet={datasheet}
           costs={ctx.costs}
           enhancements={ctx.enhancements}
           leaders={ctx.leaders}
           datasheets={ctx.datasheets}
           options={ctx.options}
-          isWarlord={ctx.warlordId === unit.datasheetId}
+          isWarlord={isWarlord}
           onUpdate={ctx.onUpdate}
           onRemove={ctx.onRemove}
           onCopy={ctx.onCopy}
@@ -103,9 +204,9 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
           isGroupParent={!!bodyguardUnit}
         />
       );
-      renderedIndices.add(i);
+      renderedIndices.add(index);
 
-      if (bodyguardUnit && bodyguardIndex >= 0) {
+      if (bodyguardUnit && bodyguardIndex >= 0 && !renderedIndices.has(bodyguardIndex)) {
         rendered.push(
           <UnitRow
             key={bodyguardIndex}
@@ -117,7 +218,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
             leaders={ctx.leaders}
             datasheets={ctx.datasheets}
             options={ctx.options}
-            isWarlord={ctx.warlordId === bodyguardUnit.datasheetId}
+            isWarlord={false}
             onUpdate={ctx.onUpdate}
             onRemove={ctx.onRemove}
             onCopy={ctx.onCopy}
@@ -129,34 +230,104 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
         );
         renderedIndices.add(bodyguardIndex);
       }
+    } else {
+      rendered.push(
+        <UnitRow
+          key={index}
+          unit={unit}
+          index={index}
+          datasheet={datasheet}
+          costs={ctx.costs}
+          enhancements={ctx.enhancements}
+          leaders={ctx.leaders}
+          datasheets={ctx.datasheets}
+          options={ctx.options}
+          isWarlord={isWarlord}
+          onUpdate={ctx.onUpdate}
+          onRemove={ctx.onRemove}
+          onCopy={ctx.onCopy}
+          onSetWarlord={ctx.onSetWarlord}
+          displayMode="grouped"
+          allUnits={ctx.units}
+        />
+      );
+      renderedIndices.add(index);
     }
+  };
+
+  const warlordIdx = findWarlordIndex();
+  if (warlordIdx >= 0) {
+    const warlordUnit = ctx.units[warlordIdx];
+    renderUnitWithAttachment(warlordUnit, warlordIdx);
+  }
+
+  const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
+  const getRole = (datasheetId: string): string => {
+    const ds = ctx.datasheets.find(d => d.id === datasheetId);
+    return ds?.role ?? "Other";
+  };
+
+  const unitsByRole: Record<string, { stacks: StackedUnit[][]; singles: StackedUnit[] }> = {};
+
+  for (const stack of stacks) {
+    const role = getRole(stack[0].unit.datasheetId);
+    if (!unitsByRole[role]) unitsByRole[role] = { stacks: [], singles: [] };
+    unitsByRole[role].stacks.push(stack);
+  }
+
+  for (const single of singles) {
+    if (renderedIndices.has(single.index)) continue;
+    const role = getRole(single.unit.datasheetId);
+    if (!unitsByRole[role]) unitsByRole[role] = { stacks: [], singles: [] };
+    unitsByRole[role].singles.push(single);
+  }
+
+  const sortedRoles = Object.keys(unitsByRole).sort((a, b) => {
+    const aIndex = roleOrder.indexOf(a);
+    const bIndex = roleOrder.indexOf(b);
+    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
   });
 
-  ctx.units.forEach((unit, i) => {
-    if (renderedIndices.has(i)) return;
-    const datasheet = ctx.datasheets.find(ds => ds.id === unit.datasheetId);
+  for (const role of sortedRoles) {
+    const { stacks: roleStacks, singles: roleSingles } = unitsByRole[role];
+
+    const hasUnrenderedUnits = roleStacks.length > 0 ||
+      roleSingles.some(s => !renderedIndices.has(s.index));
+
+    if (!hasUnrenderedUnits) continue;
+
     rendered.push(
-      <UnitRow
-        key={i}
-        unit={unit}
-        index={i}
-        datasheet={datasheet}
-        costs={ctx.costs}
-        enhancements={ctx.enhancements}
-        leaders={ctx.leaders}
-        datasheets={ctx.datasheets}
-        options={ctx.options}
-        isWarlord={ctx.warlordId === unit.datasheetId}
-        onUpdate={ctx.onUpdate}
-        onRemove={ctx.onRemove}
-        onCopy={ctx.onCopy}
-        onSetWarlord={ctx.onSetWarlord}
-        displayMode="grouped"
-        allUnits={ctx.units}
-      />
+      <tr key={`role-header-${role}`} className="role-header-row">
+        <td colSpan={8}>
+          <div className="role-header">{role}</div>
+        </td>
+      </tr>
     );
-    renderedIndices.add(i);
-  });
+
+    for (const stack of roleStacks) {
+      const firstUnit = stack[0].unit;
+      rendered.push(
+        <StackedUnitRow
+          key={`stack-${stack[0].index}`}
+          stackedUnits={stack}
+          datasheet={ctx.datasheets.find((ds) => ds.id === firstUnit.datasheetId)}
+          costs={ctx.costs}
+          onUpdate={ctx.onUpdate}
+          onRemove={ctx.onRemove}
+          onCopy={ctx.onCopy}
+        />
+      );
+      stack.forEach(s => renderedIndices.add(s.index));
+    }
+
+    for (const { unit, index } of roleSingles) {
+      if (renderedIndices.has(index)) continue;
+      renderUnitWithAttachment(unit, index);
+    }
+  }
 
   return rendered;
 }

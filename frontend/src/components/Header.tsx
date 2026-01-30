@@ -12,7 +12,7 @@ export function Header() {
 
   return (
     <header className="app-header">
-      <Link to="/" className="header-brand">Army Builder</Link>
+      <Link to="/" className="header-brand">Home</Link>
       <nav className="header-nav">
         {user ? (
           <>

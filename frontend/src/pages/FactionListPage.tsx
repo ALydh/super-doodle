@@ -80,7 +80,7 @@ export function FactionListPage() {
 
       {armies.length === 0 ? (
         <div className="empty-state">
-          <p>No armies yet. Pick a faction to get started.</p>
+          <p>No armies yet. Browse a faction to get started.</p>
           {groupedFactions.map(({ group, factions: groupFactions }) => (
             <div key={group} className="faction-group">
               <h3 className="faction-group-title">{group}</h3>
@@ -90,7 +90,7 @@ export function FactionListPage() {
                   return (
                     <Link
                       key={f.id}
-                      to={`/factions/${f.id}/armies/new`}
+                      to={`/factions/${f.id}`}
                       className="faction-card"
                       data-faction={factionTheme}
                     >
@@ -158,7 +158,7 @@ export function FactionListPage() {
           </div>
 
           <div className="new-army-section">
-            <h2>Create New Army</h2>
+            <h2>Explore Factions</h2>
             {groupedFactions.map(({ group, factions: groupFactions }) => (
               <div key={group} className="faction-group">
                 <h3 className="faction-group-title">{group}</h3>
@@ -168,7 +168,7 @@ export function FactionListPage() {
                     return (
                       <Link
                         key={f.id}
-                        to={`/factions/${f.id}/armies/new`}
+                        to={`/factions/${f.id}`}
                         className="faction-card"
                         data-faction={factionTheme}
                       >
