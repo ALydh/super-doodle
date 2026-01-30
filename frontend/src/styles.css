@@ -290,10 +290,6 @@ tbody tr:last-child {
   border-bottom: none;
 }
 
-tbody tr:hover {
-  background-color: var(--surface-card);
-}
-
 tbody td {
   padding: 12px 16px;
   color: var(--text-body);
@@ -345,125 +341,500 @@ tbody td {
 .army-units-table tbody {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  width: 100%;
+  gap: 8px;
 }
 
 .army-units-table tbody tr.unit-row {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background-color: var(--surface-card);
-  border-radius: 8px;
-  padding: 16px;
-  padding-right: 160px;
-  border: 1px solid var(--surface-border);
-  border-left: 4px solid var(--faction-primary);
-  position: relative;
-}
-
-.army-units-table tbody tr.unit-row:hover {
-  border-color: var(--faction-primary);
-  border-left-color: var(--faction-primary);
-}
-
-.army-units-table tbody tr.unit-row.group-parent {
-  border-left-color: var(--faction-primary);
-  background-color: var(--faction-secondary);
+  width: 100%;
 }
 
 .army-units-table tbody tr.unit-row.group-child {
-  border-left-color: var(--faction-trim);
   margin-left: 24px;
+  width: calc(100% - 24px);
 }
 
-.army-units-table tbody td {
-  padding: 0;
-  display: block;
+.army-units-table tbody tr.unit-row.group-child .unit-card-builder {
+  border-left: none;
 }
 
-.army-units-table tbody td.unit-row-name {
+.army-units-table tbody td[colspan] {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+/* Role Header */
+.role-header-row {
+  display: flex;
+  width: 100%;
+}
+
+.role-header {
+  font-size: 0.75rem;
   font-weight: 600;
-  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 8px 0 4px 0;
+}
+
+/* Unit Card Builder */
+.unit-card-builder {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border: none;
+  border-left: 4px solid var(--faction-primary);
+  overflow: hidden;
+  container-type: inline-size;
+  width: 100%;
+}
+
+/* Stacked Unit Cards */
+.stacked-row {
+  position: relative;
+}
+
+.stacked-card {
+  position: relative;
+  z-index: 1;
+}
+
+.stacked-card-shadow {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: -4px;
+  bottom: -4px;
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border-left: 4px solid var(--faction-primary);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+.stacked-card-shadow:nth-child(2) {
+  top: 8px;
+  left: 8px;
+  right: -8px;
+  bottom: -8px;
+  opacity: 0.3;
+  z-index: -2;
+}
+
+.stacked-count {
+  background-color: var(--faction-primary);
+  color: var(--surface-app);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 4px;
+}
+
+.stacked-total {
+  font-weight: 700;
+}
+
+.stacked-units-list {
+  padding: 12px 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.stacked-units-list h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.stacked-unit-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 0.9rem;
+}
+
+.stacked-unit-item span:first-child {
+  flex: 1;
+  color: var(--text-secondary);
+}
+
+.stacked-unit-item span:nth-child(2) {
+  color: var(--text-muted);
+}
+
+.btn-remove-small {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 1rem;
+}
+
+.btn-remove-small:hover {
+  color: var(--status-error);
+}
+
+
+.unit-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: var(--surface-panel);
+}
+
+.unit-expand-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 4px;
+  cursor: pointer;
+  width: 24px;
+  min-height: auto;
+}
+
+.unit-expand-btn:hover {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.unit-card-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.unit-name-text {
+  font-weight: 600;
   color: var(--text-primary);
 }
 
-.army-units-table tbody td.unit-cost {
-  position: absolute;
-  top: 16px;
-  right: 96px;
-  padding: 0;
+.unit-number {
+  color: var(--faction-trim);
+  font-weight: 600;
 }
 
-.army-units-table tbody td.unit-cost span {
-  background: var(--surface-border);
-  color: var(--text-secondary);
+.leading-badge {
   font-size: 0.75rem;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 10px;
-  display: inline-block;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
-.army-units-table tbody td:empty {
-  display: none;
-}
-
-.army-units-table tbody td select {
-  width: 100%;
-  max-width: 300px;
-}
-
-.army-units-table tbody td:last-child {
-  display: flex;
-  gap: 8px;
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  padding: 0;
-}
-
-.army-units-table tbody td:last-child button {
+.warlord-btn {
   width: 32px;
   height: 32px;
   min-height: 32px;
   padding: 0;
   border-radius: 4px;
-  font-size: 0;
+  background: var(--surface-border);
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.warlord-btn:hover {
+  background: var(--faction-secondary);
+  color: var(--faction-trim);
+}
+
+.warlord-btn.active {
+  background: var(--faction-primary);
+  color: var(--text-primary);
+}
+
+.unit-cost-badge {
+  background: var(--surface-border);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 10px;
+}
+
+.unit-card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.unit-card-actions .btn-copy,
+.unit-card-actions .btn-remove {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.army-units-table tbody td:last-child button::before {
-  font-size: 1.2rem;
+.unit-card-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--surface-border);
 }
 
-.army-units-table tbody td:last-child button.btn-copy::before {
-  content: "⧉";
+.unit-card-controls:empty {
+  display: none;
 }
 
-.army-units-table tbody td:last-child button.btn-remove::before {
-  content: "×";
-}
-
-.army-units-table tbody td label {
+.control-group {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.control-group label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
   margin: 0;
+  white-space: nowrap;
 }
 
-.army-units-table .wargear-section td {
-  padding: 0;
+.unit-select {
+  background-color: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  min-width: 120px;
+  max-width: 200px;
 }
 
-.army-units-table .wargear-section td > div {
+.unit-select:focus {
+  border-color: var(--faction-primary);
+  outline: none;
+}
+
+.wargear-count {
+  background: var(--surface-panel);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Unit Card Expanded */
+.unit-card-expanded {
   padding: 16px;
-  margin: 0;
+  border-top: 1px solid var(--surface-border);
+  background-color: var(--surface-page);
 }
 
-.army-units-table .wargear-section td[colspan] {
-  display: block;
+.unit-stats-preview {
+  margin-bottom: 16px;
+}
+
+.stats-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stat-line {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-line .stat {
+  background: var(--surface-card);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.stat-line .stat b {
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.weapons-preview h5,
+.wargear-options h5,
+.abilities-preview h5 {
+  color: var(--faction-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.weapons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weapon-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  background: var(--surface-card);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.weapon-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 150px;
+}
+
+.weapon-stats {
+  display: flex;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.weapon-stats span {
+  white-space: nowrap;
+}
+
+.weapon-abilities {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.wargear-options {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.wargear-option {
+  margin-bottom: 12px;
+}
+
+.wargear-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.wargear-checkbox input[type="checkbox"] {
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.wargear-checkbox span {
+  font-size: 0.9rem;
+  color: var(--text-body);
+}
+
+.wargear-choice-select {
+  margin-top: 8px;
+  margin-left: 24px;
+}
+
+.abilities-preview {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.abilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ability-line {
+  font-size: 0.9rem;
+  color: var(--text-body);
+}
+
+.ability-line strong {
+  color: var(--faction-primary);
+}
+
+/* Group parent styling */
+.unit-row.group-parent .unit-card-builder {
+  background-color: var(--faction-secondary);
+}
+
+/* Container query for narrow unit cards */
+@container (max-width: 280px) {
+  .unit-card-header {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 4px 8px;
+  }
+
+  .unit-expand-btn {
+    width: 18px;
+    font-size: 0.65rem;
+  }
+
+  .unit-card-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .unit-name-text {
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .warlord-btn {
+    width: 24px;
+    height: 24px;
+    min-height: 24px;
+    font-size: 0.85rem;
+  }
+
+  .unit-cost-badge {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+
+  .unit-card-actions {
+    gap: 2px;
+  }
+
+  .unit-card-actions .btn-copy,
+  .unit-card-actions .btn-remove {
+    width: 22px;
+    height: 22px;
+    min-height: 22px;
+    font-size: 0.8rem;
+  }
+
+  .unit-card-controls {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .control-group label {
+    font-size: 0.7rem;
+  }
+
+  .unit-select {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
 }
 
 /* =========================================================
@@ -769,7 +1140,11 @@ button:disabled {
   left: 0;
   height: 100%;
   width: var(--points-percent, 0%);
-  background: linear-gradient(90deg, var(--faction-secondary) 0%, var(--faction-primary) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--faction-secondary) 0%,
+    var(--faction-primary) 100%
+  );
   opacity: 0.3;
   transition: width 0.3s ease;
 }
@@ -780,7 +1155,11 @@ button:disabled {
 }
 
 .points-total.over-budget .points-bar {
-  background: linear-gradient(90deg, var(--faction-danger) 0%, var(--state-danger) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--faction-danger) 0%,
+    var(--state-danger) 100%
+  );
   opacity: 0.4;
 }
 
@@ -913,12 +1292,10 @@ button:disabled {
 /* Grouped mode styles */
 .unit-row.group-parent {
   background-color: var(--faction-secondary);
-  border-left: 3px solid var(--faction-primary);
 }
 
 .unit-row.group-child {
   background-color: var(--surface-card);
-  border-left: 3px solid var(--faction-trim);
 }
 
 .group-connector {
@@ -1405,7 +1782,6 @@ button:disabled {
   opacity: 0.03;
 }
 
-
 .army-builder-page > *:not(.army-builder-bg-icon),
 .army-view-page > *:not(.army-builder-bg-icon) {
   position: relative;
@@ -1547,10 +1923,6 @@ button:disabled {
 
   .builder-col-picker .unit-picker h3 {
     display: block;
-  }
-
-  .army-units-table tbody tr.unit-row {
-    padding-right: 120px;
   }
 }
 
@@ -2208,5 +2580,810 @@ button:disabled {
     min-height: 44px;
     display: flex;
     align-items: center;
+  }
+}
+
+/* =========================================================
+   TAB NAVIGATION
+   ========================================================= */
+
+.tab-navigation {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--surface-border);
+  padding-bottom: 0;
+}
+
+.tab-button {
+  background: transparent;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.tab-button:hover {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.tab-button.active {
+  color: var(--faction-primary);
+  border-bottom-color: var(--faction-primary);
+}
+
+/* =========================================================
+   EXPANDABLE UNIT CARD
+   ========================================================= */
+
+.unit-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.expandable-unit-card {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  border-left: 3px solid var(--faction-primary);
+  overflow: hidden;
+}
+
+.expandable-unit-card.expanded {
+  border-color: var(--faction-primary);
+}
+
+.expandable-unit-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.expandable-unit-header:hover {
+  background-color: var(--surface-panel);
+}
+
+.expand-icon {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  width: 16px;
+  flex-shrink: 0;
+}
+
+.unit-card-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit-card-enhancement {
+  color: var(--faction-trim);
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
+.unit-card-points {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.expandable-unit-content {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.expandable-unit-content .loading {
+  padding: 16px 0;
+  color: var(--text-muted);
+}
+
+.unit-stats-section {
+  margin-top: 12px;
+}
+
+.unit-stats-section .stats-table.compact {
+  margin-bottom: 0;
+}
+
+.unit-stats-section .stats-table.compact th,
+.unit-stats-section .stats-table.compact td {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+.unit-weapons-section,
+.unit-abilities-section,
+.unit-keywords-section {
+  margin-top: 16px;
+}
+
+.unit-weapons-section h4,
+.unit-abilities-section h4,
+.unit-keywords-section h4 {
+  color: var(--faction-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.unit-weapons-section .weapons-table.compact {
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+
+.unit-weapons-section .weapons-table.compact th,
+.unit-weapons-section .weapons-table.compact td {
+  padding: 6px 8px;
+}
+
+.unit-abilities-section .abilities-list.compact li {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.unit-abilities-section .abilities-list.compact li strong {
+  color: var(--faction-primary);
+}
+
+.unit-keywords-section .keywords-list {
+  gap: 6px;
+}
+
+.unit-keywords-section .keyword {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+
+/* =========================================================
+   STRATAGEM CARD
+   ========================================================= */
+
+.stratagem-card {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.stratagem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.stratagem-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--faction-primary);
+}
+
+.stratagem-cp {
+  background-color: var(--faction-primary);
+  color: var(--surface-page);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.stratagem-meta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.stratagem-type,
+.stratagem-phase,
+.stratagem-turn {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  background-color: var(--surface-panel);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.stratagem-legend {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.stratagem-description {
+  color: var(--text-body);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   DETACHMENT CARD
+   ========================================================= */
+
+.detachment-card {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.detachment-name {
+  color: var(--faction-primary);
+  margin: 0 0 16px 0;
+  font-size: 1.3rem;
+}
+
+.detachment-abilities {
+  margin-bottom: 24px;
+}
+
+.detachment-abilities h4,
+.detachment-enhancements h4 {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.detachment-ability {
+  margin-bottom: 16px;
+}
+
+.detachment-ability strong {
+  color: var(--text-primary);
+  font-size: 1.05rem;
+}
+
+.detachment-ability-legend {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.detachment-ability-description {
+  color: var(--text-body);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.enhancement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.enhancement-item {
+  background-color: var(--surface-panel);
+  padding: 16px;
+  border-radius: 6px;
+  border-left: 3px solid var(--faction-secondary);
+}
+
+.enhancement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.enhancement-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.enhancement-cost {
+  color: var(--faction-trim);
+  font-weight: 600;
+}
+
+.enhancement-legend {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.enhancement-description {
+  color: var(--text-body);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   FACTION DETAIL PAGE
+   ========================================================= */
+
+.faction-detail-page,
+.army-view-page {
+  position: relative;
+}
+
+.faction-detail-page .army-builder-bg-icon,
+.army-view-page .army-builder-bg-icon {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 70vw;
+  opacity: 0.03;
+}
+
+.faction-detail-page > *:not(.army-builder-bg-icon),
+.army-view-page > *:not(.army-builder-bg-icon) {
+  position: relative;
+  z-index: 1;
+}
+
+.faction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.faction-header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.faction-header-icon {
+  width: 48px;
+  height: 48px;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+.faction-header h1.faction-title {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.btn-create-army {
+  display: inline-block;
+  background-color: var(--faction-primary);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.btn-create-army:hover {
+  background-color: var(--faction-secondary);
+  text-decoration: none;
+}
+
+.stratagem-filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stratagem-filters label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.stratagem-filters select {
+  min-width: 150px;
+}
+
+/* =========================================================
+   ARMY VIEW PAGE HEADER
+   ========================================================= */
+
+.army-view-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.army-view-header-text {
+  flex: 1;
+}
+
+.army-view-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.army-view-header-icon {
+  width: 48px;
+  height: 48px;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+.army-view-header h1.army-name {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.army-meta {
+  color: var(--text-muted);
+  margin: 4px 0 0 0;
+  font-size: 0.95rem;
+}
+
+.army-view-actions .edit-army,
+.army-view-actions .delete-army {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.army-view-actions .edit-army:hover,
+.army-view-actions .delete-army:hover {
+  opacity: 1;
+}
+
+.army-view-actions .edit-army {
+  background-color: var(--faction-primary);
+}
+
+.army-view-actions .edit-army::before {
+  content: "✎";
+  font-size: 1rem;
+}
+
+.army-view-actions .delete-army {
+  background-color: var(--faction-danger);
+}
+
+.army-view-actions .delete-army::before {
+  content: "×";
+  font-size: 1.2rem;
+}
+
+.army-view-actions .edit-army:hover {
+  background-color: var(--faction-secondary);
+}
+
+.army-view-actions .delete-army:hover {
+  background-color: var(--faction-danger-dark);
+}
+
+/* =========================================================
+   RESPONSIVE - TAB NAVIGATION
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .tab-navigation {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-button {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - EXPANDABLE UNIT CARD
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .expandable-unit-header {
+    padding: 14px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .unit-card-name {
+    flex-basis: calc(100% - 28px);
+  }
+
+  .unit-card-enhancement {
+    font-size: 0.85rem;
+    margin-left: 28px;
+  }
+
+  .unit-card-points {
+    margin-left: auto;
+  }
+
+  .expandable-unit-content {
+    padding: 0 12px 12px;
+  }
+
+  .unit-stats-section .stats-table.compact {
+    display: none;
+  }
+
+  .unit-weapons-section .weapons-table.compact {
+    display: none;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - STRATAGEM CARD
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .stratagem-card {
+    padding: 14px;
+  }
+
+  .stratagem-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stratagem-name {
+    font-size: 1rem;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - DETACHMENT CARD
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .detachment-card {
+    padding: 16px;
+  }
+
+  .enhancement-item {
+    padding: 12px;
+  }
+
+  .enhancement-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - FACTION/ARMY HEADERS
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .faction-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .army-view-header {
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .army-view-header .army-view-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .faction-header-icon,
+  .army-view-header-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .btn-create-army {
+    width: 100%;
+    text-align: center;
+  }
+
+  .units-tab {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .units-tab .army-view-role-group {
+    width: 100%;
+  }
+
+  .stratagem-filters {
+    flex-direction: column;
+  }
+
+  .stratagem-filters label {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stratagem-filters select {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - UNIT CARD BUILDER
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .unit-card-header {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 4px 8px;
+  }
+
+  .unit-expand-btn {
+    flex: 0 0 auto;
+    width: 18px;
+    font-size: 0.65rem;
+  }
+
+  .unit-card-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .unit-name-text {
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .warlord-btn {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    min-height: 24px;
+    font-size: 0.85rem;
+  }
+
+  .unit-cost-badge {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+
+  .unit-card-actions {
+    flex: 0 0 auto;
+    gap: 2px;
+  }
+
+  .unit-card-actions .btn-copy,
+  .unit-card-actions .btn-remove {
+    width: 22px;
+    height: 22px;
+    min-height: 22px;
+    font-size: 0.8rem;
+  }
+
+  .unit-card-controls {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .control-group {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .control-group label {
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+
+  .unit-select {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    font-size: 0.8rem;
+    padding: 5px 8px;
+  }
+
+  .wargear-count {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+  }
+
+  .leading-badge {
+    display: none;
+  }
+
+  .unit-number {
+    font-size: 0.85rem;
+  }
+
+  .group-connector {
+    font-size: 0.8rem;
+  }
+
+  .unit-card-expanded {
+    padding: 12px;
+  }
+
+  .stat-line {
+    gap: 6px;
+  }
+
+  .stat-line .stat {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+
+  .weapon-line {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .weapon-name {
+    min-width: auto;
+  }
+
+  .weapon-stats {
+    flex-wrap: wrap;
+  }
+
+  .wargear-options {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .wargear-checkbox span {
+    font-size: 0.85rem;
+  }
+
+  .wargear-choice-select {
+    margin-left: 20px;
+  }
+
+  .abilities-preview,
+  .weapons-preview {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .abilities-preview h5,
+  .weapons-preview h5,
+  .wargear-options h5 {
+    font-size: 0.8rem;
   }
 }

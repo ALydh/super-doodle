@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import type { DatasheetDetail } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { getFactionTheme } from "../factionTheme";
@@ -25,11 +25,6 @@ export function DatasheetDetailPage() {
 
   return (
     <div data-faction={factionTheme}>
-      {datasheet.factionId && (
-        <Link to={`/factions/${datasheet.factionId}`} className="back-link">
-          &larr; Back to Datasheets
-        </Link>
-      )}
       <h1 className="unit-name">{datasheet.name}</h1>
       {datasheet.role && <p className="unit-role">Role: {datasheet.role}</p>}
 
