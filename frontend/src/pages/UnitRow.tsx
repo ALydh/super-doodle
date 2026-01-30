@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode } from "../types";
+import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode, DatasheetDetail } from "../types";
+import { fetchDatasheetDetail } from "../api";
+import { WeaponAbilityText } from "./WeaponAbilityText";
 
 interface Props {
   unit: ArmyUnit;
@@ -27,11 +29,12 @@ export function UnitRow({
   isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
   displayMode = "table", allUnits = [], isGroupParent = false, isGroupChild = false, attachedLeaderInfo,
 }: Props) {
-  const [showWargear, setShowWargear] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [detail, setDetail] = useState<DatasheetDetail | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
   const unitCosts = costs.filter((c) => c.datasheetId === unit.datasheetId);
   const isCharacter = datasheet?.role === "Characters";
-
   const unitOptions = options.filter((o) => o.datasheetId === unit.datasheetId);
 
   const validLeaderTargets = leaders
@@ -64,12 +67,15 @@ export function UnitRow({
     : 0;
   const totalCost = (selectedCost?.cost ?? 0) + enhancementCost;
 
-  // Update local unit when prop changes
   useEffect(() => {
-    // Log unit prop changes
-  }, [unit]);
+    if (expanded && !detail && !loadingDetail) {
+      setLoadingDetail(true);
+      fetchDatasheetDetail(unit.datasheetId)
+        .then(setDetail)
+        .finally(() => setLoadingDetail(false));
+    }
+  }, [expanded, detail, loadingDetail, unit.datasheetId]);
 
-  // Memoize wargear count
   const wargearCount = useMemo(() =>
     unit.wargearSelections.filter(s => s.selected).length
   , [unit.wargearSelections]);
@@ -86,17 +92,14 @@ export function UnitRow({
       updatedSelections = [...unit.wargearSelections, { optionLine, selected, notes: null }];
     }
 
-    const updatedUnit = { ...unit, wargearSelections: updatedSelections };
-    console.log('=== UnitRow calling onUpdate with', { index, updatedUnit });
-    onUpdate(index, updatedUnit);
+    onUpdate(index, { ...unit, wargearSelections: updatedSelections });
   };
 
   const handleWargearNotesChange = (optionLine: number, notes: string) => {
     const updatedSelections = unit.wargearSelections.map(s =>
       s.optionLine === optionLine ? { ...s, notes: notes || null } : s
     );
-    const updatedUnit = { ...unit, wargearSelections: updatedSelections };
-    onUpdate(index, updatedUnit);
+    onUpdate(index, { ...unit, wargearSelections: updatedSelections });
   };
 
   const getWargearSelection = (optionLine: number): WargearSelection | undefined => {
@@ -129,12 +132,13 @@ export function UnitRow({
     "unit-row",
     isGroupParent ? "group-parent" : "",
     isGroupChild ? "group-child" : "",
+    expanded ? "expanded" : "",
   ].filter(Boolean).join(" ");
 
-  const renderLeaderCell = () => {
+  const renderLeaderSelect = () => {
     if (displayMode === "inline") {
       if (attachedLeaderInfo) {
-        return <span className="attached-leader-badge">👤 {attachedLeaderInfo.name}</span>;
+        return <span className="attached-leader-badge">+ {attachedLeaderInfo.name}</span>;
       }
       return null;
     }
@@ -142,7 +146,7 @@ export function UnitRow({
     if (displayMode === "instance" && isCharacter) {
       return (
         <select
-          className="unit-leader-select"
+          className="unit-select"
           value={unit.attachedToUnitIndex ?? ""}
           onChange={(e) => onUpdate(index, {
             ...unit,
@@ -158,7 +162,7 @@ export function UnitRow({
             })
             .map(({ index: unitIdx, ds }) => (
               <option key={unitIdx} value={unitIdx}>
-                {ds?.name} (Unit #{unitIdx + 1})
+                {ds?.name} #{unitIdx + 1}
               </option>
             ))}
         </select>
@@ -168,7 +172,7 @@ export function UnitRow({
     if (isCharacter && attachableUnitsInArmy.length > 0) {
       return (
         <select
-          className="unit-leader-select"
+          className="unit-select"
           value={unit.attachedLeaderId ?? ""}
           onChange={(e) => onUpdate(index, { ...unit, attachedLeaderId: e.target.value || null })}
         >
@@ -184,126 +188,187 @@ export function UnitRow({
   };
 
   return (
-    <>
-      <tr className={rowClassName}>
-        <td className="unit-row-name">
-          {isGroupChild && <span className="group-connector">└─ </span>}
-          {datasheet?.name ?? unit.datasheetId}
-          {thisUnitNumber.total > 1 && <span className="unit-number"> #{thisUnitNumber.num}</span>}
-          {isGroupParent && <span className="group-indicator"> (leading)</span>}
-        </td>
-        {unitCosts.length > 1 && (
-          <td>
-            <select
-              className="unit-size-select"
-              value={unit.sizeOptionLine}
-              onChange={(e) => onUpdate(index, { ...unit, sizeOptionLine: Number(e.target.value) })}
-            >
-              {unitCosts.map((c) => (
-                <option key={c.line} value={c.line}>{c.description} ({c.cost}pts)</option>
-              ))}
-            </select>
-          </td>
-        )}
-        <td>
-          {isCharacter && (
-            <select
-              className="unit-enhancement-select"
-              value={unit.enhancementId ?? ""}
-              onChange={(e) => onUpdate(index, { ...unit, enhancementId: e.target.value || null })}
-            >
-              <option value="">None</option>
-              {enhancements.map((e) => (
-                <option key={e.id} value={e.id}>{e.name} ({e.cost}pts)</option>
-              ))}
-            </select>
-          )}
-        </td>
-        <td>
-          {renderLeaderCell()}
-        </td>
-        <td>
-          {unitOptions.length > 0 && (
-            <button
-              className="btn-toggle wargear-toggle"
-              onClick={() => setShowWargear(!showWargear)}
-            >
-              {wargearCount}/{unitOptions.length}
-            </button>
-          )}
-        </td>
-        <td className="unit-cost"><span>{totalCost}pts</span></td>
-        <td>
-          {isCharacter && (
-            <label>
-              <input
-                type="radio"
-                name="warlord"
-                className="warlord-radio"
-                checked={isWarlord}
-                onChange={() => onSetWarlord(index)}
-              />
-              Warlord
-            </label>
-          )}
-        </td>
-        <td>
-          <button className="btn-copy copy-unit" onClick={() => onCopy(index)}>Copy</button>
-          <button className="btn-remove remove-unit" onClick={() => onRemove(index)}>Remove</button>
-        </td>
-      </tr>
-      {showWargear && unitOptions.length > 0 && (
-        <tr className="wargear-section">
-          <td colSpan={8}>
-            <div style={{ padding: '12px' }}>
-              <h4>Wargear Options:</h4>
-              {unitOptions.map((option) => {
-                const selection = getWargearSelection(option.line);
-                const isSelected = selection?.selected ?? false;
-                const choices = extractWargearChoices(option.description);
-                const hasChoices = choices && choices.length > 0;
+    <tr className={rowClassName}>
+      <td colSpan={8}>
+        <div className="unit-card-builder">
+          <div className="unit-card-header" onClick={() => setExpanded(!expanded)} style={{ cursor: 'pointer' }}>
+            <span className="unit-expand-btn">
+              {expanded ? "▼" : "▶"}
+            </span>
 
-                return (
-                  <div key={option.line} style={{ marginBottom: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                      <input
-                        type="checkbox"
-                        className={`wargear-option wargear-option-${option.line}`}
-                        checked={isSelected}
-                        onChange={(e) => {
-                          console.log('Checkbox onChange triggered:', option.line, e.target.checked);
-                          handleWargearSelectionChange(option.line, e.target.checked);
-                        }}
-                      />
-                      <span
-                        dangerouslySetInnerHTML={{ __html: option.description }}
-                        style={{ flex: 1 }}
-                      />
-                    </label>
-                    {isSelected && hasChoices && (
-                      <div style={{ marginLeft: '24px', marginTop: '4px' }}>
-                        <select
-                          className={`wargear-choice wargear-choice-${option.line}`}
-                          value={selection?.notes ?? ''}
-                          onChange={(e) => handleWargearNotesChange(option.line, e.target.value)}
-                          style={{ minWidth: '200px' }}
-                        >
-                          <option value="">Select wargear...</option>
-                          {choices.map((choice, idx) => (
-                            <option key={idx} value={choice}>
-                              {choice}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="unit-card-title">
+              {isGroupChild && <span className="group-connector">└─ </span>}
+              <span className="unit-name-text">{datasheet?.name ?? unit.datasheetId}</span>
+              {thisUnitNumber.total > 1 && <span className="unit-number">#{thisUnitNumber.num}</span>}
+              {isGroupParent && <span className="leading-badge">leading</span>}
             </div>
-          </td>
-        </tr>
-      )}
-    </>
+
+            {isCharacter && (
+              <button
+                className={`warlord-btn ${isWarlord ? "active" : ""}`}
+                onClick={(e) => { e.stopPropagation(); onSetWarlord(index); }}
+                title={isWarlord ? "Warlord" : "Set as Warlord"}
+              >
+                ♛
+              </button>
+            )}
+
+            <span className="unit-cost-badge">{totalCost}pts</span>
+
+            <div className="unit-card-actions" onClick={(e) => e.stopPropagation()}>
+              <button className="btn-copy" onClick={() => onCopy(index)} title="Copy">⧉</button>
+              <button className="btn-remove" onClick={() => onRemove(index)} title="Remove">×</button>
+            </div>
+          </div>
+
+          <div className="unit-card-controls">
+            {unitCosts.length > 1 && (
+              <div className="control-group">
+                <label>Size</label>
+                <select
+                  className="unit-select"
+                  value={unit.sizeOptionLine}
+                  onChange={(e) => onUpdate(index, { ...unit, sizeOptionLine: Number(e.target.value) })}
+                >
+                  {unitCosts.map((c) => (
+                    <option key={c.line} value={c.line}>{c.description} ({c.cost}pts)</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {isCharacter && (
+              <div className="control-group">
+                <label>Enhancement</label>
+                <select
+                  className="unit-select"
+                  value={unit.enhancementId ?? ""}
+                  onChange={(e) => onUpdate(index, { ...unit, enhancementId: e.target.value || null })}
+                >
+                  <option value="">None</option>
+                  {enhancements.map((e) => (
+                    <option key={e.id} value={e.id}>{e.name} (+{e.cost}pts)</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {isCharacter && attachableUnitsInArmy.length > 0 && (
+              <div className="control-group">
+                <label>Attach to</label>
+                {renderLeaderSelect()}
+              </div>
+            )}
+
+            {unitOptions.length > 0 && (
+              <div className="control-group">
+                <label>Wargear</label>
+                <span className="wargear-count">{wargearCount}/{unitOptions.length}</span>
+              </div>
+            )}
+          </div>
+
+          {expanded && (
+            <div className="unit-card-expanded">
+              {loadingDetail && <div className="loading">Loading stats...</div>}
+
+              {detail && (
+                <div className="unit-stats-preview">
+                  {detail.profiles.length > 0 && (
+                    <div className="stats-row">
+                      {detail.profiles.map((p, i) => (
+                        <div key={i} className="stat-line">
+                          <span className="stat"><b>M</b>{p.movement}</span>
+                          <span className="stat"><b>T</b>{p.toughness}</span>
+                          <span className="stat"><b>SV</b>{p.save}{p.invulnerableSave && `/${p.invulnerableSave}`}</span>
+                          <span className="stat"><b>W</b>{p.wounds}</span>
+                          <span className="stat"><b>LD</b>{p.leadership}</span>
+                          <span className="stat"><b>OC</b>{p.objectiveControl}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {detail.wargear.filter(w => w.name).length > 0 && (
+                    <div className="weapons-preview">
+                      <h5>Weapons</h5>
+                      <div className="weapons-list">
+                        {detail.wargear.filter(w => w.name).map((w, i) => (
+                          <div key={i} className="weapon-line">
+                            <span className="weapon-name">{w.name}</span>
+                            <span className="weapon-stats">
+                              {w.range && w.range !== "Melee" && <span>{w.range}</span>}
+                              {w.attacks && <span>A:{w.attacks}</span>}
+                              {w.ballisticSkill && <span>BS:{w.ballisticSkill}</span>}
+                              {w.strength && <span>S:{w.strength}</span>}
+                              {w.armorPenetration && <span>AP:{w.armorPenetration}</span>}
+                              {w.damage && <span>D:{w.damage}</span>}
+                            </span>
+                            {w.description && (
+                              <span className="weapon-abilities"><WeaponAbilityText text={w.description} /></span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {unitOptions.length > 0 && (
+                <div className="wargear-options">
+                  <h5>Wargear Options</h5>
+                  {unitOptions.map((option) => {
+                    const selection = getWargearSelection(option.line);
+                    const isSelected = selection?.selected ?? false;
+                    const choices = extractWargearChoices(option.description);
+                    const hasChoices = choices && choices.length > 0;
+
+                    return (
+                      <div key={option.line} className="wargear-option">
+                        <label className="wargear-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => handleWargearSelectionChange(option.line, e.target.checked)}
+                          />
+                          <span dangerouslySetInnerHTML={{ __html: option.description }} />
+                        </label>
+                        {isSelected && hasChoices && (
+                          <select
+                            className="unit-select wargear-choice-select"
+                            value={selection?.notes ?? ''}
+                            onChange={(e) => handleWargearNotesChange(option.line, e.target.value)}
+                          >
+                            <option value="">Select wargear...</option>
+                            {choices.map((choice, idx) => (
+                              <option key={idx} value={choice}>{choice}</option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {detail && detail.abilities.filter(a => a.name).length > 0 && (
+                <div className="abilities-preview">
+                  <h5>Abilities</h5>
+                  <div className="abilities-list">
+                    {detail.abilities.filter(a => a.name).map((a, i) => (
+                      <div key={i} className="ability-line">
+                        <strong>{a.name}</strong>
+                        {a.description && <span dangerouslySetInnerHTML={{ __html: `: ${a.description}` }} />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
   );
 }
