@@ -390,7 +390,9 @@ tbody td {
 .unit-card-builder {
   background-color: var(--surface-card);
   border-radius: 8px;
-  border: none;
+  border-top: 1px solid var(--faction-primary);
+  border-right: 1px solid var(--faction-primary);
+  border-bottom: 1px solid var(--faction-primary);
   border-left: 4px solid var(--faction-primary);
   overflow: hidden;
   container-type: inline-size;
@@ -2694,13 +2696,14 @@ button:disabled {
 .expandable-unit-card {
   background-color: var(--surface-card);
   border-radius: 8px;
-  border: 1px solid var(--surface-border);
-  border-left: 3px solid var(--faction-primary);
+  border: 2px solid var(--faction-primary);
+  border-left-width: 3px;
   overflow: hidden;
 }
 
 .expandable-unit-card.expanded {
   border-color: var(--faction-primary);
+  box-shadow: 0 0 0 1px var(--faction-primary);
 }
 
 .expandable-unit-header {
