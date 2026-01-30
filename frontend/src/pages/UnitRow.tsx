@@ -218,6 +218,12 @@ export function UnitRow({
             )}
             {isWarlord && readOnly && <span className="warlord-badge">♛ Warlord</span>}
 
+            {unit.enhancementId && (
+              <span className="enhancement-pill">
+                {enhancements.find(e => e.id === unit.enhancementId)?.name}
+              </span>
+            )}
+
             <span className="unit-cost-badge">{totalCost}pts</span>
 
             {!readOnly && (
@@ -245,29 +251,6 @@ export function UnitRow({
                     ))}
                   </select>
                 )}
-              </div>
-            )}
-
-            {isCharacter && unit.enhancementId && readOnly && (
-              <div className="control-group">
-                <label>Enhancement</label>
-                <span className="control-value">{enhancements.find(e => e.id === unit.enhancementId)?.name}</span>
-              </div>
-            )}
-
-            {isCharacter && !readOnly && (
-              <div className="control-group">
-                <label>Enhancement</label>
-                <select
-                  className="unit-select"
-                  value={unit.enhancementId ?? ""}
-                  onChange={(e) => onUpdate(index, { ...unit, enhancementId: e.target.value || null })}
-                >
-                  <option value="">None</option>
-                  {enhancements.map((e) => (
-                    <option key={e.id} value={e.id}>{e.name} (+{e.cost}pts)</option>
-                  ))}
-                </select>
               </div>
             )}
 
@@ -327,6 +310,22 @@ export function UnitRow({
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {isCharacter && enhancements.length > 0 && !readOnly && (
+                <div className="enhancement-section">
+                  <h5>Enhancement</h5>
+                  <select
+                    className="unit-select"
+                    value={unit.enhancementId ?? ""}
+                    onChange={(e) => onUpdate(index, { ...unit, enhancementId: e.target.value || null })}
+                  >
+                    <option value="">None</option>
+                    {enhancements.map((e) => (
+                      <option key={e.id} value={e.id}>{e.name} (+{e.cost}pts)</option>
+                    ))}
+                  </select>
                 </div>
               )}
 

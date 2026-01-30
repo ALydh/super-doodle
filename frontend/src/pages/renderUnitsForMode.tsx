@@ -261,12 +261,6 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
     }
   };
 
-  const warlordIdx = findWarlordIndex();
-  if (warlordIdx >= 0) {
-    const warlordUnit = ctx.units[warlordIdx];
-    renderUnitWithAttachment(warlordUnit, warlordIdx);
-  }
-
   const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
   const getRole = (datasheetId: string): string => {
     const ds = ctx.datasheets.find(d => d.id === datasheetId);
@@ -330,7 +324,15 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
       stack.forEach(s => renderedIndices.add(s.index));
     }
 
-    for (const { unit, index } of roleSingles) {
+    const sortedSingles = [...roleSingles].sort((a, b) => {
+      const aIsWarlord = a.index === findWarlordIndex();
+      const bIsWarlord = b.index === findWarlordIndex();
+      if (aIsWarlord && !bIsWarlord) return -1;
+      if (!aIsWarlord && bIsWarlord) return 1;
+      return 0;
+    });
+
+    for (const { unit, index } of sortedSingles) {
       if (renderedIndices.has(index)) continue;
       renderUnitWithAttachment(unit, index);
     }
