@@ -10,9 +10,8 @@ import {
   fetchDatasheetsByFaction, fetchDetachmentsByFaction,
   fetchEnhancementsByFaction, fetchLeadersByFaction,
   fetchArmy, createArmy, updateArmy, validateArmy, fetchDetachmentAbilities,
-  fetchStratagemsByFaction,
+  fetchStratagemsByFaction, fetchDatasheetDetailsByFaction,
 } from "../api";
-import { fetchDatasheetDetail } from "../api";
 import { UnitPicker } from "./UnitPicker";
 import { ValidationErrors } from "./ValidationErrors";
 import { getFactionTheme } from "../factionTheme";
@@ -87,26 +86,22 @@ export function ArmyBuilderPage() {
       fetchEnhancementsByFaction(effectiveFactionId),
       fetchLeadersByFaction(effectiveFactionId),
       fetchStratagemsByFaction(effectiveFactionId),
-    ]).then(([ds, det, enh, ldr, strat]) => {
+      fetchDatasheetDetailsByFaction(effectiveFactionId),
+    ]).then(([ds, det, enh, ldr, strat, details]) => {
       if (cancelled) return;
       setDetachments(det);
       setEnhancements(enh);
       setLeaders(ldr);
       setAllStratagems(strat);
-      // Set default detachment only if not already initialized
       if (!detachmentInitializedRef.current && det.length > 0) {
         setDetachmentId(det[0].detachmentId);
         detachmentInitializedRef.current = true;
       }
-      const dsIds = [...new Set(ds.map((d) => d.id))];
-      return Promise.all(dsIds.map((id) => fetchDatasheetDetail(id))).then((details) => {
-        if (cancelled) return;
-        const costs = details.flatMap((d) => d.costs);
-        const options = details.flatMap((d) => d.options);
-        setAllCosts(costs);
-        setAllOptions(options);
-        setDatasheets(ds);
-      });
+      const costs = details.flatMap((d) => d.costs);
+      const options = details.flatMap((d) => d.options);
+      setAllCosts(costs);
+      setAllOptions(options);
+      setDatasheets(ds);
     });
 
     return () => { cancelled = true; };

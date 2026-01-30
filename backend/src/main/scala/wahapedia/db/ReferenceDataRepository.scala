@@ -4,6 +4,7 @@ import doobie.*
 import doobie.implicits.*
 import cats.effect.IO
 import cats.implicits.*
+import cats.data.NonEmptyList
 import wahapedia.domain.models.*
 import wahapedia.domain.types.*
 import wahapedia.domain.army.ReferenceData
@@ -55,6 +56,13 @@ object ReferenceDataRepository {
            FROM model_profiles WHERE datasheet_id = $datasheetId"""
       .query[ModelProfile].to[List].transact(xa)
 
+  def modelProfilesForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[ModelProfile]] =
+    (fr"""SELECT datasheet_id, line, name, movement, toughness, save,
+           invulnerable_save, invulnerable_save_description, wounds, leadership,
+           objective_control, base_size, base_size_description
+           FROM model_profiles WHERE """ ++ Fragments.in(fr"datasheet_id", datasheetIds))
+      .query[ModelProfile].to[List].transact(xa)
+
   def allWargear(xa: Transactor[IO]): IO[List[Wargear]] =
     sql"""SELECT datasheet_id, line, line_in_wargear, dice, name, description,
            range, weapon_type, attacks, ballistic_skill, strength, armor_penetration, damage
@@ -65,6 +73,12 @@ object ReferenceDataRepository {
     sql"""SELECT datasheet_id, line, line_in_wargear, dice, name, description,
            range, weapon_type, attacks, ballistic_skill, strength, armor_penetration, damage
            FROM wargear WHERE datasheet_id = $datasheetId"""
+      .query[Wargear].to[List].transact(xa)
+
+  def wargearForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[Wargear]] =
+    (fr"""SELECT datasheet_id, line, line_in_wargear, dice, name, description,
+           range, weapon_type, attacks, ballistic_skill, strength, armor_penetration, damage
+           FROM wargear WHERE """ ++ Fragments.in(fr"datasheet_id", datasheetIds))
       .query[Wargear].to[List].transact(xa)
 
   def allUnitCompositions(xa: Transactor[IO]): IO[List[UnitComposition]] =
@@ -79,12 +93,20 @@ object ReferenceDataRepository {
     sql"SELECT datasheet_id, line, description, cost FROM unit_cost WHERE datasheet_id = $datasheetId"
       .query[UnitCost].to[List].transact(xa)
 
+  def unitCostsForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[UnitCost]] =
+    (fr"SELECT datasheet_id, line, description, cost FROM unit_cost WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
+      .query[UnitCost].to[List].transact(xa)
+
   def allKeywords(xa: Transactor[IO]): IO[List[DatasheetKeyword]] =
     sql"SELECT datasheet_id, keyword, model, is_faction_keyword FROM datasheet_keywords"
       .query[DatasheetKeyword].to[List].transact(xa)
 
   def keywordsForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[DatasheetKeyword]] =
     sql"SELECT datasheet_id, keyword, model, is_faction_keyword FROM datasheet_keywords WHERE datasheet_id = $datasheetId"
+      .query[DatasheetKeyword].to[List].transact(xa)
+
+  def keywordsForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[DatasheetKeyword]] =
+    (fr"SELECT datasheet_id, keyword, model, is_faction_keyword FROM datasheet_keywords WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
       .query[DatasheetKeyword].to[List].transact(xa)
 
   def allDatasheetAbilities(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
@@ -95,12 +117,20 @@ object ReferenceDataRepository {
     sql"SELECT datasheet_id, line, ability_id, model, name, description, ability_type, parameter FROM datasheet_abilities WHERE datasheet_id = $datasheetId"
       .query[DatasheetAbility].to[List].transact(xa)
 
+  def abilitiesForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
+    (fr"SELECT datasheet_id, line, ability_id, model, name, description, ability_type, parameter FROM datasheet_abilities WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
+      .query[DatasheetAbility].to[List].transact(xa)
+
   def allDatasheetOptions(xa: Transactor[IO]): IO[List[DatasheetOption]] =
     sql"SELECT datasheet_id, line, button, description FROM datasheet_options"
       .query[DatasheetOption].to[List].transact(xa)
 
   def optionsForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[DatasheetOption]] =
     sql"SELECT datasheet_id, line, button, description FROM datasheet_options WHERE datasheet_id = $datasheetId"
+      .query[DatasheetOption].to[List].transact(xa)
+
+  def optionsForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[DatasheetOption]] =
+    (fr"SELECT datasheet_id, line, button, description FROM datasheet_options WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
       .query[DatasheetOption].to[List].transact(xa)
 
   def allDatasheetLeaders(xa: Transactor[IO]): IO[List[DatasheetLeader]] =
@@ -128,6 +158,14 @@ object ReferenceDataRepository {
            JOIN datasheet_stratagems ds ON ds.stratagem_id = s.id
            WHERE ds.datasheet_id = $datasheetId"""
       .query[Stratagem].to[List].transact(xa)
+
+  def stratagemsByDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[(DatasheetId, Stratagem)]] =
+    (fr"""SELECT ds.datasheet_id, s.faction_id, s.name, s.id, s.stratagem_type, s.cp_cost, s.legend, s.turn, s.phase,
+           s.detachment, s.detachment_id, s.description
+           FROM stratagems s
+           JOIN datasheet_stratagems ds ON ds.stratagem_id = s.id
+           WHERE """ ++ Fragments.in(fr"ds.datasheet_id", datasheetIds))
+      .query[(DatasheetId, Stratagem)].to[List].transact(xa)
 
   def allEnhancements(xa: Transactor[IO]): IO[List[Enhancement]] =
     sql"SELECT faction_id, id, name, cost, detachment, detachment_id, legend, description FROM enhancements"
