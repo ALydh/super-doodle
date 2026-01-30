@@ -87,19 +87,33 @@ export function UnitRow({
   const filteredWargear = useMemo((): Wargear[] => {
     if (!detail) return [];
 
-    const weaponMap = new Map<string, Wargear>();
-    detail.wargear.filter(w => w.name).forEach(w => weaponMap.set(w.name!.toLowerCase(), w));
-
-    const activeSelections = unit.wargearSelections.filter(s => s.selected);
-    if (activeSelections.length === 0 || detail.parsedWargearOptions.length === 0) {
-      return Array.from(weaponMap.values());
-    }
-
     const matchesWeaponPrefix = (weaponName: string, prefix: string): boolean => {
       const normalizedWeapon = weaponName.toLowerCase();
       const normalizedPrefix = prefix.toLowerCase();
       return normalizedWeapon === normalizedPrefix || normalizedWeapon.startsWith(normalizedPrefix + " ");
     };
+
+    const addedWeapons = new Set<string>();
+    const removedWeapons = new Set<string>();
+    for (const p of detail.parsedWargearOptions) {
+      if (p.action === "add") addedWeapons.add(p.weaponName.toLowerCase());
+      else if (p.action === "remove") removedWeapons.add(p.weaponName.toLowerCase());
+    }
+
+    const weaponMap = new Map<string, Wargear>();
+    for (const w of detail.wargear) {
+      if (!w.name) continue;
+      const isOptional = Array.from(addedWeapons).some(added =>
+        matchesWeaponPrefix(w.name!, added) && !Array.from(removedWeapons).some(removed => matchesWeaponPrefix(w.name!, removed))
+      );
+      if (!isOptional) {
+        weaponMap.set(w.name.toLowerCase(), w);
+      }
+    }
+
+    if (detail.parsedWargearOptions.length === 0) {
+      return Array.from(weaponMap.values());
+    }
 
     const getSelectedChoiceIndex = (notes: string | null, optionLine: number): number | null => {
       if (!notes) return null;
@@ -115,6 +129,7 @@ export function UnitRow({
       return null;
     };
 
+    const activeSelections = unit.wargearSelections.filter(s => s.selected);
     for (const selection of activeSelections) {
       const selectedChoiceIndex = getSelectedChoiceIndex(selection.notes, selection.optionLine);
 
