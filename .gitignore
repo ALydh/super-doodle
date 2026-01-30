@@ -1,6 +1,8 @@
 
 backend/target/
-backend/project/
+backend/project/target/
+backend/project/project/
+backend/project/metals.sbt
 
 frontend/node_modules/
 frontend/dist/
