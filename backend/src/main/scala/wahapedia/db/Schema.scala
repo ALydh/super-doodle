@@ -37,7 +37,8 @@ object Schema {
     sql"""CREATE TABLE IF NOT EXISTS factions (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
-      link TEXT NOT NULL
+      link TEXT NOT NULL,
+      faction_group TEXT
     )""",
 
     sql"""CREATE TABLE IF NOT EXISTS sources (
@@ -251,6 +252,23 @@ object Schema {
     }
   } yield ()
 
+  private val migrateFactionGroup: ConnectionIO[Unit] = for {
+    hasCol <- sql"PRAGMA table_info(factions)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.exists(_._2 == "faction_group"))
+    _ <- if (!hasCol) sql"ALTER TABLE factions ADD COLUMN faction_group TEXT".update.run else FC.unit
+  } yield ()
+
+  private val populateFactionGroups: ConnectionIO[Unit] = {
+    val imperium = List("AS", "AC", "AdM", "TL", "AM", "GK", "AoI", "QI", "SM")
+    val chaos = List("CD", "QT", "CSM", "DG", "EC", "TS", "WE")
+    val xenos = List("AE", "DRU", "GC", "LoV", "NEC", "ORK", "TAU", "TYR")
+
+    for {
+      _ <- imperium.traverse_(id => sql"UPDATE factions SET faction_group = 'Imperium' WHERE id = $id".update.run)
+      _ <- chaos.traverse_(id => sql"UPDATE factions SET faction_group = 'Chaos' WHERE id = $id".update.run)
+      _ <- xenos.traverse_(id => sql"UPDATE factions SET faction_group = 'Xenos' WHERE id = $id".update.run)
+    } yield ()
+  }
+
   def initialize(xa: Transactor[IO]): IO[Unit] =
-    (authTables.traverse_(_.update.run) *> migrateArmies *> tables.traverse_(_.update.run)).transact(xa)
+    (authTables.traverse_(_.update.run) *> migrateArmies *> tables.traverse_(_.update.run) *> migrateFactionGroup *> populateFactionGroups).transact(xa)
 }

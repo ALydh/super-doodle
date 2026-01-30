@@ -142,6 +142,8 @@ export interface ArmySummary {
   factionId: string;
   battleSize: string;
   updatedAt: string;
+  warlordName: string | null;
+  totalPoints: number;
 }
 
 export interface Enhancement {

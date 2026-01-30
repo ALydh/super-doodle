@@ -12,7 +12,7 @@ import DoobieMeta.given
 object ReferenceDataRepository {
 
   def allFactions(xa: Transactor[IO]): IO[List[Faction]] =
-    sql"SELECT id, name, link FROM factions"
+    sql"SELECT id, name, link, faction_group FROM factions"
       .query[Faction].to[List].transact(xa)
 
   def allSources(xa: Transactor[IO]): IO[List[Source]] =

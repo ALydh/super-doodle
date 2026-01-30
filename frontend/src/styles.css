@@ -1252,6 +1252,12 @@ button:disabled {
   line-height: 1.3;
 }
 
+.army-card-warlord {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
 .army-card-footer {
   display: flex;
   justify-content: space-between;
@@ -1279,6 +1285,82 @@ button:disabled {
 
 .new-army-section h2 {
   margin-top: 0;
+}
+
+.faction-group {
+  margin-bottom: 24px;
+}
+
+.faction-group-title {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 12px 0;
+}
+
+.faction-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.faction-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    var(--faction-secondary) 0%,
+    var(--surface-card) 100%
+  );
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-decoration: none;
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid var(--faction-primary);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.faction-card-icon {
+  position: absolute;
+  bottom: -15px;
+  right: -15px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.15;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.faction-card:hover .faction-card-icon {
+  opacity: 0.25;
+  transform: scale(1.1);
+}
+
+.faction-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--faction-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+}
+
+.faction-card-name {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  z-index: 1;
 }
 
 /* =========================================================

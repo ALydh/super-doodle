@@ -28,14 +28,22 @@ export function FactionDetailPage() {
 
   const factionTheme = getFactionTheme(factionId);
 
-  const datasheetsByRole = datasheets.reduce<Record<string, Datasheet[]>>((acc, ds) => {
-    const role = ds.role ?? "Other";
-    if (!acc[role]) acc[role] = [];
-    acc[role].push(ds);
-    return acc;
-  }, {});
+  const datasheetsByRole = datasheets.reduce<Record<string, Datasheet[]>>(
+    (acc, ds) => {
+      const role = ds.role ?? "Other";
+      if (!acc[role]) acc[role] = [];
+      acc[role].push(ds);
+      return acc;
+    },
+    {},
+  );
 
-  const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
+  const roleOrder = [
+    "Characters",
+    "Battleline",
+    "Dedicated Transport",
+    "Other",
+  ];
   const sortedRoles = Object.keys(datasheetsByRole).sort((a, b) => {
     const aIndex = roleOrder.indexOf(a);
     const bIndex = roleOrder.indexOf(b);
@@ -47,21 +55,25 @@ export function FactionDetailPage() {
 
   return (
     <div data-faction={factionTheme}>
-      <Link to="/" className="back-link">&larr; Back to Factions</Link>
+      <Link to="/" className="back-link">
+        &larr; Back to Factions
+      </Link>
+      {factionId && <ArmyListSection factionId={factionId} />}
       <h1 className="faction-title">Datasheets for {factionId}</h1>
       {sortedRoles.map((role) => (
         <section key={role} className="role-section">
           <h2 className="role-heading">{role}</h2>
           <ul className="datasheet-list">
-            {datasheetsByRole[role].sort((a, b) => a.name.localeCompare(b.name)).map((ds) => (
-              <li key={ds.id} className="datasheet-item">
-                <Link to={`/datasheets/${ds.id}`}>{ds.name}</Link>
-              </li>
-            ))}
+            {datasheetsByRole[role]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((ds) => (
+                <li key={ds.id} className="datasheet-item">
+                  <Link to={`/datasheets/${ds.id}`}>{ds.name}</Link>
+                </li>
+              ))}
           </ul>
         </section>
       ))}
-      {factionId && <ArmyListSection factionId={factionId} />}
 
       {stratagems.length > 0 && (
         <>
