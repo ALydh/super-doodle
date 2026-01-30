@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import type { PersistedArmy, Datasheet, Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, DatasheetDetail } from "../types";
+import type { PersistedArmy, Datasheet, Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, DatasheetDetail, UnitCost, DatasheetLeader, DatasheetOption } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
 import {
   fetchArmy,
@@ -11,13 +11,14 @@ import {
   fetchEnhancementsByFaction,
   fetchDetachmentsByFaction,
   fetchDatasheetDetail,
+  fetchLeadersByFaction,
 } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { useAuth } from "../context/useAuth";
 import { TabNavigation } from "../components/TabNavigation";
-import { ExpandableUnitCard } from "../components/ExpandableUnitCard";
 import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
+import { renderUnitsForMode } from "./renderUnitsForMode";
 
 type TabId = "units" | "stratagems" | "detachment";
 
@@ -38,9 +39,9 @@ export function ArmyViewPage() {
   const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
+  const [leaders, setLeaders] = useState<DatasheetLeader[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("units");
-  const [expandedUnit, setExpandedUnit] = useState<string | null>(null);
 
   useEffect(() => {
     if (!armyId) return;
@@ -52,14 +53,16 @@ export function ArmyViewPage() {
           fetchStratagemsByFaction(a.army.factionId),
           fetchEnhancementsByFaction(a.army.factionId),
           fetchDetachmentsByFaction(a.army.factionId),
+          fetchLeadersByFaction(a.army.factionId),
           a.army.detachmentId ? fetchDetachmentAbilities(a.army.detachmentId) : Promise.resolve([]),
         ]);
       })
-      .then(([ds, strat, enh, det, abilities]) => {
+      .then(([ds, strat, enh, det, ldr, abilities]) => {
         setDatasheets(ds);
         setStratagems(strat);
         setEnhancements(enh);
         setDetachments(det);
+        setLeaders(ldr);
         setDetachmentAbilities(abilities);
       })
       .catch((e) => setError(e.message));
@@ -81,6 +84,16 @@ export function ArmyViewPage() {
       .catch(() => {});
   }, [army, datasheetDetails]);
 
+  const allCosts: UnitCost[] = useMemo(() =>
+    Array.from(datasheetDetails.values()).flatMap(d => d.costs),
+    [datasheetDetails]
+  );
+
+  const allOptions: DatasheetOption[] = useMemo(() =>
+    Array.from(datasheetDetails.values()).flatMap(d => d.options),
+    [datasheetDetails]
+  );
+
   const handleDelete = async () => {
     if (!armyId) return;
     await deleteArmy(armyId);
@@ -90,8 +103,6 @@ export function ArmyViewPage() {
   if (error) return <div className="error-message">{error}</div>;
   if (!army) return <div>Loading...</div>;
 
-  const dsMap = new Map(datasheets.map((ds) => [ds.id, ds]));
-  const enhMap = new Map(enhancements.map((e) => [e.id, e]));
   const maxPoints = BATTLE_SIZE_POINTS[army.army.battleSize];
   const factionTheme = getFactionTheme(army.army.factionId);
 
@@ -106,27 +117,7 @@ export function ArmyViewPage() {
     (e) => e.detachmentId === army.army.detachmentId
   );
 
-  const unitsByRole = army.army.units.reduce<Record<string, { unit: typeof army.army.units[0]; index: number; ds: Datasheet | undefined }[]>>((acc, unit, i) => {
-    const ds = dsMap.get(unit.datasheetId);
-    const role = ds?.role ?? "Other";
-    if (!acc[role]) acc[role] = [];
-    acc[role].push({ unit, index: i, ds });
-    return acc;
-  }, {});
-
-  const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
-  const sortedRoles = Object.keys(unitsByRole).sort((a, b) => {
-    const aIndex = roleOrder.indexOf(a);
-    const bIndex = roleOrder.indexOf(b);
-    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
-
-  const handleUnitToggle = (unitKey: string) => {
-    setExpandedUnit(expandedUnit === unitKey ? null : unitKey);
-  };
+  const noop = () => {};
 
   return (
     <div data-faction={factionTheme} className="army-view-page">
@@ -166,36 +157,25 @@ export function ArmyViewPage() {
 
       {activeTab === "units" && (
         <div className="units-tab">
-          {sortedRoles.map((role) => (
-            <div key={role} className="army-view-role-group">
-              <h3 className="army-view-role-heading">{role}</h3>
-              <div className="unit-cards-list">
-                {unitsByRole[role]
-                  .sort((a, b) => (a.ds?.name ?? a.unit.datasheetId).localeCompare(b.ds?.name ?? b.unit.datasheetId))
-                  .map(({ unit, index, ds }) => {
-                    const isWarlord = unit.datasheetId === army.army.warlordId;
-                    const enhancement = unit.enhancementId ? enhMap.get(unit.enhancementId) : null;
-                    const unitKey = `${unit.datasheetId}-${index}`;
-                    const detail = datasheetDetails.get(unit.datasheetId);
-                    const baseCost = detail?.costs.find((c) => c.line === unit.sizeOptionLine)?.cost ?? 0;
-                    const enhCost = enhancement?.cost ?? 0;
-                    const totalCost = baseCost + enhCost;
-                    return (
-                      <ExpandableUnitCard
-                        key={unitKey}
-                        datasheetId={unit.datasheetId}
-                        datasheetName={ds?.name ?? unit.datasheetId}
-                        points={totalCost}
-                        isExpanded={expandedUnit === unitKey}
-                        onToggle={() => handleUnitToggle(unitKey)}
-                        isWarlord={isWarlord}
-                        enhancement={enhancement}
-                      />
-                    );
-                  })}
-              </div>
-            </div>
-          ))}
+          <table className="units-table">
+            <tbody>
+              {renderUnitsForMode(
+                "grouped",
+                army.army.units,
+                datasheets,
+                allCosts,
+                detachmentEnhancements,
+                leaders,
+                allOptions,
+                army.army.warlordId,
+                noop,
+                noop,
+                noop,
+                noop,
+                true
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 

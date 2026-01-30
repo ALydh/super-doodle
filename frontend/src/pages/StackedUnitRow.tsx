@@ -15,6 +15,7 @@ interface Props {
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
   onCopy: (index: number) => void;
+  readOnly?: boolean;
 }
 
 export function StackedUnitRow({
@@ -24,6 +25,7 @@ export function StackedUnitRow({
   onUpdate,
   onRemove,
   onCopy,
+  readOnly = false,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<DatasheetDetail | null>(null);
@@ -75,30 +77,36 @@ export function StackedUnitRow({
 
             <span className="unit-cost-badge stacked-total">{totalPoints}pts</span>
 
-            <div className="unit-card-actions" onClick={(e) => e.stopPropagation()}>
-              <button className="btn-copy" onClick={handleCopyOne} title="Add another">+</button>
-              <button className="btn-remove" onClick={handleRemoveOne} title="Remove one">−</button>
-            </div>
+            {!readOnly && (
+              <div className="unit-card-actions" onClick={(e) => e.stopPropagation()}>
+                <button className="btn-copy" onClick={handleCopyOne} title="Add another">+</button>
+                <button className="btn-remove" onClick={handleRemoveOne} title="Remove one">−</button>
+              </div>
+            )}
           </div>
 
           <div className="unit-card-controls">
             {unitCosts.length > 1 && (
               <div className="control-group">
                 <label>Size</label>
-                <select
-                  className="unit-select"
-                  value={firstUnit.sizeOptionLine}
-                  onChange={(e) => {
-                    const newLine = Number(e.target.value);
-                    stackedUnits.forEach(({ unit, index }) => {
-                      onUpdate(index, { ...unit, sizeOptionLine: newLine });
-                    });
-                  }}
-                >
-                  {unitCosts.map((c) => (
-                    <option key={c.line} value={c.line}>{c.description} ({c.cost}pts each)</option>
-                  ))}
-                </select>
+                {readOnly ? (
+                  <span className="control-value">{selectedCost?.description}</span>
+                ) : (
+                  <select
+                    className="unit-select"
+                    value={firstUnit.sizeOptionLine}
+                    onChange={(e) => {
+                      const newLine = Number(e.target.value);
+                      stackedUnits.forEach(({ unit, index }) => {
+                        onUpdate(index, { ...unit, sizeOptionLine: newLine });
+                      });
+                    }}
+                  >
+                    {unitCosts.map((c) => (
+                      <option key={c.line} value={c.line}>{c.description} ({c.cost}pts each)</option>
+                    ))}
+                  </select>
+                )}
               </div>
             )}
           </div>
@@ -131,17 +139,14 @@ export function StackedUnitRow({
                         {detail.wargear.filter(w => w.name).map((w, i) => (
                           <div key={i} className="weapon-line">
                             <span className="weapon-name">{w.name}</span>
-                            <span className="weapon-stats">
-                              {w.range && w.range !== "Melee" && <span>{w.range}</span>}
-                              {w.attacks && <span>A:{w.attacks}</span>}
-                              {w.ballisticSkill && <span>BS:{w.ballisticSkill}</span>}
-                              {w.strength && <span>S:{w.strength}</span>}
-                              {w.armorPenetration && <span>AP:{w.armorPenetration}</span>}
-                              {w.damage && <span>D:{w.damage}</span>}
+                            <span className="weapon-stat">{w.attacks ? `A:${w.attacks}` : ''}</span>
+                            <span className="weapon-stat">{w.ballisticSkill ? `BS:${w.ballisticSkill}` : ''}</span>
+                            <span className="weapon-stat">{w.strength ? `S:${w.strength}` : ''}</span>
+                            <span className="weapon-stat">{w.armorPenetration ? `AP:${w.armorPenetration}` : ''}</span>
+                            <span className="weapon-stat">{w.damage ? `D:${w.damage}` : ''}</span>
+                            <span className="weapon-abilities">
+                              {w.description && <WeaponAbilityText text={w.description} />}
                             </span>
-                            {w.description && (
-                              <span className="weapon-abilities"><WeaponAbilityText text={w.description} /></span>
-                            )}
                           </div>
                         ))}
                       </div>
@@ -164,16 +169,18 @@ export function StackedUnitRow({
                 </div>
               )}
 
-              <div className="stacked-units-list">
-                <h5>Individual Units</h5>
-                {stackedUnits.map(({ index }, i) => (
-                  <div key={index} className="stacked-unit-item">
-                    <span>Unit #{i + 1}</span>
-                    <span>{unitPoints}pts</span>
-                    <button className="btn-remove-small" onClick={() => onRemove(index)} title="Remove">×</button>
-                  </div>
-                ))}
-              </div>
+              {!readOnly && (
+                <div className="stacked-units-list">
+                  <h5>Individual Units</h5>
+                  {stackedUnits.map(({ index }, i) => (
+                    <div key={index} className="stacked-unit-item">
+                      <span>Unit #{i + 1}</span>
+                      <span>{unitPoints}pts</span>
+                      <button className="btn-remove-small" onClick={() => onRemove(index)} title="Remove">×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
