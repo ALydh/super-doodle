@@ -84,13 +84,6 @@ export function UnitRow({
     unit.wargearSelections.filter(s => s.selected).length
   , [unit.wargearSelections]);
 
-  const matchesChoice = (notes: string | null, parsed: ParsedWargearOption): boolean => {
-    if (!notes) return parsed.choiceIndex === 0;
-    const normalizedNotes = notes.toLowerCase().trim();
-    const normalizedWeapon = parsed.weaponName.toLowerCase().trim();
-    return normalizedNotes.includes(normalizedWeapon) || normalizedWeapon.includes(normalizedNotes);
-  };
-
   const filteredWargear = useMemo((): Wargear[] => {
     if (!detail) return [];
 
@@ -102,19 +95,47 @@ export function UnitRow({
       return Array.from(weaponMap.values());
     }
 
+    const matchesWeaponPrefix = (weaponName: string, prefix: string): boolean => {
+      const normalizedWeapon = weaponName.toLowerCase();
+      const normalizedPrefix = prefix.toLowerCase();
+      return normalizedWeapon === normalizedPrefix || normalizedWeapon.startsWith(normalizedPrefix + " ");
+    };
+
+    const getSelectedChoiceIndex = (notes: string | null, optionLine: number): number | null => {
+      if (!notes) return null;
+      const normalizedNotes = notes.toLowerCase().trim();
+      const addOptions = detail.parsedWargearOptions.filter(
+        p => p.optionLine === optionLine && p.action === "add" && p.choiceIndex > 0
+      );
+      for (const opt of addOptions) {
+        if (normalizedNotes.includes(opt.weaponName.toLowerCase())) {
+          return opt.choiceIndex;
+        }
+      }
+      return null;
+    };
+
     for (const selection of activeSelections) {
+      const selectedChoiceIndex = getSelectedChoiceIndex(selection.notes, selection.optionLine);
+
       const parsed = detail.parsedWargearOptions.filter(
         p => p.optionLine === selection.optionLine &&
-             (p.choiceIndex === 0 || matchesChoice(selection.notes, p))
+             (p.choiceIndex === 0 || (selectedChoiceIndex !== null && p.choiceIndex === selectedChoiceIndex))
       );
 
       for (const p of parsed) {
-        const key = p.weaponName.toLowerCase();
+        const targetName = p.weaponName.toLowerCase();
         if (p.action === "remove") {
-          weaponMap.delete(key);
+          for (const [key, w] of weaponMap) {
+            if (matchesWeaponPrefix(w.name ?? "", targetName)) {
+              weaponMap.delete(key);
+            }
+          }
         } else if (p.action === "add") {
-          const w = detail.wargear.find(w => w.name?.toLowerCase() === key);
-          if (w) weaponMap.set(key, w);
+          const weapons = detail.wargear.filter(w => matchesWeaponPrefix(w.name ?? "", targetName));
+          for (const w of weapons) {
+            weaponMap.set(w.name!.toLowerCase(), w);
+          }
         }
       }
     }
