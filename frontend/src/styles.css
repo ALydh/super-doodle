@@ -290,10 +290,6 @@ tbody tr:last-child {
   border-bottom: none;
 }
 
-tbody tr:hover {
-  background-color: var(--surface-card);
-}
-
 tbody td {
   padding: 12px 16px;
   color: var(--text-body);
@@ -346,6 +342,7 @@ tbody td {
   display: flex;
   flex-direction: column;
   width: 100%;
+  gap: 8px;
 }
 
 .army-units-table tbody tr.unit-row {
@@ -359,7 +356,7 @@ tbody td {
 }
 
 .army-units-table tbody tr.unit-row.group-child .unit-card-builder {
-  border-left-color: var(--faction-trim);
+  border-left: none;
 }
 
 .army-units-table tbody td[colspan] {
@@ -370,7 +367,7 @@ tbody td {
 /* Unit Card Builder */
 .unit-card-builder {
   background-color: var(--surface-card);
-  border-radius: 0;
+  border-radius: 8px;
   border: none;
   border-left: 4px solid var(--faction-primary);
   overflow: hidden;
@@ -378,20 +375,6 @@ tbody td {
   width: 100%;
 }
 
-.unit-card-builder:hover {
-  background-color: var(--surface-panel);
-}
-
-.army-units-table tbody tr.unit-row:first-child .unit-card-builder {
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-}
-
-.army-units-table tbody tr.unit-row:last-child .unit-card-builder {
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-  border-bottom: none;
-}
 
 .unit-card-header {
   display: flex;
@@ -1207,12 +1190,10 @@ button:disabled {
 /* Grouped mode styles */
 .unit-row.group-parent {
   background-color: var(--faction-secondary);
-  border-left: 3px solid var(--faction-primary);
 }
 
 .unit-row.group-child {
   background-color: var(--surface-card);
-  border-left: 3px solid var(--faction-trim);
 }
 
 .group-connector {
