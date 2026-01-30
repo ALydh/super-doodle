@@ -22,12 +22,14 @@ interface Props {
   isGroupParent?: boolean;
   isGroupChild?: boolean;
   attachedLeaderInfo?: { name: string; index: number };
+  readOnly?: boolean;
 }
 
 export function UnitRow({
   unit, index, datasheet, costs, enhancements, leaders, datasheets, options,
   isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
   displayMode = "table", allUnits = [], isGroupParent = false, isGroupChild = false, attachedLeaderInfo,
+  readOnly = false,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<DatasheetDetail | null>(null);
@@ -205,7 +207,7 @@ export function UnitRow({
               {isGroupParent && <span className="leading-badge">leading</span>}
             </div>
 
-            {isCharacter && (
+            {isCharacter && !readOnly && (
               <button
                 className={`warlord-btn ${isWarlord ? "active" : ""}`}
                 onClick={(e) => { e.stopPropagation(); onSetWarlord(index); }}
@@ -214,32 +216,46 @@ export function UnitRow({
                 ♛
               </button>
             )}
+            {isWarlord && readOnly && <span className="warlord-badge">♛ Warlord</span>}
 
             <span className="unit-cost-badge">{totalCost}pts</span>
 
-            <div className="unit-card-actions" onClick={(e) => e.stopPropagation()}>
-              <button className="btn-copy" onClick={() => onCopy(index)} title="Copy">⧉</button>
-              <button className="btn-remove" onClick={() => onRemove(index)} title="Remove">×</button>
-            </div>
+            {!readOnly && (
+              <div className="unit-card-actions" onClick={(e) => e.stopPropagation()}>
+                <button className="btn-copy" onClick={() => onCopy(index)} title="Copy">⧉</button>
+                <button className="btn-remove" onClick={() => onRemove(index)} title="Remove">×</button>
+              </div>
+            )}
           </div>
 
           <div className="unit-card-controls">
             {unitCosts.length > 1 && (
               <div className="control-group">
                 <label>Size</label>
-                <select
-                  className="unit-select"
-                  value={unit.sizeOptionLine}
-                  onChange={(e) => onUpdate(index, { ...unit, sizeOptionLine: Number(e.target.value) })}
-                >
-                  {unitCosts.map((c) => (
-                    <option key={c.line} value={c.line}>{c.description} ({c.cost}pts)</option>
-                  ))}
-                </select>
+                {readOnly ? (
+                  <span className="control-value">{selectedCost?.description}</span>
+                ) : (
+                  <select
+                    className="unit-select"
+                    value={unit.sizeOptionLine}
+                    onChange={(e) => onUpdate(index, { ...unit, sizeOptionLine: Number(e.target.value) })}
+                  >
+                    {unitCosts.map((c) => (
+                      <option key={c.line} value={c.line}>{c.description} ({c.cost}pts)</option>
+                    ))}
+                  </select>
+                )}
               </div>
             )}
 
-            {isCharacter && (
+            {isCharacter && unit.enhancementId && readOnly && (
+              <div className="control-group">
+                <label>Enhancement</label>
+                <span className="control-value">{enhancements.find(e => e.id === unit.enhancementId)?.name}</span>
+              </div>
+            )}
+
+            {isCharacter && !readOnly && (
               <div className="control-group">
                 <label>Enhancement</label>
                 <select
@@ -255,14 +271,14 @@ export function UnitRow({
               </div>
             )}
 
-            {isCharacter && attachableUnitsInArmy.length > 0 && (
+            {isCharacter && attachableUnitsInArmy.length > 0 && !readOnly && (
               <div className="control-group">
                 <label>Attach to</label>
                 {renderLeaderSelect()}
               </div>
             )}
 
-            {unitOptions.length > 0 && (
+            {unitOptions.length > 0 && !readOnly && (
               <div className="control-group">
                 <label>Wargear</label>
                 <span className="wargear-count">{wargearCount}/{unitOptions.length}</span>
@@ -317,7 +333,7 @@ export function UnitRow({
                 </div>
               )}
 
-              {unitOptions.length > 0 && (
+              {unitOptions.length > 0 && !readOnly && (
                 <div className="wargear-options">
                   <h5>Wargear Options</h5>
                   {unitOptions.map((option) => {
@@ -351,6 +367,23 @@ export function UnitRow({
                       </div>
                     );
                   })}
+                </div>
+              )}
+
+              {wargearCount > 0 && readOnly && (
+                <div className="wargear-options">
+                  <h5>Selected Wargear</h5>
+                  {unitOptions
+                    .filter(option => getWargearSelection(option.line)?.selected)
+                    .map((option) => {
+                      const selection = getWargearSelection(option.line);
+                      return (
+                        <div key={option.line} className="wargear-option readonly">
+                          <span dangerouslySetInnerHTML={{ __html: option.description }} />
+                          {selection?.notes && <span className="wargear-choice">→ {selection.notes}</span>}
+                        </div>
+                      );
+                    })}
                 </div>
               )}
 

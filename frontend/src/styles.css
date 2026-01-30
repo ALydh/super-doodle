@@ -329,37 +329,44 @@ tbody td {
   margin-bottom: 24px;
 }
 
-.army-units-table {
+.army-units-table,
+.units-table {
   display: block;
   width: 100%;
 }
 
-.army-units-table thead {
+.army-units-table thead,
+.units-table thead {
   display: none;
 }
 
-.army-units-table tbody {
+.army-units-table tbody,
+.units-table tbody {
   display: flex;
   flex-direction: column;
   width: 100%;
   gap: 8px;
 }
 
-.army-units-table tbody tr.unit-row {
+.army-units-table tbody tr.unit-row,
+.units-table tbody tr.unit-row {
   display: flex;
   width: 100%;
 }
 
-.army-units-table tbody tr.unit-row.group-child {
+.army-units-table tbody tr.unit-row.group-child,
+.units-table tbody tr.unit-row.group-child {
   margin-left: 24px;
   width: calc(100% - 24px);
 }
 
-.army-units-table tbody tr.unit-row.group-child .unit-card-builder {
+.army-units-table tbody tr.unit-row.group-child .unit-card-builder,
+.units-table tbody tr.unit-row.group-child .unit-card-builder {
   border-left: none;
 }
 
-.army-units-table tbody td[colspan] {
+.army-units-table tbody td[colspan],
+.units-table tbody td[colspan] {
   flex: 1 1 100%;
   min-width: 0;
 }
@@ -550,6 +557,34 @@ tbody td {
 .warlord-btn.active {
   background: var(--faction-primary);
   color: var(--text-primary);
+}
+
+.warlord-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--faction-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.control-value {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.wargear-option.readonly {
+  padding: 0.25rem 0;
+  color: var(--text-secondary);
+}
+
+.wargear-choice {
+  margin-left: 0.5rem;
+  color: var(--faction-primary);
+  font-weight: 500;
 }
 
 .unit-cost-badge {

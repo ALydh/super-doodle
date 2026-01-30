@@ -92,6 +92,7 @@ interface RenderContext {
   onRemove: (index: number) => void;
   onCopy: (index: number) => void;
   onSetWarlord: (index: number) => void;
+  readOnly: boolean;
 }
 
 function getAttachedLeaderForUnit(
@@ -134,6 +135,7 @@ function renderTableMode(ctx: RenderContext): ReactElement[] {
         onUpdate={ctx.onUpdate}
         onRemove={ctx.onRemove}
         onCopy={ctx.onCopy}
+        readOnly={ctx.readOnly}
       />
     );
   }
@@ -157,6 +159,7 @@ function renderTableMode(ctx: RenderContext): ReactElement[] {
         onSetWarlord={ctx.onSetWarlord}
         displayMode="table"
         allUnits={ctx.units}
+        readOnly={ctx.readOnly}
       />
     );
   }
@@ -202,6 +205,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
           displayMode="grouped"
           allUnits={ctx.units}
           isGroupParent={!!bodyguardUnit}
+          readOnly={ctx.readOnly}
         />
       );
       renderedIndices.add(index);
@@ -226,6 +230,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
             displayMode="grouped"
             allUnits={ctx.units}
             isGroupChild={true}
+            readOnly={ctx.readOnly}
           />
         );
         renderedIndices.add(bodyguardIndex);
@@ -249,6 +254,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
           onSetWarlord={ctx.onSetWarlord}
           displayMode="grouped"
           allUnits={ctx.units}
+          readOnly={ctx.readOnly}
         />
       );
       renderedIndices.add(index);
@@ -318,6 +324,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
           onUpdate={ctx.onUpdate}
           onRemove={ctx.onRemove}
           onCopy={ctx.onCopy}
+          readOnly={ctx.readOnly}
         />
       );
       stack.forEach(s => renderedIndices.add(s.index));
@@ -359,6 +366,7 @@ function renderInlineMode(ctx: RenderContext): ReactElement[] {
           name: attachedLeader.leaderDatasheet?.name ?? "Leader",
           index: attachedLeader.leaderIndex,
         } : undefined}
+        readOnly={ctx.readOnly}
       />
     );
   });
@@ -383,6 +391,7 @@ function renderInstanceMode(ctx: RenderContext): ReactElement[] {
       onSetWarlord={ctx.onSetWarlord}
       displayMode="instance"
       allUnits={ctx.units}
+      readOnly={ctx.readOnly}
     />
   ));
 }
@@ -399,11 +408,12 @@ export function renderUnitsForMode(
   onUpdate: (index: number, unit: ArmyUnit) => void,
   onRemove: (index: number) => void,
   onCopy: (index: number) => void,
-  onSetWarlord: (index: number) => void
+  onSetWarlord: (index: number) => void,
+  readOnly = false
 ): ReactElement[] {
   const ctx: RenderContext = {
     units, datasheets, costs, enhancements, leaders, options,
-    warlordId, onUpdate, onRemove, onCopy, onSetWarlord,
+    warlordId, onUpdate, onRemove, onCopy, onSetWarlord, readOnly,
   };
 
   switch (mode) {
