@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode, DatasheetDetail } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
@@ -31,7 +31,7 @@ export function UnitRow({
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<DatasheetDetail | null>(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
+  const fetchingRef = useRef(false);
 
   const unitCosts = costs.filter((c) => c.datasheetId === unit.datasheetId);
   const isCharacter = datasheet?.role === "Characters";
@@ -68,13 +68,15 @@ export function UnitRow({
   const totalCost = (selectedCost?.cost ?? 0) + enhancementCost;
 
   useEffect(() => {
-    if (expanded && !detail && !loadingDetail) {
-      setLoadingDetail(true);
+    if (expanded && !detail && !fetchingRef.current) {
+      fetchingRef.current = true;
       fetchDatasheetDetail(unit.datasheetId)
         .then(setDetail)
-        .finally(() => setLoadingDetail(false));
+        .finally(() => { fetchingRef.current = false; });
     }
-  }, [expanded, detail, loadingDetail, unit.datasheetId]);
+  }, [expanded, detail, unit.datasheetId]);
+
+  const loadingDetail = expanded && !detail;
 
   const wargearCount = useMemo(() =>
     unit.wargearSelections.filter(s => s.selected).length

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { DatasheetDetail, Enhancement } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "../pages/WeaponAbilityText";
@@ -23,16 +23,18 @@ export function ExpandableUnitCard({
   enhancement,
 }: Props) {
   const [detail, setDetail] = useState<DatasheetDetail | null>(null);
-  const [loading, setLoading] = useState(false);
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
-    if (isExpanded && !detail) {
-      setLoading(true);
+    if (isExpanded && !detail && !fetchingRef.current) {
+      fetchingRef.current = true;
       fetchDatasheetDetail(datasheetId)
         .then(setDetail)
-        .finally(() => setLoading(false));
+        .finally(() => { fetchingRef.current = false; });
     }
   }, [isExpanded, datasheetId, detail]);
+
+  const loading = isExpanded && !detail;
 
   return (
     <div className={`expandable-unit-card ${isExpanded ? "expanded" : ""}`}>

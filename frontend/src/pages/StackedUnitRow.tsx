@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ArmyUnit, Datasheet, UnitCost, DatasheetDetail } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
@@ -27,7 +27,7 @@ export function StackedUnitRow({
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<DatasheetDetail | null>(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
+  const fetchingRef = useRef(false);
 
   const firstUnit = stackedUnits[0].unit;
   const count = stackedUnits.length;
@@ -37,13 +37,15 @@ export function StackedUnitRow({
   const totalPoints = unitPoints * count;
 
   useEffect(() => {
-    if (expanded && !detail && !loadingDetail) {
-      setLoadingDetail(true);
+    if (expanded && !detail && !fetchingRef.current) {
+      fetchingRef.current = true;
       fetchDatasheetDetail(firstUnit.datasheetId)
         .then(setDetail)
-        .finally(() => setLoadingDetail(false));
+        .finally(() => { fetchingRef.current = false; });
     }
-  }, [expanded, detail, loadingDetail, firstUnit.datasheetId]);
+  }, [expanded, detail, firstUnit.datasheetId]);
+
+  const loadingDetail = expanded && !detail;
 
   const handleRemoveOne = () => {
     const lastUnit = stackedUnits[stackedUnits.length - 1];
