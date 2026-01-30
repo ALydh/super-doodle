@@ -7,12 +7,18 @@ import org.http4s.*
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.dsl.io.*
+import org.http4s.headers.`Cache-Control`
+import org.http4s.CacheDirective
 import wahapedia.db.ReferenceDataRepository
 import wahapedia.domain.types.*
 import wahapedia.http.dto.DatasheetDetail
 import doobie.*
 
+import scala.concurrent.duration.*
+
 object DatasheetRoutes {
+  private val cacheHeaders = `Cache-Control`(CacheDirective.public, CacheDirective.`max-age`(3600.seconds))
+
   def routes(xa: Transactor[IO]): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "api" / "datasheets" / datasheetIdStr =>
       DatasheetId.parse(datasheetIdStr) match {
@@ -30,16 +36,16 @@ object DatasheetRoutes {
                 stratagems <- ReferenceDataRepository.stratagemsByDatasheet(datasheetId)(xa)
                 options <- ReferenceDataRepository.optionsForDatasheet(datasheetId)(xa)
                 resp <- Ok(DatasheetDetail(datasheet, profiles, wargear, costs, keywords, abilities, stratagems, options))
-              } yield resp
+              } yield resp.putHeaders(cacheHeaders)
           }
         case Left(_) =>
           BadRequest(Json.obj("error" -> Json.fromString(s"Invalid datasheet ID: $datasheetIdStr")))
       }
 
     case GET -> Root / "api" / "detachments" / detachmentIdStr / "abilities" =>
-      ReferenceDataRepository.detachmentAbilitiesByDetachmentId(detachmentIdStr)(xa).flatMap(Ok(_))
+      ReferenceDataRepository.detachmentAbilitiesByDetachmentId(detachmentIdStr)(xa).flatMap(Ok(_)).map(_.putHeaders(cacheHeaders))
 
     case GET -> Root / "api" / "weapon-abilities" =>
-      ReferenceDataRepository.allWeaponAbilities(xa).flatMap(Ok(_))
+      ReferenceDataRepository.allWeaponAbilities(xa).flatMap(Ok(_)).map(_.putHeaders(cacheHeaders))
   }
 }

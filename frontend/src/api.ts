@@ -5,6 +5,17 @@ import type {
   User, AuthResponse, Invite,
 } from "./types";
 
+const referenceCache = new Map<string, { promise: Promise<unknown> }>();
+
+function cachedFetch<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  const existing = referenceCache.get(key);
+  if (existing) return existing.promise as Promise<T>;
+
+  const promise = fetcher();
+  referenceCache.set(key, { promise });
+  return promise;
+}
+
 let authToken: string | null = null;
 
 export function setAuthToken(token: string | null): void {
@@ -94,39 +105,59 @@ export async function fetchDatasheetsByFaction(factionId: string): Promise<Datas
 }
 
 export async function fetchDatasheetDetail(datasheetId: string): Promise<DatasheetDetail> {
-  const res = await fetch(`/api/datasheets/${datasheetId}`);
-  if (!res.ok) throw new Error(`Failed to fetch datasheet detail: ${res.status}`);
-  return res.json();
+  return cachedFetch(`datasheet:${datasheetId}`, async () => {
+    const res = await fetch(`/api/datasheets/${datasheetId}`);
+    if (!res.ok) throw new Error(`Failed to fetch datasheet detail: ${res.status}`);
+    return res.json();
+  });
+}
+
+export async function fetchDatasheetDetailsByFaction(factionId: string): Promise<DatasheetDetail[]> {
+  return cachedFetch(`datasheetDetails:${factionId}`, async () => {
+    const res = await fetch(`/api/factions/${factionId}/datasheets/details`);
+    if (!res.ok) throw new Error(`Failed to fetch datasheet details: ${res.status}`);
+    return res.json();
+  });
 }
 
 export async function fetchDetachmentsByFaction(factionId: string): Promise<DetachmentInfo[]> {
-  const res = await fetch(`/api/factions/${factionId}/detachments`);
-  if (!res.ok) throw new Error(`Failed to fetch detachments: ${res.status}`);
-  return res.json();
+  return cachedFetch(`detachments:${factionId}`, async () => {
+    const res = await fetch(`/api/factions/${factionId}/detachments`);
+    if (!res.ok) throw new Error(`Failed to fetch detachments: ${res.status}`);
+    return res.json();
+  });
 }
 
 export async function fetchEnhancementsByFaction(factionId: string): Promise<Enhancement[]> {
-  const res = await fetch(`/api/factions/${factionId}/enhancements`);
-  if (!res.ok) throw new Error(`Failed to fetch enhancements: ${res.status}`);
-  return res.json();
+  return cachedFetch(`enhancements:${factionId}`, async () => {
+    const res = await fetch(`/api/factions/${factionId}/enhancements`);
+    if (!res.ok) throw new Error(`Failed to fetch enhancements: ${res.status}`);
+    return res.json();
+  });
 }
 
 export async function fetchLeadersByFaction(factionId: string): Promise<DatasheetLeader[]> {
-  const res = await fetch(`/api/factions/${factionId}/leaders`);
-  if (!res.ok) throw new Error(`Failed to fetch leaders: ${res.status}`);
-  return res.json();
+  return cachedFetch(`leaders:${factionId}`, async () => {
+    const res = await fetch(`/api/factions/${factionId}/leaders`);
+    if (!res.ok) throw new Error(`Failed to fetch leaders: ${res.status}`);
+    return res.json();
+  });
 }
 
 export async function fetchStratagemsByFaction(factionId: string): Promise<Stratagem[]> {
-  const res = await fetch(`/api/factions/${factionId}/stratagems`);
-  if (!res.ok) throw new Error(`Failed to fetch stratagems: ${res.status}`);
-  return res.json();
+  return cachedFetch(`stratagems:${factionId}`, async () => {
+    const res = await fetch(`/api/factions/${factionId}/stratagems`);
+    if (!res.ok) throw new Error(`Failed to fetch stratagems: ${res.status}`);
+    return res.json();
+  });
 }
 
 export async function fetchDetachmentAbilities(detachmentId: string): Promise<DetachmentAbility[]> {
-  const res = await fetch(`/api/detachments/${detachmentId}/abilities`);
-  if (!res.ok) throw new Error(`Failed to fetch detachment abilities: ${res.status}`);
-  return res.json();
+  return cachedFetch(`detachmentAbilities:${detachmentId}`, async () => {
+    const res = await fetch(`/api/detachments/${detachmentId}/abilities`);
+    if (!res.ok) throw new Error(`Failed to fetch detachment abilities: ${res.status}`);
+    return res.json();
+  });
 }
 
 export async function fetchArmiesByFaction(factionId: string): Promise<ArmySummary[]> {
@@ -195,7 +226,9 @@ export async function validateArmy(army: Army): Promise<ValidationResponse> {
 }
 
 export async function fetchWeaponAbilities(): Promise<WeaponAbility[]> {
-  const res = await fetch("/api/weapon-abilities");
-  if (!res.ok) throw new Error(`Failed to fetch weapon abilities: ${res.status}`);
-  return res.json();
+  return cachedFetch("weaponAbilities", async () => {
+    const res = await fetch("/api/weapon-abilities");
+    if (!res.ok) throw new Error(`Failed to fetch weapon abilities: ${res.status}`);
+    return res.json();
+  });
 }
