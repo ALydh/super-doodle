@@ -200,7 +200,18 @@ object DataLoader {
   private def isSergeantPattern(pattern: String): Boolean = {
     val lower = pattern.toLowerCase
     lower.contains("sergeant") || lower.contains("champion") || lower.contains("leader") ||
-      lower.contains("captain") || lower.contains("veteran sergeant")
+      lower.contains("captain") ||
+      lower.contains("boss nob") || lower.contains("nob") ||
+      lower.contains("shas'ui") || lower.contains("shas'vre") ||
+      lower.contains("exarch") ||
+      lower.contains("superior") ||
+      lower.contains("acothyst") || lower.contains("sybarite") || lower.contains("hekatrix") ||
+      lower.contains("helliarch") || lower.contains("solarite") || lower.contains("klaivex") ||
+      lower.contains("alpha") || lower.contains("princeps") ||
+      lower.contains("theyn") || lower.contains("hesyr") ||
+      lower.contains("felarch") ||
+      lower.contains("sorcerer") ||
+      lower.contains("kill-broker")
   }
 
   private def generateUnitWargearDefaults(xa: Transactor[IO]): IO[Unit] =
