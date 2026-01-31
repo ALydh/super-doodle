@@ -10,9 +10,6 @@ import wahapedia.domain.army.{Army, ArmyUnit, WargearSelection}
 import wahapedia.domain.types.*
 import wahapedia.domain.models.EnhancementId
 import DoobieMeta.given
-import io.circe.jawn
-import io.circe.syntax.*
-import io.circe.generic.auto.*
 
 case class PersistedArmy(
   id: String,
@@ -46,11 +43,18 @@ private case class ArmyRow(
 )
 
 private case class ArmyUnitRow(
+  id: Long,
   datasheetId: DatasheetId,
   sizeOptionLine: Int,
   enhancementId: Option[EnhancementId],
-  attachedLeaderId: Option[DatasheetId],
-  wargearSelections: Option[String]
+  attachedLeaderId: Option[DatasheetId]
+)
+
+private case class WargearSelectionRow(
+  armyUnitId: Long,
+  optionLine: Int,
+  selected: Boolean,
+  notes: Option[String]
 )
 
 object ArmyRepository {
@@ -67,20 +71,24 @@ object ArmyRepository {
         case None =>
           IO.println(s"[$now] [ArmyRepository.findById] Army not found").as(None)
         case Some(row) =>
-          sql"SELECT datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections FROM army_units WHERE army_id = $id"
-            .query[ArmyUnitRow].to[List].transact(xa).flatMap { unitRows =>
-              val units = unitRows.map { u =>
-                val wargear = u.wargearSelections match {
-                  case None => List.empty[WargearSelection]
-                  case Some(jsonStr) =>
-                    jawn.decode[List[WargearSelection]](jsonStr).getOrElse(List.empty)
-                }
-                ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, wargear)
+          (for {
+            unitRows <- sql"SELECT id, datasheet_id, size_option_line, enhancement_id, attached_leader_id FROM army_units WHERE army_id = $id"
+              .query[ArmyUnitRow].to[List]
+            selectionRows <- sql"""SELECT army_unit_id, option_line, selected, notes FROM army_unit_wargear_selections
+                                   WHERE army_unit_id IN (SELECT id FROM army_units WHERE army_id = $id)"""
+              .query[WargearSelectionRow].to[List]
+          } yield (unitRows, selectionRows)).transact(xa).flatMap { case (unitRows, selectionRows) =>
+            val selectionsByUnit = selectionRows.groupBy(_.armyUnitId)
+            val units = unitRows.map { u =>
+              val wargear = selectionsByUnit.getOrElse(u.id, List.empty).map { s =>
+                WargearSelection(s.optionLine, s.selected, s.notes)
               }
-              val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units)
-              val persisted = PersistedArmy(row.id, row.name, army, row.ownerId.map(UserId.value), row.createdAt, row.updatedAt)
-              IO.println(s"[$now] [ArmyRepository.findById] Found army: ${row.name} with ${units.size} units").as(Some(persisted))
+              ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, wargear)
             }
+            val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units)
+            val persisted = PersistedArmy(row.id, row.name, army, row.ownerId.map(UserId.value), row.createdAt, row.updatedAt)
+            IO.println(s"[$now] [ArmyRepository.findById] Found army: ${row.name} with ${units.size} units").as(Some(persisted))
+          }
       }
     } yield result
 
@@ -92,9 +100,15 @@ object ArmyRepository {
         _ <- sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at)
                    VALUES ($id, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $ownerId, $now, $now)""".update.run
         _ <- army.units.traverse_ { unit =>
-          val wargearJson = if (unit.wargearSelections.isEmpty) None else Some(unit.wargearSelections.asJson.noSpaces)
-          sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections)
-                VALUES ($id, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId}, $wargearJson)""".update.run
+          for {
+            _ <- sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id)
+                  VALUES ($id, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId})""".update.run
+            unitId <- sql"SELECT last_insert_rowid()".query[Long].unique
+            _ <- unit.wargearSelections.traverse_ { sel =>
+              sql"""INSERT INTO army_unit_wargear_selections (army_unit_id, option_line, selected, notes)
+                    VALUES ($unitId, ${sel.optionLine}, ${if (sel.selected) 1 else 0}, ${sel.notes})""".update.run
+            }
+          } yield ()
         }
       } yield ()).transact(xa)
       _ <- IO.println(s"[$now] [ArmyRepository.create] Army created successfully")
@@ -114,9 +128,15 @@ object ArmyRepository {
                        detachment_id = ${army.detachmentId}, warlord_id = ${army.warlordId}, updated_at = $now
                        WHERE id = $id""".update.run
             _ <- army.units.traverse_ { unit =>
-              val wargearJson = if (unit.wargearSelections.isEmpty) None else Some(unit.wargearSelections.asJson.noSpaces)
-              sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, wargear_selections)
-                    VALUES ($id, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId}, $wargearJson)""".update.run
+              for {
+                _ <- sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id)
+                      VALUES ($id, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId})""".update.run
+                unitId <- sql"SELECT last_insert_rowid()".query[Long].unique
+                _ <- unit.wargearSelections.traverse_ { sel =>
+                  sql"""INSERT INTO army_unit_wargear_selections (army_unit_id, option_line, selected, notes)
+                        VALUES ($unitId, ${sel.optionLine}, ${if (sel.selected) 1 else 0}, ${sel.notes})""".update.run
+                }
+              } yield ()
             }
           } yield PersistedArmy(id, name, army, ownerId.map(UserId.value), createdAt, now)
         }

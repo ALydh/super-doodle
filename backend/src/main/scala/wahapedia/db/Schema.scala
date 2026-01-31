@@ -230,6 +230,22 @@ object Schema {
       max_count INTEGER NOT NULL
     )""",
 
+    sql"""CREATE TABLE IF NOT EXISTS parsed_loadouts (
+      datasheet_id TEXT NOT NULL,
+      model_pattern TEXT NOT NULL,
+      weapon TEXT NOT NULL,
+      PRIMARY KEY (datasheet_id, model_pattern, weapon)
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS unit_wargear_defaults (
+      datasheet_id TEXT NOT NULL,
+      size_line INTEGER NOT NULL,
+      weapon TEXT NOT NULL,
+      count INTEGER NOT NULL,
+      model_type TEXT,
+      PRIMARY KEY (datasheet_id, size_line, weapon)
+    )""",
+
     sql"""CREATE TABLE IF NOT EXISTS armies (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -249,8 +265,16 @@ object Schema {
       size_option_line INTEGER NOT NULL,
       enhancement_id TEXT,
       attached_leader_id TEXT,
-      wargear_selections TEXT,
       FOREIGN KEY (army_id) REFERENCES armies(id) ON DELETE CASCADE
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS army_unit_wargear_selections (
+      army_unit_id INTEGER NOT NULL,
+      option_line INTEGER NOT NULL,
+      selected INTEGER NOT NULL,
+      notes TEXT,
+      PRIMARY KEY (army_unit_id, option_line),
+      FOREIGN KEY (army_unit_id) REFERENCES army_units(id) ON DELETE CASCADE
     )"""
   )
 
