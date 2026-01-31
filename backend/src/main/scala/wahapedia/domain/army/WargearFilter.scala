@@ -32,10 +32,10 @@ object WargearFilter {
       }
     }
 
-    var weaponMap = baseWeapons.flatMap(w => w.name.map(n => n.toLowerCase -> w)).toMap
+    val initialWeaponMap = baseWeapons.flatMap(w => w.name.map(n => n.toLowerCase -> w)).toMap
 
     val activeSelections = selections.filter(_.selected)
-    for (selection <- activeSelections) {
+    val finalWeaponMap = activeSelections.foldLeft(initialWeaponMap) { (weaponMap, selection) =>
       val selectedChoiceIndex = getSelectedChoiceIndex(selection.notes, selection.optionLine, parsedOptions)
 
       val parsed = parsedOptions.filter { p =>
@@ -43,23 +43,23 @@ object WargearFilter {
           (p.choiceIndex == 0 || selectedChoiceIndex.contains(p.choiceIndex))
       }
 
-      for (p <- parsed) {
+      parsed.foldLeft(weaponMap) { (wm, p) =>
         val targetName = p.weaponName.toLowerCase
         p.action match {
           case WargearAction.Remove =>
-            weaponMap = weaponMap.filterNot { case (_, w) =>
+            wm.filterNot { case (_, w) =>
               w.name.exists(n => matchesWeaponPrefix(n, targetName))
             }
           case WargearAction.Add =>
             val weapons = allWargear.filter(w => w.name.exists(n => matchesWeaponPrefix(n, targetName)))
-            for (w <- weapons) {
-              w.name.foreach(n => weaponMap = weaponMap + (n.toLowerCase -> w))
+            weapons.foldLeft(wm) { (m, w) =>
+              w.name.fold(m)(n => m + (n.toLowerCase -> w))
             }
         }
       }
     }
 
-    weaponMap.values.toList
+    finalWeaponMap.values.toList
   }
 
   def filterWargearWithQuantities(
@@ -170,17 +170,15 @@ object WargearFilter {
     hasUniversal: Boolean,
     hasSpecific: Boolean
   ): Map[String, Int] = {
-    val counts = scala.collection.mutable.Map[String, Int]()
-
     if (hasUniversal && !hasSpecific) {
-      loadouts.find(_.modelPattern == "*").foreach { l =>
-        l.weapons.foreach(w => counts(w) = unitSize)
-      }
+      loadouts.find(_.modelPattern == "*")
+        .map(l => l.weapons.map(_ -> unitSize).toMap)
+        .getOrElse(Map.empty)
     } else if (hasSpecific) {
       val sergeantCount = 1
       val trooperCount = unitSize - sergeantCount
 
-      loadouts.foreach { l =>
+      loadouts.foldLeft(Map.empty[String, Int]) { (counts, l) =>
         val modelCount = if (l.modelPattern == "*") {
           unitSize
         } else if (isSergeantPattern(l.modelPattern)) {
@@ -189,13 +187,13 @@ object WargearFilter {
           trooperCount
         }
 
-        l.weapons.foreach { w =>
-          counts(w) = counts.getOrElse(w, 0) + modelCount
+        l.weapons.foldLeft(counts) { (c, w) =>
+          c + (w -> (c.getOrElse(w, 0) + modelCount))
         }
       }
+    } else {
+      Map.empty
     }
-
-    counts.toMap
   }
 
   private def isSergeantPattern(pattern: String): Boolean = {
@@ -219,11 +217,9 @@ object WargearFilter {
     parsedOptions: List[ParsedWargearOption],
     selections: List[WargearSelection]
   ): (Map[String, Int], Map[String, Int]) = {
-    val removals = scala.collection.mutable.Map[String, Int]()
-    val additions = scala.collection.mutable.Map[String, Int]()
-
     val activeSelections = selections.filter(_.selected)
-    for (selection <- activeSelections) {
+
+    activeSelections.foldLeft((Map.empty[String, Int], Map.empty[String, Int])) { case ((removals, additions), selection) =>
       val selectedChoiceIndex = getSelectedChoiceIndex(selection.notes, selection.optionLine, parsedOptions)
 
       val parsed = parsedOptions.filter { p =>
@@ -231,20 +227,18 @@ object WargearFilter {
           (p.choiceIndex == 0 || selectedChoiceIndex.contains(p.choiceIndex))
       }
 
-      for (p <- parsed) {
+      parsed.foldLeft((removals, additions)) { case ((rem, add), p) =>
         val weaponName = p.weaponName.toLowerCase
         val count = if (p.maxCount > 0) p.maxCount else 1
 
         p.action match {
           case WargearAction.Remove =>
-            removals(weaponName) = removals.getOrElse(weaponName, 0) + count
+            (rem + (weaponName -> (rem.getOrElse(weaponName, 0) + count)), add)
           case WargearAction.Add =>
-            additions(weaponName) = additions.getOrElse(weaponName, 0) + count
+            (rem, add + (weaponName -> (add.getOrElse(weaponName, 0) + count)))
         }
       }
     }
-
-    (removals.toMap, additions.toMap)
   }
 
   private def determineModelType(
