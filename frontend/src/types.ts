@@ -240,14 +240,19 @@ export interface ParsedWargearOption {
   maxCount: number;
 }
 
+export interface WargearWithQuantity {
+  wargear: Wargear;
+  quantity: number;
+  modelType: string | null;
+}
+
 export interface BattleUnitData {
   unit: ArmyUnit;
   datasheet: Datasheet;
   profiles: ModelProfile[];
-  wargear: Wargear[];
+  wargear: WargearWithQuantity[];
   abilities: DatasheetAbility[];
   keywords: DatasheetKeyword[];
-  parsedWargearOptions: ParsedWargearOption[];
   cost: UnitCost | null;
   enhancement: Enhancement | null;
 }

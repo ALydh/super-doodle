@@ -11,7 +11,9 @@ import org.http4s.headers.`Cache-Control`
 import org.http4s.CacheDirective
 import wahapedia.db.ReferenceDataRepository
 import wahapedia.domain.types.*
-import wahapedia.http.dto.DatasheetDetail
+import wahapedia.domain.army.WargearFilter
+import wahapedia.http.dto.{DatasheetDetail, FilterWargearRequest, WargearWithQuantity}
+import wahapedia.http.CirceCodecs.given
 import doobie.*
 
 import scala.concurrent.duration.*
@@ -38,6 +40,24 @@ object DatasheetRoutes {
                 parsedWargearOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheet(datasheetId)(xa)
                 resp <- Ok(DatasheetDetail(datasheet, profiles, wargear, costs, keywords, abilities, stratagems, options, parsedWargearOptions))
               } yield resp.putHeaders(cacheHeaders)
+          }
+        case Left(_) =>
+          BadRequest(Json.obj("error" -> Json.fromString(s"Invalid datasheet ID: $datasheetIdStr")))
+      }
+
+    case req @ POST -> Root / "api" / "datasheets" / datasheetIdStr / "filter-wargear" =>
+      DatasheetId.parse(datasheetIdStr) match {
+        case Right(datasheetId) =>
+          req.as[FilterWargearRequest].flatMap { filterReq =>
+            for {
+              datasheetOpt <- ReferenceDataRepository.datasheetById(datasheetId)(xa)
+              wargear <- ReferenceDataRepository.wargearForDatasheet(datasheetId)(xa)
+              parsedOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheet(datasheetId)(xa)
+              loadout = datasheetOpt.flatMap(_.loadout)
+              filtered = WargearFilter.filterWargearWithQuantities(wargear, parsedOptions, filterReq.selections, loadout, filterReq.unitSize)
+              dtoFiltered = filtered.map(w => WargearWithQuantity(w.wargear, w.quantity, w.modelType))
+              resp <- Ok(dtoFiltered)
+            } yield resp
           }
         case Left(_) =>
           BadRequest(Json.obj("error" -> Json.fromString(s"Invalid datasheet ID: $datasheetIdStr")))

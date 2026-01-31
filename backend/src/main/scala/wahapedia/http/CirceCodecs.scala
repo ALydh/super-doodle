@@ -87,6 +87,14 @@ object CirceCodecs {
     e.factionId, e.id, e.name, e.cost, e.detachment, e.detachmentId, e.legend, e.description
   ))
 
+  given Encoder[dto.WargearWithQuantity] = Encoder.instance { w =>
+    Json.obj(
+      "wargear" -> w.wargear.asJson,
+      "quantity" -> Json.fromInt(w.quantity),
+      "modelType" -> w.modelType.fold(Json.Null)(Json.fromString)
+    )
+  }
+
   given Encoder[BattleUnitData] = Encoder.instance { b =>
     Json.obj(
       "unit" -> b.unit.asJson,
@@ -95,7 +103,6 @@ object CirceCodecs {
       "wargear" -> b.wargear.asJson,
       "abilities" -> b.abilities.asJson,
       "keywords" -> b.keywords.asJson,
-      "parsedWargearOptions" -> b.parsedWargearOptions.asJson,
       "cost" -> b.cost.asJson,
       "enhancement" -> b.enhancement.asJson
     )

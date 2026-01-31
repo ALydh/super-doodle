@@ -100,16 +100,26 @@ case class AuthResponse(token: String, user: UserResponse)
 case class UserResponse(id: String, username: String)
 case class InviteResponse(code: String, createdAt: String, used: Boolean)
 
+case class WargearWithQuantity(
+  wargear: wahapedia.domain.models.Wargear,
+  quantity: Int,
+  modelType: Option[String]
+)
+
 case class BattleUnitData(
   unit: wahapedia.domain.army.ArmyUnit,
   datasheet: wahapedia.domain.models.Datasheet,
   profiles: List[wahapedia.domain.models.ModelProfile],
-  wargear: List[wahapedia.domain.models.Wargear],
+  wargear: List[WargearWithQuantity],
   abilities: List[wahapedia.domain.models.DatasheetAbility],
   keywords: List[wahapedia.domain.models.DatasheetKeyword],
-  parsedWargearOptions: List[wahapedia.domain.models.ParsedWargearOption],
   cost: Option[wahapedia.domain.models.UnitCost],
   enhancement: Option[wahapedia.domain.models.Enhancement]
+)
+
+case class FilterWargearRequest(
+  selections: List[wahapedia.domain.army.WargearSelection],
+  unitSize: Int
 )
 
 case class ArmyBattleData(
