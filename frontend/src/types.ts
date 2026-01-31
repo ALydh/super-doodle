@@ -239,3 +239,25 @@ export interface ParsedWargearOption {
   countPerNModels: number;
   maxCount: number;
 }
+
+export interface BattleUnitData {
+  unit: ArmyUnit;
+  datasheet: Datasheet;
+  profiles: ModelProfile[];
+  wargear: Wargear[];
+  abilities: DatasheetAbility[];
+  keywords: DatasheetKeyword[];
+  parsedWargearOptions: ParsedWargearOption[];
+  cost: UnitCost | null;
+  enhancement: Enhancement | null;
+}
+
+export interface ArmyBattleData {
+  id: string;
+  name: string;
+  factionId: string;
+  battleSize: string;
+  detachmentId: string;
+  warlordId: string;
+  units: BattleUnitData[];
+}
