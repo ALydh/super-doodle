@@ -1949,6 +1949,31 @@ button:disabled {
   display: none;
 }
 
+.builder-col-picker.collapsed {
+  width: auto;
+  min-width: 0;
+}
+
+.col-header-toggle {
+  cursor: pointer;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.col-header-toggle:hover {
+  background: var(--surface-card);
+}
+
 /* Layout A: Info left, Units center (wide), Picker right */
 .army-builder-page.layout-a .builder-content {
   display: grid;
@@ -3446,5 +3471,278 @@ button:disabled {
   .weapons-preview h5,
   .wargear-options h5 {
     font-size: 0.8rem;
+  }
+}
+
+/* =========================================================
+   BATTLE MODE - SHARED COMPONENTS
+   ========================================================= */
+
+.battle-page {
+  position: relative;
+}
+
+.battle-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.battle-header-icon {
+  width: 48px;
+  height: 48px;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+.battle-header-text {
+  flex: 1;
+}
+
+.battle-header h1 {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.battle-header .battle-meta {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 4px 0 0 0;
+}
+
+.battle-unit-card {
+  background-color: rgba(var(--surface-card-rgb, 30, 30, 35), 0.85);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid var(--faction-primary);
+  margin-bottom: 8px;
+  overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(4px);
+}
+
+.battle-unit-card.stacked-card {
+  margin-bottom: 16px;
+}
+
+.battle-unit-card .stacked-card-shadow {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: -4px;
+  bottom: -4px;
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border-left: 4px solid var(--faction-primary);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+.battle-unit-card .stacked-card-shadow:nth-child(2) {
+  top: 8px;
+  left: 8px;
+  right: -8px;
+  bottom: -8px;
+  opacity: 0.3;
+  z-index: -2;
+}
+
+.battle-unit-card.expanded {
+  border-color: var(--faction-primary);
+}
+
+.battle-unit-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.battle-unit-card-header:hover {
+  background-color: var(--surface-panel);
+}
+
+.battle-unit-card-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.battle-unit-card-stats {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  background: var(--surface-panel);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.battle-unit-card-cost {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.battle-unit-card-content {
+  padding: 16px;
+  border-top: 1px solid var(--surface-border);
+  background-color: var(--surface-page);
+}
+
+.unit-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.unit-detail-name {
+  margin: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit-detail-role {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.unit-detail-cost {
+  color: var(--faction-trim);
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.unit-detail-stats {
+  margin-bottom: 16px;
+}
+
+.unit-detail-weapons,
+.unit-detail-abilities,
+.unit-detail-enhancement,
+.unit-detail-keywords {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.unit-detail-weapons h4,
+.unit-detail-abilities h4,
+.unit-detail-enhancement h4,
+.unit-detail-keywords h4 {
+  color: var(--faction-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.enhancement-detail {
+  background: var(--surface-panel);
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 3px solid var(--faction-trim);
+}
+
+.enhancement-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.enhancement-header strong {
+  color: var(--faction-trim);
+}
+
+.enhancement-cost {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.enhancement-detail p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-body);
+  line-height: 1.5;
+}
+
+.faction-keyword {
+  background-color: var(--faction-secondary) !important;
+  border-color: var(--faction-primary) !important;
+}
+
+/* =========================================================
+   BATTLE MODE - PAGE 1: CARD GRID
+   ========================================================= */
+
+.battle-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.battle-search {
+  margin-bottom: 16px;
+}
+
+.battle-search input {
+  width: 100%;
+  max-width: 400px;
+}
+
+
+@media (max-width: 599px) {
+  .battle-unit-card-header {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+
+  .battle-unit-card-name {
+    min-width: auto;
+    flex: 1 1 100%;
+    order: 1;
+  }
+
+  .battle-unit-card-stats {
+    order: 3;
+    flex: 1 1 100%;
+    margin-top: 8px;
+  }
+
+  .battle-unit-card-cost {
+    order: 2;
+  }
+
+  .stat-pill {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+
+  .battle-swipe-card {
+    padding: 16px;
   }
 }

@@ -2,7 +2,7 @@ import type {
   Faction, Datasheet, DatasheetDetail, DetachmentInfo,
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
   Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
-  User, AuthResponse, Invite,
+  User, AuthResponse, Invite, ArmyBattleData,
 } from "./types";
 
 const referenceCache = new Map<string, { promise: Promise<unknown> }>();
@@ -231,4 +231,10 @@ export async function fetchWeaponAbilities(): Promise<WeaponAbility[]> {
     if (!res.ok) throw new Error(`Failed to fetch weapon abilities: ${res.status}`);
     return res.json();
   });
+}
+
+export async function fetchArmyForBattle(armyId: string): Promise<ArmyBattleData> {
+  const res = await fetch(`/api/armies/${armyId}/battle`);
+  if (!res.ok) throw new Error(`Failed to fetch battle data: ${res.status}`);
+  return res.json();
 }

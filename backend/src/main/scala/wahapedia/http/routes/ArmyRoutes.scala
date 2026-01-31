@@ -9,12 +9,14 @@ import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.dsl.io.*
 import org.http4s.headers.`WWW-Authenticate`
 import wahapedia.db.{ArmyRepository, ReferenceDataRepository, PersistedArmy}
+import cats.data.NonEmptyList
 import wahapedia.domain.types.*
 import wahapedia.domain.army.*
 import wahapedia.domain.auth.AuthenticatedUser
 import wahapedia.http.AuthMiddleware
 import wahapedia.http.CirceCodecs.given
 import wahapedia.http.dto.*
+import wahapedia.domain.models.EnhancementId
 import doobie.*
 import java.util.UUID
 
@@ -91,6 +93,65 @@ object ArmyRoutes {
     case req @ POST -> Root / "api" / "armies" / "validate" =>
       req.as[Army].flatMap { army =>
         validateArmy(army, xa).flatMap(Ok(_))
+      }
+
+    case GET -> Root / "api" / "armies" / armyId / "battle" =>
+      ArmyRepository.findById(armyId)(xa).flatMap {
+        case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
+        case Some(persisted) =>
+          val army = persisted.army
+          NonEmptyList.fromList(army.units.map(_.datasheetId).distinct) match {
+            case None => Ok(ArmyBattleData(
+              persisted.id, persisted.name,
+              FactionId.value(army.factionId), army.battleSize.toString,
+              DetachmentId.value(army.detachmentId), DatasheetId.value(army.warlordId),
+              List.empty
+            ))
+            case Some(datasheetIds) =>
+              for {
+                datasheets <- ReferenceDataRepository.datasheetsByFaction(army.factionId)(xa)
+                profiles <- ReferenceDataRepository.modelProfilesForDatasheets(datasheetIds)(xa)
+                wargear <- ReferenceDataRepository.wargearForDatasheets(datasheetIds)(xa)
+                abilities <- ReferenceDataRepository.abilitiesForDatasheets(datasheetIds)(xa)
+                keywords <- ReferenceDataRepository.keywordsForDatasheets(datasheetIds)(xa)
+                costs <- ReferenceDataRepository.unitCostsForDatasheets(datasheetIds)(xa)
+                parsedOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheets(datasheetIds)(xa)
+                enhancements <- ReferenceDataRepository.enhancementsByFaction(army.factionId)(xa)
+
+                datasheetMap = datasheets.map(d => DatasheetId.value(d.id) -> d).toMap
+                profilesMap = profiles.groupBy(p => DatasheetId.value(p.datasheetId))
+                wargearMap = wargear.groupBy(w => DatasheetId.value(w.datasheetId))
+                abilitiesMap = abilities.groupBy(a => DatasheetId.value(a.datasheetId))
+                keywordsMap = keywords.groupBy(k => DatasheetId.value(k.datasheetId))
+                costsMap = costs.groupBy(c => DatasheetId.value(c.datasheetId))
+                parsedOptionsMap = parsedOptions.groupBy(o => DatasheetId.value(o.datasheetId))
+                enhancementsMap = enhancements.map(e => EnhancementId.value(e.id) -> e).toMap
+
+                battleUnits = army.units.flatMap { unit =>
+                  val dsId = DatasheetId.value(unit.datasheetId)
+                  datasheetMap.get(dsId).map { datasheet =>
+                    val unitCost = costsMap.getOrElse(dsId, List.empty).find(_.line == unit.sizeOptionLine)
+                    val enh = unit.enhancementId.flatMap(eid => enhancementsMap.get(EnhancementId.value(eid)))
+                    BattleUnitData(
+                      unit, datasheet,
+                      profilesMap.getOrElse(dsId, List.empty),
+                      wargearMap.getOrElse(dsId, List.empty),
+                      abilitiesMap.getOrElse(dsId, List.empty),
+                      keywordsMap.getOrElse(dsId, List.empty),
+                      parsedOptionsMap.getOrElse(dsId, List.empty),
+                      unitCost, enh
+                    )
+                  }
+                }
+
+                resp <- Ok(ArmyBattleData(
+                  persisted.id, persisted.name,
+                  FactionId.value(army.factionId), army.battleSize.toString,
+                  DetachmentId.value(army.detachmentId), DatasheetId.value(army.warlordId),
+                  battleUnits
+                ))
+              } yield resp
+          }
       }
   }
 }

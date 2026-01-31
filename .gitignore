@@ -16,3 +16,4 @@ frontend/test-results/
 *.log
 *.db
 TODO.md
+.playwright-mcp/

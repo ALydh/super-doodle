@@ -1,24 +1,78 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import type { PersistedArmy, Datasheet, Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, DatasheetDetail, UnitCost, DatasheetLeader, DatasheetOption } from "../types";
-import { BATTLE_SIZE_POINTS } from "../types";
+import type { Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, ArmyBattleData, BattleUnitData } from "../types";
+import { BATTLE_SIZE_POINTS, BattleSize } from "../types";
 import {
-  fetchArmy,
+  fetchArmyForBattle,
   deleteArmy,
-  fetchDatasheetsByFaction,
   fetchStratagemsByFaction,
   fetchDetachmentAbilities,
   fetchEnhancementsByFaction,
   fetchDetachmentsByFaction,
-  fetchDatasheetDetail,
-  fetchLeadersByFaction,
 } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { useAuth } from "../context/useAuth";
 import { TabNavigation } from "../components/TabNavigation";
 import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
-import { renderUnitsForMode } from "./renderUnitsForMode";
+import { BattleUnitCard } from "../components/battle/BattleUnitCard";
+
+interface GroupedUnit {
+  data: BattleUnitData;
+  count: number;
+}
+
+function areUnitsIdentical(a: BattleUnitData, b: BattleUnitData): boolean {
+  if (a.unit.datasheetId !== b.unit.datasheetId) return false;
+  if (a.unit.sizeOptionLine !== b.unit.sizeOptionLine) return false;
+  if (a.unit.enhancementId !== b.unit.enhancementId) return false;
+  if (a.unit.attachedLeaderId || b.unit.attachedLeaderId) return false;
+  if (a.unit.attachedToUnitIndex != null || b.unit.attachedToUnitIndex != null) return false;
+
+  const aSelections = a.unit.wargearSelections.filter(s => s.selected).sort((x, y) => x.optionLine - y.optionLine);
+  const bSelections = b.unit.wargearSelections.filter(s => s.selected).sort((x, y) => x.optionLine - y.optionLine);
+
+  if (aSelections.length !== bSelections.length) return false;
+  for (let i = 0; i < aSelections.length; i++) {
+    if (aSelections[i].optionLine !== bSelections[i].optionLine) return false;
+  }
+
+  return true;
+}
+
+function groupUnits(units: BattleUnitData[], warlordId: string): GroupedUnit[] {
+  const result: GroupedUnit[] = [];
+  const processed = new Set<number>();
+
+  for (let i = 0; i < units.length; i++) {
+    if (processed.has(i)) continue;
+
+    const unit = units[i];
+    const isWarlord = warlordId === unit.unit.datasheetId &&
+      units.findIndex(u => u.unit.datasheetId === warlordId) === i;
+
+    if (isWarlord || unit.unit.attachedLeaderId || unit.unit.attachedToUnitIndex != null) {
+      result.push({ data: unit, count: 1 });
+      processed.add(i);
+      continue;
+    }
+
+    let count = 1;
+    processed.add(i);
+
+    for (let j = i + 1; j < units.length; j++) {
+      if (processed.has(j)) continue;
+      if (areUnitsIdentical(unit, units[j])) {
+        count++;
+        processed.add(j);
+      }
+    }
+
+    result.push({ data: unit, count });
+  }
+
+  return result;
+}
 
 type TabId = "units" | "stratagems" | "detachment";
 
@@ -32,79 +86,57 @@ export function ArmyViewPage() {
   const { armyId } = useParams<{ armyId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [army, setArmy] = useState<PersistedArmy | null>(null);
-  const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
-  const [datasheetDetails, setDatasheetDetails] = useState<Map<string, DatasheetDetail>>(new Map());
+  const [battleData, setBattleData] = useState<ArmyBattleData | null>(null);
   const [stratagems, setStratagems] = useState<Stratagem[]>([]);
   const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
-  const [leaders, setLeaders] = useState<DatasheetLeader[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("units");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!armyId) return;
-    fetchArmy(armyId)
-      .then((a) => {
-        setArmy(a);
+    fetchArmyForBattle(armyId)
+      .then((data) => {
+        setBattleData(data);
         return Promise.all([
-          fetchDatasheetsByFaction(a.army.factionId),
-          fetchStratagemsByFaction(a.army.factionId),
-          fetchEnhancementsByFaction(a.army.factionId),
-          fetchDetachmentsByFaction(a.army.factionId),
-          fetchLeadersByFaction(a.army.factionId),
-          a.army.detachmentId ? fetchDetachmentAbilities(a.army.detachmentId) : Promise.resolve([]),
+          fetchStratagemsByFaction(data.factionId),
+          fetchEnhancementsByFaction(data.factionId),
+          fetchDetachmentsByFaction(data.factionId),
+          data.detachmentId ? fetchDetachmentAbilities(data.detachmentId) : Promise.resolve([]),
         ]);
       })
-      .then(([ds, strat, enh, det, ldr, abilities]) => {
-        setDatasheets(ds);
+      .then(([strat, enh, det, abilities]) => {
         setStratagems(strat);
         setEnhancements(enh);
         setDetachments(det);
-        setLeaders(ldr);
         setDetachmentAbilities(abilities);
       })
       .catch((e) => setError(e.message));
   }, [armyId]);
 
-  useEffect(() => {
-    if (!army) return;
-    const uniqueIds = [...new Set(army.army.units.map((u) => u.datasheetId))];
-    const missing = uniqueIds.filter((id) => !datasheetDetails.has(id));
-    if (missing.length === 0) return;
-    Promise.all(missing.map((id) => fetchDatasheetDetail(id)))
-      .then((details) => {
-        setDatasheetDetails((prev) => {
-          const next = new Map(prev);
-          details.forEach((d) => next.set(d.datasheet.id, d));
-          return next;
-        });
-      })
-      .catch(() => {});
-  }, [army, datasheetDetails]);
+  const groupedUnits = useMemo(() => {
+    if (!battleData) return [];
+    return groupUnits(battleData.units, battleData.warlordId);
+  }, [battleData]);
 
-  const allCosts: UnitCost[] = useMemo(() =>
-    Array.from(datasheetDetails.values()).flatMap(d => d.costs),
-    [datasheetDetails]
-  );
-
-  const allOptions: DatasheetOption[] = useMemo(() =>
-    Array.from(datasheetDetails.values()).flatMap(d => d.options),
-    [datasheetDetails]
-  );
+  const filteredUnits = useMemo(() => {
+    if (!searchQuery.trim()) return groupedUnits;
+    const query = searchQuery.toLowerCase();
+    return groupedUnits.filter((g) =>
+      g.data.datasheet.name.toLowerCase().includes(query)
+    );
+  }, [groupedUnits, searchQuery]);
 
   const totalPoints = useMemo(() => {
-    if (!army) return 0;
-    const detachmentEnh = enhancements.filter(e => e.detachmentId === army.army.detachmentId);
-    return army.army.units.reduce((sum, unit) => {
-      const unitCost = allCosts.find(c => c.datasheetId === unit.datasheetId && c.line === unit.sizeOptionLine);
-      const enhancementCost = unit.enhancementId
-        ? detachmentEnh.find(e => e.id === unit.enhancementId)?.cost ?? 0
-        : 0;
-      return sum + (unitCost?.cost ?? 0) + enhancementCost;
+    if (!battleData) return 0;
+    return battleData.units.reduce((sum, u) => {
+      const unitCost = u.cost?.cost ?? 0;
+      const enhancementCost = u.enhancement?.cost ?? 0;
+      return sum + unitCost + enhancementCost;
     }, 0);
-  }, [army, allCosts, enhancements]);
+  }, [battleData]);
 
   const handleDelete = async () => {
     if (!armyId) return;
@@ -113,23 +145,21 @@ export function ArmyViewPage() {
   };
 
   if (error) return <div className="error-message">{error}</div>;
-  if (!army) return <div>Loading...</div>;
+  if (!battleData) return <div>Loading...</div>;
 
-  const maxPoints = BATTLE_SIZE_POINTS[army.army.battleSize];
-  const factionTheme = getFactionTheme(army.army.factionId);
+  const maxPoints = BATTLE_SIZE_POINTS[battleData.battleSize as BattleSize] ?? 0;
+  const factionTheme = getFactionTheme(battleData.factionId);
 
-  const detachmentInfo = detachments.find((d) => d.detachmentId === army.army.detachmentId);
-  const detachmentName = detachmentInfo?.name ?? army.army.detachmentId;
+  const detachmentInfo = detachments.find((d) => d.detachmentId === battleData.detachmentId);
+  const detachmentName = detachmentInfo?.name ?? battleData.detachmentId;
 
   const detachmentStratagems = stratagems.filter(
-    (s) => s.detachmentId === army.army.detachmentId || !s.detachmentId
+    (s) => s.detachmentId === battleData.detachmentId || !s.detachmentId
   );
 
   const detachmentEnhancements = enhancements.filter(
-    (e) => e.detachmentId === army.army.detachmentId
+    (e) => e.detachmentId === battleData.detachmentId
   );
-
-  const noop = () => {};
 
   return (
     <div data-faction={factionTheme} className="army-view-page">
@@ -150,44 +180,43 @@ export function ArmyViewPage() {
           />
         )}
         <div className="army-view-header-text">
-          <h1 className="army-name">{army.name}</h1>
+          <h1 className="army-name">{battleData.name}</h1>
           <p className="army-meta">
-            {army.army.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
+            {battleData.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
           </p>
         </div>
-        {(army.ownerId === null || army.ownerId === user?.id) && (
-          <div className="army-view-actions">
-            <Link to={`/armies/${armyId}/edit`}>
-              <button className="edit-army">Edit</button>
-            </Link>
+        <div className="army-view-actions">
+          <Link to={`/armies/${armyId}/edit`}>
+            <button className="edit-army">Edit</button>
+          </Link>
+          {user && (
             <button className="btn-delete delete-army" onClick={handleDelete}>Delete</button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <TabNavigation tabs={TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />
 
       {activeTab === "units" && (
         <div className="units-tab">
-          <table className="units-table">
-            <tbody>
-              {renderUnitsForMode(
-                "grouped",
-                army.army.units,
-                datasheets,
-                allCosts,
-                detachmentEnhancements,
-                leaders,
-                allOptions,
-                army.army.warlordId,
-                noop,
-                noop,
-                noop,
-                noop,
-                true
-              )}
-            </tbody>
-          </table>
+          <div className="battle-search">
+            <input
+              type="text"
+              placeholder="Search units..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="battle-grid">
+            {filteredUnits.map((group, index) => (
+              <BattleUnitCard
+                key={`${group.data.unit.datasheetId}-${index}`}
+                data={group.data}
+                isWarlord={battleData.warlordId === group.data.unit.datasheetId}
+                count={group.count}
+              />
+            ))}
+          </div>
         </div>
       )}
 

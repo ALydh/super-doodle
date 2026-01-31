@@ -40,6 +40,7 @@ export function ArmyBuilderPage() {
   const [abilitiesExpanded, setAbilitiesExpanded] = useState(false);
   const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
   const [strategemsExpanded, setStrategemsExpanded] = useState(false);
+  const [pickerExpanded, setPickerExpanded] = useState(false);
   const [loadedArmyFactionId, setLoadedArmyFactionId] = useState<string>("");
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -348,9 +349,13 @@ export function ArmyBuilderPage() {
           </div>
         </div>
 
-        <div className="builder-col builder-col-picker">
-          <div className="col-header">Add Units</div>
-          <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
+        <div className={`builder-col builder-col-picker ${pickerExpanded ? "" : "collapsed"}`}>
+          <button className="col-header col-header-toggle" onClick={() => setPickerExpanded(!pickerExpanded)}>
+            Add Units {pickerExpanded ? "▼" : "▶"}
+          </button>
+          {pickerExpanded && (
+            <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
+          )}
         </div>
       </div>
     </div>
