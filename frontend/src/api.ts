@@ -2,7 +2,7 @@ import type {
   Faction, Datasheet, DatasheetDetail, DetachmentInfo,
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
   Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
-  User, AuthResponse, Invite, ArmyBattleData,
+  User, AuthResponse, Invite, ArmyBattleData, WargearWithQuantity,
 } from "./types";
 
 const referenceCache = new Map<string, { promise: Promise<unknown> }>();
@@ -236,5 +236,19 @@ export async function fetchWeaponAbilities(): Promise<WeaponAbility[]> {
 export async function fetchArmyForBattle(armyId: string): Promise<ArmyBattleData> {
   const res = await fetch(`/api/armies/${armyId}/battle`);
   if (!res.ok) throw new Error(`Failed to fetch battle data: ${res.status}`);
+  return res.json();
+}
+
+export async function filterWargear(
+  datasheetId: string,
+  selections: { optionLine: number; selected: boolean; notes: string | null }[],
+  unitSize: number
+): Promise<WargearWithQuantity[]> {
+  const res = await fetch(`/api/datasheets/${datasheetId}/filter-wargear`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ selections, unitSize }),
+  });
+  if (!res.ok) throw new Error(`Failed to filter wargear: ${res.status}`);
   return res.json();
 }

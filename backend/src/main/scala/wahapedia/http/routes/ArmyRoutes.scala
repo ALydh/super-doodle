@@ -23,6 +23,11 @@ import java.util.UUID
 object ArmyRoutes {
   private val bearerChallenge = `WWW-Authenticate`(Challenge("Bearer", "api"))
 
+  private val unitSizePattern = """(\d+)\s*model""".r
+
+  private def parseUnitSizeFromDescription(description: String): Option[Int] =
+    unitSizePattern.findFirstMatchIn(description.toLowerCase).map(_.group(1).toInt)
+
   private def unauthorized(message: String): IO[Response[IO]] =
     Unauthorized(bearerChallenge, Json.obj("error" -> Json.fromString(message)))
 
@@ -131,14 +136,20 @@ object ArmyRoutes {
                   val dsId = DatasheetId.value(unit.datasheetId)
                   datasheetMap.get(dsId).map { datasheet =>
                     val unitCost = costsMap.getOrElse(dsId, List.empty).find(_.line == unit.sizeOptionLine)
+                    val unitSize = unitCost.flatMap(c => parseUnitSizeFromDescription(c.description)).getOrElse(1)
                     val enh = unit.enhancementId.flatMap(eid => enhancementsMap.get(EnhancementId.value(eid)))
+                    val allWargear = wargearMap.getOrElse(dsId, List.empty)
+                    val parsedOpts = parsedOptionsMap.getOrElse(dsId, List.empty)
+                    val filteredWargear = WargearFilter.filterWargearWithQuantities(
+                      allWargear, parsedOpts, unit.wargearSelections, datasheet.loadout, unitSize
+                    )
+                    val wargearDtos = filteredWargear.map(w => wahapedia.http.dto.WargearWithQuantity(w.wargear, w.quantity, w.modelType))
                     BattleUnitData(
                       unit, datasheet,
                       profilesMap.getOrElse(dsId, List.empty),
-                      wargearMap.getOrElse(dsId, List.empty),
+                      wargearDtos,
                       abilitiesMap.getOrElse(dsId, List.empty),
                       keywordsMap.getOrElse(dsId, List.empty),
-                      parsedOptionsMap.getOrElse(dsId, List.empty),
                       unitCost, enh
                     )
                   }
