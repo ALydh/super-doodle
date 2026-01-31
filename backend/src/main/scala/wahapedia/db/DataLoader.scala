@@ -21,6 +21,7 @@ object DataLoader {
       _ <- loadFile("Source.csv", SourceParser, insertSource)(xa)
       _ <- loadFile("Abilities.csv", AbilityParser, insertAbility)(xa)
       _ <- loadFile("Datasheets.csv", DatasheetParser, insertDatasheet)(xa)
+      _ <- generateParsedLoadouts(xa)
       _ <- loadFile("Datasheets_models.csv", ModelProfileParser, insertModelProfile)(xa)
       _ <- loadFile("Datasheets_wargear.csv", WargearParser, insertWargear)(xa)
       _ <- loadFile("Datasheets_unit_composition.csv", UnitCompositionParser, insertUnitComposition)(xa)
@@ -38,6 +39,7 @@ object DataLoader {
       _ <- loadFile("Last_update.csv", LastUpdateParser, insertLastUpdate)(xa)
       _ <- loadFileIfExists("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
       _ <- loadFileIfExists("Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa)
+      _ <- generateUnitWargearDefaults(xa)
     } yield ()
 
   private def loadFile[A](
@@ -66,6 +68,8 @@ object DataLoader {
 
   private def clearAll(xa: Transactor[IO]): IO[Unit] = {
     val deletes = List(
+      sql"DELETE FROM unit_wargear_defaults",
+      sql"DELETE FROM parsed_loadouts",
       sql"DELETE FROM parsed_wargear_options",
       sql"DELETE FROM weapon_abilities",
       sql"DELETE FROM datasheet_detachment_abilities",
@@ -171,6 +175,92 @@ object DataLoader {
   private def insertParsedWargearOption(p: ParsedWargearOption): ConnectionIO[Int] =
     sql"""INSERT INTO parsed_wargear_options (datasheet_id, option_line, choice_index, group_id, action, weapon_name, model_target, count_per_n_models, max_count)
           VALUES (${p.datasheetId}, ${p.optionLine}, ${p.choiceIndex}, ${p.groupId}, ${WargearAction.asString(p.action)}, ${p.weaponName}, ${p.modelTarget}, ${p.countPerNModels}, ${p.maxCount})""".update.run
+
+  private def generateParsedLoadouts(xa: Transactor[IO]): IO[Unit] =
+    for {
+      _ <- IO.println("Generating parsed loadouts...")
+      datasheets <- sql"SELECT id, loadout FROM datasheets WHERE loadout IS NOT NULL AND loadout != ''"
+        .query[(String, String)].to[List].transact(xa)
+      inserts = datasheets.flatMap { case (datasheetId, loadoutHtml) =>
+        LoadoutParser.parse(loadoutHtml).flatMap { ml =>
+          ml.weapons.map(weapon => (datasheetId, ml.modelPattern, weapon))
+        }
+      }
+      _ <- inserts.traverse_ { case (dsId, pattern, weapon) =>
+        sql"INSERT OR IGNORE INTO parsed_loadouts (datasheet_id, model_pattern, weapon) VALUES ($dsId, $pattern, $weapon)".update.run
+      }.transact(xa)
+      _ <- IO.println(s"  Generated ${inserts.length} parsed loadout entries")
+    } yield ()
+
+  private val unitSizePattern = """(\d+)\s*model""".r
+
+  private def parseUnitSize(description: String): Option[Int] =
+    unitSizePattern.findFirstMatchIn(description.toLowerCase).map(_.group(1).toInt)
+
+  private def isSergeantPattern(pattern: String): Boolean = {
+    val lower = pattern.toLowerCase
+    lower.contains("sergeant") || lower.contains("champion") || lower.contains("leader") ||
+      lower.contains("captain") || lower.contains("veteran sergeant")
+  }
+
+  private def generateUnitWargearDefaults(xa: Transactor[IO]): IO[Unit] =
+    for {
+      _ <- IO.println("Generating unit wargear defaults...")
+      loadouts <- sql"SELECT datasheet_id, model_pattern, weapon FROM parsed_loadouts"
+        .query[(String, String, String)].to[List].transact(xa)
+      costs <- sql"SELECT datasheet_id, line, description FROM unit_cost"
+        .query[(String, Int, String)].to[List].transact(xa)
+
+      loadoutsByDs = loadouts.groupBy(_._1).map { case (dsId, rows) =>
+        dsId -> rows.groupBy(_._2).map { case (pattern, patternRows) =>
+          ModelLoadout(pattern, patternRows.map(_._3))
+        }.toList
+      }
+
+      inserts = costs.flatMap { case (dsId, line, description) =>
+        loadoutsByDs.get(dsId).flatMap { dsLoadouts =>
+          parseUnitSize(description).map { unitSize =>
+            val hasUniversal = dsLoadouts.exists(_.modelPattern == "*")
+            val hasSpecific = dsLoadouts.exists(_.modelPattern != "*")
+            val counts = scala.collection.mutable.Map[String, (Int, Option[String])]()
+
+            if (hasUniversal && !hasSpecific) {
+              dsLoadouts.find(_.modelPattern == "*").foreach { l =>
+                l.weapons.foreach(w => counts(w) = (unitSize, None))
+              }
+            } else if (hasSpecific) {
+              val sergeantCount = 1
+              val trooperCount = unitSize - sergeantCount
+
+              dsLoadouts.foreach { l =>
+                val (modelCount, modelType) = if (l.modelPattern == "*") {
+                  (unitSize, None)
+                } else if (isSergeantPattern(l.modelPattern)) {
+                  (sergeantCount, Some(l.modelPattern))
+                } else {
+                  (trooperCount, Some(l.modelPattern))
+                }
+
+                l.weapons.foreach { w =>
+                  val (existing, existingType) = counts.getOrElse(w, (0, None))
+                  counts(w) = (existing + modelCount, modelType.orElse(existingType))
+                }
+              }
+            }
+
+            counts.toList.map { case (weapon, (count, modelType)) =>
+              (dsId, line, weapon, count, modelType)
+            }
+          }
+        }.getOrElse(List.empty)
+      }
+
+      _ <- inserts.traverse_ { case (dsId, line, weapon, count, modelType) =>
+        sql"""INSERT OR IGNORE INTO unit_wargear_defaults (datasheet_id, size_line, weapon, count, model_type)
+              VALUES ($dsId, $line, $weapon, $count, $modelType)""".update.run
+      }.transact(xa)
+      _ <- IO.println(s"  Generated ${inserts.length} unit wargear default entries")
+    } yield ()
 
   private def loadIfEmpty[A](
     tableName: String,

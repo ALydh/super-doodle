@@ -122,6 +122,7 @@ object ArmyRoutes {
                 costs <- ReferenceDataRepository.unitCostsForDatasheets(datasheetIds)(xa)
                 parsedOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheets(datasheetIds)(xa)
                 enhancements <- ReferenceDataRepository.enhancementsByFaction(army.factionId)(xa)
+                wargearDefaults <- ReferenceDataRepository.wargearDefaultsForDatasheets(datasheetIds)(xa)
 
                 datasheetMap = datasheets.map(d => DatasheetId.value(d.id) -> d).toMap
                 profilesMap = profiles.groupBy(p => DatasheetId.value(p.datasheetId))
@@ -140,8 +141,10 @@ object ArmyRoutes {
                     val enh = unit.enhancementId.flatMap(eid => enhancementsMap.get(EnhancementId.value(eid)))
                     val allWargear = wargearMap.getOrElse(dsId, List.empty)
                     val parsedOpts = parsedOptionsMap.getOrElse(dsId, List.empty)
-                    val filteredWargear = WargearFilter.filterWargearWithQuantities(
-                      allWargear, parsedOpts, unit.wargearSelections, datasheet.loadout, unitSize
+                    val defaults = wargearDefaults.getOrElse((dsId, unit.sizeOptionLine), List.empty)
+                      .map(d => WargearDefault(d.weapon, d.count, d.modelType))
+                    val filteredWargear = WargearFilter.filterWargearWithDefaults(
+                      allWargear, parsedOpts, unit.wargearSelections, defaults, unitSize
                     )
                     val wargearDtos = filteredWargear.map(w => wahapedia.http.dto.WargearWithQuantity(w.wargear, w.quantity, w.modelType))
                     BattleUnitData(

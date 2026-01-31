@@ -209,6 +209,39 @@ object ReferenceDataRepository {
           FROM parsed_wargear_options WHERE """ ++ Fragments.in(fr"datasheet_id", datasheetIds))
       .query[ParsedWargearOption].to[List].transact(xa)
 
+  def parsedLoadoutsForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[ModelLoadout]] =
+    sql"SELECT model_pattern, weapon FROM parsed_loadouts WHERE datasheet_id = $datasheetId"
+      .query[(String, String)].to[List].transact(xa)
+      .map(rows => rows.groupBy(_._1).map { case (pattern, weapons) =>
+        ModelLoadout(pattern, weapons.map(_._2))
+      }.toList)
+
+  def parsedLoadoutsForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[Map[String, List[ModelLoadout]]] =
+    (fr"SELECT datasheet_id, model_pattern, weapon FROM parsed_loadouts WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
+      .query[(String, String, String)].to[List].transact(xa)
+      .map { rows =>
+        rows.groupBy(_._1).map { case (dsId, dsRows) =>
+          dsId -> dsRows.groupBy(_._2).map { case (pattern, patternRows) =>
+            ModelLoadout(pattern, patternRows.map(_._3))
+          }.toList
+        }
+      }
+
+  case class WargearDefault(weapon: String, count: Int, modelType: Option[String])
+
+  def wargearDefaultsForDatasheet(datasheetId: DatasheetId, sizeLine: Int)(xa: Transactor[IO]): IO[List[WargearDefault]] =
+    sql"SELECT weapon, count, model_type FROM unit_wargear_defaults WHERE datasheet_id = $datasheetId AND size_line = $sizeLine"
+      .query[WargearDefault].to[List].transact(xa)
+
+  def wargearDefaultsForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[Map[(String, Int), List[WargearDefault]]] =
+    (fr"SELECT datasheet_id, size_line, weapon, count, model_type FROM unit_wargear_defaults WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
+      .query[(String, Int, String, Int, Option[String])].to[List].transact(xa)
+      .map { rows =>
+        rows.groupBy(r => (r._1, r._2)).map { case (key, groupRows) =>
+          key -> groupRows.map(r => WargearDefault(r._3, r._4, r._5))
+        }
+      }
+
   case class DetachmentInfo(name: String, detachmentId: String)
 
   def detachmentsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DetachmentInfo]] =
@@ -239,7 +272,9 @@ object ReferenceDataRepository {
       "datasheet_abilities", "datasheet_options", "datasheet_leaders",
       "stratagems", "datasheet_stratagems", "enhancements",
       "datasheet_enhancements", "detachment_abilities",
-      "datasheet_detachment_abilities", "last_update", "weapon_abilities", "parsed_wargear_options"
+      "datasheet_detachment_abilities", "last_update", "weapon_abilities", "parsed_wargear_options",
+      "parsed_loadouts",
+      "unit_wargear_defaults"
     )
     tables.traverse { table =>
       Fragment.const(s"SELECT COUNT(*) FROM $table").query[Int].unique.transact(xa).map(table -> _)

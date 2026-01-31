@@ -1,12 +1,14 @@
 package wahapedia.domain.army
 
-import wahapedia.domain.models.{Wargear, ParsedWargearOption, WargearAction, LoadoutParser, ModelLoadout}
+import wahapedia.domain.models.{Wargear, ParsedWargearOption, WargearAction, ModelLoadout, LoadoutParser}
 
 case class WargearWithQuantity(
   wargear: Wargear,
   quantity: Int,
   modelType: Option[String]
 )
+
+case class WargearDefault(weapon: String, count: Int, modelType: Option[String])
 
 object WargearFilter {
 
@@ -64,10 +66,9 @@ object WargearFilter {
     allWargear: List[Wargear],
     parsedOptions: List[ParsedWargearOption],
     selections: List[WargearSelection],
-    loadout: Option[String],
+    loadouts: List[ModelLoadout],
     unitSize: Int
   ): List[WargearWithQuantity] = {
-    val loadouts = loadout.map(LoadoutParser.parse).getOrElse(List.empty)
     val hasUniversal = LoadoutParser.hasUniversalLoadout(loadouts)
     val hasSpecific = LoadoutParser.hasSpecificLoadouts(loadouts)
 
@@ -111,6 +112,56 @@ object WargearFilter {
     }
 
     wargearWithQuantities
+  }
+
+  def filterWargearWithDefaults(
+    allWargear: List[Wargear],
+    parsedOptions: List[ParsedWargearOption],
+    selections: List[WargearSelection],
+    defaults: List[WargearDefault],
+    unitSize: Int
+  ): List[WargearWithQuantity] = {
+    if (defaults.isEmpty || unitSize <= 0) {
+      val filteredWargear = filterWargear(allWargear, parsedOptions, selections)
+      return filteredWargear.map(w => WargearWithQuantity(w, unitSize.max(1), None))
+    }
+
+    val baseWeaponCounts = defaults.map(d => d.weapon -> d.count).toMap
+    val modelTypes = defaults.flatMap(d => d.modelType.map(d.weapon -> _)).toMap
+    val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections)
+
+    allWargear.filter(_.name.isDefined).flatMap { wargear =>
+      val weaponName = wargear.name.map(_.toLowerCase).getOrElse("")
+
+      val baseCount = baseWeaponCounts.find { case (pattern, _) =>
+        matchesWeaponPrefix(weaponName, pattern)
+      }.map(_._2).getOrElse(0)
+
+      val removedCount = weaponRemovals.find { case (pattern, _) =>
+        matchesWeaponPrefix(weaponName, pattern)
+      }.map(_._2).getOrElse(0)
+
+      val addedCount = weaponAdditions.find { case (pattern, _) =>
+        matchesWeaponPrefix(weaponName, pattern)
+      }.map(_._2).getOrElse(0)
+
+      val finalCount = if (baseCount > 0) {
+        (baseCount - removedCount + addedCount).max(0)
+      } else if (addedCount > 0) {
+        addedCount
+      } else {
+        0
+      }
+
+      if (finalCount > 0) {
+        val modelType = modelTypes.find { case (pattern, _) =>
+          matchesWeaponPrefix(weaponName, pattern)
+        }.map(_._2)
+        Some(WargearWithQuantity(wargear, finalCount, modelType))
+      } else {
+        None
+      }
+    }
   }
 
   private def calculateBaseWeaponCounts(

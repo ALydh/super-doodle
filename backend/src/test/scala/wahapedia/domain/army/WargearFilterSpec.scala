@@ -3,7 +3,7 @@ package wahapedia.domain.army
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import wahapedia.domain.types.*
-import wahapedia.domain.models.{Wargear, ParsedWargearOption, WargearAction}
+import wahapedia.domain.models.{Wargear, ParsedWargearOption, WargearAction, LoadoutParser}
 
 class WargearFilterSpec extends AnyFlatSpec with Matchers {
 
@@ -82,9 +82,12 @@ class WargearFilterSpec extends AnyFlatSpec with Matchers {
   def parsedOptionWithTarget(line: Int, action: WargearAction, weapon: String, choice: Int = 0, modelTarget: Option[String] = None, maxCount: Int = 0): ParsedWargearOption =
     ParsedWargearOption(dsId, line, choice, 0, action, weapon, modelTarget, 0, maxCount)
 
+  def parseLoadout(html: String): List[wahapedia.domain.models.ModelLoadout] =
+    LoadoutParser.parse(html)
+
   "filterWargearWithQuantities" should "return all weapons with unit size quantity when no loadout" in {
     val allWargear = List(wargear("Bolt Rifle"), wargear("Frag Grenades"))
-    val result = WargearFilter.filterWargearWithQuantities(allWargear, List.empty, List.empty, None, 5)
+    val result = WargearFilter.filterWargearWithQuantities(allWargear, List.empty, List.empty, List.empty, 5)
     result.map(w => (w.wargear.name, w.quantity)) should contain theSameElementsAs List(
       (Some("Bolt Rifle"), 5),
       (Some("Frag Grenades"), 5)
@@ -93,8 +96,8 @@ class WargearFilterSpec extends AnyFlatSpec with Matchers {
 
   it should "calculate quantities based on universal loadout" in {
     val allWargear = List(wargear("Heavy bolt pistol"), wargear("Astartes chainsword"))
-    val loadout = Some("<b>Every model is equipped with:</b> heavy bolt pistol; Astartes chainsword.")
-    val result = WargearFilter.filterWargearWithQuantities(allWargear, List.empty, List.empty, loadout, 5)
+    val loadouts = parseLoadout("<b>Every model is equipped with:</b> heavy bolt pistol; Astartes chainsword.")
+    val result = WargearFilter.filterWargearWithQuantities(allWargear, List.empty, List.empty, loadouts, 5)
     result.map(w => (w.wargear.name, w.quantity)) should contain theSameElementsAs List(
       (Some("Heavy bolt pistol"), 5),
       (Some("Astartes chainsword"), 5)
@@ -103,13 +106,13 @@ class WargearFilterSpec extends AnyFlatSpec with Matchers {
 
   it should "reduce quantity when weapon is replaced via selection" in {
     val allWargear = List(wargear("Heavy bolt pistol"), wargear("Plasma pistol"), wargear("Astartes chainsword"))
-    val loadout = Some("<b>Every model is equipped with:</b> heavy bolt pistol; Astartes chainsword.")
+    val loadouts = parseLoadout("<b>Every model is equipped with:</b> heavy bolt pistol; Astartes chainsword.")
     val parsed = List(
       parsedOptionWithTarget(1, WargearAction.Remove, "heavy bolt pistol", maxCount = 1),
       parsedOptionWithTarget(1, WargearAction.Add, "plasma pistol", maxCount = 1)
     )
     val selections = List(WargearSelection(1, true, None))
-    val result = WargearFilter.filterWargearWithQuantities(allWargear, parsed, selections, loadout, 5)
+    val result = WargearFilter.filterWargearWithQuantities(allWargear, parsed, selections, loadouts, 5)
 
     val pistolResult = result.find(_.wargear.name.contains("Heavy bolt pistol"))
     val plasmaResult = result.find(_.wargear.name.contains("Plasma pistol"))
@@ -120,17 +123,17 @@ class WargearFilterSpec extends AnyFlatSpec with Matchers {
 
   it should "return minimum quantity of 1 when calculated quantity is 0" in {
     val allWargear = List(wargear("Power Fist"))
-    val loadout = Some("<b>Every model is equipped with:</b> bolt pistol.")
+    val loadouts = parseLoadout("<b>Every model is equipped with:</b> bolt pistol.")
     val parsed = List(parsedOptionWithTarget(1, WargearAction.Add, "power fist", maxCount = 1))
     val selections = List(WargearSelection(1, true, None))
-    val result = WargearFilter.filterWargearWithQuantities(allWargear, parsed, selections, loadout, 5)
+    val result = WargearFilter.filterWargearWithQuantities(allWargear, parsed, selections, loadouts, 5)
 
     result.find(_.wargear.name.contains("Power Fist")).map(_.quantity) shouldBe Some(1)
   }
 
-  it should "handle empty loadout string" in {
+  it should "handle empty loadout" in {
     val allWargear = List(wargear("Bolt Rifle"))
-    val result = WargearFilter.filterWargearWithQuantities(allWargear, List.empty, List.empty, Some(""), 5)
+    val result = WargearFilter.filterWargearWithQuantities(allWargear, List.empty, List.empty, List.empty, 5)
     result.map(w => (w.wargear.name, w.quantity)) should contain theSameElementsAs List(
       (Some("Bolt Rifle"), 5)
     )
@@ -138,8 +141,8 @@ class WargearFilterSpec extends AnyFlatSpec with Matchers {
 
   it should "handle unit size of 1" in {
     val allWargear = List(wargear("Guardian spear"))
-    val loadout = Some("<b>This model is equipped with:</b> guardian spear.")
-    val result = WargearFilter.filterWargearWithQuantities(allWargear, List.empty, List.empty, loadout, 1)
+    val loadouts = parseLoadout("<b>This model is equipped with:</b> guardian spear.")
+    val result = WargearFilter.filterWargearWithQuantities(allWargear, List.empty, List.empty, loadouts, 1)
     result.map(w => (w.wargear.name, w.quantity)) should contain theSameElementsAs List(
       (Some("Guardian spear"), 1)
     )

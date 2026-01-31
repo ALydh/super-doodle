@@ -119,7 +119,8 @@ case class BattleUnitData(
 
 case class FilterWargearRequest(
   selections: List[wahapedia.domain.army.WargearSelection],
-  unitSize: Int
+  unitSize: Int,
+  sizeOptionLine: Int
 )
 
 case class ArmyBattleData(
