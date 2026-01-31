@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import type { ArmyUnit, Datasheet, UnitCost, Enhancement, DatasheetLeader, DatasheetOption, WargearSelection, LeaderDisplayMode, DatasheetDetail, WargearWithQuantity } from "../types";
+import type { ArmyUnit, Datasheet, WargearSelection, LeaderDisplayMode, DatasheetDetail, WargearWithQuantity } from "../types";
 import { fetchDatasheetDetail, filterWargear } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
+import { useReferenceData } from "../context/ReferenceDataContext";
 
 function parseUnitSize(description: string): number {
   const match = description.match(/(\d+)\s*model/i);
@@ -12,11 +13,6 @@ interface Props {
   unit: ArmyUnit;
   index: number;
   datasheet: Datasheet | undefined;
-  costs: UnitCost[];
-  enhancements: Enhancement[];
-  leaders: DatasheetLeader[];
-  datasheets: Datasheet[];
-  options: DatasheetOption[];
   isWarlord: boolean;
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
@@ -31,11 +27,12 @@ interface Props {
 }
 
 export function UnitRow({
-  unit, index, datasheet, costs, enhancements, leaders, datasheets, options,
+  unit, index, datasheet,
   isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
   displayMode = "table", allUnits = [], isGroupParent = false, isGroupChild = false, attachedLeaderInfo,
   readOnly = false,
 }: Props) {
+  const { costs, enhancements, leaders, datasheets, options } = useReferenceData();
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<DatasheetDetail | null>(null);
   const [filteredWargear, setFilteredWargear] = useState<WargearWithQuantity[]>([]);
