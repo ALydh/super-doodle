@@ -5,15 +5,38 @@ import type {
   User, AuthResponse, Invite, ArmyBattleData, WargearWithQuantity,
 } from "./types";
 
-const referenceCache = new Map<string, { promise: Promise<unknown> }>();
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+interface CacheEntry {
+  promise: Promise<unknown>;
+  timestamp: number;
+}
+
+const referenceCache = new Map<string, CacheEntry>();
 
 function cachedFetch<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
   const existing = referenceCache.get(key);
-  if (existing) return existing.promise as Promise<T>;
+  const now = Date.now();
+
+  if (existing && (now - existing.timestamp) < CACHE_TTL_MS) {
+    return existing.promise as Promise<T>;
+  }
 
   const promise = fetcher();
-  referenceCache.set(key, { promise });
+  referenceCache.set(key, { promise, timestamp: now });
   return promise;
+}
+
+export function invalidateCache(keyPattern?: string): void {
+  if (!keyPattern) {
+    referenceCache.clear();
+    return;
+  }
+  for (const key of referenceCache.keys()) {
+    if (key.includes(keyPattern)) {
+      referenceCache.delete(key);
+    }
+  }
 }
 
 let authToken: string | null = null;
