@@ -6,6 +6,7 @@ export function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ username?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -13,9 +14,16 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const usernameError = !username.trim() ? "Username is required" : undefined;
+    const passwordError = !password ? "Password is required" : undefined;
+    setFieldErrors({ username: usernameError, password: passwordError });
+
+    if (usernameError || passwordError) return;
+
     setLoading(true);
     try {
-      await login(username, password);
+      await login(username.trim(), password);
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -35,11 +43,13 @@ export function LoginPage() {
             <input
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => { setUsername(e.target.value); setFieldErrors(prev => ({ ...prev, username: undefined })); }}
               required
               autoComplete="username"
+              aria-invalid={!!fieldErrors.username}
             />
           </label>
+          {fieldErrors.username && <div className="field-error">{fieldErrors.username}</div>}
         </div>
         <div>
           <label>
@@ -47,11 +57,13 @@ export function LoginPage() {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: undefined })); }}
               required
               autoComplete="current-password"
+              aria-invalid={!!fieldErrors.password}
             />
           </label>
+          {fieldErrors.password && <div className="field-error">{fieldErrors.password}</div>}
         </div>
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
