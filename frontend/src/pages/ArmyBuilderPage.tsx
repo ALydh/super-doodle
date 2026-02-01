@@ -17,6 +17,7 @@ import { ValidationErrors } from "./ValidationErrors";
 import { getFactionTheme } from "../factionTheme";
 import { renderUnitsForMode } from "./renderUnitsForMode";
 import { ReferenceDataProvider } from "../context/ReferenceDataContext";
+import { sanitizeHtml } from "../sanitize";
 
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
@@ -277,7 +278,7 @@ export function ArmyBuilderPage() {
                   {detachmentAbilities.map((a) => (
                     <li key={a.id} className="detachment-ability-item">
                       <strong>{a.name}</strong>
-                      <p dangerouslySetInnerHTML={{ __html: a.description }} />
+                      <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />
                     </li>
                   ))}
                 </ul>
@@ -299,7 +300,7 @@ export function ArmyBuilderPage() {
                       <strong>{s.name}</strong>
                       {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
                       {s.phase && <span> - {s.phase}</span>}
-                      <p dangerouslySetInnerHTML={{ __html: s.description }} />
+                      <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(s.description) }} />
                     </li>
                   ))}
                 </ul>
