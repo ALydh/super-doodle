@@ -208,8 +208,16 @@ export function UnitRow({
     <tr className={rowClassName}>
       <td colSpan={8}>
         <div className="unit-card-builder">
-          <div className="unit-card-header" onClick={() => setExpanded(!expanded)} style={{ cursor: 'pointer' }}>
-            <span className="unit-expand-btn">
+          <div
+            className="unit-card-header"
+            role="button"
+            tabIndex={0}
+            onClick={() => setExpanded(!expanded)}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(!expanded); }}}
+            aria-expanded={expanded}
+            aria-label={`${datasheet?.name ?? unit.datasheetId}, ${expanded ? "collapse" : "expand"} details`}
+          >
+            <span className="unit-expand-btn" aria-hidden="true">
               {expanded ? "▼" : "▶"}
             </span>
 
@@ -222,9 +230,11 @@ export function UnitRow({
 
             {isCharacter && !readOnly && (
               <button
+                type="button"
                 className={`warlord-btn ${isWarlord ? "active" : ""}`}
                 onClick={(e) => { e.stopPropagation(); onSetWarlord(index); }}
                 title={isWarlord ? "Warlord" : "Set as Warlord"}
+                aria-label={isWarlord ? "Warlord" : "Set as Warlord"}
               >
                 ♛
               </button>
@@ -241,8 +251,8 @@ export function UnitRow({
 
             {!readOnly && (
               <div className="unit-card-actions" onClick={(e) => e.stopPropagation()}>
-                <button className="btn-copy" onClick={() => onCopy(index)} title="Copy">⧉</button>
-                <button className="btn-remove" onClick={() => onRemove(index)} title="Remove">×</button>
+                <button type="button" className="btn-copy" onClick={() => onCopy(index)} title="Copy unit" aria-label="Copy unit">⧉</button>
+                <button type="button" className="btn-remove" onClick={() => onRemove(index)} title="Remove unit" aria-label="Remove unit">×</button>
               </div>
             )}
           </div>
