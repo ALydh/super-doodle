@@ -25,6 +25,6 @@ object CsvHeaders {
 
   def fromLine(line: String): CsvHeaders = {
     val stripped = if (line.startsWith(UTF8_BOM)) line.substring(1) else line
-    CsvHeaders(CsvParsing.splitCsvLine(stripped))
+    CsvHeaders(CsvParsing.splitCsvLine(stripped).toArray)
   }
 }

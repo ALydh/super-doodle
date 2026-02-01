@@ -65,8 +65,8 @@ object ParsedWargearOptionParser extends StreamingCsvParser[ParsedWargearOption]
       action <- CsvParsing.parseWith("action", cols(4), WargearAction.parse)
       weaponName <- CsvParsing.parseString("weapon_name", cols(5))
       modelTarget = CsvParsing.parseOptString(cols(6))
-      countPerNModels = parseIntOrZero(cols.lift(7).getOrElse(""))
-      maxCount = parseIntOrZero(cols.lift(8).getOrElse(""))
+      countPerNModels = parseIntOrZero(cols(7))
+      maxCount = parseIntOrZero(cols(8))
     } yield ParsedWargearOption(datasheetId, optionLine, choiceIndex, groupId, action, weaponName, modelTarget, countPerNModels, maxCount)
   }
 }

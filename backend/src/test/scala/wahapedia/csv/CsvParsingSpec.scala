@@ -9,27 +9,36 @@ class CsvParsingSpec extends AnyFlatSpec with Matchers with EitherValues {
 
   "splitCsvLine" should "split pipe-delimited values" in {
     val result = CsvParsing.splitCsvLine("a|b|c")
-    result shouldBe Array("a", "b", "c")
+    result.toArray shouldBe Array("a", "b", "c")
   }
 
   it should "preserve empty fields" in {
     val result = CsvParsing.splitCsvLine("a||c")
-    result shouldBe Array("a", "", "c")
+    result.toArray shouldBe Array("a", "", "c")
   }
 
   it should "handle leading empty fields" in {
     val result = CsvParsing.splitCsvLine("|b|c")
-    result shouldBe Array("", "b", "c")
+    result.toArray shouldBe Array("", "b", "c")
   }
 
   it should "handle trailing empty fields" in {
     val result = CsvParsing.splitCsvLine("a|b|")
-    result shouldBe Array("a", "b", "")
+    result.toArray shouldBe Array("a", "b", "")
   }
 
   it should "handle all empty fields" in {
     val result = CsvParsing.splitCsvLine("||")
-    result shouldBe Array("", "", "")
+    result.toArray shouldBe Array("", "", "")
+  }
+
+  it should "return empty string for out-of-bounds access" in {
+    val result = CsvParsing.splitCsvLine("a|b")
+    result(0) shouldBe "a"
+    result(1) shouldBe "b"
+    result(2) shouldBe ""
+    result(100) shouldBe ""
+    result(-1) shouldBe ""
   }
 
   "parseInt" should "parse valid integers" in {
