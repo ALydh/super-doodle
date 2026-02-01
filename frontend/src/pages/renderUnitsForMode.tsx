@@ -5,6 +5,7 @@ import type {
 } from "../types";
 import { UnitRow } from "./UnitRow";
 import { StackedUnitRow } from "./StackedUnitRow";
+import { sortByRoleOrder } from "../constants";
 
 interface StackedUnit {
   unit: ArmyUnit;
@@ -236,7 +237,6 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
     }
   };
 
-  const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
   const getRole = (datasheetId: string): string => {
     const ds = ctx.datasheets.find(d => d.id === datasheetId);
     return ds?.role ?? "Other";
@@ -257,14 +257,7 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
     unitsByRole[role].singles.push(single);
   }
 
-  const sortedRoles = Object.keys(unitsByRole).sort((a, b) => {
-    const aIndex = roleOrder.indexOf(a);
-    const bIndex = roleOrder.indexOf(b);
-    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
+  const sortedRoles = sortByRoleOrder(Object.keys(unitsByRole));
 
   for (const role of sortedRoles) {
     const { stacks: roleStacks, singles: roleSingles } = unitsByRole[role];

@@ -14,6 +14,7 @@ import { TabNavigation } from "../components/TabNavigation";
 import { ExpandableUnitCard } from "../components/ExpandableUnitCard";
 import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
+import { sortByRoleOrder } from "../constants";
 
 type TabId = "units" | "stratagems" | "detachments";
 
@@ -82,15 +83,7 @@ export function FactionDetailPage() {
     {},
   );
 
-  const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
-  const sortedRoles = Object.keys(datasheetsByRole).sort((a, b) => {
-    const aIndex = roleOrder.indexOf(a);
-    const bIndex = roleOrder.indexOf(b);
-    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
+  const sortedRoles = sortByRoleOrder(Object.keys(datasheetsByRole));
 
   const phases = [...new Set(stratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
 

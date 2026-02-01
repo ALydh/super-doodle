@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Datasheet, UnitCost } from "../types";
+import { sortByRoleOrder } from "../constants";
 
 interface Props {
   datasheets: Datasheet[];
@@ -21,15 +22,7 @@ export function UnitPicker({ datasheets, costs, onAdd }: Props) {
     return acc;
   }, {});
 
-  const roleOrder = ["Characters", "Battleline", "Dedicated Transport", "Other"];
-  const sortedRoles = Object.keys(filteredByRole).sort((a, b) => {
-    const aIndex = roleOrder.indexOf(a);
-    const bIndex = roleOrder.indexOf(b);
-    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
+  const sortedRoles = sortByRoleOrder(Object.keys(filteredByRole));
 
   return (
     <div className="unit-picker">
