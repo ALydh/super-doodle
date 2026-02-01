@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, ReactNode } from "react";
 import type { User } from "../types";
 import { setAuthToken, getCurrentUser, login as apiLogin, logout as apiLogout, register as apiRegister } from "../api";
+import { clearWeaponAbilitiesCache } from "../pages/WeaponAbilityText";
 
 export interface AuthContextType {
   user: User | null;
@@ -47,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(TOKEN_KEY);
     setAuthToken(null);
     setUser(null);
+    clearWeaponAbilitiesCache();
   };
 
   return (
