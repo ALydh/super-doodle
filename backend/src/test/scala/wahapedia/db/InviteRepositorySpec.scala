@@ -30,7 +30,7 @@ class InviteRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter
     Files.deleteIfExists(dbPath)
 
   private def createTestUser(username: String): UserId =
-    UserRepository.create(username, "hash")(xa).unsafeRunSync().id
+    UserRepository.create(username, "hash")(xa).unsafeRunSync().get.id
 
   "create" should "persist an invite with a 16-char code" in {
     val userId = createTestUser("admin")

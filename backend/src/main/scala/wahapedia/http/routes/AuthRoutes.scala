@@ -24,44 +24,48 @@ object AuthRoutes {
   def routes(xa: Transactor[IO]): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case req @ POST -> Root / "api" / "auth" / "register" =>
       req.as[RegisterRequest].flatMap { regReq =>
+        def createUserAndSession(hash: String): IO[Response[IO]] =
+          UserRepository.create(regReq.username, hash)(xa).flatMap {
+            case None =>
+              Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
+            case Some(user) =>
+              SessionRepository.create(user.id)(xa).flatMap { session =>
+                Created(AuthResponse(
+                  SessionToken.value(session.token),
+                  UserResponse(UserId.value(user.id), user.username)
+                ))
+              }
+          }
+
         for {
           userCount <- UserRepository.count(xa)
-          existingUser <- UserRepository.findByUsername(regReq.username)(xa)
-          result <- existingUser match {
-            case Some(_) =>
-              Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
-            case None =>
-              val needsInvite = userCount > 0
-              if (needsInvite && regReq.inviteCode.isEmpty) {
-                Forbidden(Json.obj("error" -> Json.fromString("Invite code required")))
-              } else if (needsInvite) {
-                val code = InviteCode(regReq.inviteCode.get)
-                InviteRepository.findUnusedByCode(code)(xa).flatMap {
-                  case None =>
-                    Forbidden(Json.obj("error" -> Json.fromString("Invalid or used invite code")))
-                  case Some(_) =>
-                    for {
-                      hash <- PasswordHasher.hash(regReq.password)
-                      user <- UserRepository.create(regReq.username, hash)(xa)
-                      _ <- InviteRepository.markUsed(code, user.id)(xa)
-                      session <- SessionRepository.create(user.id)(xa)
-                      resp <- Created(AuthResponse(
-                        SessionToken.value(session.token),
-                        UserResponse(UserId.value(user.id), user.username)
-                      ))
-                    } yield resp
-                }
-              } else {
-                for {
-                  hash <- PasswordHasher.hash(regReq.password)
-                  user <- UserRepository.create(regReq.username, hash)(xa)
-                  session <- SessionRepository.create(user.id)(xa)
-                  resp <- Created(AuthResponse(
-                    SessionToken.value(session.token),
-                    UserResponse(UserId.value(user.id), user.username)
-                  ))
-                } yield resp
+          hash <- PasswordHasher.hash(regReq.password)
+          result <- {
+            val needsInvite = userCount > 0
+            if (needsInvite && regReq.inviteCode.isEmpty) {
+              Forbidden(Json.obj("error" -> Json.fromString("Invite code required")))
+            } else if (needsInvite) {
+              val code = InviteCode(regReq.inviteCode.get)
+              InviteRepository.findUnusedByCode(code)(xa).flatMap {
+                case None =>
+                  Forbidden(Json.obj("error" -> Json.fromString("Invalid or used invite code")))
+                case Some(_) =>
+                  UserRepository.create(regReq.username, hash)(xa).flatMap {
+                    case None =>
+                      Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
+                    case Some(user) =>
+                      InviteRepository.markUsed(code, user.id)(xa) *>
+                        SessionRepository.create(user.id)(xa).flatMap { session =>
+                          Created(AuthResponse(
+                            SessionToken.value(session.token),
+                            UserResponse(UserId.value(user.id), user.username)
+                          ))
+                        }
+                  }
               }
+            } else {
+              createUserAndSession(hash)
+            }
           }
         } yield result
       }
