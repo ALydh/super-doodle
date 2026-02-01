@@ -140,6 +140,9 @@ export function ArmyViewPage() {
 
   const handleDelete = async () => {
     if (!armyId) return;
+    if (!window.confirm("Are you sure you want to delete this army? This cannot be undone.")) {
+      return;
+    }
     await deleteArmy(armyId);
     navigate("/");
   };
