@@ -13,7 +13,7 @@ import cats.data.NonEmptyList
 import wahapedia.domain.types.*
 import wahapedia.domain.army.*
 import wahapedia.domain.auth.AuthenticatedUser
-import wahapedia.http.AuthMiddleware
+import wahapedia.http.{AuthMiddleware, InputValidation}
 import wahapedia.http.CirceCodecs.given
 import wahapedia.http.dto.*
 import wahapedia.domain.models.EnhancementId
@@ -59,8 +59,13 @@ object ArmyRoutes {
         case None => unauthorized("Authentication required")
         case Some(user) =>
           req.as[CreateArmyRequest].flatMap { createReq =>
-            val armyId = UUID.randomUUID().toString
-            ArmyRepository.create(armyId, createReq.name, createReq.army, Some(user.id))(xa).flatMap(Created(_))
+            InputValidation.validateArmyName(createReq.name) match {
+              case Left(err) =>
+                BadRequest(Json.obj("error" -> Json.fromString(err.message)))
+              case Right(validName) =>
+                val armyId = UUID.randomUUID().toString
+                ArmyRepository.create(armyId, validName, createReq.army, Some(user.id))(xa).flatMap(Created(_))
+            }
           }
       }
 
@@ -73,9 +78,14 @@ object ArmyRoutes {
               Forbidden(Json.obj("error" -> Json.fromString("Not authorized to edit this army")))
             } else {
               req.as[CreateArmyRequest].flatMap { updateReq =>
-                ArmyRepository.update(armyId, updateReq.name, updateReq.army)(xa).flatMap {
-                  case Some(updated) => Ok(updated)
-                  case None => InternalServerError(Json.obj("error" -> Json.fromString("Failed to update army")))
+                InputValidation.validateArmyName(updateReq.name) match {
+                  case Left(err) =>
+                    BadRequest(Json.obj("error" -> Json.fromString(err.message)))
+                  case Right(validName) =>
+                    ArmyRepository.update(armyId, validName, updateReq.army)(xa).flatMap {
+                      case Some(updated) => Ok(updated)
+                      case None => InternalServerError(Json.obj("error" -> Json.fromString("Failed to update army")))
+                    }
                 }
               }
             }
