@@ -3,8 +3,17 @@ package wahapedia.db
 import doobie.Meta
 import wahapedia.domain.types.*
 import wahapedia.domain.models.{StratagemId, EnhancementId, DetachmentAbilityId, WargearAction}
+import java.time.Instant
+import java.time.format.DateTimeParseException
+import scala.util.Try
 
 object DoobieMeta {
+
+  given Meta[Instant] = Meta[String].timap(s =>
+    Try(Instant.parse(s)).getOrElse(
+      throw new DateTimeParseException(s"Invalid timestamp in database: $s", s, 0)
+    )
+  )(_.toString)
 
   given Meta[UserId] = Meta[String].imap(UserId(_))(UserId.value)
   given Meta[SessionToken] = Meta[String].imap(SessionToken(_))(SessionToken.value)

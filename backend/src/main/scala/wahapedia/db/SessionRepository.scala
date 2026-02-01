@@ -23,11 +23,11 @@ object SessionRepository {
 
   def findByToken(token: SessionToken)(xa: Transactor[IO]): IO[Option[Session]] =
     sql"SELECT token, user_id, created_at, expires_at FROM sessions WHERE token = $token"
-      .query[(SessionToken, UserId, String, String)]
+      .query[(SessionToken, UserId, Instant, Instant)]
       .option
       .transact(xa)
       .map(_.map { case (t, uid, createdAt, expiresAt) =>
-        Session(t, uid, Instant.parse(createdAt), Instant.parse(expiresAt))
+        Session(t, uid, createdAt, expiresAt)
       })
 
   def delete(token: SessionToken)(xa: Transactor[IO]): IO[Unit] =

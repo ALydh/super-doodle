@@ -25,20 +25,20 @@ object UserRepository {
 
   def findByUsername(username: String)(xa: Transactor[IO]): IO[Option[User]] =
     sql"SELECT id, username, password_hash, created_at FROM users WHERE username = $username"
-      .query[(UserId, String, String, String)]
+      .query[(UserId, String, String, Instant)]
       .option
       .transact(xa)
       .map(_.map { case (id, uname, hash, createdAt) =>
-        User(id, uname, hash, Instant.parse(createdAt))
+        User(id, uname, hash, createdAt)
       })
 
   def findById(id: UserId)(xa: Transactor[IO]): IO[Option[User]] =
     sql"SELECT id, username, password_hash, created_at FROM users WHERE id = $id"
-      .query[(UserId, String, String, String)]
+      .query[(UserId, String, String, Instant)]
       .option
       .transact(xa)
       .map(_.map { case (uid, uname, hash, createdAt) =>
-        User(uid, uname, hash, Instant.parse(createdAt))
+        User(uid, uname, hash, createdAt)
       })
 
   def count(xa: Transactor[IO]): IO[Int] =

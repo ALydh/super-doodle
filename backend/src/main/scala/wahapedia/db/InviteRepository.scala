@@ -21,11 +21,11 @@ object InviteRepository {
 
   def findUnusedByCode(code: InviteCode)(xa: Transactor[IO]): IO[Option[Invite]] =
     sql"SELECT code, created_by, created_at, used_by, used_at FROM invites WHERE code = $code AND used_by IS NULL"
-      .query[(InviteCode, Option[UserId], String, Option[UserId], Option[String])]
+      .query[(InviteCode, Option[UserId], Instant, Option[UserId], Option[Instant])]
       .option
       .transact(xa)
       .map(_.map { case (c, createdBy, createdAt, usedBy, usedAt) =>
-        Invite(c, createdBy, Instant.parse(createdAt), usedBy, usedAt.map(Instant.parse))
+        Invite(c, createdBy, createdAt, usedBy, usedAt)
       })
 
   def markUsed(code: InviteCode, userId: UserId)(xa: Transactor[IO]): IO[Unit] = {
@@ -37,10 +37,10 @@ object InviteRepository {
 
   def listAll(xa: Transactor[IO]): IO[List[Invite]] =
     sql"SELECT code, created_by, created_at, used_by, used_at FROM invites ORDER BY created_at DESC"
-      .query[(InviteCode, Option[UserId], String, Option[UserId], Option[String])]
+      .query[(InviteCode, Option[UserId], Instant, Option[UserId], Option[Instant])]
       .to[List]
       .transact(xa)
       .map(_.map { case (c, createdBy, createdAt, usedBy, usedAt) =>
-        Invite(c, createdBy, Instant.parse(createdAt), usedBy, usedAt.map(Instant.parse))
+        Invite(c, createdBy, createdAt, usedBy, usedAt)
       })
 }
