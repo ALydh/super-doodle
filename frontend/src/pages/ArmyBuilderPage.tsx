@@ -16,6 +16,7 @@ import { UnitPicker } from "./UnitPicker";
 import { ValidationErrors } from "./ValidationErrors";
 import { getFactionTheme } from "../factionTheme";
 import { renderUnitsForMode } from "./renderUnitsForMode";
+import { ReferenceDataProvider } from "../context/ReferenceDataContext";
 
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
@@ -315,38 +316,42 @@ export function ArmyBuilderPage() {
         <div className="builder-col builder-col-units">
           <div className="col-header">Selected Units</div>
           <ValidationErrors errors={validationErrors} datasheets={loadedDatasheets} />
-          <div className="army-units-wrapper">
-            <table className="army-units-table">
-              <thead>
-                <tr>
-                  <th>Unit</th>
-                  <th>Size</th>
-                  <th>Enhancement</th>
-                  <th>Leader</th>
-                  <th>Wargear</th>
-                  <th>Cost</th>
-                  <th>Warlord</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {renderUnitsForMode(
-                  "grouped",
-                  units,
-                  loadedDatasheets,
-                  allCosts,
-                  enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId),
-                  leaders,
-                  allOptions,
-                  warlordId,
-                  handleUpdateUnit,
-                  handleRemoveUnit,
-                  handleCopyUnit,
-                  handleSetWarlord
-                )}
-              </tbody>
-            </table>
-          </div>
+          <ReferenceDataProvider
+            costs={allCosts}
+            enhancements={enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId)}
+            leaders={leaders}
+            datasheets={loadedDatasheets}
+            options={allOptions}
+          >
+            <div className="army-units-wrapper">
+              <table className="army-units-table">
+                <thead>
+                  <tr>
+                    <th>Unit</th>
+                    <th>Size</th>
+                    <th>Enhancement</th>
+                    <th>Leader</th>
+                    <th>Wargear</th>
+                    <th>Cost</th>
+                    <th>Warlord</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {renderUnitsForMode(
+                    "grouped",
+                    units,
+                    loadedDatasheets,
+                    warlordId,
+                    handleUpdateUnit,
+                    handleRemoveUnit,
+                    handleCopyUnit,
+                    handleSetWarlord
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </ReferenceDataProvider>
         </div>
 
         <div className={`builder-col builder-col-picker ${pickerExpanded ? "" : "collapsed"}`}>

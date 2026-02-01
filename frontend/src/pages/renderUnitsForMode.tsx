@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import type {
-  ArmyUnit, Datasheet, UnitCost, Enhancement,
-  DatasheetLeader, DatasheetOption, LeaderDisplayMode,
+  ArmyUnit, Datasheet,
+  LeaderDisplayMode,
 } from "../types";
 import { UnitRow } from "./UnitRow";
 import { StackedUnitRow } from "./StackedUnitRow";
@@ -83,10 +83,6 @@ function groupIdenticalUnits(units: ArmyUnit[], warlordId: string): { stacks: St
 interface RenderContext {
   units: ArmyUnit[];
   datasheets: Datasheet[];
-  costs: UnitCost[];
-  enhancements: Enhancement[];
-  leaders: DatasheetLeader[];
-  options: DatasheetOption[];
   warlordId: string;
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
@@ -131,7 +127,6 @@ function renderTableMode(ctx: RenderContext): ReactElement[] {
         key={`stack-${stack[0].index}`}
         stackedUnits={stack}
         datasheet={ctx.datasheets.find((ds) => ds.id === firstUnit.datasheetId)}
-        costs={ctx.costs}
         onUpdate={ctx.onUpdate}
         onRemove={ctx.onRemove}
         onCopy={ctx.onCopy}
@@ -147,11 +142,6 @@ function renderTableMode(ctx: RenderContext): ReactElement[] {
         unit={unit}
         index={index}
         datasheet={ctx.datasheets.find((ds) => ds.id === unit.datasheetId)}
-        costs={ctx.costs}
-        enhancements={ctx.enhancements}
-        leaders={ctx.leaders}
-        datasheets={ctx.datasheets}
-        options={ctx.options}
         isWarlord={ctx.warlordId === unit.datasheetId}
         onUpdate={ctx.onUpdate}
         onRemove={ctx.onRemove}
@@ -192,11 +182,6 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
           unit={unit}
           index={index}
           datasheet={datasheet}
-          costs={ctx.costs}
-          enhancements={ctx.enhancements}
-          leaders={ctx.leaders}
-          datasheets={ctx.datasheets}
-          options={ctx.options}
           isWarlord={isWarlord}
           onUpdate={ctx.onUpdate}
           onRemove={ctx.onRemove}
@@ -217,11 +202,6 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
             unit={bodyguardUnit}
             index={bodyguardIndex}
             datasheet={bodyguardDatasheet}
-            costs={ctx.costs}
-            enhancements={ctx.enhancements}
-            leaders={ctx.leaders}
-            datasheets={ctx.datasheets}
-            options={ctx.options}
             isWarlord={false}
             onUpdate={ctx.onUpdate}
             onRemove={ctx.onRemove}
@@ -242,11 +222,6 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
           unit={unit}
           index={index}
           datasheet={datasheet}
-          costs={ctx.costs}
-          enhancements={ctx.enhancements}
-          leaders={ctx.leaders}
-          datasheets={ctx.datasheets}
-          options={ctx.options}
           isWarlord={isWarlord}
           onUpdate={ctx.onUpdate}
           onRemove={ctx.onRemove}
@@ -314,7 +289,6 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
           key={`stack-${stack[0].index}`}
           stackedUnits={stack}
           datasheet={ctx.datasheets.find((ds) => ds.id === firstUnit.datasheetId)}
-          costs={ctx.costs}
           onUpdate={ctx.onUpdate}
           onRemove={ctx.onRemove}
           onCopy={ctx.onCopy}
@@ -352,11 +326,6 @@ function renderInlineMode(ctx: RenderContext): ReactElement[] {
         unit={unit}
         index={i}
         datasheet={datasheet}
-        costs={ctx.costs}
-        enhancements={ctx.enhancements}
-        leaders={ctx.leaders}
-        datasheets={ctx.datasheets}
-        options={ctx.options}
         isWarlord={ctx.warlordId === unit.datasheetId}
         onUpdate={ctx.onUpdate}
         onRemove={ctx.onRemove}
@@ -381,11 +350,6 @@ function renderInstanceMode(ctx: RenderContext): ReactElement[] {
       unit={unit}
       index={i}
       datasheet={ctx.datasheets.find((ds) => ds.id === unit.datasheetId)}
-      costs={ctx.costs}
-      enhancements={ctx.enhancements}
-      leaders={ctx.leaders}
-      datasheets={ctx.datasheets}
-      options={ctx.options}
       isWarlord={ctx.warlordId === unit.datasheetId}
       onUpdate={ctx.onUpdate}
       onRemove={ctx.onRemove}
@@ -402,10 +366,6 @@ export function renderUnitsForMode(
   mode: LeaderDisplayMode,
   units: ArmyUnit[],
   datasheets: Datasheet[],
-  costs: UnitCost[],
-  enhancements: Enhancement[],
-  leaders: DatasheetLeader[],
-  options: DatasheetOption[],
   warlordId: string,
   onUpdate: (index: number, unit: ArmyUnit) => void,
   onRemove: (index: number) => void,
@@ -414,7 +374,7 @@ export function renderUnitsForMode(
   readOnly = false
 ): ReactElement[] {
   const ctx: RenderContext = {
-    units, datasheets, costs, enhancements, leaders, options,
+    units, datasheets,
     warlordId, onUpdate, onRemove, onCopy, onSetWarlord, readOnly,
   };
 

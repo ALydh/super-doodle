@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import type { ArmyUnit, Datasheet, UnitCost, DatasheetDetail } from "../types";
+import type { ArmyUnit, Datasheet, DatasheetDetail } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
+import { useReferenceData } from "../context/ReferenceDataContext";
 
 interface StackedUnit {
   unit: ArmyUnit;
@@ -11,7 +12,6 @@ interface StackedUnit {
 interface Props {
   stackedUnits: StackedUnit[];
   datasheet: Datasheet | undefined;
-  costs: UnitCost[];
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
   onCopy: (index: number) => void;
@@ -21,12 +21,12 @@ interface Props {
 export function StackedUnitRow({
   stackedUnits,
   datasheet,
-  costs,
   onUpdate,
   onRemove,
   onCopy,
   readOnly = false,
 }: Props) {
+  const { costs } = useReferenceData();
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<DatasheetDetail | null>(null);
   const fetchingRef = useRef(false);
