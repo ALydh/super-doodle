@@ -2,6 +2,7 @@ package wahapedia.domain.army
 
 import wahapedia.domain.types.{DatasheetId, FactionId, DetachmentId, Role}
 import wahapedia.domain.models.*
+import wahapedia.domain.Constants.{Validation, Keywords, Defaults}
 
 case class ReferenceData(
   datasheets: List[Datasheet],
@@ -52,7 +53,7 @@ object ArmyValidator {
 
       if (hasFaction) Nil
       else {
-        val name = datasheetIndex.get(unit.datasheetId).flatMap(_.headOption).map(_.name).getOrElse("Unknown")
+        val name = datasheetIndex.get(unit.datasheetId).flatMap(_.headOption).map(_.name).getOrElse(Defaults.UnknownDatasheet)
         List(FactionMismatch(unit.datasheetId, name, army.factionId))
       }
     }
@@ -128,16 +129,16 @@ object ArmyValidator {
       val role = datasheetIndex.get(datasheetId).flatMap(_.headOption).flatMap(_.role)
       val isEpicHero = keywordIndex.getOrElse(datasheetId, Nil)
         .flatMap(_.keyword)
-        .exists(_.equalsIgnoreCase("Epic Hero"))
+        .exists(_.equalsIgnoreCase(Keywords.EpicHero))
 
       if (isEpicHero) Nil // handled by validateEpicHeroes
       else {
         val maxAllowed = role match {
-          case Some(Role.Battleline) | Some(Role.DedicatedTransports) => 6
-          case _ => 3
+          case Some(Role.Battleline) | Some(Role.DedicatedTransports) => Validation.MaxBattlelineDuplicates
+          case _ => Validation.MaxDefaultDuplicates
         }
         if (count > maxAllowed) {
-          val name = datasheetIndex.get(datasheetId).flatMap(_.headOption).map(_.name).getOrElse("Unknown")
+          val name = datasheetIndex.get(datasheetId).flatMap(_.headOption).map(_.name).getOrElse(Defaults.UnknownDatasheet)
           List(DuplicateExceeded(datasheetId, name, count, maxAllowed))
         } else Nil
       }
@@ -154,10 +155,10 @@ object ArmyValidator {
     counts.flatMap { case (datasheetId, count) =>
       val isEpicHero = keywordIndex.getOrElse(datasheetId, Nil)
         .flatMap(_.keyword)
-        .exists(_.equalsIgnoreCase("Epic Hero"))
+        .exists(_.equalsIgnoreCase(Keywords.EpicHero))
 
       if (isEpicHero && count > 1) {
-        val name = datasheetIndex.get(datasheetId).flatMap(_.headOption).map(_.name).getOrElse("Unknown")
+        val name = datasheetIndex.get(datasheetId).flatMap(_.headOption).map(_.name).getOrElse(Defaults.UnknownDatasheet)
         List(DuplicateEpicHero(datasheetId, name))
       } else Nil
     }.toList
@@ -180,7 +181,7 @@ object ArmyValidator {
 
   private def validateEnhancementCount(army: Army): List[ValidationError] = {
     val enhancementCount = army.units.flatMap(_.enhancementId).size
-    if (enhancementCount > 3) List(TooManyEnhancements(enhancementCount))
+    if (enhancementCount > Validation.MaxEnhancements) List(TooManyEnhancements(enhancementCount))
     else Nil
   }
 
