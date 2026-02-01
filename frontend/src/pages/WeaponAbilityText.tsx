@@ -5,6 +5,11 @@ import { fetchWeaponAbilities } from "../api";
 let cachedAbilities: WeaponAbility[] | null = null;
 let fetchPromise: Promise<WeaponAbility[]> | null = null;
 
+export function clearWeaponAbilitiesCache(): void {
+  cachedAbilities = null;
+  fetchPromise = null;
+}
+
 function useWeaponAbilities(): WeaponAbility[] {
   const [abilities, setAbilities] = useState<WeaponAbility[]>(cachedAbilities ?? []);
 
