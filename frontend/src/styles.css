@@ -1307,6 +1307,12 @@ button:disabled {
   margin: 16px 0;
 }
 
+.field-error {
+  color: var(--state-danger);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
 /* =========================================================
    SCROLLBAR STYLING
    ========================================================= */
