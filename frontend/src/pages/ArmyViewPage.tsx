@@ -97,8 +97,11 @@ export function ArmyViewPage() {
 
   useEffect(() => {
     if (!armyId) return;
+    let cancelled = false;
+
     fetchArmyForBattle(armyId)
       .then((data) => {
+        if (cancelled) return;
         setBattleData(data);
         return Promise.all([
           fetchStratagemsByFaction(data.factionId),
@@ -107,13 +110,19 @@ export function ArmyViewPage() {
           data.detachmentId ? fetchDetachmentAbilities(data.detachmentId) : Promise.resolve([]),
         ]);
       })
-      .then(([strat, enh, det, abilities]) => {
+      .then((results) => {
+        if (cancelled || !results) return;
+        const [strat, enh, det, abilities] = results;
         setStratagems(strat);
         setEnhancements(enh);
         setDetachments(det);
         setDetachmentAbilities(abilities);
       })
-      .catch((e) => setError(e.message));
+      .catch((e) => {
+        if (!cancelled) setError(e.message);
+      });
+
+    return () => { cancelled = true; };
   }, [armyId]);
 
   const groupedUnits = useMemo(() => {
