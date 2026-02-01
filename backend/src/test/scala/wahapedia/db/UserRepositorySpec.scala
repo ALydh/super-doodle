@@ -30,7 +30,9 @@ class UserRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
     Files.deleteIfExists(dbPath)
 
   "create" should "persist a user and return it" in {
-    val user = UserRepository.create("testuser", "hashedpassword")(xa).unsafeRunSync()
+    val userOpt = UserRepository.create("testuser", "hashedpassword")(xa).unsafeRunSync()
+    userOpt shouldBe defined
+    val user = userOpt.get
     user.username shouldBe "testuser"
     user.passwordHash shouldBe "hashedpassword"
     UserId.value(user.id) should not be empty
@@ -49,7 +51,7 @@ class UserRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
   }
 
   "findById" should "return a previously created user" in {
-    val created = UserRepository.create("bob", "hash456")(xa).unsafeRunSync()
+    val created = UserRepository.create("bob", "hash456")(xa).unsafeRunSync().get
     val found = UserRepository.findById(created.id)(xa).unsafeRunSync()
     found shouldBe defined
     found.get.username shouldBe "bob"
@@ -62,16 +64,14 @@ class UserRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
 
   "count" should "return the number of users" in {
     UserRepository.count(xa).unsafeRunSync() shouldBe 0
-    UserRepository.create("user1", "hash")(xa).unsafeRunSync()
+    UserRepository.create("user1", "hash")(xa).unsafeRunSync() shouldBe defined
     UserRepository.count(xa).unsafeRunSync() shouldBe 1
-    UserRepository.create("user2", "hash")(xa).unsafeRunSync()
+    UserRepository.create("user2", "hash")(xa).unsafeRunSync() shouldBe defined
     UserRepository.count(xa).unsafeRunSync() shouldBe 2
   }
 
   "username" should "be unique" in {
-    UserRepository.create("duplicate", "hash1")(xa).unsafeRunSync()
-    assertThrows[Exception] {
-      UserRepository.create("duplicate", "hash2")(xa).unsafeRunSync()
-    }
+    UserRepository.create("duplicate", "hash1")(xa).unsafeRunSync() shouldBe defined
+    UserRepository.create("duplicate", "hash2")(xa).unsafeRunSync() shouldBe None
   }
 }

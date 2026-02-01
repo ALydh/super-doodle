@@ -31,9 +31,8 @@ class SessionRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfte
   override def afterEach(): Unit =
     Files.deleteIfExists(dbPath)
 
-  private def createTestUser(): UserId = {
-    UserRepository.create("testuser", "hash")(xa).unsafeRunSync().id
-  }
+  private def createTestUser(): UserId =
+    UserRepository.create("testuser", "hash")(xa).unsafeRunSync().get.id
 
   "create" should "persist a session with 7 day expiry" in {
     val userId = createTestUser()

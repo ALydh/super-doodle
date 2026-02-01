@@ -4,19 +4,23 @@ import doobie.*
 import doobie.implicits.*
 import cats.effect.IO
 import java.time.Instant
+import java.sql.SQLException
 import wahapedia.domain.types.UserId
 import wahapedia.domain.auth.User
 import DoobieMeta.given
 
 object UserRepository {
 
-  def create(username: String, passwordHash: String)(xa: Transactor[IO]): IO[User] = {
+  def create(username: String, passwordHash: String)(xa: Transactor[IO]): IO[Option[User]] = {
     val id = UserId.generate()
     val now = Instant.now()
     sql"""INSERT INTO users (id, username, password_hash, created_at)
           VALUES ($id, $username, $passwordHash, ${now.toString})""".update.run
       .transact(xa)
-      .as(User(id, username, passwordHash, now))
+      .as(Some(User(id, username, passwordHash, now)))
+      .recover {
+        case _: SQLException => None
+      }
   }
 
   def findByUsername(username: String)(xa: Transactor[IO]): IO[Option[User]] =
