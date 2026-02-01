@@ -2,15 +2,45 @@ package wahapedia.db
 
 import doobie.*
 import doobie.implicits.*
-import cats.effect.IO
+import cats.effect.{IO, Ref}
 import cats.implicits.*
 import cats.data.NonEmptyList
 import wahapedia.domain.models.*
 import wahapedia.domain.types.*
 import wahapedia.domain.army.ReferenceData
 import DoobieMeta.given
+import java.time.Instant
+import scala.concurrent.duration.*
+
+private case class CachedReferenceData(data: ReferenceData, cachedAt: Instant)
 
 object ReferenceDataRepository {
+
+  private val cacheTtl: FiniteDuration = 5.minutes
+  private val cacheRef: IO[Ref[IO, Option[CachedReferenceData]]] = Ref.of[IO, Option[CachedReferenceData]](None)
+  private var cache: Ref[IO, Option[CachedReferenceData]] = _
+
+  private def getCache: IO[Ref[IO, Option[CachedReferenceData]]] =
+    if (cache != null) IO.pure(cache)
+    else cacheRef.flatTap(r => IO { cache = r })
+
+  def loadReferenceDataCached(xa: Transactor[IO]): IO[ReferenceData] =
+    for {
+      ref <- getCache
+      now <- IO(Instant.now())
+      cached <- ref.get
+      result <- cached match {
+        case Some(c) if now.toEpochMilli - c.cachedAt.toEpochMilli < cacheTtl.toMillis =>
+          IO.pure(c.data)
+        case _ =>
+          loadReferenceData(xa).flatTap { data =>
+            ref.set(Some(CachedReferenceData(data, now)))
+          }
+      }
+    } yield result
+
+  def invalidateCache: IO[Unit] =
+    getCache.flatMap(_.set(None))
 
   def allFactions(xa: Transactor[IO]): IO[List[Faction]] =
     sql"SELECT id, name, link, faction_group FROM factions"
