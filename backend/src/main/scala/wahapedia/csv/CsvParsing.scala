@@ -3,10 +3,19 @@ package wahapedia.csv
 import wahapedia.errors.{ParseError, InvalidFormat, MissingField}
 import scala.util.Try
 
+class SafeColumns(cols: Array[String]) {
+  def apply(index: Int): String =
+    if (index >= 0 && index < cols.length) cols(index) else ""
+
+  def length: Int = cols.length
+
+  def toArray: Array[String] = cols
+}
+
 object CsvParsing {
 
-  def splitCsvLine(line: String): Array[String] =
-    line.split("\\|", -1)
+  def splitCsvLine(line: String): SafeColumns =
+    new SafeColumns(line.split("\\|", -1))
 
   def parseInt(field: String, value: String): Either[ParseError, Int] =
     if (value.isEmpty) Left(MissingField(field))
