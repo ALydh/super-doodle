@@ -11,19 +11,23 @@ import org.http4s.implicits.*
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.CORS
 import wahapedia.http.routes.*
+import wahapedia.auth.{RateLimiter, RateLimitConfig}
 import doobie.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object HttpServer {
   private val corsConfig = CORS.policy.withAllowOriginAll
+  private val loginRateLimitConfig = RateLimitConfig(maxAttempts = 5, windowSeconds = 60)
 
   def createServer(port: Int, xa: Transactor[IO]): Resource[IO, org.http4s.server.Server] =
-    EmberServerBuilder.default[IO]
-      .withHost(ip"0.0.0.0")
-      .withPort(Port.fromInt(port).get)
-      .withHttpApp(corsConfig(withLogging(routes(xa))).orNotFound)
-      .build
+    Resource.eval(RateLimiter.create(loginRateLimitConfig)).flatMap { loginRateLimiter =>
+      EmberServerBuilder.default[IO]
+        .withHost(ip"0.0.0.0")
+        .withPort(Port.fromInt(port).get)
+        .withHttpApp(corsConfig(withLogging(routes(xa, loginRateLimiter))).orNotFound)
+        .build
+    }
 
   private val logTimeFmt = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
   private def now: String = LocalDateTime.now.format(logTimeFmt)
@@ -49,9 +53,9 @@ object HttpServer {
       Ok(Json.obj("status" -> Json.fromString("ok")))
   }
 
-  def routes(xa: Transactor[IO]): HttpRoutes[IO] =
+  def routes(xa: Transactor[IO], loginRateLimiter: RateLimiter): HttpRoutes[IO] =
     healthRoute <+>
-    AuthRoutes.routes(xa) <+>
+    AuthRoutes.routes(xa, loginRateLimiter) <+>
     FactionRoutes.routes(xa) <+>
     ArmyRoutes.routes(xa) <+>
     DatasheetRoutes.routes(xa)

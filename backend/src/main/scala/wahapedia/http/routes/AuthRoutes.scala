@@ -12,7 +12,7 @@ import wahapedia.db.{UserRepository, SessionRepository, InviteRepository}
 import wahapedia.domain.types.*
 import wahapedia.http.AuthMiddleware
 import wahapedia.http.dto.*
-import wahapedia.auth.PasswordHasher
+import wahapedia.auth.{PasswordHasher, RateLimiter}
 import doobie.*
 
 object AuthRoutes {
@@ -21,7 +21,10 @@ object AuthRoutes {
   private def unauthorized(message: String): IO[Response[IO]] =
     Unauthorized(bearerChallenge, Json.obj("error" -> Json.fromString(message)))
 
-  def routes(xa: Transactor[IO]): HttpRoutes[IO] = HttpRoutes.of[IO] {
+  private def tooManyRequests: IO[Response[IO]] =
+    TooManyRequests(Json.obj("error" -> Json.fromString("Too many login attempts. Please try again later.")))
+
+  def routes(xa: Transactor[IO], loginRateLimiter: RateLimiter): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case req @ POST -> Root / "api" / "auth" / "register" =>
       req.as[RegisterRequest].flatMap { regReq =>
         for {
@@ -68,19 +71,23 @@ object AuthRoutes {
 
     case req @ POST -> Root / "api" / "auth" / "login" =>
       req.as[LoginRequest].flatMap { loginReq =>
-        UserRepository.findByUsername(loginReq.username)(xa).flatMap {
-          case None =>
-            unauthorized("Invalid credentials")
-          case Some(user) =>
-            PasswordHasher.verify(loginReq.password, user.passwordHash).flatMap {
-              case false =>
+        loginRateLimiter.isAllowed(loginReq.username).flatMap {
+          case false => tooManyRequests
+          case true =>
+            UserRepository.findByUsername(loginReq.username)(xa).flatMap {
+              case None =>
                 unauthorized("Invalid credentials")
-              case true =>
-                SessionRepository.create(user.id)(xa).flatMap { session =>
-                  Ok(AuthResponse(
-                    SessionToken.value(session.token),
-                    UserResponse(UserId.value(user.id), user.username)
-                  ))
+              case Some(user) =>
+                PasswordHasher.verify(loginReq.password, user.passwordHash).flatMap {
+                  case false =>
+                    unauthorized("Invalid credentials")
+                  case true =>
+                    SessionRepository.create(user.id)(xa).flatMap { session =>
+                      Ok(AuthResponse(
+                        SessionToken.value(session.token),
+                        UserResponse(UserId.value(user.id), user.username)
+                      ))
+                    }
                 }
             }
         }
