@@ -149,7 +149,6 @@ export function ArmyBuilderPage() {
   };
 
   const handleUpdateUnit = (index: number, unit: ArmyUnit) => {
-    console.log('=== ArmyBuilder handleUpdateUnit called ===', index, 'with:', JSON.stringify(unit, null, 2));
     const next = [...units];
     next[index] = unit;
     setUnits(next);
@@ -177,7 +176,6 @@ export function ArmyBuilderPage() {
   const handleSave = async () => {
     const army = buildArmy();
     if (!army) return;
-    console.log('Saving army with units:', JSON.stringify(army.units, null, 2));
     if (isEdit && armyId) {
       await updateArmy(armyId, name, army);
       navigate(`/armies/${armyId}`);
