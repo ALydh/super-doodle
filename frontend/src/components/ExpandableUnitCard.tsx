@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import type { DatasheetDetail, Enhancement } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "../pages/WeaponAbilityText";
+import { sanitizeHtml } from "../sanitize";
 
 interface Props {
   datasheetId: string;
@@ -159,7 +160,7 @@ export function ExpandableUnitCard({
                     {detail.abilities.filter(a => a.name).map((a, i) => (
                       <li key={i}>
                         <strong>{a.name}</strong>
-                        {a.description && <span dangerouslySetInnerHTML={{ __html: `: ${a.description}` }} />}
+                        {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
                       </li>
                     ))}
                   </ul>

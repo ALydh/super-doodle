@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { DetachmentAbility } from "../types";
+import { sanitizeHtml } from "../sanitize";
 
 interface Props {
   abilities: DetachmentAbility[];
@@ -23,7 +24,7 @@ export function DetachmentAbilitiesSection({ abilities }: Props) {
           {abilities.map((a) => (
             <li key={a.id} className="detachment-ability-item">
               <strong>{a.name}</strong>
-              <p dangerouslySetInnerHTML={{ __html: a.description }} />
+              <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />
             </li>
           ))}
         </ul>

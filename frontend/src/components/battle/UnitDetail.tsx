@@ -1,5 +1,6 @@
 import type { BattleUnitData } from "../../types";
 import { WeaponAbilityText } from "../../pages/WeaponAbilityText";
+import { sanitizeHtml } from "../../sanitize";
 
 interface Props {
   data: BattleUnitData;
@@ -136,7 +137,7 @@ export function UnitDetail({ data, isWarlord }: Props) {
             {abilities.filter((a) => a.name).map((a, i) => (
               <li key={i}>
                 <strong>{a.name}</strong>
-                {a.description && <p dangerouslySetInnerHTML={{ __html: a.description }} />}
+                {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
               </li>
             ))}
           </ul>
@@ -152,7 +153,7 @@ export function UnitDetail({ data, isWarlord }: Props) {
               <span className="enhancement-cost">+{enhancement.cost}pts</span>
             </div>
             {enhancement.description && (
-              <p dangerouslySetInnerHTML={{ __html: enhancement.description }} />
+              <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(enhancement.description) }} />
             )}
           </div>
         </div>

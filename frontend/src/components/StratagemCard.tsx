@@ -1,4 +1,5 @@
 import type { Stratagem } from "../types";
+import { sanitizeHtml } from "../sanitize";
 
 interface Props {
   stratagem: Stratagem;
@@ -29,7 +30,7 @@ export function StratagemCard({ stratagem }: Props) {
       )}
       <div
         className="stratagem-description"
-        dangerouslySetInnerHTML={{ __html: stratagem.description }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(stratagem.description) }}
       />
     </div>
   );
