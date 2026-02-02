@@ -1,4 +1,5 @@
 import type { DetachmentAbility, Enhancement } from "../types";
+import { sanitizeHtml } from "../sanitize";
 
 interface Props {
   name: string;
@@ -22,7 +23,7 @@ export function DetachmentCard({ name, abilities, enhancements }: Props) {
               )}
               <div
                 className="detachment-ability-description"
-                dangerouslySetInnerHTML={{ __html: ability.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(ability.description) }}
               />
             </div>
           ))}
@@ -44,7 +45,7 @@ export function DetachmentCard({ name, abilities, enhancements }: Props) {
                 )}
                 <div
                   className="enhancement-description"
-                  dangerouslySetInnerHTML={{ __html: enhancement.description }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(enhancement.description) }}
                 />
               </div>
             ))}
