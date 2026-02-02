@@ -3,6 +3,7 @@ import type { ArmyUnit, Datasheet, WargearSelection, LeaderDisplayMode, Datashee
 import { fetchDatasheetDetail, filterWargear } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { useReferenceData } from "../context/ReferenceDataContext";
+import { sanitizeHtml } from "../sanitize";
 
 function parseUnitSize(description: string): number {
   const match = description.match(/(\d+)\s*model/i);
@@ -369,7 +370,7 @@ export function UnitRow({
                             checked={isSelected}
                             onChange={(e) => handleWargearSelectionChange(option.line, e.target.checked)}
                           />
-                          <span dangerouslySetInnerHTML={{ __html: option.description }} />
+                          <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(option.description) }} />
                         </label>
                         {isSelected && hasChoices && (
                           <select
@@ -398,7 +399,7 @@ export function UnitRow({
                       const selection = getWargearSelection(option.line);
                       return (
                         <div key={option.line} className="wargear-option readonly">
-                          <span dangerouslySetInnerHTML={{ __html: option.description }} />
+                          <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(option.description) }} />
                           {selection?.notes && <span className="wargear-choice">→ {selection.notes}</span>}
                         </div>
                       );
@@ -413,7 +414,7 @@ export function UnitRow({
                     {detail.abilities.filter(a => a.name).map((a, i) => (
                       <div key={i} className="ability-line">
                         <strong>{a.name}</strong>
-                        {a.description && <span dangerouslySetInnerHTML={{ __html: `: ${a.description}` }} />}
+                        {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
                       </div>
                     ))}
                   </div>

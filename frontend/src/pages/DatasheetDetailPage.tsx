@@ -4,6 +4,7 @@ import type { DatasheetDetail } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { WeaponAbilityText } from "./WeaponAbilityText";
+import { sanitizeHtml } from "../sanitize";
 
 export function DatasheetDetailPage() {
   const { datasheetId } = useParams<{ datasheetId: string }>();
@@ -138,7 +139,7 @@ export function DatasheetDetailPage() {
           <h2>Wargear Options</h2>
           <ul className="wargear-options-list">
             {options.map((o, i) => (
-              <li key={i} className="wargear-option-item" dangerouslySetInnerHTML={{ __html: o.description }} />
+              <li key={i} className="wargear-option-item" dangerouslySetInnerHTML={{ __html: sanitizeHtml(o.description) }} />
             ))}
           </ul>
         </>
@@ -175,7 +176,7 @@ export function DatasheetDetailPage() {
               .map((a, i) => (
                 <li key={i} className="ability-item">
                   <strong>{a.name}</strong>
-                  {a.description && <p dangerouslySetInnerHTML={{ __html: a.description }} />}
+                  {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
                 </li>
               ))}
           </ul>
@@ -206,7 +207,7 @@ export function DatasheetDetailPage() {
                 <strong>{s.name}</strong>
                 {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
                 {s.phase && <span> - {s.phase}</span>}
-                <p dangerouslySetInnerHTML={{ __html: s.description }} />
+                <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(s.description) }} />
               </li>
             ))}
           </ul>

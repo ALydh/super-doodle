@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { WeaponAbility } from "../types";
 import { fetchWeaponAbilities } from "../api";
+import { sanitizeHtml } from "../sanitize";
 
 let cachedAbilities: WeaponAbility[] | null = null;
 let fetchPromise: Promise<WeaponAbility[]> | null = null;
@@ -94,7 +95,7 @@ function renderAbilitySegment(segment: string, abilities: WeaponAbility[], keyPr
   const matches = findAbilityMatches(segment, abilities);
 
   if (matches.length === 0) {
-    return <span dangerouslySetInnerHTML={{ __html: segment }} />;
+    return <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(segment) }} />;
   }
 
   const parts: React.ReactNode[] = [];
@@ -103,7 +104,7 @@ function renderAbilitySegment(segment: string, abilities: WeaponAbility[], keyPr
   for (const match of matches) {
     if (match.start > lastEnd) {
       parts.push(
-        <span key={`${keyPrefix}-text-${lastEnd}`} dangerouslySetInnerHTML={{ __html: segment.slice(lastEnd, match.start) }} />
+        <span key={`${keyPrefix}-text-${lastEnd}`} dangerouslySetInnerHTML={{ __html: sanitizeHtml(segment.slice(lastEnd, match.start)) }} />
       );
     }
     parts.push(
@@ -115,7 +116,7 @@ function renderAbilitySegment(segment: string, abilities: WeaponAbility[], keyPr
   }
 
   if (lastEnd < segment.length) {
-    parts.push(<span key={`${keyPrefix}-text-${lastEnd}`} dangerouslySetInnerHTML={{ __html: segment.slice(lastEnd) }} />);
+    parts.push(<span key={`${keyPrefix}-text-${lastEnd}`} dangerouslySetInnerHTML={{ __html: sanitizeHtml(segment.slice(lastEnd)) }} />);
   }
 
   return <>{parts}</>;
@@ -132,7 +133,7 @@ export function WeaponAbilityText({ text }: Props) {
 
   if (segments.length <= 1) {
     if (abilities.length === 0) {
-      return <span dangerouslySetInnerHTML={{ __html: text }} />;
+      return <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(text) }} />;
     }
     return <>{renderAbilitySegment(text, abilities, "single")}</>;
   }
@@ -142,7 +143,7 @@ export function WeaponAbilityText({ text }: Props) {
       {segments.map((segment, i) => (
         <span key={i} className="weapon-ability-item">
           {abilities.length === 0
-            ? <span dangerouslySetInnerHTML={{ __html: segment.trim() }} />
+            ? <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(segment.trim()) }} />
             : renderAbilitySegment(segment.trim(), abilities, `seg-${i}`)}
         </span>
       ))}

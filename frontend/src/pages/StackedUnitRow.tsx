@@ -3,6 +3,7 @@ import type { ArmyUnit, Datasheet, DatasheetDetail } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { useReferenceData } from "../context/ReferenceDataContext";
+import { sanitizeHtml } from "../sanitize";
 
 interface StackedUnit {
   unit: ArmyUnit;
@@ -162,7 +163,7 @@ export function StackedUnitRow({
                     {detail.abilities.filter(a => a.name).map((a, i) => (
                       <div key={i} className="ability-line">
                         <strong>{a.name}</strong>
-                        {a.description && <span dangerouslySetInnerHTML={{ __html: `: ${a.description}` }} />}
+                        {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
                       </div>
                     ))}
                   </div>
