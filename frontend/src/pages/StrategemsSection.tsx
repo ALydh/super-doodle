@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Stratagem } from "../types";
+import { sanitizeHtml } from "../sanitize";
 
 interface Props {
   stratagems: Stratagem[];
@@ -25,7 +26,7 @@ export function StrategemsSection({ stratagems }: Props) {
               <strong>{s.name}</strong>
               {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
               {s.phase && <span> - {s.phase}</span>}
-              <p dangerouslySetInnerHTML={{ __html: s.description }} />
+              <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(s.description) }} />
             </li>
           ))}
         </ul>

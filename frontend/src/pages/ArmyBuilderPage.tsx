@@ -16,7 +16,6 @@ import { ValidationErrors } from "./ValidationErrors";
 import { getFactionTheme } from "../factionTheme";
 import { renderUnitsForMode } from "./renderUnitsForMode";
 import { ReferenceDataProvider } from "../context/ReferenceDataContext";
-import { sanitizeHtml } from "../sanitize";
 import { DetachmentAbilitiesSection } from "./DetachmentAbilitiesSection";
 import { StrategemsSection } from "./StrategemsSection";
 import { PointsDisplay } from "./PointsDisplay";
@@ -258,55 +257,6 @@ export function ArmyBuilderPage() {
               </select>
             </label>
           </div>
-          <div
-            className={`points-total ${pointsTotal > BATTLE_SIZE_POINTS[battleSize] ? "over-budget" : ""}`}
-            style={{ "--points-percent": `${Math.min((pointsTotal / BATTLE_SIZE_POINTS[battleSize]) * 100, 100)}%` } as React.CSSProperties}
-          >
-            <div className="points-bar" />
-            <span className="points-text">{pointsTotal} / {BATTLE_SIZE_POINTS[battleSize]} pts</span>
-          </div>
-          {detachmentAbilities.length > 0 && (
-            <div className="detachment-abilities-section">
-              <button
-                className="btn-toggle detachment-abilities-toggle"
-                onClick={() => setAbilitiesExpanded(!abilitiesExpanded)}
-              >
-                Abilities ({detachmentAbilities.length}) {abilitiesExpanded ? "▼" : "▶"}
-              </button>
-              {abilitiesExpanded && (
-                <ul className="detachment-abilities-list">
-                  {detachmentAbilities.map((a) => (
-                    <li key={a.id} className="detachment-ability-item">
-                      <strong>{a.name}</strong>
-                      <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-          {filteredStratagems.length > 0 && (
-            <div className="detachment-stratagems-section">
-              <button
-                className="btn-toggle detachment-stratagems-toggle"
-                onClick={() => setStrategemsExpanded(!strategemsExpanded)}
-              >
-                Stratagems ({filteredStratagems.length}) {strategemsExpanded ? "▼" : "▶"}
-              </button>
-              {strategemsExpanded && (
-                <ul className="detachment-stratagems-list">
-                  {filteredStratagems.map((s) => (
-                    <li key={s.id} className="detachment-stratagem-item">
-                      <strong>{s.name}</strong>
-                      {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
-                      {s.phase && <span> - {s.phase}</span>}
-                      <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(s.description) }} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
           <PointsDisplay total={pointsTotal} battleSize={battleSize} />
           <DetachmentAbilitiesSection abilities={detachmentAbilities} />
           <StrategemsSection stratagems={filteredStratagems} />
