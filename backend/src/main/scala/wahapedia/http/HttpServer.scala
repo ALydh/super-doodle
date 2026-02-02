@@ -20,12 +20,12 @@ object HttpServer {
   private val corsConfig = CORS.policy.withAllowOriginAll
   private val loginRateLimitConfig = RateLimitConfig(maxAttempts = 5, windowSeconds = 60)
 
-  def createServer(port: Int, xa: Transactor[IO]): Resource[IO, org.http4s.server.Server] =
+  def createServer(port: Int, refXa: Transactor[IO], userXa: Transactor[IO], refPrefix: String): Resource[IO, org.http4s.server.Server] =
     Resource.eval(RateLimiter.create(loginRateLimitConfig)).flatMap { loginRateLimiter =>
       EmberServerBuilder.default[IO]
         .withHost(ip"0.0.0.0")
         .withPort(Port.fromInt(port).get)
-        .withHttpApp(corsConfig(withLogging(routes(xa, loginRateLimiter))).orNotFound)
+        .withHttpApp(corsConfig(withLogging(routes(refXa, userXa, refPrefix, loginRateLimiter))).orNotFound)
         .build
     }
 
@@ -53,10 +53,10 @@ object HttpServer {
       Ok(Json.obj("status" -> Json.fromString("ok")))
   }
 
-  def routes(xa: Transactor[IO], loginRateLimiter: RateLimiter): HttpRoutes[IO] =
+  def routes(refXa: Transactor[IO], userXa: Transactor[IO], refPrefix: String, loginRateLimiter: RateLimiter): HttpRoutes[IO] =
     healthRoute <+>
-    AuthRoutes.routes(xa, loginRateLimiter) <+>
-    FactionRoutes.routes(xa) <+>
-    ArmyRoutes.routes(xa) <+>
-    DatasheetRoutes.routes(xa)
+    AuthRoutes.routes(userXa, loginRateLimiter) <+>
+    FactionRoutes.routes(refXa) <+>
+    ArmyRoutes.routesWithRef(refXa, userXa, refPrefix) <+>
+    DatasheetRoutes.routes(refXa)
 }

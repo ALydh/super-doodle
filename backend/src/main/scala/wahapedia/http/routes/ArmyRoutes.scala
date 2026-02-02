@@ -31,8 +31,8 @@ object ArmyRoutes {
   private def unauthorized(message: String): IO[Response[IO]] =
     Unauthorized(bearerChallenge, Json.obj("error" -> Json.fromString(message)))
 
-  private def validateArmy(army: Army, xa: Transactor[IO]): IO[ValidationResponse] =
-    ReferenceDataRepository.loadReferenceData(xa).map { ref =>
+  private def validateArmy(army: Army, refXa: Transactor[IO]): IO[ValidationResponse] =
+    ReferenceDataRepository.loadReferenceData(refXa).map { ref =>
       val errors = ArmyValidator.validate(army, ref).map(ValidationErrorDto.fromDomain)
       ValidationResponse(errors.isEmpty, errors)
     }
@@ -44,18 +44,22 @@ object ArmyRoutes {
       case _ => false
     }
 
-  def routes(xa: Transactor[IO]): HttpRoutes[IO] = HttpRoutes.of[IO] {
+  def routes(userXa: Transactor[IO], refPrefix: String): HttpRoutes[IO] = routesInternal(userXa, userXa, refPrefix)
+
+  def routesWithRef(refXa: Transactor[IO], userXa: Transactor[IO], refPrefix: String): HttpRoutes[IO] = routesInternal(refXa, userXa, refPrefix)
+
+  private def routesInternal(refXa: Transactor[IO], userXa: Transactor[IO], refPrefix: String): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "api" / "armies" =>
-      ArmyRepository.listSummaries(xa).flatMap(Ok(_))
+      ArmyRepository.listSummaries(userXa, refPrefix).flatMap(Ok(_))
 
     case GET -> Root / "api" / "armies" / armyId =>
-      ArmyRepository.findById(armyId)(xa).flatMap {
+      ArmyRepository.findById(armyId)(userXa).flatMap {
         case Some(army) => Ok(army)
         case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
       }
 
     case req @ POST -> Root / "api" / "armies" =>
-      AuthMiddleware.extractUser(req, xa).flatMap {
+      AuthMiddleware.extractUser(req, userXa).flatMap {
         case None => unauthorized("Authentication required")
         case Some(user) =>
           req.as[CreateArmyRequest].flatMap { createReq =>
@@ -64,14 +68,14 @@ object ArmyRoutes {
                 BadRequest(Json.obj("error" -> Json.fromString(err.message)))
               case Right(validName) =>
                 val armyId = UUID.randomUUID().toString
-                ArmyRepository.create(armyId, validName, createReq.army, Some(user.id))(xa).flatMap(Created(_))
+                ArmyRepository.create(armyId, validName, createReq.army, Some(user.id))(userXa).flatMap(Created(_))
             }
           }
       }
 
     case req @ PUT -> Root / "api" / "armies" / armyId =>
-      AuthMiddleware.extractUser(req, xa).flatMap { userOpt =>
-        ArmyRepository.findById(armyId)(xa).flatMap {
+      AuthMiddleware.extractUser(req, userXa).flatMap { userOpt =>
+        ArmyRepository.findById(armyId)(userXa).flatMap {
           case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
           case Some(existingArmy) =>
             if (!isOwner(existingArmy, userOpt)) {
@@ -82,7 +86,7 @@ object ArmyRoutes {
                   case Left(err) =>
                     BadRequest(Json.obj("error" -> Json.fromString(err.message)))
                   case Right(validName) =>
-                    ArmyRepository.update(armyId, validName, updateReq.army)(xa).flatMap {
+                    ArmyRepository.update(armyId, validName, updateReq.army)(userXa).flatMap {
                       case Some(updated) => Ok(updated)
                       case None => InternalServerError(Json.obj("error" -> Json.fromString("Failed to update army")))
                     }
@@ -93,25 +97,25 @@ object ArmyRoutes {
       }
 
     case req @ DELETE -> Root / "api" / "armies" / armyId =>
-      AuthMiddleware.extractUser(req, xa).flatMap { userOpt =>
-        ArmyRepository.findById(armyId)(xa).flatMap {
+      AuthMiddleware.extractUser(req, userXa).flatMap { userOpt =>
+        ArmyRepository.findById(armyId)(userXa).flatMap {
           case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
           case Some(existingArmy) =>
             if (!isOwner(existingArmy, userOpt)) {
               Forbidden(Json.obj("error" -> Json.fromString("Not authorized to delete this army")))
             } else {
-              ArmyRepository.delete(armyId)(xa).flatMap(_ => NoContent())
+              ArmyRepository.delete(armyId)(userXa).flatMap(_ => NoContent())
             }
         }
       }
 
     case req @ POST -> Root / "api" / "armies" / "validate" =>
       req.as[Army].flatMap { army =>
-        validateArmy(army, xa).flatMap(Ok(_))
+        validateArmy(army, refXa).flatMap(Ok(_))
       }
 
     case GET -> Root / "api" / "armies" / armyId / "battle" =>
-      ArmyRepository.findById(armyId)(xa).flatMap {
+      ArmyRepository.findById(armyId)(userXa).flatMap {
         case None => NotFound(Json.obj("error" -> Json.fromString(s"Army not found: $armyId")))
         case Some(persisted) =>
           val army = persisted.army
@@ -124,15 +128,15 @@ object ArmyRoutes {
             ))
             case Some(datasheetIds) =>
               for {
-                datasheets <- ReferenceDataRepository.datasheetsByFaction(army.factionId)(xa)
-                profiles <- ReferenceDataRepository.modelProfilesForDatasheets(datasheetIds)(xa)
-                wargear <- ReferenceDataRepository.wargearForDatasheets(datasheetIds)(xa)
-                abilities <- ReferenceDataRepository.abilitiesForDatasheets(datasheetIds)(xa)
-                keywords <- ReferenceDataRepository.keywordsForDatasheets(datasheetIds)(xa)
-                costs <- ReferenceDataRepository.unitCostsForDatasheets(datasheetIds)(xa)
-                parsedOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheets(datasheetIds)(xa)
-                enhancements <- ReferenceDataRepository.enhancementsByFaction(army.factionId)(xa)
-                wargearDefaults <- ReferenceDataRepository.wargearDefaultsForDatasheets(datasheetIds)(xa)
+                datasheets <- ReferenceDataRepository.datasheetsByFaction(army.factionId)(refXa)
+                profiles <- ReferenceDataRepository.modelProfilesForDatasheets(datasheetIds)(refXa)
+                wargear <- ReferenceDataRepository.wargearForDatasheets(datasheetIds)(refXa)
+                abilities <- ReferenceDataRepository.abilitiesForDatasheets(datasheetIds)(refXa)
+                keywords <- ReferenceDataRepository.keywordsForDatasheets(datasheetIds)(refXa)
+                costs <- ReferenceDataRepository.unitCostsForDatasheets(datasheetIds)(refXa)
+                parsedOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheets(datasheetIds)(refXa)
+                enhancements <- ReferenceDataRepository.enhancementsByFaction(army.factionId)(refXa)
+                wargearDefaults <- ReferenceDataRepository.wargearDefaultsForDatasheets(datasheetIds)(refXa)
 
                 datasheetMap = datasheets.map(d => DatasheetId.value(d.id) -> d).toMap
                 profilesMap = profiles.groupBy(p => DatasheetId.value(p.datasheetId))

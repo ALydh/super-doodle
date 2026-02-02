@@ -12,61 +12,37 @@ import DoobieMeta.given
 
 object DataLoader {
 
-  private val dataDir = "../data/wahapedia"
+  private val defaultDataDir = "../data/wahapedia"
 
-  def loadAll(xa: Transactor[IO]): IO[Unit] =
+  def loadAllRef(xa: Transactor[IO], dataDir: String = defaultDataDir): IO[Unit] =
     for {
-      _ <- clearAll(xa)
-      _ <- loadFile("Factions.csv", FactionParser, insertFaction)(xa)
-      _ <- loadFile("Source.csv", SourceParser, insertSource)(xa)
-      _ <- loadFile("Abilities.csv", AbilityParser, insertAbility)(xa)
-      _ <- loadFile("Datasheets.csv", DatasheetParser, insertDatasheet)(xa)
-      _ <- generateParsedLoadouts(xa)
-      _ <- loadFile("Datasheets_models.csv", ModelProfileParser, insertModelProfile)(xa)
-      _ <- loadFile("Datasheets_wargear.csv", WargearParser, insertWargear)(xa)
-      _ <- loadFile("Datasheets_unit_composition.csv", UnitCompositionParser, insertUnitComposition)(xa)
-      _ <- loadFile("Datasheets_models_cost.csv", UnitCostParser, insertUnitCost)(xa)
-      _ <- loadFile("Datasheets_keywords.csv", DatasheetKeywordParser, insertDatasheetKeyword)(xa)
-      _ <- loadFile("Datasheets_abilities.csv", DatasheetAbilityParser, insertDatasheetAbility)(xa)
-      _ <- loadFile("Datasheets_options.csv", DatasheetOptionParser, insertDatasheetOption)(xa)
-      _ <- loadFile("Datasheets_leader.csv", DatasheetLeaderParser, insertDatasheetLeader)(xa)
-      _ <- loadFile("Stratagems.csv", StratagemParser, insertStratagem)(xa)
-      _ <- loadFile("Datasheets_stratagems.csv", DatasheetStratagemParser, insertDatasheetStratagem)(xa)
-      _ <- loadFile("Enhancements.csv", EnhancementParser, insertEnhancement)(xa)
-      _ <- loadFile("Datasheets_enhancements.csv", DatasheetEnhancementParser, insertDatasheetEnhancement)(xa)
-      _ <- loadFile("Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa)
-      _ <- loadFile("Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa)
-      _ <- loadFile("Last_update.csv", LastUpdateParser, insertLastUpdate)(xa)
-      _ <- loadFileIfExists("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa)
-      _ <- loadFileIfExists("Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa)
-      _ <- generateUnitWargearDefaults(xa)
+      _ <- clearRef(xa, dataDir)
+      _ <- loadFile("Factions.csv", FactionParser, insertFaction)(xa, dataDir)
+      _ <- loadFile("Source.csv", SourceParser, insertSource)(xa, dataDir)
+      _ <- loadFile("Abilities.csv", AbilityParser, insertAbility)(xa, dataDir)
+      _ <- loadFile("Datasheets.csv", DatasheetParser, insertDatasheet)(xa, dataDir)
+      _ <- generateParsedLoadouts(xa, dataDir)
+      _ <- loadFile("Datasheets_models.csv", ModelProfileParser, insertModelProfile)(xa, dataDir)
+      _ <- loadFile("Datasheets_wargear.csv", WargearParser, insertWargear)(xa, dataDir)
+      _ <- loadFile("Datasheets_unit_composition.csv", UnitCompositionParser, insertUnitComposition)(xa, dataDir)
+      _ <- loadFile("Datasheets_models_cost.csv", UnitCostParser, insertUnitCost)(xa, dataDir)
+      _ <- loadFile("Datasheets_keywords.csv", DatasheetKeywordParser, insertDatasheetKeyword)(xa, dataDir)
+      _ <- loadFile("Datasheets_abilities.csv", DatasheetAbilityParser, insertDatasheetAbility)(xa, dataDir)
+      _ <- loadFile("Datasheets_options.csv", DatasheetOptionParser, insertDatasheetOption)(xa, dataDir)
+      _ <- loadFile("Datasheets_leader.csv", DatasheetLeaderParser, insertDatasheetLeader)(xa, dataDir)
+      _ <- loadFile("Stratagems.csv", StratagemParser, insertStratagem)(xa, dataDir)
+      _ <- loadFile("Datasheets_stratagems.csv", DatasheetStratagemParser, insertDatasheetStratagem)(xa, dataDir)
+      _ <- loadFile("Enhancements.csv", EnhancementParser, insertEnhancement)(xa, dataDir)
+      _ <- loadFile("Datasheets_enhancements.csv", DatasheetEnhancementParser, insertDatasheetEnhancement)(xa, dataDir)
+      _ <- loadFile("Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa, dataDir)
+      _ <- loadFile("Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa, dataDir)
+      _ <- loadFile("Last_update.csv", LastUpdateParser, insertLastUpdate)(xa, dataDir)
+      _ <- loadFileIfExists("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa, dataDir)
+      _ <- loadFileIfExists("Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa, dataDir)
+      _ <- generateUnitWargearDefaults(xa, dataDir)
     } yield ()
 
-  private def loadFile[A](
-    filename: String,
-    parser: StreamingCsvParser[A],
-    insert: A => ConnectionIO[Int]
-  )(xa: Transactor[IO]): IO[Unit] =
-    for {
-      _ <- IO.println(s"Loading $filename...")
-      records <- CsvProcessor.failFastParse(s"$dataDir/$filename", parser)
-      _ <- records.traverse_(insert).transact(xa)
-      _ <- IO.println(s"  Loaded ${records.length} records from $filename")
-    } yield ()
-
-  private def loadFileIfExists[A](
-    filename: String,
-    parser: StreamingCsvParser[A],
-    insert: A => ConnectionIO[Int]
-  )(xa: Transactor[IO]): IO[Unit] = {
-    val path = Paths.get(s"$dataDir/$filename")
-    IO(Files.exists(path)).flatMap {
-      case true  => loadFile(filename, parser, insert)(xa)
-      case false => IO.println(s"Skipping $filename (file not found)")
-    }
-  }
-
-  private def clearAll(xa: Transactor[IO]): IO[Unit] = {
+  private def clearRef(xa: Transactor[IO], dataDir: String): IO[Unit] = {
     val deletes = List(
       sql"DELETE FROM unit_wargear_defaults",
       sql"DELETE FROM parsed_loadouts",
@@ -93,6 +69,32 @@ object DataLoader {
       sql"DELETE FROM factions"
     )
     deletes.traverse_(_.update.run).transact(xa)
+  }
+
+  def loadAll(xa: Transactor[IO]): IO[Unit] = loadAllRef(xa, defaultDataDir)
+
+  private def loadFile[A](
+    filename: String,
+    parser: StreamingCsvParser[A],
+    insert: A => ConnectionIO[Int]
+  )(xa: Transactor[IO], dataDir: String): IO[Unit] =
+    for {
+      _ <- IO.println(s"Loading $filename...")
+      records <- CsvProcessor.failFastParse(s"$dataDir/$filename", parser)
+      _ <- records.traverse_(insert).transact(xa)
+      _ <- IO.println(s"  Loaded ${records.length} records from $filename")
+    } yield ()
+
+  private def loadFileIfExists[A](
+    filename: String,
+    parser: StreamingCsvParser[A],
+    insert: A => ConnectionIO[Int]
+  )(xa: Transactor[IO], dataDir: String): IO[Unit] = {
+    val path = Paths.get(s"$dataDir/$filename")
+    IO(Files.exists(path)).flatMap {
+      case true  => loadFile(filename, parser, insert)(xa, dataDir)
+      case false => IO.println(s"Skipping $filename (file not found)")
+    }
   }
 
   private def insertFaction(f: Faction): ConnectionIO[Int] =
@@ -176,7 +178,7 @@ object DataLoader {
     sql"""INSERT INTO parsed_wargear_options (datasheet_id, option_line, choice_index, group_id, action, weapon_name, model_target, count_per_n_models, max_count)
           VALUES (${p.datasheetId}, ${p.optionLine}, ${p.choiceIndex}, ${p.groupId}, ${WargearAction.asString(p.action)}, ${p.weaponName}, ${p.modelTarget}, ${p.countPerNModels}, ${p.maxCount})""".update.run
 
-  private def generateParsedLoadouts(xa: Transactor[IO]): IO[Unit] =
+  private def generateParsedLoadouts(xa: Transactor[IO], dataDir: String): IO[Unit] =
     for {
       _ <- IO.println("Generating parsed loadouts...")
       datasheets <- sql"SELECT id, loadout FROM datasheets WHERE loadout IS NOT NULL AND loadout != ''"
@@ -214,7 +216,7 @@ object DataLoader {
       lower.contains("kill-broker")
   }
 
-  private def generateUnitWargearDefaults(xa: Transactor[IO]): IO[Unit] =
+  private def generateUnitWargearDefaults(xa: Transactor[IO], dataDir: String): IO[Unit] =
     for {
       _ <- IO.println("Generating unit wargear defaults...")
       loadouts <- sql"SELECT datasheet_id, model_pattern, weapon FROM parsed_loadouts"
@@ -278,32 +280,32 @@ object DataLoader {
     filename: String,
     parser: StreamingCsvParser[A],
     insert: A => ConnectionIO[Int]
-  )(xa: Transactor[IO], counts: Map[String, Int]): IO[Unit] =
-    if (counts.getOrElse(tableName, 0) == 0) loadFileIfExists(filename, parser, insert)(xa)
+  )(xa: Transactor[IO], counts: Map[String, Int], dataDir: String): IO[Unit] =
+    if (counts.getOrElse(tableName, 0) == 0) loadFileIfExists(filename, parser, insert)(xa, dataDir)
     else IO.unit
 
-  def loadMissing(xa: Transactor[IO], counts: Map[String, Int]): IO[Unit] =
+  def loadMissing(xa: Transactor[IO], counts: Map[String, Int], dataDir: String = defaultDataDir): IO[Unit] =
     for {
-      _ <- loadIfEmpty("factions", "Factions.csv", FactionParser, insertFaction)(xa, counts)
-      _ <- loadIfEmpty("sources", "Source.csv", SourceParser, insertSource)(xa, counts)
-      _ <- loadIfEmpty("abilities", "Abilities.csv", AbilityParser, insertAbility)(xa, counts)
-      _ <- loadIfEmpty("datasheets", "Datasheets.csv", DatasheetParser, insertDatasheet)(xa, counts)
-      _ <- loadIfEmpty("model_profiles", "Datasheets_models.csv", ModelProfileParser, insertModelProfile)(xa, counts)
-      _ <- loadIfEmpty("wargear", "Datasheets_wargear.csv", WargearParser, insertWargear)(xa, counts)
-      _ <- loadIfEmpty("unit_composition", "Datasheets_unit_composition.csv", UnitCompositionParser, insertUnitComposition)(xa, counts)
-      _ <- loadIfEmpty("unit_cost", "Datasheets_models_cost.csv", UnitCostParser, insertUnitCost)(xa, counts)
-      _ <- loadIfEmpty("datasheet_keywords", "Datasheets_keywords.csv", DatasheetKeywordParser, insertDatasheetKeyword)(xa, counts)
-      _ <- loadIfEmpty("datasheet_abilities", "Datasheets_abilities.csv", DatasheetAbilityParser, insertDatasheetAbility)(xa, counts)
-      _ <- loadIfEmpty("datasheet_options", "Datasheets_options.csv", DatasheetOptionParser, insertDatasheetOption)(xa, counts)
-      _ <- loadIfEmpty("datasheet_leaders", "Datasheets_leader.csv", DatasheetLeaderParser, insertDatasheetLeader)(xa, counts)
-      _ <- loadIfEmpty("stratagems", "Stratagems.csv", StratagemParser, insertStratagem)(xa, counts)
-      _ <- loadIfEmpty("datasheet_stratagems", "Datasheets_stratagems.csv", DatasheetStratagemParser, insertDatasheetStratagem)(xa, counts)
-      _ <- loadIfEmpty("enhancements", "Enhancements.csv", EnhancementParser, insertEnhancement)(xa, counts)
-      _ <- loadIfEmpty("datasheet_enhancements", "Datasheets_enhancements.csv", DatasheetEnhancementParser, insertDatasheetEnhancement)(xa, counts)
-      _ <- loadIfEmpty("detachment_abilities", "Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa, counts)
-      _ <- loadIfEmpty("datasheet_detachment_abilities", "Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa, counts)
-      _ <- loadIfEmpty("last_update", "Last_update.csv", LastUpdateParser, insertLastUpdate)(xa, counts)
-      _ <- loadIfEmpty("weapon_abilities", "Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa, counts)
-      _ <- loadIfEmpty("parsed_wargear_options", "Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa, counts)
+      _ <- loadIfEmpty("factions", "Factions.csv", FactionParser, insertFaction)(xa, counts, dataDir)
+      _ <- loadIfEmpty("sources", "Source.csv", SourceParser, insertSource)(xa, counts, dataDir)
+      _ <- loadIfEmpty("abilities", "Abilities.csv", AbilityParser, insertAbility)(xa, counts, dataDir)
+      _ <- loadIfEmpty("datasheets", "Datasheets.csv", DatasheetParser, insertDatasheet)(xa, counts, dataDir)
+      _ <- loadIfEmpty("model_profiles", "Datasheets_models.csv", ModelProfileParser, insertModelProfile)(xa, counts, dataDir)
+      _ <- loadIfEmpty("wargear", "Datasheets_wargear.csv", WargearParser, insertWargear)(xa, counts, dataDir)
+      _ <- loadIfEmpty("unit_composition", "Datasheets_unit_composition.csv", UnitCompositionParser, insertUnitComposition)(xa, counts, dataDir)
+      _ <- loadIfEmpty("unit_cost", "Datasheets_models_cost.csv", UnitCostParser, insertUnitCost)(xa, counts, dataDir)
+      _ <- loadIfEmpty("datasheet_keywords", "Datasheets_keywords.csv", DatasheetKeywordParser, insertDatasheetKeyword)(xa, counts, dataDir)
+      _ <- loadIfEmpty("datasheet_abilities", "Datasheets_abilities.csv", DatasheetAbilityParser, insertDatasheetAbility)(xa, counts, dataDir)
+      _ <- loadIfEmpty("datasheet_options", "Datasheets_options.csv", DatasheetOptionParser, insertDatasheetOption)(xa, counts, dataDir)
+      _ <- loadIfEmpty("datasheet_leaders", "Datasheets_leader.csv", DatasheetLeaderParser, insertDatasheetLeader)(xa, counts, dataDir)
+      _ <- loadIfEmpty("stratagems", "Stratagems.csv", StratagemParser, insertStratagem)(xa, counts, dataDir)
+      _ <- loadIfEmpty("datasheet_stratagems", "Datasheets_stratagems.csv", DatasheetStratagemParser, insertDatasheetStratagem)(xa, counts, dataDir)
+      _ <- loadIfEmpty("enhancements", "Enhancements.csv", EnhancementParser, insertEnhancement)(xa, counts, dataDir)
+      _ <- loadIfEmpty("datasheet_enhancements", "Datasheets_enhancements.csv", DatasheetEnhancementParser, insertDatasheetEnhancement)(xa, counts, dataDir)
+      _ <- loadIfEmpty("detachment_abilities", "Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa, counts, dataDir)
+      _ <- loadIfEmpty("datasheet_detachment_abilities", "Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa, counts, dataDir)
+      _ <- loadIfEmpty("last_update", "Last_update.csv", LastUpdateParser, insertLastUpdate)(xa, counts, dataDir)
+      _ <- loadIfEmpty("weapon_abilities", "Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa, counts, dataDir)
+      _ <- loadIfEmpty("parsed_wargear_options", "Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa, counts, dataDir)
     } yield ()
 }

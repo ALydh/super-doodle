@@ -4,29 +4,18 @@ import cats.effect.{IO, IOApp}
 import cats.implicits.*
 import doobie.*
 import doobie.implicits.*
-import wahapedia.db.{Schema, DataLoader, ReferenceDataRepository}
+import wahapedia.db.{Schema, DataLoader, ReferenceDataRepository, Database, DatabaseConfig}
 import wahapedia.http.HttpServer
 import wahapedia.errors.ParseException
 
 object Main extends IOApp.Simple {
 
-  private val xa: Transactor[IO] = Transactor.fromDriverManager[IO](
-    driver = "org.sqlite.JDBC",
-    url = "jdbc:sqlite:wahapedia.db?foreign_keys=on",
-    logHandler = None
-  )
-
   def run: IO[Unit] = {
     val program = for {
-      _ <- IO.println("Initializing database...")
-      _ <- Schema.initialize(xa)
-      tableCounts <- ReferenceDataRepository.counts(xa)
-      _ <- DataLoader.loadMissing(xa, tableCounts)
-      _ <- printSummary(tableCounts)
-      _ <- IO.println("Starting HTTP server on port 8080...")
-      _ <- HttpServer.createServer(8080, xa).useForever
+      config <- DatabaseConfig.fromEnv
+      splitMode = sys.env.contains("REF_DB_PATH") && sys.env.contains("USER_DB_PATH")
+      _ <- if (splitMode) runSplitMode(config) else runSingleMode
     } yield ()
-
 
     program.handleErrorWith {
       case pe: ParseException =>
@@ -37,7 +26,38 @@ object Main extends IOApp.Simple {
     }
   }
 
-  private def printSummary(initialCounts: Map[String, Int]): IO[Unit] =
+  private def runSingleMode: IO[Unit] = {
+    val xa = Database.singleTransactor("wahapedia.db")
+    for {
+      _ <- IO.println("Running in single database mode...")
+      _ <- IO.println("Initializing database...")
+      _ <- Schema.initialize(xa)
+      tableCounts <- ReferenceDataRepository.counts(xa)
+      _ <- DataLoader.loadMissing(xa, tableCounts)
+      _ <- printSummary(tableCounts, xa)
+      _ <- IO.println("Starting HTTP server on port 8080...")
+      _ <- HttpServer.createServer(8080, xa, xa, "").useForever
+    } yield ()
+  }
+
+  private def runSplitMode(config: DatabaseConfig): IO[Unit] = {
+    val dbs = Database.transactors(config)
+    for {
+      _ <- IO.println("Running in split database mode...")
+      _ <- IO.println(s"Reference DB: ${config.refDbPath}")
+      _ <- IO.println(s"User DB: ${config.userDbPath}")
+      _ <- IO.println("Initializing user database schema...")
+      _ <- Schema.initializeUserSchema(dbs.userXa)
+      _ <- IO.println("Attaching reference database...")
+      _ <- Database.attachRefDb(dbs.userXa, config.refDbPath)
+      tableCounts <- ReferenceDataRepository.counts(dbs.refXa)
+      _ <- printSummary(tableCounts, dbs.refXa)
+      _ <- IO.println("Starting HTTP server on port 8080...")
+      _ <- HttpServer.createServer(8080, dbs.refXa, dbs.userXa, "ref.").useForever
+    } yield ()
+  }
+
+  private def printSummary(initialCounts: Map[String, Int], xa: Transactor[IO]): IO[Unit] =
     for {
       tableCounts <- ReferenceDataRepository.counts(xa)
       lastUpdate <- ReferenceDataRepository.lastUpdate(xa)

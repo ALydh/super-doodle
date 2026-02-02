@@ -9,7 +9,7 @@ import cats.implicits.*
 
 object Schema {
 
-  private val authTables: List[Fragment] = List(
+  private val userTables: List[Fragment] = List(
     sql"""CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
@@ -30,10 +30,41 @@ object Schema {
       created_at TEXT NOT NULL,
       used_by TEXT,
       used_at TEXT
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS armies (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      faction_id TEXT NOT NULL,
+      battle_size TEXT NOT NULL,
+      detachment_id TEXT NOT NULL,
+      warlord_id TEXT NOT NULL,
+      owner_id TEXT REFERENCES users(id),
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS army_units (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      army_id TEXT NOT NULL,
+      datasheet_id TEXT NOT NULL,
+      size_option_line INTEGER NOT NULL,
+      enhancement_id TEXT,
+      attached_leader_id TEXT,
+      FOREIGN KEY (army_id) REFERENCES armies(id) ON DELETE CASCADE
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS army_unit_wargear_selections (
+      army_unit_id INTEGER NOT NULL,
+      option_line INTEGER NOT NULL,
+      selected INTEGER NOT NULL,
+      notes TEXT,
+      PRIMARY KEY (army_unit_id, option_line),
+      FOREIGN KEY (army_unit_id) REFERENCES army_units(id) ON DELETE CASCADE
     )"""
   )
 
-  private val tables: List[Fragment] = List(
+  private val refTables: List[Fragment] = List(
     sql"""CREATE TABLE IF NOT EXISTS factions (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -244,43 +275,13 @@ object Schema {
       count INTEGER NOT NULL,
       model_type TEXT,
       PRIMARY KEY (datasheet_id, size_line, weapon)
-    )""",
-
-    sql"""CREATE TABLE IF NOT EXISTS armies (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      faction_id TEXT NOT NULL,
-      battle_size TEXT NOT NULL,
-      detachment_id TEXT NOT NULL,
-      warlord_id TEXT NOT NULL,
-      owner_id TEXT REFERENCES users(id),
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )""",
-
-    sql"""CREATE TABLE IF NOT EXISTS army_units (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      army_id TEXT NOT NULL,
-      datasheet_id TEXT NOT NULL,
-      size_option_line INTEGER NOT NULL,
-      enhancement_id TEXT,
-      attached_leader_id TEXT,
-      FOREIGN KEY (army_id) REFERENCES armies(id) ON DELETE CASCADE
-    )""",
-
-    sql"""CREATE TABLE IF NOT EXISTS army_unit_wargear_selections (
-      army_unit_id INTEGER NOT NULL,
-      option_line INTEGER NOT NULL,
-      selected INTEGER NOT NULL,
-      notes TEXT,
-      PRIMARY KEY (army_unit_id, option_line),
-      FOREIGN KEY (army_unit_id) REFERENCES army_units(id) ON DELETE CASCADE
     )"""
   )
 
   private val migrateArmies: ConnectionIO[Unit] = for {
     hasOwnerCol <- sql"PRAGMA table_info(armies)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.exists(_._2 == "owner_id"))
     _ <- if (!hasOwnerCol) {
+      sql"DROP TABLE IF EXISTS army_unit_wargear_selections".update.run *>
       sql"DROP TABLE IF EXISTS army_units".update.run *>
       sql"DROP TABLE IF EXISTS armies".update.run
     } else {
@@ -305,6 +306,12 @@ object Schema {
     } yield ()
   }
 
+  def initializeRefSchema(xa: Transactor[IO]): IO[Unit] =
+    (refTables.traverse_(_.update.run) *> migrateFactionGroup *> populateFactionGroups).transact(xa)
+
+  def initializeUserSchema(xa: Transactor[IO]): IO[Unit] =
+    (userTables.traverse_(_.update.run) *> migrateArmies).transact(xa)
+
   def initialize(xa: Transactor[IO]): IO[Unit] =
-    (authTables.traverse_(_.update.run) *> migrateArmies *> tables.traverse_(_.update.run) *> migrateFactionGroup *> populateFactionGroups).transact(xa)
+    initializeRefSchema(xa) *> initializeUserSchema(xa)
 }
