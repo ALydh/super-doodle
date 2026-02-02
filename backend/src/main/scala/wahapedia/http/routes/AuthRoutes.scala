@@ -10,7 +10,7 @@ import org.http4s.dsl.io.*
 import org.http4s.headers.{Authorization, `WWW-Authenticate`}
 import wahapedia.db.{UserRepository, SessionRepository, InviteRepository}
 import wahapedia.domain.types.*
-import wahapedia.http.AuthMiddleware
+import wahapedia.http.{AuthMiddleware, InputValidation}
 import wahapedia.http.dto.*
 import wahapedia.auth.{PasswordHasher, RateLimiter}
 import doobie.*
@@ -24,53 +24,61 @@ object AuthRoutes {
   private def tooManyRequests: IO[Response[IO]] =
     TooManyRequests(Json.obj("error" -> Json.fromString("Too many login attempts. Please try again later.")))
 
+  private def badRequest(message: String): IO[Response[IO]] =
+    BadRequest(Json.obj("error" -> Json.fromString(message)))
+
   def routes(xa: Transactor[IO], loginRateLimiter: RateLimiter): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case req @ POST -> Root / "api" / "auth" / "register" =>
       req.as[RegisterRequest].flatMap { regReq =>
-        def createUserAndSession(hash: String): IO[Response[IO]] =
-          UserRepository.create(regReq.username, hash)(xa).flatMap {
-            case None =>
-              Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
-            case Some(user) =>
-              SessionRepository.create(user.id)(xa).flatMap { session =>
-                Created(AuthResponse(
-                  SessionToken.value(session.token),
-                  UserResponse(UserId.value(user.id), user.username)
-                ))
-              }
-          }
-
-        for {
-          userCount <- UserRepository.count(xa)
-          hash <- PasswordHasher.hash(regReq.password)
-          result <- {
-            val needsInvite = userCount > 0
-            if (needsInvite && regReq.inviteCode.isEmpty) {
-              Forbidden(Json.obj("error" -> Json.fromString("Invite code required")))
-            } else if (needsInvite) {
-              val code = InviteCode(regReq.inviteCode.get)
-              InviteRepository.findUnusedByCode(code)(xa).flatMap {
+        (InputValidation.validateUsername(regReq.username), InputValidation.validatePassword(regReq.password)) match {
+          case (Left(err), _) => badRequest(err.message)
+          case (_, Left(err)) => badRequest(err.message)
+          case (Right(username), Right(password)) =>
+            def createUserAndSession(hash: String): IO[Response[IO]] =
+              UserRepository.create(username, hash)(xa).flatMap {
                 case None =>
-                  Forbidden(Json.obj("error" -> Json.fromString("Invalid or used invite code")))
-                case Some(_) =>
-                  UserRepository.create(regReq.username, hash)(xa).flatMap {
-                    case None =>
-                      Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
-                    case Some(user) =>
-                      InviteRepository.markUsed(code, user.id)(xa) *>
-                        SessionRepository.create(user.id)(xa).flatMap { session =>
-                          Created(AuthResponse(
-                            SessionToken.value(session.token),
-                            UserResponse(UserId.value(user.id), user.username)
-                          ))
-                        }
+                  Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
+                case Some(user) =>
+                  SessionRepository.create(user.id)(xa).flatMap { session =>
+                    Created(AuthResponse(
+                      SessionToken.value(session.token),
+                      UserResponse(UserId.value(user.id), user.username)
+                    ))
                   }
               }
-            } else {
-              createUserAndSession(hash)
-            }
-          }
-        } yield result
+
+            for {
+              userCount <- UserRepository.count(xa)
+              hash <- PasswordHasher.hash(password)
+              result <- {
+                val needsInvite = userCount > 0
+                if (needsInvite && regReq.inviteCode.isEmpty) {
+                  Forbidden(Json.obj("error" -> Json.fromString("Invite code required")))
+                } else if (needsInvite) {
+                  val code = InviteCode(regReq.inviteCode.get)
+                  InviteRepository.findUnusedByCode(code)(xa).flatMap {
+                    case None =>
+                      Forbidden(Json.obj("error" -> Json.fromString("Invalid or used invite code")))
+                    case Some(_) =>
+                      UserRepository.create(username, hash)(xa).flatMap {
+                        case None =>
+                          Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
+                        case Some(user) =>
+                          InviteRepository.markUsed(code, user.id)(xa) *>
+                            SessionRepository.create(user.id)(xa).flatMap { session =>
+                              Created(AuthResponse(
+                                SessionToken.value(session.token),
+                                UserResponse(UserId.value(user.id), user.username)
+                              ))
+                            }
+                      }
+                  }
+                } else {
+                  createUserAndSession(hash)
+                }
+              }
+            } yield result
+        }
       }
 
     case req @ POST -> Root / "api" / "auth" / "login" =>

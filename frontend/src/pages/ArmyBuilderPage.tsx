@@ -5,7 +5,6 @@ import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
   DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem, DatasheetOption,
 } from "../types";
-import { BATTLE_SIZE_POINTS } from "../types";
 import {
   fetchDatasheetsByFaction, fetchDetachmentsByFaction,
   fetchEnhancementsByFaction, fetchLeadersByFaction,
@@ -18,6 +17,9 @@ import { getFactionTheme } from "../factionTheme";
 import { renderUnitsForMode } from "./renderUnitsForMode";
 import { ReferenceDataProvider } from "../context/ReferenceDataContext";
 import { sanitizeHtml } from "../sanitize";
+import { DetachmentAbilitiesSection } from "./DetachmentAbilitiesSection";
+import { StrategemsSection } from "./StrategemsSection";
+import { PointsDisplay } from "./PointsDisplay";
 
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
@@ -39,9 +41,7 @@ export function ArmyBuilderPage() {
   const [leaders, setLeaders] = useState<DatasheetLeader[]>([]);
   const [allOptions, setAllOptions] = useState<DatasheetOption[]>([]);
   const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
-  const [abilitiesExpanded, setAbilitiesExpanded] = useState(false);
   const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
-  const [strategemsExpanded, setStrategemsExpanded] = useState(false);
   const [pickerExpanded, setPickerExpanded] = useState(false);
   const [loadedArmyFactionId, setLoadedArmyFactionId] = useState<string>("");
 
@@ -307,6 +307,9 @@ export function ArmyBuilderPage() {
               )}
             </div>
           )}
+          <PointsDisplay total={pointsTotal} battleSize={battleSize} />
+          <DetachmentAbilitiesSection abilities={detachmentAbilities} />
+          <StrategemsSection stratagems={filteredStratagems} />
           <button className="btn-save save-army" onClick={handleSave} disabled={!name.trim()}>
             {isEdit ? "Update Army" : "Save Army"}
           </button>
