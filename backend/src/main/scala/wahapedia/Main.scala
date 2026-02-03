@@ -13,7 +13,8 @@ object Main extends IOApp.Simple {
   def run: IO[Unit] = {
     val program = for {
       config <- DatabaseConfig.fromEnv
-      splitMode = sys.env.contains("REF_DB_PATH") && sys.env.contains("USER_DB_PATH")
+      splitMode = config.refDbPath != DatabaseConfig.default.refDbPath ||
+                  config.userDbPath != DatabaseConfig.default.userDbPath
       _ <- if (splitMode) runSplitMode(config) else runSingleMode
     } yield ()
 
