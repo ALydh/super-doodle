@@ -31,6 +31,8 @@ jobs:
 
       - name: Build native image
         run: cd backend && sbt nativeImage
+        env:
+          GRAALVM_HOME: ${{ env.JAVA_HOME }}
 
       - name: Stop service
         uses: appleboy/ssh-action@v1
