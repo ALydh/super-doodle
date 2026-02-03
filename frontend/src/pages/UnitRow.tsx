@@ -92,11 +92,11 @@ export function UnitRow({
 
   useEffect(() => {
     if (expanded) {
-      filterWargear(unit.datasheetId, unit.wargearSelections, unitSize)
+      filterWargear(unit.datasheetId, unit.wargearSelections, unitSize, unit.sizeOptionLine)
         .then(setFilteredWargear)
         .catch(() => setFilteredWargear([]));
     }
-  }, [expanded, unit.datasheetId, unit.wargearSelections, unitSize]);
+  }, [expanded, unit.datasheetId, unit.wargearSelections, unitSize, unit.sizeOptionLine]);
 
   const handleWargearSelectionChange = (optionLine: number, selected: boolean) => {
     const existingSelection = unit.wargearSelections.find(s => s.optionLine === optionLine);

@@ -265,12 +265,13 @@ export async function fetchArmyForBattle(armyId: string): Promise<ArmyBattleData
 export async function filterWargear(
   datasheetId: string,
   selections: { optionLine: number; selected: boolean; notes: string | null }[],
-  unitSize: number
+  unitSize: number,
+  sizeOptionLine: number
 ): Promise<WargearWithQuantity[]> {
   const res = await fetch(`/api/datasheets/${datasheetId}/filter-wargear`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ selections, unitSize }),
+    body: JSON.stringify({ selections, unitSize, sizeOptionLine }),
   });
   if (!res.ok) throw new Error(`Failed to filter wargear: ${res.status}`);
   return res.json();
