@@ -41,7 +41,7 @@ jobs:
           script: sudo systemctl stop super-doodle || true
 
       - name: Copy frontend
-        uses: appleboy/scp-action@v0
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -51,7 +51,7 @@ jobs:
           strip_components: 2
 
       - name: Copy backend and database
-        uses: appleboy/scp-action@v0
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
