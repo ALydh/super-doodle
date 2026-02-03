@@ -30,13 +30,13 @@ object Database {
   def transactors(config: DatabaseConfig): Databases = {
     val refXa = Transactor.fromDriverManager[IO](
       driver = "org.sqlite.JDBC",
-      url = s"jdbc:sqlite:${config.refDbPath}?mode=ro",
+      url = s"jdbc:sqlite:file:${config.refDbPath}?mode=ro",
       logHandler = None
     )
 
     val userXa = Transactor.fromDriverManager[IO](
       driver = "org.sqlite.JDBC",
-      url = s"jdbc:sqlite:${config.userDbPath}?foreign_keys=on",
+      url = s"jdbc:sqlite:file:${config.userDbPath}?foreign_keys=on",
       logHandler = None
     )
 
@@ -49,7 +49,7 @@ object Database {
   def singleTransactor(path: String): Transactor[IO] =
     Transactor.fromDriverManager[IO](
       driver = "org.sqlite.JDBC",
-      url = s"jdbc:sqlite:$path?foreign_keys=on",
+      url = s"jdbc:sqlite:file:$path?foreign_keys=on",
       logHandler = None
     )
 }
