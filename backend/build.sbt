@@ -17,6 +17,9 @@ libraryDependencies ++= Seq(
   "org.tpolecat"  %% "doobie-core" % "1.0.0-RC5",
   "org.xerial"     % "sqlite-jdbc" % "3.44.1.0",
   "org.mindrot"    % "jbcrypt" % "0.4",
+  "org.typelevel" %% "log4cats-slf4j" % "2.6.0",
+  "ch.qos.logback" % "logback-classic" % "1.4.14",
+  "net.logstash.logback" % "logstash-logback-encoder" % "7.4",
   "org.scalatest" %% "scalatest" % "3.2.17" % Test
 )
 
@@ -32,7 +35,7 @@ nativeImageOptions := Seq(
   "-H:+ReportExceptionStackTraces",
   "-H:+UnlockExperimentalVMOptions",
   "--gc=serial", // smaller footprint for low load
-  "--initialize-at-build-time",
+  "--initialize-at-build-time=org.slf4j,ch.qos.logback",
   "--initialize-at-run-time=wahapedia.db.DatabaseConfig$,wahapedia.Main$",
   "-H:IncludeResources=.*\\.csv$",
   "-H:IncludeResources=application\\.conf.*",

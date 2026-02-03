@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <variable name="LOG_DIR" value="${LOG_DIR:-./logs}"/>
+  <variable name="ENV" value="${ENV:-development}"/>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <customFields>{"service":"wahapedia-api","env":"${ENV}"}</customFields>
+      <includeMdcKeyName>request_id</includeMdcKeyName>
+      <includeMdcKeyName>method</includeMdcKeyName>
+      <includeMdcKeyName>path</includeMdcKeyName>
+      <includeMdcKeyName>user_id</includeMdcKeyName>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/app.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>7</maxHistory>
+    </rollingPolicy>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <customFields>{"service":"wahapedia-api","env":"${ENV}"}</customFields>
+      <includeMdcKeyName>request_id</includeMdcKeyName>
+      <includeMdcKeyName>method</includeMdcKeyName>
+      <includeMdcKeyName>path</includeMdcKeyName>
+      <includeMdcKeyName>user_id</includeMdcKeyName>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE"/>
+  </root>
+
+  <logger name="doobie" level="DEBUG"/>
+  <logger name="org.http4s" level="INFO"/>
+</configuration>
