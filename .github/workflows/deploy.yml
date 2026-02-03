@@ -1,0 +1,74 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: cd frontend && npm ci && npm run build
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Build reference database
+        run: cd backend && sbt "runMain wahapedia.BuildRefDb ../data/wahapedia wahapedia-ref.db"
+
+      - name: Build native image
+        run: cd backend && sbt nativeImage
+
+      - name: Stop service
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: sudo systemctl stop super-doodle || true
+
+      - name: Copy frontend
+        uses: appleboy/scp-action@v0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "frontend/dist/*"
+          target: "/opt/super-doodle/frontend"
+          strip_components: 2
+
+      - name: Copy backend and database
+        uses: appleboy/scp-action@v0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "backend/target/native-image/backend,backend/wahapedia-ref.db"
+          target: "/opt/super-doodle"
+          strip_components: 1
+
+      - name: Move files and start service
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            mv /opt/super-doodle/target/native-image/backend /opt/super-doodle/backend || true
+            mv /opt/super-doodle/wahapedia-ref.db /opt/super-doodle/wahapedia-ref.db.new && mv /opt/super-doodle/wahapedia-ref.db.new /opt/super-doodle/wahapedia-ref.db || true
+            rm -rf /opt/super-doodle/target
+            chmod +x /opt/super-doodle/backend
+            sudo systemctl start super-doodle

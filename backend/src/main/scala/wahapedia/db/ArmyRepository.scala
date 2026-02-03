@@ -152,36 +152,40 @@ object ArmyRepository {
       _ <- IO.println(s"[$now] [ArmyRepository.delete] Delete ${if (deleted) "successful" else "failed - not found"}")
     } yield deleted
 
-  def listSummaries(xa: Transactor[IO]): IO[List[ArmySummary]] =
+  def listSummaries(xa: Transactor[IO], refPrefix: String = ""): IO[List[ArmySummary]] =
     for {
       _ <- IO.println("[ArmyRepository.listSummaries] Fetching all armies")
-      summaries <- sql"""SELECT
-            a.id, a.name, a.faction_id, a.battle_size, a.updated_at,
-            d.name,
-            COALESCE((SELECT SUM(uc.cost) FROM army_units au JOIN unit_cost uc ON au.datasheet_id = uc.datasheet_id AND au.size_option_line = uc.line WHERE au.army_id = a.id), 0)
-            + COALESCE((SELECT SUM(e.cost) FROM army_units au JOIN enhancements e ON au.enhancement_id = e.id WHERE au.army_id = a.id), 0)
-          FROM armies a
-          LEFT JOIN datasheets d ON a.warlord_id = d.id
-          ORDER BY a.updated_at DESC"""
-        .query[ArmySummary].to[List].transact(xa)
+      summaries <- listSummariesQuery(None, refPrefix).query[ArmySummary].to[List].transact(xa)
       _ <- IO.println(s"[$now] [ArmyRepository.listSummaries] Found ${summaries.size} armies")
       _ <- summaries.traverse_(a => IO.println(s"  - ${a.name}: warlord=${a.warlordName.getOrElse("none")}, points=${a.totalPoints}"))
     } yield summaries
 
-  def listSummariesByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[ArmySummary]] =
+  def listSummariesByFaction(factionId: FactionId)(xa: Transactor[IO], refPrefix: String = ""): IO[List[ArmySummary]] =
     for {
       _ <- IO.println(s"[$now] [ArmyRepository.listSummariesByFaction] Fetching armies for faction $factionId")
-      summaries <- sql"""SELECT
-            a.id, a.name, a.faction_id, a.battle_size, a.updated_at,
-            d.name,
-            COALESCE((SELECT SUM(uc.cost) FROM army_units au JOIN unit_cost uc ON au.datasheet_id = uc.datasheet_id AND au.size_option_line = uc.line WHERE au.army_id = a.id), 0)
-            + COALESCE((SELECT SUM(e.cost) FROM army_units au JOIN enhancements e ON au.enhancement_id = e.id WHERE au.army_id = a.id), 0)
-          FROM armies a
-          LEFT JOIN datasheets d ON a.warlord_id = d.id
-          WHERE a.faction_id = $factionId
-          ORDER BY a.updated_at DESC"""
-        .query[ArmySummary].to[List].transact(xa)
+      summaries <- listSummariesQuery(Some(factionId), refPrefix).query[ArmySummary].to[List].transact(xa)
       _ <- IO.println(s"[$now] [ArmyRepository.listSummariesByFaction] Found ${summaries.size} armies")
       _ <- summaries.traverse_(a => IO.println(s"  - ${a.name}: warlord=${a.warlordName.getOrElse("none")}, points=${a.totalPoints}"))
     } yield summaries
+
+  private def listSummariesQuery(factionFilter: Option[FactionId], refPrefix: String): Fragment = {
+    val datasheets = Fragment.const(s"${refPrefix}datasheets")
+    val unitCost = Fragment.const(s"${refPrefix}unit_cost")
+    val enhancements = Fragment.const(s"${refPrefix}enhancements")
+
+    val baseQuery = fr"""SELECT
+          a.id, a.name, a.faction_id, a.battle_size, a.updated_at,
+          d.name,
+          COALESCE((SELECT SUM(uc.cost) FROM army_units au JOIN """ ++ unitCost ++ fr""" uc ON au.datasheet_id = uc.datasheet_id AND au.size_option_line = uc.line WHERE au.army_id = a.id), 0)
+          + COALESCE((SELECT SUM(e.cost) FROM army_units au JOIN """ ++ enhancements ++ fr""" e ON au.enhancement_id = e.id WHERE au.army_id = a.id), 0)
+        FROM armies a
+        LEFT JOIN """ ++ datasheets ++ fr""" d ON a.warlord_id = d.id"""
+
+    val withFilter = factionFilter match {
+      case Some(fid) => baseQuery ++ fr" WHERE a.faction_id = $fid"
+      case None => baseQuery
+    }
+
+    withFilter ++ fr" ORDER BY a.updated_at DESC"
+  }
 }
