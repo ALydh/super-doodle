@@ -49,8 +49,6 @@ object Main extends IOApp.Simple {
       _ <- IO.println(s"User DB: ${config.userDbPath}")
       _ <- IO.println("Initializing user database schema...")
       _ <- Schema.initializeUserSchema(dbs.userXa)
-      _ <- IO.println("Attaching reference database...")
-      _ <- Database.attachRefDb(dbs.userXa, config.refDbPath)
       tableCounts <- ReferenceDataRepository.counts(dbs.refXa)
       _ <- printSummary(tableCounts, dbs.refXa)
       _ <- IO.println("Starting HTTP server on port 8080...")

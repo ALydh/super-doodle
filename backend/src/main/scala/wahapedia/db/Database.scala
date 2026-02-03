@@ -34,17 +34,19 @@ object Database {
       logHandler = None
     )
 
-    val userXa = Transactor.fromDriverManager[IO](
+    val baseUserXa = Transactor.fromDriverManager[IO](
       driver = "org.sqlite.JDBC",
       url = s"jdbc:sqlite:file:${config.userDbPath}?foreign_keys=on",
       logHandler = None
     )
 
+    val attachRefDb: ConnectionIO[Unit] =
+      sql"ATTACH DATABASE ${config.refDbPath} AS ref".update.run.void
+
+    val userXa = Transactor.before.modify(baseUserXa, _ *> attachRefDb)
+
     Databases(refXa, userXa)
   }
-
-  def attachRefDb(userXa: Transactor[IO], refDbPath: String): IO[Unit] =
-    sql"ATTACH DATABASE $refDbPath AS ref".update.run.transact(userXa).void
 
   def singleTransactor(path: String): Transactor[IO] =
     Transactor.fromDriverManager[IO](
