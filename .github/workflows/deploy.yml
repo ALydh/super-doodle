@@ -40,7 +40,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          script: sudo systemctl stop super-doodle || true
+          script: sudo systemctl stop wp40k || true
 
       - name: Copy frontend
         uses: appleboy/scp-action@v0.1.7
@@ -49,7 +49,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "frontend/dist/*"
-          target: "/opt/super-doodle/frontend"
+          target: "/opt/wp40k/frontend"
           strip_components: 2
 
       - name: Copy backend and database
@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "backend/target/native-image/backend,backend/wahapedia-ref.db"
-          target: "/opt/super-doodle"
+          target: "/opt/wp40k"
           strip_components: 1
 
       - name: Move files and start service
@@ -69,8 +69,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            mv /opt/super-doodle/target/native-image/backend /opt/super-doodle/backend || true
-            mv /opt/super-doodle/wahapedia-ref.db /opt/super-doodle/wahapedia-ref.db.new && mv /opt/super-doodle/wahapedia-ref.db.new /opt/super-doodle/wahapedia-ref.db || true
-            rm -rf /opt/super-doodle/target
-            chmod +x /opt/super-doodle/backend
-            sudo systemctl start super-doodle
+            mv /opt/wp40k/target/native-image/backend /opt/wp40k/backend || true
+            mv /opt/wp40k/wahapedia-ref.db /opt/wp40k/wahapedia-ref.db.new && mv /opt/wp40k/wahapedia-ref.db.new /opt/wp40k/wahapedia-ref.db || true
+            rm -rf /opt/wp40k/target
+            chmod +x /opt/wp40k/backend
+            sudo systemctl start wp40k
