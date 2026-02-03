@@ -24,7 +24,7 @@ Compile / run / fork := true
 
 // Native Image Configuration
 Compile / mainClass := Some("wahapedia.Main")
-nativeImageGraalHome := sys.env.get("GRAALVM_HOME").map(file)
+nativeImageGraalHome := file(sys.env.getOrElse("GRAALVM_HOME", "/usr/lib/jvm/graalvm")).toPath
 
 nativeImageOptions := Seq(
   "--no-fallback",
