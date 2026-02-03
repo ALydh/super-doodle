@@ -33,6 +33,7 @@ nativeImageOptions := Seq(
   "-H:+UnlockExperimentalVMOptions",
   "--gc=serial", // smaller footprint for low load
   "--initialize-at-build-time",
+  "--initialize-at-run-time=wahapedia.db.DatabaseConfig$,wahapedia.Main$",
   "-H:IncludeResources=.*\\.csv$",
   "-H:IncludeResources=application\\.conf.*",
   "--allow-incomplete-classpath"
