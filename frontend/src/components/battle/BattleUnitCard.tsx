@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { BattleUnitData } from "../../types";
-import { UnitDetail } from "./UnitDetail";
+import { UnitDetailWide } from "./UnitDetailWide";
 
 interface Props {
   data: BattleUnitData;
@@ -55,7 +55,7 @@ export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count
       </button>
       {expanded && (
         <div className="battle-unit-card-content">
-          <UnitDetail data={data} isWarlord={isWarlord} />
+          <UnitDetailWide data={data} isWarlord={isWarlord} />
         </div>
       )}
     </div>
