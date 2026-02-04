@@ -34,15 +34,15 @@ object AuthRoutes {
           case (Left(err), _) => badRequest(err.message)
           case (_, Left(err)) => badRequest(err.message)
           case (Right(username), Right(password)) =>
-            def createUserAndSession(hash: String): IO[Response[IO]] =
-              UserRepository.create(username, hash)(xa).flatMap {
+            def createUserAndSession(hash: String, isAdmin: Boolean): IO[Response[IO]] =
+              UserRepository.create(username, hash, isAdmin)(xa).flatMap {
                 case None =>
                   Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
                 case Some(user) =>
                   SessionRepository.create(user.id)(xa).flatMap { session =>
                     Created(AuthResponse(
                       SessionToken.value(session.token),
-                      UserResponse(UserId.value(user.id), user.username)
+                      UserResponse(UserId.value(user.id), user.username, user.isAdmin)
                     ))
                   }
               }
@@ -51,16 +51,16 @@ object AuthRoutes {
               userCount <- UserRepository.count(xa)
               hash <- PasswordHasher.hash(password)
               result <- {
-                val needsInvite = userCount > 0
-                if (needsInvite && regReq.inviteCode.isEmpty) {
+                val isFirstUser = userCount == 0
+                if (!isFirstUser && regReq.inviteCode.isEmpty) {
                   Forbidden(Json.obj("error" -> Json.fromString("Invite code required")))
-                } else if (needsInvite) {
+                } else if (!isFirstUser) {
                   val code = InviteCode(regReq.inviteCode.get)
                   InviteRepository.findUnusedByCode(code)(xa).flatMap {
                     case None =>
                       Forbidden(Json.obj("error" -> Json.fromString("Invalid or used invite code")))
                     case Some(_) =>
-                      UserRepository.create(username, hash)(xa).flatMap {
+                      UserRepository.create(username, hash, isAdmin = false)(xa).flatMap {
                         case None =>
                           Conflict(Json.obj("error" -> Json.fromString("Username already taken")))
                         case Some(user) =>
@@ -68,13 +68,13 @@ object AuthRoutes {
                             SessionRepository.create(user.id)(xa).flatMap { session =>
                               Created(AuthResponse(
                                 SessionToken.value(session.token),
-                                UserResponse(UserId.value(user.id), user.username)
+                                UserResponse(UserId.value(user.id), user.username, user.isAdmin)
                               ))
                             }
                       }
                   }
                 } else {
-                  createUserAndSession(hash)
+                  createUserAndSession(hash, isAdmin = true)
                 }
               }
             } yield result
@@ -97,7 +97,7 @@ object AuthRoutes {
                     SessionRepository.create(user.id)(xa).flatMap { session =>
                       Ok(AuthResponse(
                         SessionToken.value(session.token),
-                        UserResponse(UserId.value(user.id), user.username)
+                        UserResponse(UserId.value(user.id), user.username, user.isAdmin)
                       ))
                     }
                 }
@@ -125,12 +125,14 @@ object AuthRoutes {
     case req @ GET -> Root / "api" / "auth" / "me" =>
       AuthMiddleware.extractUser(req, xa).flatMap {
         case None => unauthorized("Not authenticated")
-        case Some(user) => Ok(UserResponse(UserId.value(user.id), user.username))
+        case Some(user) => Ok(UserResponse(UserId.value(user.id), user.username, user.isAdmin))
       }
 
     case req @ POST -> Root / "api" / "invites" =>
       AuthMiddleware.extractUser(req, xa).flatMap {
         case None => unauthorized("Authentication required")
+        case Some(user) if !user.isAdmin =>
+          Forbidden(Json.obj("error" -> Json.fromString("Admin access required")))
         case Some(user) =>
           InviteRepository.create(Some(user.id))(xa).flatMap { invite =>
             Created(InviteResponse(InviteCode.value(invite.code), invite.createdAt.toString, false))
@@ -140,6 +142,8 @@ object AuthRoutes {
     case req @ GET -> Root / "api" / "invites" =>
       AuthMiddleware.extractUser(req, xa).flatMap {
         case None => unauthorized("Authentication required")
+        case Some(user) if !user.isAdmin =>
+          Forbidden(Json.obj("error" -> Json.fromString("Admin access required")))
         case Some(_) =>
           InviteRepository.listAll(xa).flatMap { invites =>
             Ok(invites.map(i => InviteResponse(InviteCode.value(i.code), i.createdAt.toString, i.usedBy.isDefined)))

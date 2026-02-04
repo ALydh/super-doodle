@@ -7,6 +7,7 @@ case class User(
   id: UserId,
   username: String,
   passwordHash: String,
+  isAdmin: Boolean,
   createdAt: Instant
 )
 
@@ -25,4 +26,4 @@ case class Invite(
   usedAt: Option[Instant]
 )
 
-case class AuthenticatedUser(id: UserId, username: String)
+case class AuthenticatedUser(id: UserId, username: String, isAdmin: Boolean)
