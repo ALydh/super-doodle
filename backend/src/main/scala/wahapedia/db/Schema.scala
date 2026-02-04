@@ -276,6 +276,16 @@ object Schema {
       count INTEGER NOT NULL,
       model_type TEXT,
       PRIMARY KEY (datasheet_id, size_line, weapon)
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS parsed_unit_composition (
+      datasheet_id TEXT NOT NULL,
+      line INTEGER NOT NULL,
+      group_index INTEGER NOT NULL,
+      model_name TEXT NOT NULL,
+      min_count INTEGER NOT NULL,
+      max_count INTEGER NOT NULL,
+      PRIMARY KEY (datasheet_id, line, model_name)
     )"""
   )
 
