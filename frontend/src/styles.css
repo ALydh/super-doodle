@@ -2204,7 +2204,7 @@ button:disabled {
 
   .stats-card-values {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 4px;
   }
 
@@ -4151,5 +4151,70 @@ button:disabled {
 
   .battle-swipe-card {
     padding: 16px;
+  }
+}
+
+/* Unit Detail Wide - Two Column Layout */
+.unit-detail-wide {
+  display: flex;
+  flex-direction: column;
+}
+
+.unit-detail-wide-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.unit-detail-wide-left {
+  min-width: 0;
+}
+
+.unit-detail-wide-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.unit-detail-wide .unit-detail-stats,
+.unit-detail-wide .unit-detail-weapons,
+.unit-detail-wide .unit-detail-enhancement,
+.unit-detail-wide .unit-detail-abilities {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.unit-detail-wide .unit-detail-stats h4 {
+  color: var(--faction-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.unit-detail-wide .unit-detail-stats + .unit-detail-weapons {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.unit-detail-wide .unit-detail-enhancement + .unit-detail-abilities {
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+@media (min-width: 1200px) {
+  .unit-detail-wide-columns {
+    grid-template-columns: 1fr 320px;
+  }
+
+  .unit-detail-wide-right {
+    border-left: 1px solid var(--surface-border);
+    padding-left: 16px;
   }
 }
