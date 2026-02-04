@@ -2015,6 +2015,10 @@ button:disabled {
     display: none;
   }
 
+  .col-header-toggle {
+    display: flex;
+  }
+
   .builder-col-picker .unit-picker h3 {
     display: block;
   }
