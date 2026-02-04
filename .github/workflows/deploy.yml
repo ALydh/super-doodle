@@ -73,6 +73,16 @@ jobs:
           target: "/opt/wp40k"
           strip_components: 1
 
+      - name: Copy deploy configs
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "deploy/*"
+          target: "/opt/wp40k/deploy"
+          strip_components: 1
+
       - name: Move files and start service
         uses: appleboy/ssh-action@v1
         with:
@@ -85,3 +95,4 @@ jobs:
             rm -rf /opt/wp40k/target
             chmod +x /opt/wp40k/backend
             sudo systemctl start wp40k
+            cd /opt/wp40k/deploy && docker compose -f docker-compose.observability.yml up -d --pull always || true
