@@ -809,6 +809,136 @@ tbody td {
   margin-left: 24px;
 }
 
+/* Wargear Selector - Collapsed State */
+.wargear-selector-collapsed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wargear-collapsed-summary {
+  padding: 8px 12px;
+  background: var(--surface-panel);
+  border-left: 3px solid var(--surface-border);
+  border-radius: 0 4px 4px 0;
+}
+
+.wargear-none-text {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.wargear-count-text {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.wargear-change-btn {
+  align-self: flex-start;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wargear-change-btn:hover {
+  background: var(--faction-secondary);
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.wargear-collapse-btn {
+  align-self: flex-end;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  background: var(--faction-trim);
+  border: none;
+  border-radius: 4px;
+  color: var(--surface-app);
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.wargear-collapse-btn:hover {
+  filter: brightness(1.1);
+}
+
+.wargear-choice-dropdown {
+  margin-top: 8px;
+  width: 100%;
+}
+
+/* Wargear Selector - Cards Mode */
+.wargear-selector-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wargear-card-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--surface-panel);
+  border: 2px solid var(--surface-border);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wargear-card-option:hover {
+  border-color: var(--faction-trim);
+  background: var(--surface-hover);
+}
+
+.wargear-card-option.selected {
+  border-color: var(--faction-trim);
+  background: var(--faction-secondary);
+}
+
+.wargear-card-indicator {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--surface-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--faction-trim);
+  background: var(--surface-app);
+}
+
+.wargear-card-option.selected .wargear-card-indicator {
+  border-color: var(--faction-trim);
+  background: var(--faction-trim);
+  color: var(--surface-app);
+}
+
+.wargear-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.wargear-card-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
+}
+
+.wargear-card-option.selected .wargear-card-description {
+  color: var(--text-primary);
+}
+
 .abilities-preview {
   margin-top: 16px;
   padding-top: 16px;
