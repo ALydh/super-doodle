@@ -1,6 +1,6 @@
 package wahapedia.domain.army
 
-import wahapedia.domain.models.{Wargear, ParsedWargearOption, WargearAction, ModelLoadout, LoadoutParser}
+import wahapedia.domain.models.{Wargear, ParsedWargearOption, WargearAction, ModelLoadout, LoadoutParser, CompositionLineParser, ParsedCompositionLine}
 
 case class WargearWithQuantity(
   wargear: Wargear,
@@ -137,16 +137,20 @@ object WargearFilter {
         .map(l => l.weapons.map(_ -> unitSize).toMap)
         .getOrElse(Map.empty)
     } else if (hasSpecific) {
-      val sergeantCount = 1
-      val trooperCount = unitSize - sergeantCount
+      val compositionLines = loadouts.filter(_.modelPattern != "*").map { l =>
+        CompositionLineParser.parseLine(l.modelPattern)
+          .flatMap(_.headOption)
+          .getOrElse(ParsedCompositionLine(l.modelPattern, 1, 1))
+      }
+
+      val modelCounts = CompositionLineParser.calculateModelCounts(compositionLines, unitSize)
 
       loadouts.foldLeft(Map.empty[String, Int]) { (counts, l) =>
         val modelCount = if (l.modelPattern == "*") {
           unitSize
-        } else if (isSergeantPattern(l.modelPattern)) {
-          sergeantCount
         } else {
-          trooperCount
+          val matched = CompositionLineParser.matchModelTarget(l.modelPattern, compositionLines)
+          matched.map(m => modelCounts.getOrElse(m.modelName.toLowerCase, 1)).getOrElse(1)
         }
 
         l.weapons.foldLeft(counts) { (c, w) =>
@@ -156,23 +160,6 @@ object WargearFilter {
     } else {
       Map.empty
     }
-  }
-
-  private def isSergeantPattern(pattern: String): Boolean = {
-    val lower = pattern.toLowerCase
-    lower.contains("sergeant") || lower.contains("champion") || lower.contains("leader") ||
-      lower.contains("captain") ||
-      lower.contains("boss nob") || lower.contains("nob") ||
-      lower.contains("shas'ui") || lower.contains("shas'vre") ||
-      lower.contains("exarch") ||
-      lower.contains("superior") ||
-      lower.contains("acothyst") || lower.contains("sybarite") || lower.contains("hekatrix") ||
-      lower.contains("helliarch") || lower.contains("solarite") || lower.contains("klaivex") ||
-      lower.contains("alpha") || lower.contains("princeps") ||
-      lower.contains("theyn") || lower.contains("hesyr") ||
-      lower.contains("felarch") ||
-      lower.contains("sorcerer") ||
-      lower.contains("kill-broker")
   }
 
   private def calculateSelectionChanges(

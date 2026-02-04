@@ -295,6 +295,20 @@ object ReferenceDataRepository {
       detachmentAbilities <- allDetachmentAbilities(xa)
     } yield ReferenceData(datasheets, keywords, unitCosts, enhancements, leaders, detachmentAbilities)
 
+  def parsedCompositionForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[ParsedCompositionLine]] =
+    sql"SELECT model_name, min_count, max_count, group_index FROM parsed_unit_composition WHERE datasheet_id = $datasheetId"
+      .query[(String, Int, Int, Int)].to[List].transact(xa)
+      .map(_.map { case (name, min, max, groupIdx) => ParsedCompositionLine(name, min, max, groupIdx) })
+
+  def parsedCompositionForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[Map[String, List[ParsedCompositionLine]]] =
+    (fr"SELECT datasheet_id, model_name, min_count, max_count, group_index FROM parsed_unit_composition WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
+      .query[(String, String, Int, Int, Int)].to[List].transact(xa)
+      .map { rows =>
+        rows.groupBy(_._1).map { case (dsId, dsRows) =>
+          dsId -> dsRows.map { case (_, name, min, max, groupIdx) => ParsedCompositionLine(name, min, max, groupIdx) }
+        }
+      }
+
   def counts(xa: Transactor[IO]): IO[Map[String, Int]] = {
     val tables = List(
       "factions", "sources", "abilities", "datasheets", "model_profiles",
@@ -303,7 +317,7 @@ object ReferenceDataRepository {
       "stratagems", "datasheet_stratagems", "enhancements",
       "datasheet_enhancements", "detachment_abilities",
       "datasheet_detachment_abilities", "last_update", "weapon_abilities", "parsed_wargear_options",
-      "parsed_loadouts",
+      "parsed_loadouts", "parsed_unit_composition",
       "unit_wargear_defaults"
     )
     tables.traverse { table =>

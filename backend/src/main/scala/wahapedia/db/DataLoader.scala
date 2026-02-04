@@ -25,6 +25,7 @@ object DataLoader {
       _ <- loadFile("Datasheets_models.csv", ModelProfileParser, insertModelProfile)(xa, dataDir)
       _ <- loadFile("Datasheets_wargear.csv", WargearParser, insertWargear)(xa, dataDir)
       _ <- loadFile("Datasheets_unit_composition.csv", UnitCompositionParser, insertUnitComposition)(xa, dataDir)
+      _ <- generateParsedUnitComposition(xa)
       _ <- loadFile("Datasheets_models_cost.csv", UnitCostParser, insertUnitCost)(xa, dataDir)
       _ <- loadFile("Datasheets_keywords.csv", DatasheetKeywordParser, insertDatasheetKeyword)(xa, dataDir)
       _ <- loadFile("Datasheets_abilities.csv", DatasheetAbilityParser, insertDatasheetAbility)(xa, dataDir)
@@ -45,6 +46,7 @@ object DataLoader {
   private def clearRef(xa: Transactor[IO], dataDir: String): IO[Unit] = {
     val deletes = List(
       sql"DELETE FROM unit_wargear_defaults",
+      sql"DELETE FROM parsed_unit_composition",
       sql"DELETE FROM parsed_loadouts",
       sql"DELETE FROM parsed_wargear_options",
       sql"DELETE FROM weapon_abilities",
@@ -199,22 +201,33 @@ object DataLoader {
   private def parseUnitSize(description: String): Option[Int] =
     unitSizePattern.findFirstMatchIn(description.toLowerCase).map(_.group(1).toInt)
 
-  private def isSergeantPattern(pattern: String): Boolean = {
-    val lower = pattern.toLowerCase
-    lower.contains("sergeant") || lower.contains("champion") || lower.contains("leader") ||
-      lower.contains("captain") ||
-      lower.contains("boss nob") || lower.contains("nob") ||
-      lower.contains("shas'ui") || lower.contains("shas'vre") ||
-      lower.contains("exarch") ||
-      lower.contains("superior") ||
-      lower.contains("acothyst") || lower.contains("sybarite") || lower.contains("hekatrix") ||
-      lower.contains("helliarch") || lower.contains("solarite") || lower.contains("klaivex") ||
-      lower.contains("alpha") || lower.contains("princeps") ||
-      lower.contains("theyn") || lower.contains("hesyr") ||
-      lower.contains("felarch") ||
-      lower.contains("sorcerer") ||
-      lower.contains("kill-broker")
-  }
+  private def generateParsedUnitComposition(xa: Transactor[IO]): IO[Unit] =
+    for {
+      _ <- IO.println("Generating parsed unit compositions...")
+      compositions <- sql"SELECT datasheet_id, line, description FROM unit_composition ORDER BY datasheet_id, line"
+        .query[(String, Int, String)].to[List].transact(xa)
+
+      compositionsByDs = compositions.groupBy(_._1)
+      inserts = compositionsByDs.toList.flatMap { case (dsId, dsLines) =>
+        var groupIndex = 0
+        dsLines.sortBy(_._2).flatMap { case (_, line, description) =>
+          if (description.equalsIgnoreCase("OR")) {
+            groupIndex += 1
+            List.empty
+          } else {
+            CompositionLineParser.parseLine(description).getOrElse(List.empty).map { parsed =>
+              (dsId, line, groupIndex, parsed.modelName, parsed.minCount, parsed.maxCount)
+            }
+          }
+        }
+      }
+
+      _ <- inserts.traverse_ { case (dsId, line, groupIndex, modelName, minCount, maxCount) =>
+        sql"""INSERT OR IGNORE INTO parsed_unit_composition (datasheet_id, line, group_index, model_name, min_count, max_count)
+              VALUES ($dsId, $line, $groupIndex, $modelName, $minCount, $maxCount)""".update.run
+      }.transact(xa)
+      _ <- IO.println(s"  Generated ${inserts.length} parsed unit composition entries")
+    } yield ()
 
   private def generateUnitWargearDefaults(xa: Transactor[IO], dataDir: String): IO[Unit] =
     for {
@@ -223,11 +236,19 @@ object DataLoader {
         .query[(String, String, String)].to[List].transact(xa)
       costs <- sql"SELECT datasheet_id, line, description FROM unit_cost"
         .query[(String, Int, String)].to[List].transact(xa)
+      compositions <- sql"SELECT datasheet_id, model_name, min_count, max_count, group_index FROM parsed_unit_composition"
+        .query[(String, String, Int, Int, Int)].to[List].transact(xa)
 
       loadoutsByDs = loadouts.groupBy(_._1).map { case (dsId, rows) =>
         dsId -> rows.groupBy(_._2).map { case (pattern, patternRows) =>
           ModelLoadout(pattern, patternRows.map(_._3))
         }.toList
+      }
+
+      compositionsByDs = compositions.groupBy(_._1).map { case (dsId, rows) =>
+        dsId -> rows.map { case (_, name, min, max, groupIdx) =>
+          ParsedCompositionLine(name, min, max, groupIdx)
+        }
       }
 
       inserts = costs.flatMap { case (dsId, line, description) =>
@@ -236,22 +257,22 @@ object DataLoader {
             val hasUniversal = dsLoadouts.exists(_.modelPattern == "*")
             val hasSpecific = dsLoadouts.exists(_.modelPattern != "*")
             val counts = scala.collection.mutable.Map[String, (Int, Option[String])]()
+            val allCompositionLines = compositionsByDs.getOrElse(dsId, List.empty)
+            val compositionLines = CompositionLineParser.selectGroupForSize(allCompositionLines, unitSize)
+            val modelCounts = CompositionLineParser.calculateModelCounts(compositionLines, unitSize)
 
             if (hasUniversal && !hasSpecific) {
               dsLoadouts.find(_.modelPattern == "*").foreach { l =>
                 l.weapons.foreach(w => counts(w) = (unitSize, None))
               }
             } else if (hasSpecific) {
-              val sergeantCount = 1
-              val trooperCount = unitSize - sergeantCount
-
               dsLoadouts.foreach { l =>
                 val (modelCount, modelType) = if (l.modelPattern == "*") {
                   (unitSize, None)
-                } else if (isSergeantPattern(l.modelPattern)) {
-                  (sergeantCount, Some(l.modelPattern))
                 } else {
-                  (trooperCount, Some(l.modelPattern))
+                  val matched = CompositionLineParser.matchModelTarget(l.modelPattern, compositionLines)
+                  val count = matched.map(m => modelCounts.getOrElse(m.modelName.toLowerCase, 1)).getOrElse(1)
+                  (count, Some(l.modelPattern))
                 }
 
                 l.weapons.foreach { w =>
