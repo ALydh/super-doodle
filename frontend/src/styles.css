@@ -1724,6 +1724,14 @@ button:disabled {
   font-size: 0.8rem;
 }
 
+.army-card-owner {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-border);
+}
+
 .new-army-section {
   border-top: 1px solid var(--surface-border);
   padding-top: 32px;

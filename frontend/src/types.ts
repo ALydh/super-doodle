@@ -145,6 +145,8 @@ export interface ArmySummary {
   updatedAt: string;
   warlordName: string | null;
   totalPoints: number;
+  ownerId: string | null;
+  ownerName: string | null;
 }
 
 export interface Enhancement {
