@@ -12,27 +12,50 @@ interface Props {
 }
 
 export function EnhancementSelector({ enhancements, selectedId, onSelect, mode = "cards" }: Props) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [expandedAccordion, setExpandedAccordion] = useState<string | null>(null);
   const selectedEnhancement = selectedId ? enhancements.find(e => e.id === selectedId) : null;
 
-  if (selectedEnhancement) {
+  const handleSelect = (id: string | null) => {
+    onSelect(id);
+    setIsExpanded(false);
+  };
+
+  if (!isExpanded) {
+    if (selectedEnhancement) {
+      return (
+        <div className="enhancement-selector-collapsed">
+          <div className="enhancement-detail">
+            <div className="enhancement-header">
+              <strong>{selectedEnhancement.name}</strong>
+              <span className="enhancement-cost">+{selectedEnhancement.cost}pts</span>
+            </div>
+            {selectedEnhancement.description && (
+              <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedEnhancement.description) }} />
+            )}
+          </div>
+          <button
+            type="button"
+            className="enhancement-change-btn"
+            onClick={() => setIsExpanded(true)}
+          >
+            Change Enhancement
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="enhancement-selector-collapsed">
-        <div className="enhancement-detail">
-          <div className="enhancement-header">
-            <strong>{selectedEnhancement.name}</strong>
-            <span className="enhancement-cost">+{selectedEnhancement.cost}pts</span>
-          </div>
-          {selectedEnhancement.description && (
-            <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedEnhancement.description) }} />
-          )}
+        <div className="enhancement-detail enhancement-none">
+          <span className="enhancement-none-text">No enhancement</span>
         </div>
         <button
           type="button"
           className="enhancement-change-btn"
-          onClick={() => onSelect(null)}
+          onClick={() => setIsExpanded(true)}
         >
-          Change Enhancement
+          Add Enhancement
         </button>
       </div>
     );
@@ -41,7 +64,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
   if (mode === "cards") {
     return (
       <div className="enhancement-selector enhancement-selector-cards">
-        <div className="enhancement-card-option enhancement-card-none" onClick={() => onSelect(null)}>
+        <div className="enhancement-card-option enhancement-card-none" onClick={() => handleSelect(null)}>
           <div className="enhancement-card-header">
             <span className="enhancement-card-name">None</span>
             <span className="enhancement-card-cost">+0pts</span>
@@ -52,7 +75,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
           <div
             key={e.id}
             className="enhancement-card-option"
-            onClick={() => onSelect(e.id)}
+            onClick={() => handleSelect(e.id)}
           >
             <div className="enhancement-card-header">
               <span className="enhancement-card-name">{e.name}</span>
@@ -86,7 +109,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
             <button
               type="button"
               className="enhancement-select-btn"
-              onClick={(ev) => { ev.stopPropagation(); onSelect(null); }}
+              onClick={(ev) => { ev.stopPropagation(); handleSelect(null); }}
             >
               Select
             </button>
@@ -112,7 +135,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
               <button
                 type="button"
                 className="enhancement-select-btn"
-                onClick={(ev) => { ev.stopPropagation(); onSelect(e.id); }}
+                onClick={(ev) => { ev.stopPropagation(); handleSelect(e.id); }}
               >
                 Select
               </button>
@@ -135,7 +158,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
           type="radio"
           name="enhancement"
           checked={selectedId === null}
-          onChange={() => onSelect(null)}
+          onChange={() => handleSelect(null)}
         />
         <div className="enhancement-radio-content">
           <div className="enhancement-radio-header">
@@ -151,7 +174,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
             type="radio"
             name="enhancement"
             checked={selectedId === e.id}
-            onChange={() => onSelect(e.id)}
+            onChange={() => handleSelect(e.id)}
           />
           <div className="enhancement-radio-content">
             <div className="enhancement-radio-header">

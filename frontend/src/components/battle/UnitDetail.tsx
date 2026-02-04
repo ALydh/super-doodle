@@ -130,20 +130,6 @@ export function UnitDetail({ data, isWarlord }: Props) {
         </div>
       )}
 
-      {abilities.filter((a) => a.name).length > 0 && (
-        <div className="unit-detail-abilities">
-          <h4>Abilities</h4>
-          <ul className="abilities-list compact">
-            {abilities.filter((a) => a.name).map((a, i) => (
-              <li key={i}>
-                <strong>{a.name}</strong>
-                {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
       {enhancement && (
         <div className="unit-detail-enhancement">
           <h4>Enhancement</h4>
@@ -156,6 +142,20 @@ export function UnitDetail({ data, isWarlord }: Props) {
               <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(enhancement.description) }} />
             )}
           </div>
+        </div>
+      )}
+
+      {abilities.filter((a) => a.name).length > 0 && (
+        <div className="unit-detail-abilities">
+          <h4>Abilities</h4>
+          <ul className="abilities-list compact">
+            {abilities.filter((a) => a.name).map((a, i) => (
+              <li key={i}>
+                <strong>{a.name}</strong>
+                {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

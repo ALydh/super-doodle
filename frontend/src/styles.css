@@ -3725,6 +3725,16 @@ button:disabled {
   color: var(--text-primary);
 }
 
+.enhancement-detail.enhancement-none {
+  padding: 8px 12px;
+  border-left-color: var(--surface-border);
+}
+
+.enhancement-none-text {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* Enhancement Selector - Mode Toggle */
 .enhancement-mode-toggle {
   display: flex;
