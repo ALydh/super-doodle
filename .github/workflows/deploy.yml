@@ -172,4 +172,4 @@ jobs:
             fi
             rm -rf target
             sudo systemctl start wp40k
-            cd /opt/wp40k/deploy && docker compose -f docker-compose.observability.yml up -d --pull always || true
+            cd /opt/wp40k/deploy && docker-compose -f docker-compose.observability.yml up -d --pull always || true
