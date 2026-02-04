@@ -1,6 +1,7 @@
 package wahapedia.db
 
 import cats.effect.IO
+import cats.implicits.*
 import doobie.*
 import doobie.implicits.*
 
