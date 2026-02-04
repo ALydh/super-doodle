@@ -20,16 +20,27 @@ export function WargearSelector({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getSelection = (line: number) => selections.find(s => s.optionLine === line);
-  const selectedCount = selections.filter(s => s.selected).length;
+  const selectedOptions = selections
+    .filter(s => s.selected)
+    .map(s => {
+      const option = options.find(o => o.line === s.optionLine);
+      if (s.notes) return s.notes;
+      if (!option) return null;
+      const desc = option.description.replace(/<[^>]*>/g, '');
+      const match = desc.match(/replaced with (?:\d+ )?(.+?)(?:\.|$)/i);
+      if (match) return match[1].trim();
+      return desc.length > 40 ? desc.slice(0, 40) + '…' : desc;
+    })
+    .filter(Boolean) as string[];
 
   if (!isExpanded) {
     return (
       <div className="wargear-selector-collapsed">
         <div className="wargear-collapsed-summary">
-          {selectedCount === 0 ? (
+          {selectedOptions.length === 0 ? (
             <span className="wargear-none-text">No wargear options selected</span>
           ) : (
-            <span className="wargear-count-text">{selectedCount} option{selectedCount !== 1 ? 's' : ''} selected</span>
+            <span className="wargear-selected-list">{selectedOptions.join(', ')}</span>
           )}
         </div>
         <button
@@ -37,7 +48,7 @@ export function WargearSelector({
           className="wargear-change-btn"
           onClick={() => setIsExpanded(true)}
         >
-          {selectedCount === 0 ? "Configure Wargear" : "Change Wargear"}
+          {selectedOptions.length === 0 ? "Configure Wargear" : "Change Wargear"}
         </button>
       </div>
     );
