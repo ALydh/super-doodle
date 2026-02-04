@@ -1,0 +1,15 @@
+[Unit]
+Description=Wahapedia Observability Stack (Loki + Grafana + Promtail)
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/wahapedia/deploy
+ExecStart=/usr/bin/docker compose -f docker-compose.observability.yml up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.observability.yml down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

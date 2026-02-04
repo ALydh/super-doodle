@@ -35,8 +35,8 @@ nativeImageOptions := Seq(
   "-H:+ReportExceptionStackTraces",
   "-H:+UnlockExperimentalVMOptions",
   "--gc=serial", // smaller footprint for low load
-  "--initialize-at-build-time=org.slf4j,ch.qos.logback",
-  "--initialize-at-run-time=wahapedia.db.DatabaseConfig$,wahapedia.Main$",
+  "--initialize-at-build-time",
+  "--initialize-at-run-time=wahapedia.db.DatabaseConfig$,wahapedia.Main$,com.fasterxml.jackson,net.logstash.logback",
   "-H:IncludeResources=.*\\.csv$",
   "-H:IncludeResources=application\\.conf.*",
   "--allow-incomplete-classpath"
