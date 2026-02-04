@@ -139,6 +139,13 @@ object ReferenceDataRepository {
     (fr"SELECT datasheet_id, keyword, model, is_faction_keyword FROM datasheet_keywords WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
       .query[DatasheetKeyword].to[List].transact(xa)
 
+  def factionKeywordsForFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DatasheetKeyword]] =
+    sql"""SELECT DISTINCT dk.datasheet_id, dk.keyword, dk.model, dk.is_faction_keyword
+          FROM datasheet_keywords dk
+          JOIN datasheets d ON dk.datasheet_id = d.id
+          WHERE d.faction_id = $factionId AND dk.is_faction_keyword = true"""
+      .query[DatasheetKeyword].to[List].transact(xa)
+
   def allDatasheetAbilities(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
     sql"SELECT datasheet_id, line, ability_id, model, name, description, ability_type, parameter FROM datasheet_abilities"
       .query[DatasheetAbility].to[List].transact(xa)

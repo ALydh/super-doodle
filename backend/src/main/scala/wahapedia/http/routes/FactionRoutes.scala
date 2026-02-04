@@ -2,6 +2,7 @@ package wahapedia.http.routes
 
 import cats.effect.IO
 import cats.data.NonEmptyList
+import cats.implicits.*
 import io.circe.Json
 import io.circe.generic.auto.*
 import org.http4s.*
@@ -12,7 +13,8 @@ import org.http4s.headers.`Cache-Control`
 import org.http4s.CacheDirective
 import wahapedia.db.{ArmyRepository, ReferenceDataRepository}
 import wahapedia.domain.types.*
-import wahapedia.http.dto.DatasheetDetail
+import wahapedia.domain.army.AllyRules
+import wahapedia.http.dto.{DatasheetDetail, AlliedFactionInfo}
 import doobie.*
 
 import scala.concurrent.duration.*
@@ -113,6 +115,31 @@ object FactionRoutes {
       FactionId.parse(factionIdStr) match {
         case Right(factionId) =>
           ArmyRepository.listSummariesByFaction(factionId)(xa).flatMap(Ok(_))
+        case Left(_) =>
+          BadRequest(Json.obj("error" -> Json.fromString(s"Invalid faction ID: $factionIdStr")))
+      }
+
+    case GET -> Root / "api" / "factions" / factionIdStr / "available-allies" =>
+      FactionId.parse(factionIdStr) match {
+        case Right(factionId) =>
+          for {
+            keywords <- ReferenceDataRepository.factionKeywordsForFaction(factionId)(xa)
+            allFactions <- ReferenceDataRepository.allFactions(xa)
+            superKeywords = keywords.flatMap(_.keyword).toSet
+            allowedAllies = AllyRules.allowedAllies(superKeywords)
+            alliedData <- allowedAllies.traverse { ally =>
+              ReferenceDataRepository.datasheetsByFaction(ally.factionId)(xa).map { datasheets =>
+                val factionName = allFactions.find(_.id == ally.factionId).map(_.name).getOrElse(FactionId.value(ally.factionId))
+                AlliedFactionInfo(
+                  FactionId.value(ally.factionId),
+                  factionName,
+                  ally.allyType.toString,
+                  datasheets.filterNot(_.virtual)
+                )
+              }
+            }
+            resp <- Ok(alliedData)
+          } yield resp.putHeaders(cacheHeaders)
         case Left(_) =>
           BadRequest(Json.obj("error" -> Json.fromString(s"Invalid faction ID: $factionIdStr")))
       }

@@ -100,6 +100,7 @@ export interface ArmyUnit {
   attachedLeaderId: string | null;
   attachedToUnitIndex: number | null;
   wargearSelections: WargearSelection[];
+  isAllied?: boolean;
 }
 
 export type LeaderDisplayMode = "table" | "grouped" | "inline" | "merged" | "instance";
@@ -268,4 +269,11 @@ export interface ArmyBattleData {
   detachmentId: string;
   warlordId: string;
   units: BattleUnitData[];
+}
+
+export interface AlliedFactionInfo {
+  factionId: string;
+  factionName: string;
+  allyType: string;
+  datasheets: Datasheet[];
 }

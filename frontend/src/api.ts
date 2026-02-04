@@ -3,6 +3,7 @@ import type {
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
   Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
   User, AuthResponse, Invite, ArmyBattleData, WargearWithQuantity,
+  AlliedFactionInfo,
 } from "./types";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -275,4 +276,12 @@ export async function filterWargear(
   });
   if (!res.ok) throw new Error(`Failed to filter wargear: ${res.status}`);
   return res.json();
+}
+
+export async function fetchAvailableAllies(factionId: string): Promise<AlliedFactionInfo[]> {
+  return cachedFetch(`allies:${factionId}`, async () => {
+    const res = await fetch(`/api/factions/${factionId}/available-allies`);
+    if (!res.ok) throw new Error(`Failed to fetch available allies: ${res.status}`);
+    return res.json();
+  });
 }

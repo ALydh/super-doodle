@@ -35,6 +35,16 @@ function errorMessage(err: ValidationError, datasheets: Datasheet[]): string {
       return "Could not determine unit cost";
     case "DatasheetNotFound":
       return "Datasheet not found";
+    case "AlliedWarlord":
+      return "Allied unit cannot be your Warlord";
+    case "AlliedEnhancement":
+      return "Allied units cannot have enhancements";
+    case "AlliedUnitLimitExceeded":
+      return `${err.allyType}: ${err.message}`;
+    case "AlliedPointsExceeded":
+      return `${err.allyType} points exceeded: ${err.used}/${err.limit}`;
+    case "AlliedFactionNotAllowed":
+      return "Allied faction not allowed for this army";
     default:
       return `Validation error: ${err.errorType}`;
   }
