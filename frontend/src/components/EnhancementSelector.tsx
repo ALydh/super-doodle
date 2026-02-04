@@ -2,6 +2,9 @@ import { useState } from "react";
 import type { Enhancement } from "../types";
 import { sanitizeHtml } from "../sanitize";
 
+const stripFactionRestriction = (desc: string) =>
+  desc.replace(/^[A-Z][A-Z\s]+ model only\.\s*/i, '');
+
 type SelectorMode = "cards" | "accordion" | "radio";
 
 interface Props {
@@ -31,7 +34,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
               <span className="enhancement-cost">+{selectedEnhancement.cost}pts</span>
             </div>
             {selectedEnhancement.description && (
-              <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedEnhancement.description) }} />
+              <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripFactionRestriction(selectedEnhancement.description)) }} />
             )}
           </div>
           <button
@@ -84,7 +87,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
             {e.description && (
               <p
                 className="enhancement-card-description"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description) }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripFactionRestriction(e.description)) }}
               />
             )}
           </div>
@@ -142,7 +145,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
             </div>
             {expandedAccordion === e.id && e.description && (
               <div className="enhancement-accordion-content">
-                <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description) }} />
+                <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripFactionRestriction(e.description)) }} />
               </div>
             )}
           </div>
@@ -184,7 +187,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
             {e.description && (
               <p
                 className="enhancement-radio-description"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description) }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripFactionRestriction(e.description)) }}
               />
             )}
           </div>

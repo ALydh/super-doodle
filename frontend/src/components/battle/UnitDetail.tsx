@@ -2,6 +2,9 @@ import type { BattleUnitData } from "../../types";
 import { WeaponAbilityText } from "../../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../../sanitize";
 
+const stripFactionRestriction = (desc: string) =>
+  desc.replace(/^[A-Z][A-Z\s]+ model only\.\s*/i, '');
+
 interface Props {
   data: BattleUnitData;
   isWarlord: boolean;
@@ -139,7 +142,7 @@ export function UnitDetail({ data, isWarlord }: Props) {
               <span className="enhancement-cost">+{enhancement.cost}pts</span>
             </div>
             {enhancement.description && (
-              <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(enhancement.description) }} />
+              <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripFactionRestriction(enhancement.description)) }} />
             )}
           </div>
         </div>
