@@ -3,15 +3,26 @@ name: Backend CI
 on:
   push:
     branches: [master]
-    paths:
-      - "backend/**"
   pull_request:
     branches: [master]
-    paths:
-      - "backend/**"
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+
   build-and-test:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -36,6 +47,8 @@ jobs:
         run: sbt test
 
   native-image:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
