@@ -19,6 +19,7 @@ services:
   promtail:
     image: grafana/promtail:2.9.0
     container_name: promtail
+    user: root
     volumes:
       - ./promtail-config.yml:/etc/promtail/config.yml
       - /var/log/journal:/var/log/journal:ro
