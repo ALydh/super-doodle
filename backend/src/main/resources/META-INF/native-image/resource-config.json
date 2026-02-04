@@ -4,7 +4,8 @@
       { "pattern": "\\.csv$" },
       { "pattern": "application\\.conf.*" },
       { "pattern": "\\.json$" },
-      { "pattern": "\\.properties$" }
+      { "pattern": "\\.properties$" },
+      { "pattern": "logback\\.xml$" }
     ]
   }
 }

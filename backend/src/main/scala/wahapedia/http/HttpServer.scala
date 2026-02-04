@@ -10,15 +10,19 @@ import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.CORS
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.slf4j.Slf4jLogger
+import org.slf4j.MDC
 import wahapedia.http.routes.*
 import wahapedia.auth.{RateLimiter, RateLimitConfig}
 import doobie.*
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 object HttpServer {
   private val corsConfig = CORS.policy.withAllowOriginAll
   private val loginRateLimitConfig = RateLimitConfig(maxAttempts = 5, windowSeconds = 60)
+
+  given logger: Logger[IO] = Slf4jLogger.getLogger[IO]
 
   def createServer(port: Int, refXa: Transactor[IO], userXa: Transactor[IO], refPrefix: String): Resource[IO, org.http4s.server.Server] =
     Resource.eval(RateLimiter.create(loginRateLimitConfig)).flatMap { loginRateLimiter =>
@@ -29,23 +33,54 @@ object HttpServer {
         .build
     }
 
-  private val logTimeFmt = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
-  private def now: String = LocalDateTime.now.format(logTimeFmt)
-
-  private def withLogging(routes: HttpRoutes[IO]): HttpRoutes[IO] =
+  private def withLogging(routes: HttpRoutes[IO])(using log: Logger[IO]): HttpRoutes[IO] =
     HttpRoutes { req =>
-      cats.data.OptionT.liftF(IO.println(s"[$now] --> ${req.method} ${req.uri}")) *>
-        routes(req).semiflatMap { resp =>
-          IO.println(s"[$now] <-- ${req.method} ${req.uri} ${resp.status}").as(resp)
-        }.recoverWith { case e: Throwable =>
-          cats.data.OptionT.liftF(
-            IO.println(s"[$now] !!! ${req.method} ${req.uri} ERROR: ${e.getClass.getSimpleName}: ${e.getMessage}") *>
-            IO.println(e.getStackTrace.take(10).mkString("\n")) *>
-            IO.pure(Response[IO](Status.InternalServerError))
+      val requestId = UUID.randomUUID().toString.take(8)
+      val method = req.method.name
+      val path = req.uri.path.renderString
+
+      val setMdc = IO {
+        MDC.put("request_id", requestId)
+        MDC.put("method", method)
+        MDC.put("path", path)
+      }
+      val clearMdc = IO(MDC.clear())
+
+      cats.data.OptionT.liftF(setMdc *> IO.realTime.map(_.toMillis)).flatMap { startTime =>
+        cats.data.OptionT.liftF(log.info(s"Request started")) *>
+          routes(req).semiflatMap { resp =>
+            for {
+              endTime <- IO.realTime.map(_.toMillis)
+              duration = endTime - startTime
+              _ <- IO(MDC.put("status", resp.status.code.toString))
+              _ <- IO(MDC.put("duration_ms", duration.toString))
+              _ <- log.info(s"Request completed")
+              _ <- clearMdc
+            } yield resp
+          }.recoverWith { case e: Throwable =>
+            cats.data.OptionT.liftF(
+              for {
+                endTime <- IO.realTime.map(_.toMillis)
+                duration = endTime - startTime
+                _ <- IO(MDC.put("duration_ms", duration.toString))
+                _ <- IO(MDC.put("error", e.getClass.getSimpleName))
+                _ <- log.error(e)(s"Request failed: ${e.getMessage}")
+                _ <- clearMdc
+              } yield Response[IO](Status.InternalServerError)
+            )
+          }.orElse(
+            cats.data.OptionT.liftF(
+              for {
+                endTime <- IO.realTime.map(_.toMillis)
+                duration = endTime - startTime
+                _ <- IO(MDC.put("status", "404"))
+                _ <- IO(MDC.put("duration_ms", duration.toString))
+                _ <- log.info(s"Request not found")
+                _ <- clearMdc
+              } yield Response[IO](Status.NotFound)
+            )
           )
-        }.orElse(
-          cats.data.OptionT.liftF(IO.println(s"[$now] <-- ${req.method} ${req.uri} (no match)")).as(Response[IO](Status.NotFound))
-        )
+      }
     }
 
   private def healthRoute: HttpRoutes[IO] = HttpRoutes.of[IO] {
