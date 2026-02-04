@@ -4,6 +4,7 @@ import { fetchDatasheetDetail, filterWargear } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { useReferenceData } from "../context/ReferenceDataContext";
 import { sanitizeHtml } from "../sanitize";
+import { EnhancementSelector } from "../components/EnhancementSelector";
 
 function parseUnitSize(description: string): number {
   const match = description.match(/(\d+)\s*model/i);
@@ -340,16 +341,11 @@ export function UnitRow({
               {isCharacter && enhancements.length > 0 && !readOnly && (
                 <div className="enhancement-section">
                   <h5>Enhancement</h5>
-                  <select
-                    className="unit-select"
-                    value={unit.enhancementId ?? ""}
-                    onChange={(e) => onUpdate(index, { ...unit, enhancementId: e.target.value || null })}
-                  >
-                    <option value="">None</option>
-                    {enhancements.map((e) => (
-                      <option key={e.id} value={e.id}>{e.name} (+{e.cost}pts)</option>
-                    ))}
-                  </select>
+                  <EnhancementSelector
+                    enhancements={enhancements}
+                    selectedId={unit.enhancementId}
+                    onSelect={(id) => onUpdate(index, { ...unit, enhancementId: id })}
+                  />
                 </div>
               )}
 
