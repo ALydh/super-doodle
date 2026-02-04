@@ -74,4 +74,33 @@ class UserRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
     UserRepository.create("duplicate", "hash1")(xa).unsafeRunSync() shouldBe defined
     UserRepository.create("duplicate", "hash2")(xa).unsafeRunSync() shouldBe None
   }
+
+  "isAdmin" should "be stored and retrieved correctly" in {
+    val adminUser = UserRepository.create("admin", "hash", isAdmin = true)(xa).unsafeRunSync()
+    adminUser shouldBe defined
+    adminUser.get.isAdmin shouldBe true
+
+    val regularUser = UserRepository.create("regular", "hash", isAdmin = false)(xa).unsafeRunSync()
+    regularUser shouldBe defined
+    regularUser.get.isAdmin shouldBe false
+  }
+
+  it should "be retrievable via findByUsername" in {
+    UserRepository.create("adminuser", "hash", isAdmin = true)(xa).unsafeRunSync()
+    UserRepository.create("normaluser", "hash", isAdmin = false)(xa).unsafeRunSync()
+
+    val foundAdmin = UserRepository.findByUsername("adminuser")(xa).unsafeRunSync()
+    foundAdmin.get.isAdmin shouldBe true
+
+    val foundNormal = UserRepository.findByUsername("normaluser")(xa).unsafeRunSync()
+    foundNormal.get.isAdmin shouldBe false
+  }
+
+  it should "be retrievable via findById" in {
+    val admin = UserRepository.create("admin2", "hash", isAdmin = true)(xa).unsafeRunSync().get
+    val normal = UserRepository.create("normal2", "hash", isAdmin = false)(xa).unsafeRunSync().get
+
+    UserRepository.findById(admin.id)(xa).unsafeRunSync().get.isAdmin shouldBe true
+    UserRepository.findById(normal.id)(xa).unsafeRunSync().get.isAdmin shouldBe false
+  }
 }

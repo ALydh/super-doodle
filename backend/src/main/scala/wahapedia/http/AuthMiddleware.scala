@@ -26,7 +26,7 @@ object AuthMiddleware {
                 SessionRepository.delete(token)(xa).as(None)
               } else {
                 UserRepository.findById(session.userId)(xa).map(_.map(u =>
-                  AuthenticatedUser(u.id, u.username)
+                  AuthenticatedUser(u.id, u.username, u.isAdmin)
                 ))
               }
           }

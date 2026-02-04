@@ -14,6 +14,7 @@ object Schema {
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
+      is_admin INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL
     )""",
 
@@ -275,6 +276,16 @@ object Schema {
       count INTEGER NOT NULL,
       model_type TEXT,
       PRIMARY KEY (datasheet_id, size_line, weapon)
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS parsed_unit_composition (
+      datasheet_id TEXT NOT NULL,
+      line INTEGER NOT NULL,
+      group_index INTEGER NOT NULL,
+      model_name TEXT NOT NULL,
+      min_count INTEGER NOT NULL,
+      max_count INTEGER NOT NULL,
+      PRIMARY KEY (datasheet_id, line, model_name)
     )"""
   )
 
@@ -284,6 +295,22 @@ object Schema {
       sql"DROP TABLE IF EXISTS army_unit_wargear_selections".update.run *>
       sql"DROP TABLE IF EXISTS army_units".update.run *>
       sql"DROP TABLE IF EXISTS armies".update.run
+    } else {
+      FC.unit
+    }
+  } yield ()
+
+  private val migrateIsAdmin: ConnectionIO[Unit] = for {
+    hasCol <- sql"PRAGMA table_info(users)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.exists(_._2 == "is_admin"))
+    _ <- if (!hasCol) {
+      for {
+        firstUserId <- sql"SELECT id FROM users ORDER BY created_at ASC LIMIT 1".query[String].option
+        _ <- sql"ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0".update.run
+        _ <- firstUserId match {
+          case Some(id) => sql"UPDATE users SET is_admin = 1 WHERE id = $id".update.run
+          case None => FC.unit
+        }
+      } yield ()
     } else {
       FC.unit
     }
@@ -310,7 +337,7 @@ object Schema {
     (refTables.traverse_(_.update.run) *> migrateFactionGroup *> populateFactionGroups).transact(xa)
 
   def initializeUserSchema(xa: Transactor[IO]): IO[Unit] =
-    (userTables.traverse_(_.update.run) *> migrateArmies).transact(xa)
+    (userTables.traverse_(_.update.run) *> migrateArmies *> migrateIsAdmin).transact(xa)
 
   def initialize(xa: Transactor[IO]): IO[Unit] =
     initializeRefSchema(xa) *> initializeUserSchema(xa)

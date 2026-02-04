@@ -18,7 +18,7 @@ import doobie.*
 import scala.concurrent.duration.*
 
 object FactionRoutes {
-  private val cacheHeaders = `Cache-Control`(CacheDirective.public, CacheDirective.`max-age`(3600.seconds))
+  private val cacheHeaders = `Cache-Control`(CacheDirective.public, CacheDirective.`max-age`(60.seconds), CacheDirective.`must-revalidate`)
 
   def routes(xa: Transactor[IO]): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "api" / "factions" =>

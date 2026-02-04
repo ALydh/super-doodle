@@ -809,6 +809,136 @@ tbody td {
   margin-left: 24px;
 }
 
+/* Wargear Selector - Collapsed State */
+.wargear-selector-collapsed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wargear-collapsed-summary {
+  padding: 8px 12px;
+  background: var(--surface-panel);
+  border-left: 3px solid var(--surface-border);
+  border-radius: 0 4px 4px 0;
+}
+
+.wargear-none-text {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.wargear-count-text {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.wargear-change-btn {
+  align-self: flex-start;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wargear-change-btn:hover {
+  background: var(--faction-secondary);
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.wargear-collapse-btn {
+  align-self: flex-end;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  background: var(--faction-trim);
+  border: none;
+  border-radius: 4px;
+  color: var(--surface-app);
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.wargear-collapse-btn:hover {
+  filter: brightness(1.1);
+}
+
+.wargear-choice-dropdown {
+  margin-top: 8px;
+  width: 100%;
+}
+
+/* Wargear Selector - Cards Mode */
+.wargear-selector-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wargear-card-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--surface-panel);
+  border: 2px solid var(--surface-border);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wargear-card-option:hover {
+  border-color: var(--faction-trim);
+  background: var(--surface-hover);
+}
+
+.wargear-card-option.selected {
+  border-color: var(--faction-trim);
+  background: var(--faction-secondary);
+}
+
+.wargear-card-indicator {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--surface-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--faction-trim);
+  background: var(--surface-app);
+}
+
+.wargear-card-option.selected .wargear-card-indicator {
+  border-color: var(--faction-trim);
+  background: var(--faction-trim);
+  color: var(--surface-app);
+}
+
+.wargear-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.wargear-card-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
+}
+
+.wargear-card-option.selected .wargear-card-description {
+  color: var(--text-primary);
+}
+
 .abilities-preview {
   margin-top: 16px;
   padding-top: 16px;
@@ -1724,6 +1854,14 @@ button:disabled {
   font-size: 0.8rem;
 }
 
+.army-card-owner {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-border);
+}
+
 .new-army-section {
   border-top: 1px solid var(--surface-border);
   padding-top: 32px;
@@ -2013,6 +2151,10 @@ button:disabled {
 
   .col-header {
     display: none;
+  }
+
+  .col-header-toggle {
+    display: flex;
   }
 
   .builder-col-picker .unit-picker h3 {
@@ -3694,6 +3836,265 @@ button:disabled {
   font-size: 0.9rem;
   color: var(--text-body);
   line-height: 1.5;
+}
+
+/* Enhancement Selector - Collapsed State */
+.enhancement-selector-collapsed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.enhancement-change-btn {
+  align-self: flex-start;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.enhancement-change-btn:hover {
+  background: var(--faction-secondary);
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.enhancement-detail.enhancement-none {
+  padding: 8px 12px;
+  border-left-color: var(--surface-border);
+}
+
+.enhancement-none-text {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Enhancement Selector - Mode Toggle */
+.enhancement-mode-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.enhancement-mode-toggle button {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.enhancement-mode-toggle button.active {
+  background: var(--faction-trim);
+  border-color: var(--faction-trim);
+  color: var(--surface-app);
+}
+
+/* Enhancement Selector - Cards Mode */
+.enhancement-selector-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.enhancement-card-option {
+  background: var(--surface-panel);
+  border: 2px solid var(--surface-border);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.enhancement-card-option:hover {
+  border-color: var(--faction-trim);
+  background: var(--surface-hover);
+}
+
+.enhancement-card-none {
+  border-style: dashed;
+  opacity: 0.7;
+}
+
+.enhancement-card-none:hover {
+  opacity: 1;
+}
+
+.enhancement-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.enhancement-card-name {
+  font-weight: 600;
+  color: var(--faction-trim);
+}
+
+.enhancement-card-cost {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.enhancement-card-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
+}
+
+/* Enhancement Selector - Accordion Mode */
+.enhancement-selector-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.enhancement-accordion-item {
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.enhancement-accordion-item.expanded {
+  border-color: var(--faction-trim);
+}
+
+.enhancement-accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.enhancement-accordion-header:hover {
+  background: var(--surface-hover);
+}
+
+.enhancement-accordion-expand {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  width: 12px;
+}
+
+.enhancement-accordion-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.enhancement-accordion-cost {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.enhancement-select-btn {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  background: var(--faction-trim);
+  border: none;
+  border-radius: 4px;
+  color: var(--surface-app);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.enhancement-select-btn:hover {
+  filter: brightness(1.1);
+}
+
+.enhancement-accordion-content {
+  padding: 0 12px 12px 32px;
+  border-top: 1px solid var(--surface-border);
+  padding-top: 12px;
+  margin-top: 0;
+}
+
+.enhancement-accordion-content p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
+}
+
+/* Enhancement Selector - Radio Mode */
+.enhancement-selector-radio {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.enhancement-radio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.enhancement-radio-item:hover {
+  border-color: var(--faction-secondary);
+  background: var(--surface-hover);
+}
+
+.enhancement-radio-item:has(input:checked) {
+  border-color: var(--faction-trim);
+  background: var(--faction-secondary);
+}
+
+.enhancement-radio-item input[type="radio"] {
+  margin-top: 2px;
+  accent-color: var(--faction-trim);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.enhancement-radio-content {
+  flex: 1;
+}
+
+.enhancement-radio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.enhancement-radio-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.enhancement-radio-item:has(input:checked) .enhancement-radio-name {
+  color: var(--faction-trim);
+}
+
+.enhancement-radio-cost {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.enhancement-radio-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
 }
 
 .faction-keyword {

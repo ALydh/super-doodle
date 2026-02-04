@@ -4,6 +4,8 @@ import { fetchDatasheetDetail, filterWargear } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { useReferenceData } from "../context/ReferenceDataContext";
 import { sanitizeHtml } from "../sanitize";
+import { EnhancementSelector } from "../components/EnhancementSelector";
+import { WargearSelector } from "../components/WargearSelector";
 
 function parseUnitSize(description: string): number {
   const match = description.match(/(\d+)\s*model/i);
@@ -340,53 +342,24 @@ export function UnitRow({
               {isCharacter && enhancements.length > 0 && !readOnly && (
                 <div className="enhancement-section">
                   <h5>Enhancement</h5>
-                  <select
-                    className="unit-select"
-                    value={unit.enhancementId ?? ""}
-                    onChange={(e) => onUpdate(index, { ...unit, enhancementId: e.target.value || null })}
-                  >
-                    <option value="">None</option>
-                    {enhancements.map((e) => (
-                      <option key={e.id} value={e.id}>{e.name} (+{e.cost}pts)</option>
-                    ))}
-                  </select>
+                  <EnhancementSelector
+                    enhancements={enhancements}
+                    selectedId={unit.enhancementId}
+                    onSelect={(id) => onUpdate(index, { ...unit, enhancementId: id })}
+                  />
                 </div>
               )}
 
               {unitOptions.length > 0 && !readOnly && (
                 <div className="wargear-options">
                   <h5>Wargear Options</h5>
-                  {unitOptions.map((option) => {
-                    const selection = getWargearSelection(option.line);
-                    const isSelected = selection?.selected ?? false;
-                    const choices = extractWargearChoices(option.description);
-                    const hasChoices = choices && choices.length > 0;
-
-                    return (
-                      <div key={option.line} className="wargear-option">
-                        <label className="wargear-checkbox">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={(e) => handleWargearSelectionChange(option.line, e.target.checked)}
-                          />
-                          <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(option.description) }} />
-                        </label>
-                        {isSelected && hasChoices && (
-                          <select
-                            className="unit-select wargear-choice-select"
-                            value={selection?.notes ?? ''}
-                            onChange={(e) => handleWargearNotesChange(option.line, e.target.value)}
-                          >
-                            <option value="">Select wargear...</option>
-                            {choices.map((choice, idx) => (
-                              <option key={idx} value={choice}>{choice}</option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
-                    );
-                  })}
+                  <WargearSelector
+                    options={unitOptions}
+                    selections={unit.wargearSelections}
+                    onSelectionChange={handleWargearSelectionChange}
+                    onNotesChange={handleWargearNotesChange}
+                    extractChoices={extractWargearChoices}
+                  />
                 </div>
               )}
 

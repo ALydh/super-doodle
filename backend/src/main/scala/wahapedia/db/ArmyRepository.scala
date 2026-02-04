@@ -27,7 +27,9 @@ case class ArmySummary(
   battleSize: String,
   updatedAt: String,
   warlordName: Option[String],
-  totalPoints: Int
+  totalPoints: Int,
+  ownerId: Option[String],
+  ownerName: Option[String]
 )
 
 private case class ArmyRow(
@@ -177,9 +179,12 @@ object ArmyRepository {
           a.id, a.name, a.faction_id, a.battle_size, a.updated_at,
           d.name,
           COALESCE((SELECT SUM(uc.cost) FROM army_units au JOIN """ ++ unitCost ++ fr""" uc ON au.datasheet_id = uc.datasheet_id AND au.size_option_line = uc.line WHERE au.army_id = a.id), 0)
-          + COALESCE((SELECT SUM(e.cost) FROM army_units au JOIN """ ++ enhancements ++ fr""" e ON au.enhancement_id = e.id WHERE au.army_id = a.id), 0)
+          + COALESCE((SELECT SUM(e.cost) FROM army_units au JOIN """ ++ enhancements ++ fr""" e ON au.enhancement_id = e.id WHERE au.army_id = a.id), 0),
+          a.owner_id,
+          u.username
         FROM armies a
-        LEFT JOIN """ ++ datasheets ++ fr""" d ON a.warlord_id = d.id"""
+        LEFT JOIN """ ++ datasheets ++ fr""" d ON a.warlord_id = d.id
+        LEFT JOIN users u ON a.owner_id = u.id"""
 
     val withFilter = factionFilter match {
       case Some(fid) => baseQuery ++ fr" WHERE a.faction_id = $fid"

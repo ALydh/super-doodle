@@ -97,7 +97,7 @@ object ValidationErrorDto {
 case class RegisterRequest(username: String, password: String, inviteCode: Option[String])
 case class LoginRequest(username: String, password: String)
 case class AuthResponse(token: String, user: UserResponse)
-case class UserResponse(id: String, username: String)
+case class UserResponse(id: String, username: String, isAdmin: Boolean)
 case class InviteResponse(code: String, createdAt: String, used: Boolean)
 
 case class WargearWithQuantity(
