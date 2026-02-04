@@ -143,7 +143,7 @@ object ReferenceDataRepository {
     sql"""SELECT DISTINCT dk.datasheet_id, dk.keyword, dk.model, dk.is_faction_keyword
           FROM datasheet_keywords dk
           JOIN datasheets d ON dk.datasheet_id = d.id
-          WHERE d.faction_id = $factionId AND dk.is_faction_keyword = true"""
+          WHERE d.faction_id = $factionId"""
       .query[DatasheetKeyword].to[List].transact(xa)
 
   def allDatasheetAbilities(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
