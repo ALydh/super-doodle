@@ -124,6 +124,7 @@ export interface PersistedArmy {
 export interface User {
   id: string;
   username: string;
+  isAdmin: boolean;
 }
 
 export interface AuthResponse {
@@ -145,6 +146,8 @@ export interface ArmySummary {
   updatedAt: string;
   warlordName: string | null;
   totalPoints: number;
+  ownerId: string | null;
+  ownerName: string | null;
 }
 
 export interface Enhancement {

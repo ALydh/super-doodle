@@ -50,6 +50,15 @@ export function AdminPage() {
     );
   }
 
+  if (!user.isAdmin) {
+    return (
+      <div>
+        <p>You do not have permission to access the admin panel.</p>
+        <Link to="/">Home</Link>
+      </div>
+    );
+  }
+
   return (
     <div className="admin-page">
       <h1>Admin</h1>
