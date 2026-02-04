@@ -1,4 +1,4 @@
-# New Recruit - Warhammer 40K Army Builder
+# Warhammer 40K Army Builder
 
 A full-stack web application for building and managing Warhammer 40,000 army lists. Browse factions, explore datasheets, and create validated armies with point costs.
 
