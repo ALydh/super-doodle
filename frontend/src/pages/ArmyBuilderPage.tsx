@@ -215,7 +215,8 @@ export function ArmyBuilderPage() {
   if (loading) return <div>Loading...</div>;
 
   const factionTheme = getFactionTheme(effectiveFactionId);
-  const loadedDatasheets = datasheets ?? [];
+  const alliedDatasheets = alliedFactions.flatMap((a) => a.datasheets);
+  const loadedDatasheets = [...(datasheets ?? []), ...alliedDatasheets];
 
   const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
 
@@ -327,7 +328,7 @@ export function ArmyBuilderPage() {
           </button>
           {pickerExpanded && (
             <UnitPicker
-              datasheets={loadedDatasheets}
+              datasheets={datasheets ?? []}
               costs={allCosts}
               onAdd={handleAddUnit}
               alliedFactions={alliedFactions}

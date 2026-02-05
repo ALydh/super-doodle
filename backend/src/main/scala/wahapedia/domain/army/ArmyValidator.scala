@@ -242,7 +242,6 @@ object ArmyValidator {
 
     val armyKeywords = army.units.filterNot(_.isAllied).flatMap { unit =>
       keywordIndex.getOrElse(unit.datasheetId, Nil)
-        .filter(_.isFactionKeyword)
         .flatMap(_.keyword)
     }.toSet
 

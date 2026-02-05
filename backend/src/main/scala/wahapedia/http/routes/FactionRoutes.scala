@@ -126,7 +126,7 @@ object FactionRoutes {
             keywords <- ReferenceDataRepository.factionKeywordsForFaction(factionId)(xa)
             allFactions <- ReferenceDataRepository.allFactions(xa)
             superKeywords = keywords.flatMap(_.keyword).toSet
-            allowedAllies = AllyRules.allowedAllies(superKeywords)
+            allowedAllies = AllyRules.allowedAllies(superKeywords).filterNot(_.factionId == factionId)
             alliedData <- allowedAllies.traverse { ally =>
               ReferenceDataRepository.datasheetsByFaction(ally.factionId)(xa).map { datasheets =>
                 val factionName = allFactions.find(_.id == ally.factionId).map(_.name).getOrElse(FactionId.value(ally.factionId))

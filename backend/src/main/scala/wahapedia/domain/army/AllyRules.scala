@@ -27,10 +27,10 @@ object AllyRules {
   val ImperiumKeyword = "IMPERIUM"
   val ChaosKeyword = "CHAOS"
 
-  val ImperialKnightsFaction: FactionId = FactionId("IK")
-  val ChaosKnightsFaction: FactionId = FactionId("CK")
+  val ImperialKnightsFaction: FactionId = FactionId("QI")
+  val ChaosKnightsFaction: FactionId = FactionId("QT")
   val ChaosDaemonsFaction: FactionId = FactionId("CD")
-  val ImperialAgentsFaction: FactionId = FactionId("IA")
+  val ImperialAgentsFaction: FactionId = FactionId("AoI")
 
   val FreebladesRule = AlliedFaction(ImperialKnightsFaction, AllyType.Freeblades)
   val DreadbladesRule = AlliedFaction(ChaosKnightsFaction, AllyType.Dreadblades)

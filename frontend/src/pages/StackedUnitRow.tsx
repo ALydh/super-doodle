@@ -34,6 +34,7 @@ export function StackedUnitRow({
 
   const firstUnit = stackedUnits[0].unit;
   const count = stackedUnits.length;
+  const isAllied = firstUnit.isAllied === true;
   const unitCosts = costs.filter((c) => c.datasheetId === firstUnit.datasheetId);
   const selectedCost = unitCosts.find((c) => c.line === firstUnit.sizeOptionLine);
   const unitPoints = selectedCost?.cost ?? 0;
@@ -61,7 +62,7 @@ export function StackedUnitRow({
   };
 
   return (
-    <tr className="unit-row stacked-row">
+    <tr className={`unit-row stacked-row ${isAllied ? "allied-unit" : ""}`}>
       <td colSpan={8}>
         <div className="unit-card-builder stacked-card">
           <div className="stacked-card-shadow" />
@@ -74,6 +75,7 @@ export function StackedUnitRow({
             <div className="unit-card-title">
               <span className="unit-name-text">{datasheet?.name ?? firstUnit.datasheetId}</span>
               <span className="stacked-count">×{count}</span>
+              {isAllied && <span className="allied-badge">Allied</span>}
             </div>
 
             <span className="unit-cost-badge stacked-total">{totalPoints}pts</span>

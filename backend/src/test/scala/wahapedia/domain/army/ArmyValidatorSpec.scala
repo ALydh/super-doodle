@@ -9,7 +9,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
 
   val orkFaction: FactionId = FactionId("Ork")
   val smFaction: FactionId = FactionId("SM")
-  val ikFaction: FactionId = FactionId("IK")
+  val ikFaction: FactionId = FactionId("QI")
   val cdFaction: FactionId = FactionId("CD")
 
   val warbossId: DatasheetId = DatasheetId("000000001")
@@ -90,10 +90,10 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     DatasheetKeyword(painboyId, Some("Ork"), None, true),
     DatasheetKeyword(smCaptainId, Some("SM"), None, true),
     DatasheetKeyword(smCaptainId, Some("IMPERIUM"), None, true),
-    DatasheetKeyword(knightErrantId, Some("IK"), None, true),
+    DatasheetKeyword(knightErrantId, Some("QI"), None, true),
     DatasheetKeyword(knightErrantId, Some("IMPERIUM"), None, true),
     DatasheetKeyword(knightErrantId, Some("Titanic"), None, false),
-    DatasheetKeyword(armigerWarglaiveId, Some("IK"), None, true),
+    DatasheetKeyword(armigerWarglaiveId, Some("QI"), None, true),
     DatasheetKeyword(armigerWarglaiveId, Some("IMPERIUM"), None, true),
     DatasheetKeyword(bloodlettersId, Some("CD"), None, true),
     DatasheetKeyword(bloodlettersId, Some("CHAOS"), None, true)
