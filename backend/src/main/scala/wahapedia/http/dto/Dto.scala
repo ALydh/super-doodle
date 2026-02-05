@@ -39,6 +39,11 @@ object ValidationErrorDto {
   case class EnhancementDetachmentMismatch(errorType: String, enhancementId: String, expectedDetachment: String) extends ValidationErrorDto
   case class UnitCostNotFound(errorType: String, datasheetId: String, sizeOptionLine: Int) extends ValidationErrorDto
   case class DatasheetNotFound(errorType: String, datasheetId: String) extends ValidationErrorDto
+  case class AlliedWarlord(errorType: String, datasheetId: String) extends ValidationErrorDto
+  case class AlliedEnhancement(errorType: String, datasheetId: String, enhancementId: String) extends ValidationErrorDto
+  case class AlliedUnitLimitExceeded(errorType: String, allyType: String, message: String) extends ValidationErrorDto
+  case class AlliedPointsExceeded(errorType: String, allyType: String, used: Int, limit: Int) extends ValidationErrorDto
+  case class AlliedFactionNotAllowed(errorType: String, datasheetId: String, factionId: String) extends ValidationErrorDto
   case class Generic(errorType: String, message: String) extends ValidationErrorDto
 
   def fromDomain(err: ValidationError): ValidationErrorDto = err match {
@@ -72,6 +77,16 @@ object ValidationErrorDto {
       UnitCostNotFound("UnitCostNotFound", DatasheetId.value(e.datasheetId), e.sizeOptionLine)
     case e: wahapedia.domain.army.DatasheetNotFound =>
       DatasheetNotFound("DatasheetNotFound", DatasheetId.value(e.datasheetId))
+    case e: wahapedia.domain.army.AlliedWarlord =>
+      AlliedWarlord("AlliedWarlord", DatasheetId.value(e.datasheetId))
+    case e: wahapedia.domain.army.AlliedEnhancement =>
+      AlliedEnhancement("AlliedEnhancement", DatasheetId.value(e.datasheetId), EnhancementId.value(e.enhancementId))
+    case e: wahapedia.domain.army.AlliedUnitLimitExceeded =>
+      AlliedUnitLimitExceeded("AlliedUnitLimitExceeded", e.allyType, e.message)
+    case e: wahapedia.domain.army.AlliedPointsExceeded =>
+      AlliedPointsExceeded("AlliedPointsExceeded", e.allyType, e.used, e.limit)
+    case e: wahapedia.domain.army.AlliedFactionNotAllowed =>
+      AlliedFactionNotAllowed("AlliedFactionNotAllowed", DatasheetId.value(e.datasheetId), FactionId.value(e.factionId))
   }
 
   given Encoder[ValidationErrorDto] = Encoder.instance {
@@ -90,6 +105,11 @@ object ValidationErrorDto {
     case e: EnhancementDetachmentMismatch => e.asJson(using Encoder.AsObject.derived[EnhancementDetachmentMismatch])
     case e: UnitCostNotFound => e.asJson(using Encoder.AsObject.derived[UnitCostNotFound])
     case e: DatasheetNotFound => e.asJson(using Encoder.AsObject.derived[DatasheetNotFound])
+    case e: AlliedWarlord => e.asJson(using Encoder.AsObject.derived[AlliedWarlord])
+    case e: AlliedEnhancement => e.asJson(using Encoder.AsObject.derived[AlliedEnhancement])
+    case e: AlliedUnitLimitExceeded => e.asJson(using Encoder.AsObject.derived[AlliedUnitLimitExceeded])
+    case e: AlliedPointsExceeded => e.asJson(using Encoder.AsObject.derived[AlliedPointsExceeded])
+    case e: AlliedFactionNotAllowed => e.asJson(using Encoder.AsObject.derived[AlliedFactionNotAllowed])
     case e: Generic => e.asJson(using Encoder.AsObject.derived[Generic])
   }
 }
@@ -131,4 +151,11 @@ case class ArmyBattleData(
   detachmentId: String,
   warlordId: String,
   units: List[BattleUnitData]
+)
+
+case class AlliedFactionInfo(
+  factionId: String,
+  factionName: String,
+  allyType: String,
+  datasheets: List[wahapedia.domain.models.Datasheet]
 )

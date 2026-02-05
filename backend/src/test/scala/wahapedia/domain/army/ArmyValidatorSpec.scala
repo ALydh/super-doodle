@@ -9,6 +9,8 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
 
   val orkFaction: FactionId = FactionId("Ork")
   val smFaction: FactionId = FactionId("SM")
+  val ikFaction: FactionId = FactionId("QI")
+  val cdFaction: FactionId = FactionId("CD")
 
   val warbossId: DatasheetId = DatasheetId("000000001")
   val boyzId: DatasheetId = DatasheetId("000000002")
@@ -17,6 +19,9 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
   val ghazId: DatasheetId = DatasheetId("000000005")
   val painboyId: DatasheetId = DatasheetId("000000006")
   val smCaptainId: DatasheetId = DatasheetId("000000099")
+  val knightErrantId: DatasheetId = DatasheetId("000000100")
+  val armigerWarglaiveId: DatasheetId = DatasheetId("000000101")
+  val bloodlettersId: DatasheetId = DatasheetId("000000102")
 
   val detId: DetachmentId = DetachmentId("waaagh")
   val otherDetId: DetachmentId = DetachmentId("other-det")
@@ -55,9 +60,22 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     smCaptainId, "Space Marine Captain", Some(smFaction), None, None,
     Some(Role.Characters), None, None, false, None, None, None, None, ""
   )
+  val knightErrantDs: Datasheet = Datasheet(
+    knightErrantId, "Knight Errant", Some(ikFaction), None, None,
+    Some(Role.Characters), None, None, false, None, None, None, None, ""
+  )
+  val armigerWarglaiveDs: Datasheet = Datasheet(
+    armigerWarglaiveId, "Armiger Warglaive", Some(ikFaction), None, None,
+    Some(Role.Other), None, None, false, None, None, None, None, ""
+  )
+  val bloodlettersDs: Datasheet = Datasheet(
+    bloodlettersId, "Bloodletters", Some(cdFaction), None, None,
+    Some(Role.Battleline), None, None, false, None, None, None, None, ""
+  )
 
   val allDatasheets: List[Datasheet] = List(
-    warbossDs, boyzDs, trukDs, meganobzDs, ghazDs, painboyDs, smCaptainDs
+    warbossDs, boyzDs, trukDs, meganobzDs, ghazDs, painboyDs, smCaptainDs,
+    knightErrantDs, armigerWarglaiveDs, bloodlettersDs
   )
 
   val orkKeywords: List[DatasheetKeyword] = List(
@@ -70,7 +88,15 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     DatasheetKeyword(ghazId, Some("Ork"), None, true),
     DatasheetKeyword(ghazId, Some("Epic Hero"), None, false),
     DatasheetKeyword(painboyId, Some("Ork"), None, true),
-    DatasheetKeyword(smCaptainId, Some("SM"), None, true)
+    DatasheetKeyword(smCaptainId, Some("SM"), None, true),
+    DatasheetKeyword(smCaptainId, Some("IMPERIUM"), None, true),
+    DatasheetKeyword(knightErrantId, Some("QI"), None, true),
+    DatasheetKeyword(knightErrantId, Some("IMPERIUM"), None, true),
+    DatasheetKeyword(knightErrantId, Some("Titanic"), None, false),
+    DatasheetKeyword(armigerWarglaiveId, Some("QI"), None, true),
+    DatasheetKeyword(armigerWarglaiveId, Some("IMPERIUM"), None, true),
+    DatasheetKeyword(bloodlettersId, Some("CD"), None, true),
+    DatasheetKeyword(bloodlettersId, Some("CHAOS"), None, true)
   )
 
   val unitCosts: List[UnitCost] = List(
@@ -81,7 +107,10 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     UnitCost(meganobzId, 1, "2 models", 80),
     UnitCost(ghazId, 1, "1 model", 235),
     UnitCost(painboyId, 1, "1 model", 55),
-    UnitCost(smCaptainId, 1, "1 model", 80)
+    UnitCost(smCaptainId, 1, "1 model", 80),
+    UnitCost(knightErrantId, 1, "1 model", 400),
+    UnitCost(armigerWarglaiveId, 1, "1 model", 150),
+    UnitCost(bloodlettersId, 1, "10 models", 130)
   )
 
   val enhancements: List[Enhancement] = List(
@@ -429,5 +458,97 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     ))
     val errors = ArmyValidator.validate(army, baseRef)
     errors.collect { case e: EnhancementDetachmentMismatch => e } shouldBe empty
+  }
+
+  // Allied units tests
+  def imperiumArmy: Army = Army(
+    factionId = smFaction,
+    battleSize = BattleSize.StrikeForce,
+    detachmentId = detId,
+    warlordId = smCaptainId,
+    units = List(
+      ArmyUnit(smCaptainId, 1, None, None)
+    )
+  )
+
+  "allied unit validation" should "skip faction keyword check for allied units" in {
+    val army = imperiumArmy.copy(units = List(
+      ArmyUnit(smCaptainId, 1, None, None),
+      ArmyUnit(knightErrantId, 1, None, None, List.empty, isAllied = true)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: FactionMismatch => e } shouldBe empty
+  }
+
+  it should "reject allied unit as warlord" in {
+    val army = imperiumArmy.copy(
+      warlordId = knightErrantId,
+      units = List(
+        ArmyUnit(smCaptainId, 1, None, None),
+        ArmyUnit(knightErrantId, 1, None, None, List.empty, isAllied = true)
+      )
+    )
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(AlliedWarlord(knightErrantId))
+  }
+
+  it should "reject enhancement on allied unit" in {
+    val army = imperiumArmy.copy(units = List(
+      ArmyUnit(smCaptainId, 1, None, None),
+      ArmyUnit(knightErrantId, 1, Some(enhId1), None, List.empty, isAllied = true)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(AlliedEnhancement(knightErrantId, enhId1))
+  }
+
+  it should "reject allied units from non-allowed factions" in {
+    val army = validArmy.copy(units = List(
+      ArmyUnit(warbossId, 1, None, None),
+      ArmyUnit(knightErrantId, 1, None, None, List.empty, isAllied = true)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(AlliedFactionNotAllowed(knightErrantId, ikFaction))
+  }
+
+  it should "accept allied Imperial Knights for IMPERIUM army" in {
+    val army = imperiumArmy.copy(units = List(
+      ArmyUnit(smCaptainId, 1, None, None),
+      ArmyUnit(armigerWarglaiveId, 1, None, None, List.empty, isAllied = true)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: AlliedFactionNotAllowed => e } shouldBe empty
+  }
+
+  it should "reject more than 1 Titanic allied unit for Freeblades" in {
+    val army = imperiumArmy.copy(units = List(
+      ArmyUnit(smCaptainId, 1, None, None),
+      ArmyUnit(knightErrantId, 1, None, None, List.empty, isAllied = true),
+      ArmyUnit(knightErrantId, 1, None, None, List.empty, isAllied = true)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: AlliedUnitLimitExceeded => e } should not be empty
+  }
+
+  it should "accept up to 3 non-Titanic allied units for Freeblades" in {
+    val army = imperiumArmy.copy(units = List(
+      ArmyUnit(smCaptainId, 1, None, None),
+      ArmyUnit(armigerWarglaiveId, 1, None, None, List.empty, isAllied = true),
+      ArmyUnit(armigerWarglaiveId, 1, None, None, List.empty, isAllied = true),
+      ArmyUnit(armigerWarglaiveId, 1, None, None, List.empty, isAllied = true)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: AlliedUnitLimitExceeded => e } shouldBe empty
+  }
+
+  it should "reject more than 3 non-Titanic allied units for Freeblades" in {
+    val army = imperiumArmy.copy(units = List(
+      ArmyUnit(smCaptainId, 1, None, None),
+      ArmyUnit(armigerWarglaiveId, 1, None, None, List.empty, isAllied = true),
+      ArmyUnit(armigerWarglaiveId, 1, None, None, List.empty, isAllied = true),
+      ArmyUnit(armigerWarglaiveId, 1, None, None, List.empty, isAllied = true),
+      ArmyUnit(armigerWarglaiveId, 1, None, None, List.empty, isAllied = true)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: AlliedUnitLimitExceeded => e } should not be empty
   }
 }

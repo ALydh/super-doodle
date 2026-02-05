@@ -21,12 +21,19 @@ object CirceCodecs {
     WargearSelection.apply
   )
 
-  given Encoder[ArmyUnit] = Encoder.forProduct5("datasheetId", "sizeOptionLine", "enhancementId", "attachedLeaderId", "wargearSelections")(
-    (u: ArmyUnit) => (u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, u.wargearSelections)
+  given Encoder[ArmyUnit] = Encoder.forProduct6("datasheetId", "sizeOptionLine", "enhancementId", "attachedLeaderId", "wargearSelections", "isAllied")(
+    (u: ArmyUnit) => (u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, u.wargearSelections, u.isAllied)
   )
-  given Decoder[ArmyUnit] = Decoder.forProduct5("datasheetId", "sizeOptionLine", "enhancementId", "attachedLeaderId", "wargearSelections")(
-    ArmyUnit.apply
-  )
+  given Decoder[ArmyUnit] = Decoder.instance { cursor =>
+    for {
+      datasheetId <- cursor.get[DatasheetId]("datasheetId")
+      sizeOptionLine <- cursor.get[Int]("sizeOptionLine")
+      enhancementId <- cursor.get[Option[EnhancementId]]("enhancementId")
+      attachedLeaderId <- cursor.get[Option[DatasheetId]]("attachedLeaderId")
+      wargearSelections <- cursor.getOrElse[List[WargearSelection]]("wargearSelections")(List.empty)
+      isAllied <- cursor.getOrElse[Boolean]("isAllied")(false)
+    } yield ArmyUnit(datasheetId, sizeOptionLine, enhancementId, attachedLeaderId, wargearSelections, isAllied)
+  }
 
   given Encoder[Army] = Encoder.forProduct5("factionId", "battleSize", "detachmentId", "warlordId", "units")(
     (a: Army) => (a.factionId, a.battleSize, a.detachmentId, a.warlordId, a.units)

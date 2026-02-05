@@ -25,6 +25,7 @@
   --faction-secondary: #666666;
   --faction-trim: #AAAAAA;
   --faction-emphasis: #CCCCCC;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #FFFFFF;
   --faction-primary-dark: #6a6a6a;
   --faction-secondary-dark: #4d4d4d;
@@ -43,6 +44,7 @@
   --faction-secondary: #0B2E59;
   --faction-trim: #D4AF37;
   --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #C62828;
   --faction-primary-dark: #174785;
   --faction-secondary-dark: #081f3d;
@@ -57,6 +59,7 @@
   --faction-secondary: #2B0B0B;
   --faction-trim: #B08D57;
   --faction-emphasis: #5E0F0F;
+  --faction-emphasis-text: #ffffff;
   --faction-danger: #FF3B3B;
   --faction-primary-dark: #6f0000;
   --faction-secondary-dark: #1f0808;
@@ -71,6 +74,7 @@
   --faction-secondary: #2F3B1F;
   --faction-trim: #C2B280;
   --faction-emphasis: #7A7F6A;
+  --faction-emphasis-text: #ffffff;
   --faction-danger: #D9531E;
   --faction-primary-dark: #3c421a;
   --faction-secondary-dark: #232c17;
@@ -85,6 +89,7 @@
   --faction-secondary: #6A0F1A;
   --faction-trim: #D4AF37;
   --faction-emphasis: #00B3A4;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #FF4D4D;
   --faction-primary-dark: #8e0e1e;
   --faction-secondary-dark: #550c15;
@@ -99,6 +104,7 @@
   --faction-secondary: #2B0E0E;
   --faction-trim: #F2E6C9;
   --faction-emphasis: #FFD700;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #FF6A00;
   --faction-primary-dark: #8e0e1e;
   --faction-secondary-dark: #1f0a0a;
@@ -113,6 +119,7 @@
   --faction-secondary: #1F3D12;
   --faction-trim: #D4A017;
   --faction-emphasis: #F5F5F5;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #9E2A2B;
   --faction-primary-dark: #306218;
   --faction-secondary-dark: #182e0e;
@@ -127,6 +134,7 @@
   --faction-secondary: #1E3558;
   --faction-trim: #D8CFC4;
   --faction-emphasis: #8A4FFF;
+  --faction-emphasis-text: #ffffff;
   --faction-danger: #4DEEEA;
   --faction-primary-dark: #2e5884;
   --faction-secondary-dark: #172a46;
@@ -141,6 +149,7 @@
   --faction-secondary: #2B143F;
   --faction-trim: #00A86B;
   --faction-emphasis: #E056FD;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #B00020;
   --faction-primary-dark: #4b2270;
   --faction-secondary-dark: #211032;
@@ -155,6 +164,7 @@
   --faction-secondary: #0A3F2A;
   --faction-trim: #8FA6A0;
   --faction-emphasis: #00C2FF;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #C9B037;
   --faction-primary-dark: #00cc7d;
   --faction-secondary-dark: #083221;
@@ -169,6 +179,7 @@
   --faction-secondary: #3D0F1F;
   --faction-trim: #4B3B4F;
   --faction-emphasis: #9B59B6;
+  --faction-emphasis-text: #ffffff;
   --faction-danger: #C4D600;
   --faction-primary-dark: #62182e;
   --faction-secondary-dark: #2e0b17;
@@ -183,6 +194,7 @@
   --faction-secondary: #AEB4BC;
   --faction-trim: #FF6F00;
   --faction-emphasis: #3FA9F5;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #5FD3BC;
   --faction-primary-dark: #bab8b4;
   --faction-secondary-dark: #8b9096;
@@ -197,6 +209,7 @@
   --faction-secondary: #3A075F;
   --faction-trim: #1B75BC;
   --faction-emphasis: #FF4F9A;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #F5C542;
   --faction-primary-dark: #550a8a;
   --faction-secondary-dark: #2d064c;
@@ -211,6 +224,7 @@
   --faction-secondary: #7A4A1A;
   --faction-trim: #9FA8B0;
   --faction-emphasis: #5BC0BE;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #E6FFFA;
   --faction-primary-dark: #a96622;
   --faction-secondary-dark: #623b15;
@@ -225,6 +239,7 @@
   --faction-secondary: #4A3C1F;
   --faction-trim: #8B0000;
   --faction-emphasis: #FFD700;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #DC143C;
   --faction-primary-dark: #a1821f;
   --faction-secondary-dark: #3b3019;
@@ -239,6 +254,7 @@
   --faction-secondary: #3D4654;
   --faction-trim: #C0C0C0;
   --faction-emphasis: #4169E1;
+  --faction-emphasis-text: #ffffff;
   --faction-danger: #FF4500;
   --faction-primary-dark: #626e7a;
   --faction-secondary-dark: #313843;
@@ -253,6 +269,7 @@
   --faction-secondary: #0D1B2A;
   --faction-trim: #D4AF37;
   --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #B22222;
   --faction-primary-dark: #182e4c;
   --faction-secondary-dark: #0a1521;
@@ -267,6 +284,7 @@
   --faction-secondary: #1A0505;
   --faction-trim: #8B4513;
   --faction-emphasis: #FF4500;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #8B0000;
   --faction-primary-dark: #3b0b0b;
   --faction-secondary-dark: #140404;
@@ -281,6 +299,7 @@
   --faction-secondary: #2D0A0A;
   --faction-trim: #FF6347;
   --faction-emphasis: #9932CC;
+  --faction-emphasis-text: #ffffff;
   --faction-danger: #FF1493;
   --faction-primary-dark: #560c15;
   --faction-secondary-dark: #230808;
@@ -295,6 +314,7 @@
   --faction-secondary: #2E3625;
   --faction-trim: #8B7355;
   --faction-emphasis: #9ACD32;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #6B8E23;
   --faction-primary-dark: #4a563b;
   --faction-secondary-dark: #252b1e;
@@ -309,6 +329,7 @@
   --faction-secondary: #0F2840;
   --faction-trim: #FFD700;
   --faction-emphasis: #00CED1;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #FF6347;
   --faction-primary-dark: #183e62;
   --faction-secondary-dark: #0c2033;
@@ -323,6 +344,7 @@
   --faction-secondary: #3D0000;
   --faction-trim: #FFFFFF;
   --faction-emphasis: #B8860B;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #FF0000;
   --faction-primary-dark: #6f0000;
   --faction-secondary-dark: #310000;
@@ -337,6 +359,7 @@
   --faction-secondary: #2D1640;
   --faction-trim: #FFD700;
   --faction-emphasis: #FF69B4;
+  --faction-emphasis-text: #1a1a1a;
   --faction-danger: #DC143C;
   --faction-primary-dark: #4a2462;
   --faction-secondary-dark: #231133;

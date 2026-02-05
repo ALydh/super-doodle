@@ -149,10 +149,13 @@ export function UnitRow({
     .map((u, i) => ({ unit: u, index: i, ds: datasheets.find(d => d.id === u.datasheetId) }))
     .filter(({ ds }) => ds?.role !== "Characters");
 
+  const isAllied = unit.isAllied === true;
+
   const rowClassName = [
     styles.row,
     isGroupParent ? styles.groupParent : "",
     isGroupChild ? styles.groupChild : "",
+    isAllied ? styles.allied : "",
   ].filter(Boolean).join(" ");
 
   const renderLeaderSelect = () => {
@@ -229,9 +232,10 @@ export function UnitRow({
               <span className={styles.nameText}>{datasheet?.name ?? unit.datasheetId}</span>
               {thisUnitNumber.total > 1 && <span className={styles.unitNumber}>#{thisUnitNumber.num}</span>}
               {isGroupParent && <span className={styles.leadingBadge}>leading</span>}
+              {isAllied && <span className={styles.alliedBadge}>Allied</span>}
             </div>
 
-            {isCharacter && !readOnly && (
+            {isCharacter && !readOnly && !isAllied && (
               <button
                 type="button"
                 className={`${styles.warlordBtn} ${isWarlord ? styles.active : ""}`}
@@ -339,7 +343,7 @@ export function UnitRow({
                 </div>
               )}
 
-              {isCharacter && enhancements.length > 0 && !readOnly && (
+              {isCharacter && enhancements.length > 0 && !readOnly && !isAllied && (
                 <div className={styles.enhancementSection}>
                   <h5 className={styles.sectionHeading}>Enhancement</h5>
                   <EnhancementSelector

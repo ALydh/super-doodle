@@ -2,6 +2,9 @@ import type { DetachmentAbility, Enhancement } from "../types";
 import { sanitizeHtml } from "../sanitize";
 import styles from "./DetachmentCard.module.css";
 
+const stripFactionRestriction = (desc: string) =>
+  desc.replace(/^[A-Z][A-Z\s]+ model only\.\s*/i, '');
+
 interface Props {
   name: string;
   abilities: DetachmentAbility[];
@@ -46,7 +49,7 @@ export function DetachmentCard({ name, abilities, enhancements }: Props) {
                 )}
                 <div
                   className={styles.enhancementDescription}
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(enhancement.description) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripFactionRestriction(enhancement.description)) }}
                 />
               </div>
             ))}
