@@ -1,5 +1,7 @@
 package wahapedia.domain
 
+import wahapedia.domain.types.DatasheetId
+
 object Constants {
   object Validation {
     val MaxBattlelineDuplicates = 6
@@ -15,6 +17,14 @@ object Constants {
     val UnknownDatasheet = "Unknown"
   }
 
+  object Leaders {
+    val SpecialBodyguards: Map[DatasheetId, Int] = Map(
+      DatasheetId("000000016") -> 2,
+      DatasheetId("000000534") -> 2
+    )
+    val SpecialBodyguardSizeLine: Int = 2
+  }
+
   object Chapters {
     val FactionId = "SM"
 
@@ -23,6 +33,8 @@ object Constants {
       "blood-angels" -> "Blood Angels",
       "dark-angels" -> "Dark Angels",
       "space-wolves" -> "Space Wolves",
+      "black-templars" -> "Black Templars",
+      "deathwatch" -> "Deathwatch",
       "imperial-fists" -> "Imperial Fists",
       "raven-guard" -> "Raven Guard",
       "iron-hands" -> "Iron Hands",
