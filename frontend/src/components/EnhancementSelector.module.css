@@ -1,0 +1,261 @@
+.collapsed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail {
+  background: var(--surface-panel);
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 3px solid var(--faction-trim);
+}
+
+.detail p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-body);
+  line-height: 1.5;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.header strong {
+  color: var(--faction-trim);
+}
+
+.cost {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.none {
+  padding: 8px 12px;
+  border-left-color: var(--surface-border);
+}
+
+.noneText {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.changeBtn {
+  align-self: flex-start;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.changeBtn:hover {
+  background: var(--faction-secondary);
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardOption {
+  background: var(--surface-panel);
+  border: 2px solid var(--surface-border);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cardOption:hover {
+  border-color: var(--faction-trim);
+  background: var(--surface-hover);
+}
+
+.cardNone {
+  border-style: dashed;
+  opacity: 0.7;
+}
+
+.cardNone:hover {
+  opacity: 1;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.cardName {
+  font-weight: 600;
+  color: var(--faction-trim);
+}
+
+.cardCost {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.cardDescription {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
+}
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.accordionItem {
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.accordionItem.expanded {
+  border-color: var(--faction-trim);
+}
+
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.accordionHeader:hover {
+  background: var(--surface-hover);
+}
+
+.accordionExpand {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  width: 12px;
+}
+
+.accordionName {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.accordionCost {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.selectBtn {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  background: var(--faction-trim);
+  border: none;
+  border-radius: 4px;
+  color: var(--surface-app);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.selectBtn:hover {
+  filter: brightness(1.1);
+}
+
+.accordionContent {
+  padding: 0 12px 12px 32px;
+  border-top: 1px solid var(--surface-border);
+  padding-top: 12px;
+  margin-top: 0;
+}
+
+.accordionContent p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
+}
+
+.radio {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radioItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.radioItem:hover {
+  border-color: var(--faction-secondary);
+  background: var(--surface-hover);
+}
+
+.radioItem:has(input:checked) {
+  border-color: var(--faction-trim);
+  background: var(--faction-secondary);
+}
+
+.radioItem input[type="radio"] {
+  margin-top: 2px;
+  accent-color: var(--faction-trim);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.radioContent {
+  flex: 1;
+}
+
+.radioHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.radioName {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.radioItem:has(input:checked) .radioName {
+  color: var(--faction-trim);
+}
+
+.radioCost {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.radioDescription {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
+}

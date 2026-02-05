@@ -5,6 +5,7 @@ import { fetchDatasheetDetail } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { sanitizeHtml } from "../sanitize";
+import styles from "./DatasheetDetailPage.module.css";
 
 export function DatasheetDetailPage() {
   const { datasheetId } = useParams<{ datasheetId: string }>();
@@ -26,13 +27,13 @@ export function DatasheetDetailPage() {
 
   return (
     <div data-faction={factionTheme}>
-      <h1 className="unit-name">{datasheet.name}</h1>
-      {datasheet.role && <p className="unit-role">Role: {datasheet.role}</p>}
+      <h1 className={styles.name}>{datasheet.name}</h1>
+      {datasheet.role && <p className={styles.role}>Role: {datasheet.role}</p>}
 
       {profiles.length > 0 && (
         <>
           <h2>Stats</h2>
-          <table className="stats-table">
+          <table className={styles.statsTable}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -46,29 +47,29 @@ export function DatasheetDetailPage() {
             </thead>
             <tbody>
               {profiles.map((p, i) => (
-                <tr key={i} className="stats-row">
+                <tr key={i}>
                   <td>{p.name ?? datasheet.name}</td>
-                  <td className="stat-m">{p.movement}</td>
-                  <td className="stat-t">{p.toughness}</td>
-                  <td className="stat-sv">{p.save}</td>
-                  <td className="stat-w">{p.wounds}</td>
-                  <td className="stat-ld">{p.leadership}</td>
-                  <td className="stat-oc">{p.objectiveControl}</td>
+                  <td>{p.movement}</td>
+                  <td>{p.toughness}</td>
+                  <td>{p.save}</td>
+                  <td>{p.wounds}</td>
+                  <td>{p.leadership}</td>
+                  <td>{p.objectiveControl}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="stats-mobile">
+          <div className={styles.statsMobile}>
             {profiles.map((p, i) => (
-              <div key={i} className="stats-card">
-                <div className="stats-card-name">{p.name ?? datasheet.name}</div>
-                <div className="stats-card-values">
-                  <div className="stat-item"><span className="stat-label">M</span><span className="stat-value">{p.movement}</span></div>
-                  <div className="stat-item"><span className="stat-label">T</span><span className="stat-value">{p.toughness}</span></div>
-                  <div className="stat-item"><span className="stat-label">SV</span><span className="stat-value">{p.save}</span></div>
-                  <div className="stat-item"><span className="stat-label">W</span><span className="stat-value">{p.wounds}</span></div>
-                  <div className="stat-item"><span className="stat-label">LD</span><span className="stat-value">{p.leadership}</span></div>
-                  <div className="stat-item"><span className="stat-label">OC</span><span className="stat-value">{p.objectiveControl}</span></div>
+              <div key={i} className={styles.statsCard}>
+                <div className={styles.statsCardName}>{p.name ?? datasheet.name}</div>
+                <div className={styles.statsCardValues}>
+                  <div className={styles.statItem}><span className={styles.statLabel}>M</span><span className={styles.statValue}>{p.movement}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>T</span><span className={styles.statValue}>{p.toughness}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>SV</span><span className={styles.statValue}>{p.save}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>W</span><span className={styles.statValue}>{p.wounds}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>LD</span><span className={styles.statValue}>{p.leadership}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>OC</span><span className={styles.statValue}>{p.objectiveControl}</span></div>
                 </div>
               </div>
             ))}
@@ -79,7 +80,7 @@ export function DatasheetDetailPage() {
       {wargear.length > 0 && (
         <>
           <h2>Weapons</h2>
-          <table className="weapons-table">
+          <table className={styles.weaponsTable}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -97,37 +98,37 @@ export function DatasheetDetailPage() {
               {wargear
                 .filter((w) => w.name)
                 .map((w, i) => (
-                  <tr key={i} className="weapon-row">
-                    <td className="weapon-name">{w.name}</td>
-                    <td className="weapon-range">{w.range ?? "-"}</td>
-                    <td className="weapon-type">{w.weaponType ?? "-"}</td>
-                    <td className="weapon-attacks">{w.attacks ?? "-"}</td>
-                    <td className="weapon-skill">{w.ballisticSkill ?? "-"}</td>
-                    <td className="weapon-strength">{w.strength ?? "-"}</td>
-                    <td className="weapon-ap">{w.armorPenetration ?? "-"}</td>
-                    <td className="weapon-damage">{w.damage ?? "-"}</td>
-                    <td className="weapon-abilities"><WeaponAbilityText text={w.description} /></td>
+                  <tr key={i}>
+                    <td>{w.name}</td>
+                    <td>{w.range ?? "-"}</td>
+                    <td>{w.weaponType ?? "-"}</td>
+                    <td>{w.attacks ?? "-"}</td>
+                    <td>{w.ballisticSkill ?? "-"}</td>
+                    <td>{w.strength ?? "-"}</td>
+                    <td>{w.armorPenetration ?? "-"}</td>
+                    <td>{w.damage ?? "-"}</td>
+                    <td><WeaponAbilityText text={w.description} /></td>
                   </tr>
                 ))}
             </tbody>
           </table>
-          <div className="weapons-mobile">
+          <div className={styles.weaponsMobile}>
             {wargear.filter((w) => w.name).map((w, i) => (
-              <div key={i} className="weapon-card">
-                <div className="weapon-card-header">
-                  <span className="weapon-card-name">{w.name}</span>
-                  <span className="weapon-card-range">
+              <div key={i} className={styles.weaponCard}>
+                <div className={styles.weaponCardHeader}>
+                  <span className={styles.weaponCardName}>{w.name}</span>
+                  <span className={styles.weaponCardRange}>
                     {w.range?.toLowerCase() === "melee" ? "Melee" : `Ranged: ${w.range ?? "-"}`}
                   </span>
                 </div>
-                <div className="weapon-card-values">
-                  <div className="stat-item"><span className="stat-label">A</span><span className="stat-value">{w.attacks ?? "-"}</span></div>
-                  <div className="stat-item"><span className="stat-label">BS/WS</span><span className="stat-value">{w.ballisticSkill ?? "-"}</span></div>
-                  <div className="stat-item"><span className="stat-label">S</span><span className="stat-value">{w.strength ?? "-"}</span></div>
-                  <div className="stat-item"><span className="stat-label">AP</span><span className="stat-value">{w.armorPenetration ?? "-"}</span></div>
-                  <div className="stat-item"><span className="stat-label">D</span><span className="stat-value">{w.damage ?? "-"}</span></div>
+                <div className={styles.weaponCardValues}>
+                  <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{w.attacks ?? "-"}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>BS/WS</span><span className={styles.statValue}>{w.ballisticSkill ?? "-"}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{w.strength ?? "-"}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{w.armorPenetration ?? "-"}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{w.damage ?? "-"}</span></div>
                 </div>
-                {w.description && <div className="weapon-card-abilities"><WeaponAbilityText text={w.description} /></div>}
+                {w.description && <div className={styles.weaponCardAbilities}><WeaponAbilityText text={w.description} /></div>}
               </div>
             ))}
           </div>
@@ -137,9 +138,9 @@ export function DatasheetDetailPage() {
       {options.length > 0 && (
         <>
           <h2>Wargear Options</h2>
-          <ul className="wargear-options-list">
+          <ul className={styles.wargearOptionsList}>
             {options.map((o, i) => (
-              <li key={i} className="wargear-option-item" dangerouslySetInnerHTML={{ __html: sanitizeHtml(o.description) }} />
+              <li key={i} dangerouslySetInnerHTML={{ __html: sanitizeHtml(o.description) }} />
             ))}
           </ul>
         </>
@@ -148,7 +149,7 @@ export function DatasheetDetailPage() {
       {costs.length > 0 && (
         <>
           <h2>Point Costs</h2>
-          <table className="costs-table">
+          <table className={styles.costsTable}>
             <thead>
               <tr>
                 <th>Description</th>
@@ -157,9 +158,9 @@ export function DatasheetDetailPage() {
             </thead>
             <tbody>
               {costs.map((c, i) => (
-                <tr key={i} className="cost-row">
+                <tr key={i}>
                   <td>{c.description}</td>
-                  <td className="cost-value">{c.cost}</td>
+                  <td className={styles.costValue}>{c.cost}</td>
                 </tr>
               ))}
             </tbody>
@@ -170,11 +171,11 @@ export function DatasheetDetailPage() {
       {abilities.length > 0 && (
         <>
           <h2>Abilities</h2>
-          <ul className="abilities-list">
+          <ul className={styles.abilitiesList}>
             {abilities
               .filter((a) => a.name)
               .map((a, i) => (
-                <li key={i} className="ability-item">
+                <li key={i}>
                   <strong>{a.name}</strong>
                   {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
                 </li>
@@ -186,11 +187,11 @@ export function DatasheetDetailPage() {
       {keywords.length > 0 && (
         <>
           <h2>Keywords</h2>
-          <div className="keywords-list">
+          <div className={styles.keywordsList}>
             {keywords
               .filter((k) => k.keyword)
               .map((k, i) => (
-                <span key={i} className="keyword">
+                <span key={i} className={styles.keyword}>
                   {k.keyword}
                 </span>
               ))}
@@ -201,9 +202,9 @@ export function DatasheetDetailPage() {
       {stratagems.length > 0 && (
         <>
           <h2>Unit Stratagems</h2>
-          <ul className="unit-stratagems-list">
+          <ul className={styles.stratagemsList}>
             {stratagems.map((s) => (
-              <li key={s.id} className="unit-stratagem-item">
+              <li key={s.id}>
                 <strong>{s.name}</strong>
                 {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
                 {s.phase && <span> - {s.phase}</span>}

@@ -15,6 +15,7 @@ import { ExpandableUnitCard } from "../components/ExpandableUnitCard";
 import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { sortByRoleOrder } from "../constants";
+import styles from "./FactionDetailPage.module.css";
 
 type TabId = "units" | "stratagems" | "detachments";
 
@@ -102,27 +103,27 @@ export function FactionDetailPage() {
   };
 
   return (
-    <div data-faction={factionTheme} className="faction-detail-page">
+    <div data-faction={factionTheme} className={styles.page}>
       {factionTheme && (
         <img
           src={`/icons/${factionTheme}.svg`}
           alt=""
-          className="army-builder-bg-icon"
+          className={styles.bgIcon}
           aria-hidden="true"
         />
       )}
-      <div className="faction-header">
-        <div className="faction-header-info">
+      <div className={styles.header}>
+        <div className={styles.headerInfo}>
           {factionTheme && (
             <img
               src={`/icons/${factionTheme}.svg`}
               alt=""
-              className="faction-header-icon"
+              className={styles.headerIcon}
             />
           )}
-          <h1 className="faction-title">{factionName}</h1>
+          <h1 className={styles.title}>{factionName}</h1>
         </div>
-        <Link to={`/factions/${factionId}/armies/new`} className="btn-create-army">
+        <Link to={`/factions/${factionId}/armies/new`} className={styles.btnCreateArmy}>
           + Create Army
         </Link>
       </div>
@@ -130,11 +131,11 @@ export function FactionDetailPage() {
       <TabNavigation tabs={TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />
 
       {activeTab === "units" && (
-        <div className="units-tab">
+        <div className={styles.unitsTab}>
           {sortedRoles.map((role) => (
-            <section key={role} className="role-section">
-              <h2 className="role-heading">{role}</h2>
-              <div className="unit-cards-list">
+            <section key={role} className={styles.roleSection}>
+              <h2 className={styles.roleHeading}>{role}</h2>
+              <div className={styles.cardsList}>
                 {datasheetsByRole[role]
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((ds) => (
@@ -153,8 +154,8 @@ export function FactionDetailPage() {
       )}
 
       {activeTab === "stratagems" && (
-        <div className="stratagems-tab">
-          <div className="stratagem-filters">
+        <div>
+          <div className={styles.filters}>
             <label>
               Detachment:
               <select
@@ -182,7 +183,7 @@ export function FactionDetailPage() {
               </select>
             </label>
           </div>
-          <div className="stratagems-list">
+          <div className={styles.stratagemsList}>
             {filteredStratagems.map((s) => (
               <StratagemCard key={s.id} stratagem={s} />
             ))}
@@ -191,7 +192,7 @@ export function FactionDetailPage() {
       )}
 
       {activeTab === "detachments" && (
-        <div className="detachments-tab">
+        <div>
           {detachments.map((det) => (
             <DetachmentCard
               key={det.detachmentId}

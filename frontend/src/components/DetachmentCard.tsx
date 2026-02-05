@@ -1,5 +1,6 @@
 import type { DetachmentAbility, Enhancement } from "../types";
 import { sanitizeHtml } from "../sanitize";
+import styles from "./DetachmentCard.module.css";
 
 interface Props {
   name: string;
@@ -9,20 +10,20 @@ interface Props {
 
 export function DetachmentCard({ name, abilities, enhancements }: Props) {
   return (
-    <div className="detachment-card">
-      <h3 className="detachment-name">{name}</h3>
+    <div className={styles.card}>
+      <h3 className={styles.name}>{name}</h3>
 
       {abilities.length > 0 && (
-        <div className="detachment-abilities">
+        <div className={styles.abilities}>
           <h4>Detachment Rule</h4>
           {abilities.map((ability) => (
-            <div key={ability.id} className="detachment-ability">
+            <div key={ability.id} className={styles.ability}>
               <strong>{ability.name}</strong>
               {ability.legend && (
-                <div className="detachment-ability-legend">{ability.legend}</div>
+                <div className={styles.abilityLegend}>{ability.legend}</div>
               )}
               <div
-                className="detachment-ability-description"
+                className={styles.abilityDescription}
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(ability.description) }}
               />
             </div>
@@ -31,20 +32,20 @@ export function DetachmentCard({ name, abilities, enhancements }: Props) {
       )}
 
       {enhancements.length > 0 && (
-        <div className="detachment-enhancements">
+        <div className={styles.enhancements}>
           <h4>Enhancements</h4>
-          <div className="enhancement-list">
+          <div className={styles.enhancementList}>
             {enhancements.map((enhancement) => (
-              <div key={enhancement.id} className="enhancement-item">
-                <div className="enhancement-header">
-                  <span className="enhancement-name">{enhancement.name}</span>
-                  <span className="enhancement-cost">{enhancement.cost}pts</span>
+              <div key={enhancement.id} className={styles.enhancementItem}>
+                <div className={styles.enhancementHeader}>
+                  <span className={styles.enhancementName}>{enhancement.name}</span>
+                  <span className={styles.enhancementCost}>{enhancement.cost}pts</span>
                 </div>
                 {enhancement.legend && (
-                  <div className="enhancement-legend">{enhancement.legend}</div>
+                  <div className={styles.enhancementLegend}>{enhancement.legend}</div>
                 )}
                 <div
-                  className="enhancement-description"
+                  className={styles.enhancementDescription}
                   dangerouslySetInnerHTML={{ __html: sanitizeHtml(enhancement.description) }}
                 />
               </div>

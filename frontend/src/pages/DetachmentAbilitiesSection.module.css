@@ -1,0 +1,32 @@
+.section {
+  margin: 16px 0;
+}
+
+.toggle {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  color: var(--text-body);
+  padding: 8px 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.toggle:hover {
+  background-color: var(--surface-hover);
+}
+
+.list {
+  margin-top: 8px;
+}
+
+.list li {
+  color: var(--text-body);
+  line-height: 1.5;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.list li strong {
+  color: var(--text-primary);
+}

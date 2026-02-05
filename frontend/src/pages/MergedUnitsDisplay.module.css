@@ -1,0 +1,244 @@
+.display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mergedGroup {
+  background-color: var(--surface-panel);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+}
+
+.mergedGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  background-color: var(--faction-secondary);
+  transition: background-color 0.2s ease;
+}
+
+.mergedGroupHeader:hover {
+  background-color: var(--surface-card);
+}
+
+.mergeIndicator {
+  font-size: 1.2em;
+}
+
+.mergedName {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mergedCost {
+  color: var(--faction-trim);
+  font-weight: 600;
+}
+
+.warlordBadge {
+  background-color: var(--faction-primary);
+  color: var(--text-primary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.expandIcon {
+  color: var(--text-muted);
+}
+
+.groupDetails {
+  padding: 16px;
+  background-color: var(--surface-card);
+  border-top: 1px solid var(--surface-border);
+}
+
+.unitDetail {
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: var(--surface-panel);
+  border-radius: 6px;
+}
+
+.unitDetail strong {
+  color: var(--text-primary);
+}
+
+.unitControls {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.unitControls select {
+  min-width: 150px;
+}
+
+.unitControls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.groupActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.btnDetach {
+  background-color: var(--state-warning);
+  color: var(--surface-page);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btnDetach:hover {
+  opacity: 0.9;
+}
+
+.standaloneUnit {
+  background-color: var(--surface-panel);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  padding: 12px 16px;
+}
+
+.standaloneRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.unitName {
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 150px;
+}
+
+.unitCost {
+  color: var(--faction-trim);
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.standaloneRow select {
+  min-width: 120px;
+}
+
+.standaloneRow label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.btnCopy {
+  background-color: var(--faction-emphasis);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  margin-right: 4px;
+}
+
+.btnCopy:hover {
+  background-color: var(--faction-emphasis-dark);
+}
+
+.btnRemove {
+  background-color: var(--faction-danger);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.btnRemove:hover {
+  background-color: var(--faction-danger-dark);
+}
+
+@media (max-width: 599px) {
+  .mergedGroupHeader {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .mergedName {
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .mergeIndicator {
+    order: 0;
+  }
+
+  .mergedCost {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .warlordBadge {
+    order: 3;
+  }
+
+  .expandIcon {
+    order: 4;
+  }
+
+  .groupDetails {
+    padding: 12px;
+  }
+
+  .unitDetail {
+    padding: 12px;
+  }
+
+  .unitControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .unitControls select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .groupActions {
+    flex-direction: column;
+  }
+
+  .groupActions button {
+    width: 100%;
+  }
+
+  .standaloneRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .unitName {
+    min-width: 0;
+  }
+
+  .unitCost {
+    margin-left: 0;
+  }
+
+  .standaloneRow select {
+    width: 100%;
+    min-width: 0;
+  }
+}

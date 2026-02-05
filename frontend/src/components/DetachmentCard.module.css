@@ -1,0 +1,109 @@
+.card {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.name {
+  color: var(--faction-primary);
+  margin: 0 0 16px 0;
+  font-size: 1.3rem;
+}
+
+.abilities {
+  margin-bottom: 24px;
+}
+
+.abilities h4,
+.enhancements h4 {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.ability {
+  margin-bottom: 16px;
+}
+
+.ability strong {
+  color: var(--text-primary);
+  font-size: 1.05rem;
+}
+
+.abilityLegend {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.abilityDescription {
+  color: var(--text-body);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.enhancementList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.enhancementItem {
+  background-color: var(--surface-panel);
+  padding: 16px;
+  border-radius: 6px;
+  border-left: 3px solid var(--faction-secondary);
+}
+
+.enhancementHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.enhancementName {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.enhancementCost {
+  color: var(--faction-trim);
+  font-weight: 600;
+}
+
+.enhancementLegend {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.enhancementDescription {
+  color: var(--text-body);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 599px) {
+  .card {
+    padding: 16px;
+  }
+
+  .enhancementItem {
+    padding: 12px;
+  }
+
+  .enhancementHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

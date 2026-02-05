@@ -1,0 +1,660 @@
+.roleHeaderRow {
+  display: flex;
+  width: 100%;
+}
+
+.roleHeader {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 8px 0 4px 0;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+}
+
+.row.groupChild {
+  margin-left: 24px;
+  width: calc(100% - 24px);
+}
+
+.row.groupChild .card {
+  border-left: none;
+}
+
+.card {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border-top: 1px solid var(--faction-primary);
+  border-right: 1px solid var(--faction-primary);
+  border-bottom: 1px solid var(--faction-primary);
+  border-left: 4px solid var(--faction-primary);
+  overflow: hidden;
+  container-type: inline-size;
+  width: 100%;
+}
+
+.stackedRow {
+  position: relative;
+}
+
+.stackedCard {
+  position: relative;
+  z-index: 1;
+}
+
+.stackedShadow {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: -4px;
+  bottom: -4px;
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  border-left: 4px solid var(--faction-primary);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+.stackedShadow:nth-child(2) {
+  top: 8px;
+  left: 8px;
+  right: -8px;
+  bottom: -8px;
+  opacity: 0.3;
+  z-index: -2;
+}
+
+.stackedCount {
+  background-color: var(--faction-primary);
+  color: var(--surface-app);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 4px;
+}
+
+.stackedTotal {
+  font-weight: 700;
+}
+
+.stackedUnitsList {
+  padding: 12px 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.stackedUnitsList h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.stackedUnitItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 0.9rem;
+}
+
+.stackedUnitItem span:first-child {
+  flex: 1;
+  color: var(--text-secondary);
+}
+
+.stackedUnitItem span:nth-child(2) {
+  color: var(--text-muted);
+}
+
+.btnRemoveSmall {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 1rem;
+}
+
+.btnRemoveSmall:hover {
+  color: var(--status-error);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: var(--surface-panel);
+}
+
+.expandBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 4px;
+  cursor: pointer;
+  width: 24px;
+  min-height: auto;
+}
+
+.expandBtn:hover {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nameText {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.unitNumber {
+  color: var(--faction-trim);
+  font-weight: 600;
+}
+
+.leadingBadge {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.warlordBtn {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 4px;
+  background: var(--surface-border);
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.warlordBtn:hover {
+  background: var(--faction-secondary);
+  color: var(--faction-trim);
+}
+
+.warlordBtn.active {
+  background: var(--faction-primary);
+  color: var(--text-primary);
+}
+
+.warlordBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--faction-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.enhancementPill {
+  background: var(--faction-trim);
+  color: var(--surface-app);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 0.5rem;
+}
+
+.enhancementSection {
+  padding: 0.75rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.enhancementSection h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.controlValue {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.wargearOptionReadonly {
+  padding: 0.25rem 0;
+  color: var(--text-secondary);
+}
+
+.wargearChoice {
+  margin-left: 0.5rem;
+  color: var(--faction-primary);
+  font-weight: 500;
+}
+
+.costBadge {
+  background: var(--surface-border);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+.actions .btnCopy,
+.actions .btnRemove {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--surface-border);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.actions .btnCopy:hover {
+  background: var(--faction-secondary);
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.actions .btnRemove:hover {
+  background: var(--status-error);
+  border-color: var(--status-error);
+  color: white;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.controls:empty {
+  display: none;
+}
+
+.controlGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controlGroup label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.unitSelect {
+  background-color: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  min-width: 120px;
+  max-width: 200px;
+}
+
+.unitSelect:focus {
+  border-color: var(--faction-primary);
+  outline: none;
+}
+
+.wargearCount {
+  background: var(--surface-panel);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.expanded {
+  padding: 16px;
+  border-top: 1px solid var(--surface-border);
+  background-color: var(--surface-page);
+}
+
+.statsPreview {
+  margin-bottom: 16px;
+}
+
+.statsRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.statLine {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: var(--surface-card);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.stat b {
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.sectionHeading {
+  color: var(--faction-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.weaponsList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weaponLine {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 40px 45px 35px 45px 50px 1fr;
+  gap: 8px;
+  align-items: baseline;
+  padding: 8px;
+  background: var(--surface-card);
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.weaponName {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.weaponStat {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.weaponAbilities {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.wargearOptions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.abilitiesPreview {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.abilitiesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.abilityLine {
+  font-size: 0.9rem;
+  color: var(--text-body);
+}
+
+.abilityLine strong {
+  color: var(--faction-primary);
+}
+
+.row.groupParent .card {
+  background-color: var(--faction-secondary);
+}
+
+.groupConnector {
+  color: var(--faction-trim);
+  font-family: monospace;
+  margin-right: 4px;
+}
+
+.groupIndicator {
+  color: var(--text-muted);
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+.attachedLeaderBadge {
+  background-color: var(--faction-primary);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  display: inline-block;
+}
+
+@container (max-width: 280px) {
+  .header {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 4px 8px;
+  }
+
+  .expandBtn {
+    width: 18px;
+    font-size: 0.65rem;
+  }
+
+  .title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .nameText {
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .warlordBtn {
+    width: 24px;
+    height: 24px;
+    min-height: 24px;
+    font-size: 0.85rem;
+  }
+
+  .costBadge {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+
+  .actions {
+    gap: 2px;
+  }
+
+  .actions .btnCopy,
+  .actions .btnRemove {
+    width: 22px;
+    height: 22px;
+    min-height: 22px;
+    font-size: 0.8rem;
+  }
+
+  .controls {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .controlGroup label {
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 599px) {
+  .header {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 4px 8px;
+  }
+
+  .expandBtn {
+    flex: 0 0 auto;
+    width: 18px;
+    font-size: 0.65rem;
+  }
+
+  .title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .nameText {
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .warlordBtn {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    min-height: 24px;
+    font-size: 0.85rem;
+  }
+
+  .costBadge {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+
+  .actions {
+    flex: 0 0 auto;
+    gap: 2px;
+  }
+
+  .actions .btnCopy,
+  .actions .btnRemove {
+    width: 22px;
+    height: 22px;
+    min-height: 22px;
+    font-size: 0.8rem;
+  }
+
+  .controls {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .controlGroup {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .controlGroup label {
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+
+  .unitSelect {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    font-size: 0.8rem;
+    padding: 5px 8px;
+  }
+
+  .wargearCount {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+  }
+
+  .leadingBadge {
+    display: none;
+  }
+
+  .unitNumber {
+    font-size: 0.85rem;
+  }
+
+  .groupConnector {
+    font-size: 0.8rem;
+  }
+
+  .expanded {
+    padding: 12px;
+  }
+
+  .statLine {
+    gap: 6px;
+  }
+
+  .stat {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+
+  .weaponLine {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  .weaponName {
+    flex-basis: 100%;
+  }
+
+  .wargearOptions {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .abilitiesPreview {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .sectionHeading {
+    font-size: 0.8rem;
+  }
+}

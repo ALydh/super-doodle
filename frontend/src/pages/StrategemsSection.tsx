@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Stratagem } from "../types";
 import { sanitizeHtml } from "../sanitize";
+import styles from "./StrategemsSection.module.css";
 
 interface Props {
   stratagems: Stratagem[];
@@ -12,17 +13,17 @@ export function StrategemsSection({ stratagems }: Props) {
   if (stratagems.length === 0) return null;
 
   return (
-    <div className="detachment-stratagems-section">
+    <div className={styles.section}>
       <button
-        className="btn-toggle detachment-stratagems-toggle"
+        className={styles.toggle}
         onClick={() => setExpanded(!expanded)}
       >
         Stratagems ({stratagems.length}) {expanded ? "▼" : "▶"}
       </button>
       {expanded && (
-        <ul className="detachment-stratagems-list">
+        <ul className={styles.list}>
           {stratagems.map((s) => (
-            <li key={s.id} className="detachment-stratagem-item">
+            <li key={s.id}>
               <strong>{s.name}</strong>
               {s.cpCost !== null && <span> ({s.cpCost} CP)</span>}
               {s.phase && <span> - {s.phase}</span>}

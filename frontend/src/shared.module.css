@@ -1,0 +1,270 @@
+.btnAdd {
+  background-color: var(--state-success);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.btnAdd:hover {
+  background-color: #2da042;
+}
+
+.btnCopy {
+  background-color: var(--faction-emphasis);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  margin-right: 4px;
+}
+
+.btnCopy:hover {
+  background-color: var(--faction-emphasis-dark);
+}
+
+.btnRemove {
+  background-color: var(--faction-danger);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.btnRemove:hover {
+  background-color: var(--faction-danger-dark);
+}
+
+.btnDelete {
+  background-color: var(--state-danger);
+}
+
+.btnDelete:hover {
+  background-color: #c9432e;
+}
+
+.btnToggle {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  color: var(--text-body);
+  padding: 8px 14px;
+}
+
+.btnToggle:hover {
+  background-color: var(--surface-panel);
+  border-color: var(--faction-primary);
+}
+
+.btnSave {
+  background-color: var(--state-success);
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+.btnSave:hover {
+  background-color: #2da042;
+}
+
+.btnSave:disabled {
+  background-color: var(--state-disabled);
+}
+
+.loading {
+  color: var(--text-muted);
+  padding: 16px;
+}
+
+.validationErrors {
+  background-color: rgba(229, 83, 61, 0.1);
+  border: 1px solid var(--state-danger);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.validationErrors strong {
+  color: var(--state-danger);
+}
+
+.validationErrors ul {
+  margin-top: 8px;
+}
+
+.validationErrors li {
+  color: var(--state-danger);
+  padding: 4px 0;
+}
+
+.errorMessage {
+  background-color: rgba(229, 83, 61, 0.1);
+  border: 1px solid var(--state-danger);
+  color: var(--state-danger);
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.fieldError {
+  color: var(--state-danger);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.pointsTotal {
+  position: relative;
+  background-color: var(--surface-card);
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 20px 0;
+  overflow: hidden;
+}
+
+.pointsBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--points-percent, 0%);
+  background: linear-gradient(
+    90deg,
+    var(--faction-secondary) 0%,
+    var(--faction-primary) 100%
+  );
+  opacity: 0.3;
+  transition: width 0.3s ease;
+}
+
+.pointsText {
+  position: relative;
+  z-index: 1;
+}
+
+.overBudget .pointsBar {
+  background: linear-gradient(
+    90deg,
+    var(--faction-danger) 0%,
+    var(--state-danger) 100%
+  );
+  opacity: 0.4;
+}
+
+.overBudget .pointsText {
+  color: var(--state-danger);
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.backLink:hover {
+  color: var(--faction-primary);
+}
+
+.keywordsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keyword {
+  background-color: var(--surface-card);
+  color: var(--faction-trim);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  border: 1px solid var(--surface-border);
+}
+
+.factionKeyword {
+  background-color: var(--faction-secondary);
+  border-color: var(--faction-primary);
+}
+
+.warlordBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--faction-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.enhancementPill {
+  background: var(--faction-trim);
+  color: var(--surface-app);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 0.5rem;
+}
+
+.statsTable td,
+.weaponsTable td {
+  text-align: center;
+}
+
+.statsTable td:first-child,
+.weaponsTable td:first-child {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.statsTable th,
+.weaponsTable th {
+  text-align: center;
+}
+
+.statsTable th:first-child,
+.weaponsTable th:first-child {
+  text-align: left;
+}
+
+.costValue {
+  color: var(--faction-trim);
+  font-weight: 600;
+}
+
+@media (max-width: 599px) {
+  .btnAdd,
+  .btnCopy,
+  .btnRemove {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  .pointsTotal {
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    margin: 16px -12px 0;
+    border-radius: 0;
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    background-color: var(--surface-card);
+    border-top: 2px solid var(--faction-primary);
+  }
+
+  .validationErrors {
+    padding: 12px;
+    margin: 12px 0;
+  }
+
+  .backLink {
+    font-size: 1rem;
+    padding: 8px 0;
+  }
+
+  .keywordsList {
+    gap: 6px;
+  }
+
+  .keyword {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}

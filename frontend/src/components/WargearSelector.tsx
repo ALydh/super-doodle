@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { DatasheetOption, WargearSelection } from "../types";
 import { sanitizeHtml } from "../sanitize";
+import styles from "./WargearSelector.module.css";
 
 interface Props {
   options: DatasheetOption[];
@@ -35,17 +36,17 @@ export function WargearSelector({
 
   if (!isExpanded) {
     return (
-      <div className="wargear-selector-collapsed">
-        <div className="wargear-collapsed-summary">
+      <div className={styles.collapsed}>
+        <div className={styles.summary}>
           {selectedOptions.length === 0 ? (
-            <span className="wargear-none-text">No wargear options selected</span>
+            <span className={styles.noneText}>No wargear options selected</span>
           ) : (
-            <span className="wargear-selected-list">{selectedOptions.join(', ')}</span>
+            <span className={styles.selectedList}>{selectedOptions.join(', ')}</span>
           )}
         </div>
         <button
           type="button"
-          className="wargear-change-btn"
+          className={styles.changeBtn}
           onClick={() => setIsExpanded(true)}
         >
           {selectedOptions.length === 0 ? "Configure Wargear" : "Change Wargear"}
@@ -55,10 +56,10 @@ export function WargearSelector({
   }
 
   return (
-    <div className="wargear-selector wargear-selector-cards">
+    <div className={styles.cards}>
       <button
         type="button"
-        className="wargear-collapse-btn"
+        className={styles.collapseBtn}
         onClick={() => setIsExpanded(false)}
       >
         Done
@@ -72,20 +73,20 @@ export function WargearSelector({
         return (
           <div
             key={option.line}
-            className={`wargear-card-option ${isSelected ? "selected" : ""}`}
+            className={`${styles.cardOption} ${isSelected ? styles.selected : ""}`}
             onClick={() => onSelectionChange(option.line, !isSelected)}
           >
-            <div className="wargear-card-indicator">
+            <div className={styles.indicator}>
               {isSelected ? "✓" : ""}
             </div>
-            <div className="wargear-card-content">
+            <div className={styles.content}>
               <p
-                className="wargear-card-description"
+                className={styles.description}
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(option.description) }}
               />
               {isSelected && hasChoices && (
                 <select
-                  className="unit-select wargear-choice-dropdown"
+                  className={`${styles.unitSelect} ${styles.choiceDropdown}`}
                   value={selection?.notes ?? ''}
                   onChange={(e) => onNotesChange(option.line, e.target.value)}
                   onClick={(e) => e.stopPropagation()}

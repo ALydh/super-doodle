@@ -1,3 +1,5 @@
+import styles from "./TabNavigation.module.css";
+
 interface Tab {
   id: string;
   label: string;
@@ -11,14 +13,14 @@ interface Props {
 
 export function TabNavigation({ tabs, activeTab, onTabChange }: Props) {
   return (
-    <div className="tab-navigation" role="tablist">
+    <div className={styles.navigation} role="tablist">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           role="tab"
           aria-selected={activeTab === tab.id}
           aria-controls={`${tab.id}-panel`}
-          className={`tab-button ${activeTab === tab.id ? "active" : ""}`}
+          className={`${styles.button} ${activeTab === tab.id ? styles.active : ""}`}
           onClick={() => onTabChange(tab.id)}
         >
           {tab.label}

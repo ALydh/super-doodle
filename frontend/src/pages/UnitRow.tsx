@@ -6,6 +6,7 @@ import { useReferenceData } from "../context/ReferenceDataContext";
 import { sanitizeHtml } from "../sanitize";
 import { EnhancementSelector } from "../components/EnhancementSelector";
 import { WargearSelector } from "../components/WargearSelector";
+import styles from "./UnitRow.module.css";
 
 function parseUnitSize(description: string): number {
   const match = description.match(/(\d+)\s*model/i);
@@ -149,16 +150,15 @@ export function UnitRow({
     .filter(({ ds }) => ds?.role !== "Characters");
 
   const rowClassName = [
-    "unit-row",
-    isGroupParent ? "group-parent" : "",
-    isGroupChild ? "group-child" : "",
-    expanded ? "expanded" : "",
+    styles.row,
+    isGroupParent ? styles.groupParent : "",
+    isGroupChild ? styles.groupChild : "",
   ].filter(Boolean).join(" ");
 
   const renderLeaderSelect = () => {
     if (displayMode === "inline") {
       if (attachedLeaderInfo) {
-        return <span className="attached-leader-badge">+ {attachedLeaderInfo.name}</span>;
+        return <span className={styles.attachedLeaderBadge}>+ {attachedLeaderInfo.name}</span>;
       }
       return null;
     }
@@ -166,7 +166,7 @@ export function UnitRow({
     if (displayMode === "instance" && isCharacter) {
       return (
         <select
-          className="unit-select"
+          className={styles.unitSelect}
           value={unit.attachedToUnitIndex ?? ""}
           onChange={(e) => onUpdate(index, {
             ...unit,
@@ -192,7 +192,7 @@ export function UnitRow({
     if (isCharacter && attachableUnitsInArmy.length > 0) {
       return (
         <select
-          className="unit-select"
+          className={styles.unitSelect}
           value={unit.attachedLeaderId ?? ""}
           onChange={(e) => onUpdate(index, { ...unit, attachedLeaderId: e.target.value || null })}
         >
@@ -210,9 +210,9 @@ export function UnitRow({
   return (
     <tr className={rowClassName}>
       <td colSpan={8}>
-        <div className="unit-card-builder">
+        <div className={styles.card}>
           <div
-            className="unit-card-header"
+            className={styles.header}
             role="button"
             tabIndex={0}
             onClick={() => setExpanded(!expanded)}
@@ -220,21 +220,21 @@ export function UnitRow({
             aria-expanded={expanded}
             aria-label={`${datasheet?.name ?? unit.datasheetId}, ${expanded ? "collapse" : "expand"} details`}
           >
-            <span className="unit-expand-btn" aria-hidden="true">
+            <span className={styles.expandBtn} aria-hidden="true">
               {expanded ? "▼" : "▶"}
             </span>
 
-            <div className="unit-card-title">
-              {isGroupChild && <span className="group-connector">└─ </span>}
-              <span className="unit-name-text">{datasheet?.name ?? unit.datasheetId}</span>
-              {thisUnitNumber.total > 1 && <span className="unit-number">#{thisUnitNumber.num}</span>}
-              {isGroupParent && <span className="leading-badge">leading</span>}
+            <div className={styles.title}>
+              {isGroupChild && <span className={styles.groupConnector}>└─ </span>}
+              <span className={styles.nameText}>{datasheet?.name ?? unit.datasheetId}</span>
+              {thisUnitNumber.total > 1 && <span className={styles.unitNumber}>#{thisUnitNumber.num}</span>}
+              {isGroupParent && <span className={styles.leadingBadge}>leading</span>}
             </div>
 
             {isCharacter && !readOnly && (
               <button
                 type="button"
-                className={`warlord-btn ${isWarlord ? "active" : ""}`}
+                className={`${styles.warlordBtn} ${isWarlord ? styles.active : ""}`}
                 onClick={(e) => { e.stopPropagation(); onSetWarlord(index); }}
                 title={isWarlord ? "Warlord" : "Set as Warlord"}
                 aria-label={isWarlord ? "Warlord" : "Set as Warlord"}
@@ -242,33 +242,33 @@ export function UnitRow({
                 ♛
               </button>
             )}
-            {isWarlord && readOnly && <span className="warlord-badge">♛ Warlord</span>}
+            {isWarlord && readOnly && <span className={styles.warlordBadge}>♛ Warlord</span>}
 
             {unit.enhancementId && (
-              <span className="enhancement-pill">
+              <span className={styles.enhancementPill}>
                 {enhancements.find(e => e.id === unit.enhancementId)?.name}
               </span>
             )}
 
-            <span className="unit-cost-badge">{totalCost}pts</span>
+            <span className={styles.costBadge}>{totalCost}pts</span>
 
             {!readOnly && (
-              <div className="unit-card-actions" onClick={(e) => e.stopPropagation()}>
-                <button type="button" className="btn-copy" onClick={() => onCopy(index)} title="Copy unit" aria-label="Copy unit">⧉</button>
-                <button type="button" className="btn-remove" onClick={() => onRemove(index)} title="Remove unit" aria-label="Remove unit">×</button>
+              <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                <button type="button" className={styles.btnCopy} onClick={() => onCopy(index)} title="Copy unit" aria-label="Copy unit">⧉</button>
+                <button type="button" className={styles.btnRemove} onClick={() => onRemove(index)} title="Remove unit" aria-label="Remove unit">×</button>
               </div>
             )}
           </div>
 
-          <div className="unit-card-controls">
+          <div className={styles.controls}>
             {unitCosts.length > 1 && (
-              <div className="control-group">
+              <div className={styles.controlGroup}>
                 <label>Size</label>
                 {readOnly ? (
-                  <span className="control-value">{selectedCost?.description}</span>
+                  <span className={styles.controlValue}>{selectedCost?.description}</span>
                 ) : (
                   <select
-                    className="unit-select"
+                    className={styles.unitSelect}
                     value={unit.sizeOptionLine}
                     onChange={(e) => onUpdate(index, { ...unit, sizeOptionLine: Number(e.target.value) })}
                   >
@@ -281,54 +281,54 @@ export function UnitRow({
             )}
 
             {isCharacter && attachableUnitsInArmy.length > 0 && !readOnly && (
-              <div className="control-group">
+              <div className={styles.controlGroup}>
                 <label>Attach to</label>
                 {renderLeaderSelect()}
               </div>
             )}
 
             {unitOptions.length > 0 && !readOnly && (
-              <div className="control-group">
+              <div className={styles.controlGroup}>
                 <label>Wargear</label>
-                <span className="wargear-count">{wargearCount}/{unitOptions.length}</span>
+                <span className={styles.wargearCount}>{wargearCount}/{unitOptions.length}</span>
               </div>
             )}
           </div>
 
           {expanded && (
-            <div className="unit-card-expanded">
+            <div className={styles.expanded}>
               {loadingDetail && <div className="loading">Loading stats...</div>}
 
               {detail && (
-                <div className="unit-stats-preview">
+                <div className={styles.statsPreview}>
                   {detail.profiles.length > 0 && (
-                    <div className="stats-row">
+                    <div className={styles.statsRow}>
                       {detail.profiles.map((p, i) => (
-                        <div key={i} className="stat-line">
-                          <span className="stat"><b>M</b>{p.movement}</span>
-                          <span className="stat"><b>T</b>{p.toughness}</span>
-                          <span className="stat"><b>SV</b>{p.save}{p.invulnerableSave && `/${p.invulnerableSave}`}</span>
-                          <span className="stat"><b>W</b>{p.wounds}</span>
-                          <span className="stat"><b>LD</b>{p.leadership}</span>
-                          <span className="stat"><b>OC</b>{p.objectiveControl}</span>
+                        <div key={i} className={styles.statLine}>
+                          <span className={styles.stat}><b>M</b>{p.movement}</span>
+                          <span className={styles.stat}><b>T</b>{p.toughness}</span>
+                          <span className={styles.stat}><b>SV</b>{p.save}{p.invulnerableSave && `/${p.invulnerableSave}`}</span>
+                          <span className={styles.stat}><b>W</b>{p.wounds}</span>
+                          <span className={styles.stat}><b>LD</b>{p.leadership}</span>
+                          <span className={styles.stat}><b>OC</b>{p.objectiveControl}</span>
                         </div>
                       ))}
                     </div>
                   )}
 
                   {filteredWargear.length > 0 && (
-                    <div className="weapons-preview">
-                      <h5>Weapons</h5>
-                      <div className="weapons-list">
+                    <div>
+                      <h5 className={styles.sectionHeading}>Weapons</h5>
+                      <div className={styles.weaponsList}>
                         {filteredWargear.map((wq, i) => (
-                          <div key={i} className="weapon-line">
-                            <span className="weapon-name">{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
-                            <span className="weapon-stat">{wq.wargear.attacks ? `A:${wq.wargear.attacks}` : ''}</span>
-                            <span className="weapon-stat">{wq.wargear.ballisticSkill ? `BS:${wq.wargear.ballisticSkill}` : ''}</span>
-                            <span className="weapon-stat">{wq.wargear.strength ? `S:${wq.wargear.strength}` : ''}</span>
-                            <span className="weapon-stat">{wq.wargear.armorPenetration ? `AP:${wq.wargear.armorPenetration}` : ''}</span>
-                            <span className="weapon-stat">{wq.wargear.damage ? `D:${wq.wargear.damage}` : ''}</span>
-                            <span className="weapon-abilities">
+                          <div key={i} className={styles.weaponLine}>
+                            <span className={styles.weaponName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
+                            <span className={styles.weaponStat}>{wq.wargear.attacks ? `A:${wq.wargear.attacks}` : ''}</span>
+                            <span className={styles.weaponStat}>{wq.wargear.ballisticSkill ? `BS:${wq.wargear.ballisticSkill}` : ''}</span>
+                            <span className={styles.weaponStat}>{wq.wargear.strength ? `S:${wq.wargear.strength}` : ''}</span>
+                            <span className={styles.weaponStat}>{wq.wargear.armorPenetration ? `AP:${wq.wargear.armorPenetration}` : ''}</span>
+                            <span className={styles.weaponStat}>{wq.wargear.damage ? `D:${wq.wargear.damage}` : ''}</span>
+                            <span className={styles.weaponAbilities}>
                               {wq.wargear.description && <WeaponAbilityText text={wq.wargear.description} />}
                             </span>
                           </div>
@@ -340,8 +340,8 @@ export function UnitRow({
               )}
 
               {isCharacter && enhancements.length > 0 && !readOnly && (
-                <div className="enhancement-section">
-                  <h5>Enhancement</h5>
+                <div className={styles.enhancementSection}>
+                  <h5 className={styles.sectionHeading}>Enhancement</h5>
                   <EnhancementSelector
                     enhancements={enhancements}
                     selectedId={unit.enhancementId}
@@ -351,8 +351,8 @@ export function UnitRow({
               )}
 
               {unitOptions.length > 0 && !readOnly && (
-                <div className="wargear-options">
-                  <h5>Wargear Options</h5>
+                <div className={styles.wargearOptions}>
+                  <h5 className={styles.sectionHeading}>Wargear Options</h5>
                   <WargearSelector
                     options={unitOptions}
                     selections={unit.wargearSelections}
@@ -364,16 +364,16 @@ export function UnitRow({
               )}
 
               {wargearCount > 0 && readOnly && (
-                <div className="wargear-options">
-                  <h5>Selected Wargear</h5>
+                <div className={styles.wargearOptions}>
+                  <h5 className={styles.sectionHeading}>Selected Wargear</h5>
                   {unitOptions
                     .filter(option => getWargearSelection(option.line)?.selected)
                     .map((option) => {
                       const selection = getWargearSelection(option.line);
                       return (
-                        <div key={option.line} className="wargear-option readonly">
+                        <div key={option.line} className={styles.wargearOptionReadonly}>
                           <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(option.description) }} />
-                          {selection?.notes && <span className="wargear-choice">→ {selection.notes}</span>}
+                          {selection?.notes && <span className={styles.wargearChoice}>→ {selection.notes}</span>}
                         </div>
                       );
                     })}
@@ -381,11 +381,11 @@ export function UnitRow({
               )}
 
               {detail && detail.abilities.filter(a => a.name).length > 0 && (
-                <div className="abilities-preview">
-                  <h5>Abilities</h5>
-                  <div className="abilities-list">
+                <div className={styles.abilitiesPreview}>
+                  <h5 className={styles.sectionHeading}>Abilities</h5>
+                  <div className={styles.abilitiesList}>
                     {detail.abilities.filter(a => a.name).map((a, i) => (
-                      <div key={i} className="ability-line">
+                      <div key={i} className={styles.abilityLine}>
                         <strong>{a.name}</strong>
                         {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
                       </div>

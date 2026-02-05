@@ -1,0 +1,143 @@
+.page {
+  position: relative;
+}
+
+.bgIcon {
+  position: fixed;
+  width: 70vw;
+  height: 70vw;
+  opacity: 0.03;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.page > *:not(.bgIcon) {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.headerText {
+  flex: 1;
+}
+
+.headerIcon {
+  width: 48px;
+  height: 48px;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+.armyName {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.meta {
+  color: var(--text-muted);
+  margin: 4px 0 0 0;
+  font-size: 0.95rem;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editBtn,
+.deleteBtn {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+.editBtn:hover,
+.deleteBtn:hover {
+  opacity: 1;
+}
+
+.editBtn {
+  background-color: var(--faction-primary);
+}
+
+.editBtn::before {
+  content: "✎";
+  font-size: 1rem;
+}
+
+.deleteBtn {
+  background-color: var(--faction-danger);
+}
+
+.deleteBtn::before {
+  content: "×";
+  font-size: 1.2rem;
+}
+
+.editBtn:hover {
+  background-color: var(--faction-secondary);
+}
+
+.deleteBtn:hover {
+  background-color: var(--faction-danger-dark);
+}
+
+.search {
+  margin-bottom: 16px;
+}
+
+.search input {
+  width: 100%;
+  max-width: 400px;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stratagemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (max-width: 599px) {
+  .header {
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .headerIcon {
+    width: 36px;
+    height: 36px;
+  }
+}

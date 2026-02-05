@@ -1,0 +1,301 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    sans-serif;
+  background-color: var(--surface-app);
+  color: var(--text-body);
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: var(--surface-page);
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#root:has([data-page="army-builder"]) {
+  max-width: 1800px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--text-primary);
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--faction-primary);
+  padding-bottom: 12px;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  color: var(--faction-primary);
+}
+
+h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+
+h4 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+p {
+  margin: 8px 0;
+}
+
+strong {
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--faction-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--faction-trim);
+  text-decoration: underline;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--surface-panel);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+thead {
+  background-color: var(--faction-secondary);
+}
+
+thead th {
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--faction-primary);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--surface-border);
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+tbody td {
+  padding: 12px 16px;
+  color: var(--text-body);
+}
+
+label {
+  color: var(--text-body);
+  display: block;
+  margin-bottom: 16px;
+}
+
+input[type="text"],
+input[type="search"],
+input[type="password"] {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 400px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: var(--faction-primary);
+  box-shadow: 0 0 0 3px rgba(30, 90, 168, 0.2);
+}
+
+input[type="text"]::placeholder,
+input[type="search"]::placeholder {
+  color: var(--text-muted);
+}
+
+select {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--faction-primary);
+}
+
+select option {
+  background-color: var(--surface-panel);
+  color: var(--text-body);
+}
+
+input[type="checkbox"] {
+  accent-color: var(--faction-primary);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+input[type="radio"] {
+  accent-color: var(--faction-primary);
+  cursor: pointer;
+}
+
+button {
+  background-color: var(--faction-primary);
+  color: var(--text-primary);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+button:hover {
+  background-color: var(--faction-secondary);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  background-color: var(--state-disabled);
+  cursor: not-allowed;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-panel);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--state-disabled);
+}
+
+@media (max-width: 599px) {
+  #root {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  button {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  select {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 1rem;
+  }
+
+  input[type="text"],
+  input[type="search"],
+  input[type="password"] {
+    min-height: 44px;
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+  }
+
+  input[type="radio"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  #root {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+}

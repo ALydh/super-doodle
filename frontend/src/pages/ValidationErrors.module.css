@@ -1,0 +1,20 @@
+.errors {
+  background-color: rgba(229, 83, 61, 0.1);
+  border: 1px solid var(--state-danger);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.errors strong {
+  color: var(--state-danger);
+}
+
+.errors ul {
+  margin-top: 8px;
+}
+
+.error {
+  color: var(--state-danger);
+  padding: 4px 0;
+}

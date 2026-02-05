@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Enhancement } from "../types";
 import { sanitizeHtml } from "../sanitize";
+import styles from "./EnhancementSelector.module.css";
 
 type SelectorMode = "cards" | "accordion" | "radio";
 
@@ -24,11 +25,11 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
   if (!isExpanded) {
     if (selectedEnhancement) {
       return (
-        <div className="enhancement-selector-collapsed">
-          <div className="enhancement-detail">
-            <div className="enhancement-header">
+        <div className={styles.collapsed}>
+          <div className={styles.detail}>
+            <div className={styles.header}>
               <strong>{selectedEnhancement.name}</strong>
-              <span className="enhancement-cost">+{selectedEnhancement.cost}pts</span>
+              <span className={styles.cost}>+{selectedEnhancement.cost}pts</span>
             </div>
             {selectedEnhancement.description && (
               <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedEnhancement.description) }} />
@@ -36,7 +37,7 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
           </div>
           <button
             type="button"
-            className="enhancement-change-btn"
+            className={styles.changeBtn}
             onClick={() => setIsExpanded(true)}
           >
             Change Enhancement
@@ -46,13 +47,13 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
     }
 
     return (
-      <div className="enhancement-selector-collapsed">
-        <div className="enhancement-detail enhancement-none">
-          <span className="enhancement-none-text">No enhancement</span>
+      <div className={styles.collapsed}>
+        <div className={`${styles.detail} ${styles.none}`}>
+          <span className={styles.noneText}>No enhancement</span>
         </div>
         <button
           type="button"
-          className="enhancement-change-btn"
+          className={styles.changeBtn}
           onClick={() => setIsExpanded(true)}
         >
           Add Enhancement
@@ -63,27 +64,27 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
 
   if (mode === "cards") {
     return (
-      <div className="enhancement-selector enhancement-selector-cards">
-        <div className="enhancement-card-option enhancement-card-none" onClick={() => handleSelect(null)}>
-          <div className="enhancement-card-header">
-            <span className="enhancement-card-name">None</span>
-            <span className="enhancement-card-cost">+0pts</span>
+      <div className={styles.cards}>
+        <div className={`${styles.cardOption} ${styles.cardNone}`} onClick={() => handleSelect(null)}>
+          <div className={styles.cardHeader}>
+            <span className={styles.cardName}>None</span>
+            <span className={styles.cardCost}>+0pts</span>
           </div>
-          <p className="enhancement-card-description">No enhancement selected</p>
+          <p className={styles.cardDescription}>No enhancement selected</p>
         </div>
         {enhancements.map((e) => (
           <div
             key={e.id}
-            className="enhancement-card-option"
+            className={styles.cardOption}
             onClick={() => handleSelect(e.id)}
           >
-            <div className="enhancement-card-header">
-              <span className="enhancement-card-name">{e.name}</span>
-              <span className="enhancement-card-cost">+{e.cost}pts</span>
+            <div className={styles.cardHeader}>
+              <span className={styles.cardName}>{e.name}</span>
+              <span className={styles.cardCost}>+{e.cost}pts</span>
             </div>
             {e.description && (
               <p
-                className="enhancement-card-description"
+                className={styles.cardDescription}
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description) }}
               />
             )}
@@ -95,27 +96,27 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
 
   if (mode === "accordion") {
     return (
-      <div className="enhancement-selector enhancement-selector-accordion">
+      <div className={styles.accordion}>
         <div
-          className={`enhancement-accordion-item ${expandedAccordion === "none" ? "expanded" : ""}`}
+          className={`${styles.accordionItem} ${expandedAccordion === "none" ? styles.expanded : ""}`}
         >
           <div
-            className="enhancement-accordion-header"
+            className={styles.accordionHeader}
             onClick={() => setExpandedAccordion(expandedAccordion === "none" ? null : "none")}
           >
-            <span className="enhancement-accordion-expand">{expandedAccordion === "none" ? "▼" : "▶"}</span>
-            <span className="enhancement-accordion-name">None</span>
-            <span className="enhancement-accordion-cost">+0pts</span>
+            <span className={styles.accordionExpand}>{expandedAccordion === "none" ? "▼" : "▶"}</span>
+            <span className={styles.accordionName}>None</span>
+            <span className={styles.accordionCost}>+0pts</span>
             <button
               type="button"
-              className="enhancement-select-btn"
+              className={styles.selectBtn}
               onClick={(ev) => { ev.stopPropagation(); handleSelect(null); }}
             >
               Select
             </button>
           </div>
           {expandedAccordion === "none" && (
-            <div className="enhancement-accordion-content">
+            <div className={styles.accordionContent}>
               <p>No enhancement selected</p>
             </div>
           )}
@@ -123,25 +124,25 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
         {enhancements.map((e) => (
           <div
             key={e.id}
-            className={`enhancement-accordion-item ${expandedAccordion === e.id ? "expanded" : ""}`}
+            className={`${styles.accordionItem} ${expandedAccordion === e.id ? styles.expanded : ""}`}
           >
             <div
-              className="enhancement-accordion-header"
+              className={styles.accordionHeader}
               onClick={() => setExpandedAccordion(expandedAccordion === e.id ? null : e.id)}
             >
-              <span className="enhancement-accordion-expand">{expandedAccordion === e.id ? "▼" : "▶"}</span>
-              <span className="enhancement-accordion-name">{e.name}</span>
-              <span className="enhancement-accordion-cost">+{e.cost}pts</span>
+              <span className={styles.accordionExpand}>{expandedAccordion === e.id ? "▼" : "▶"}</span>
+              <span className={styles.accordionName}>{e.name}</span>
+              <span className={styles.accordionCost}>+{e.cost}pts</span>
               <button
                 type="button"
-                className="enhancement-select-btn"
+                className={styles.selectBtn}
                 onClick={(ev) => { ev.stopPropagation(); handleSelect(e.id); }}
               >
                 Select
               </button>
             </div>
             {expandedAccordion === e.id && e.description && (
-              <div className="enhancement-accordion-content">
+              <div className={styles.accordionContent}>
                 <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description) }} />
               </div>
             )}
@@ -152,38 +153,38 @@ export function EnhancementSelector({ enhancements, selectedId, onSelect, mode =
   }
 
   return (
-    <div className="enhancement-selector enhancement-selector-radio">
-      <label className="enhancement-radio-item">
+    <div className={styles.radio}>
+      <label className={styles.radioItem}>
         <input
           type="radio"
           name="enhancement"
           checked={selectedId === null}
           onChange={() => handleSelect(null)}
         />
-        <div className="enhancement-radio-content">
-          <div className="enhancement-radio-header">
-            <span className="enhancement-radio-name">None</span>
-            <span className="enhancement-radio-cost">+0pts</span>
+        <div className={styles.radioContent}>
+          <div className={styles.radioHeader}>
+            <span className={styles.radioName}>None</span>
+            <span className={styles.radioCost}>+0pts</span>
           </div>
-          <p className="enhancement-radio-description">No enhancement selected</p>
+          <p className={styles.radioDescription}>No enhancement selected</p>
         </div>
       </label>
       {enhancements.map((e) => (
-        <label key={e.id} className="enhancement-radio-item">
+        <label key={e.id} className={styles.radioItem}>
           <input
             type="radio"
             name="enhancement"
             checked={selectedId === e.id}
             onChange={() => handleSelect(e.id)}
           />
-          <div className="enhancement-radio-content">
-            <div className="enhancement-radio-header">
-              <span className="enhancement-radio-name">{e.name}</span>
-              <span className="enhancement-radio-cost">+{e.cost}pts</span>
+          <div className={styles.radioContent}>
+            <div className={styles.radioHeader}>
+              <span className={styles.radioName}>{e.name}</span>
+              <span className={styles.radioCost}>+{e.cost}pts</span>
             </div>
             {e.description && (
               <p
-                className="enhancement-radio-description"
+                className={styles.radioDescription}
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(e.description) }}
               />
             )}

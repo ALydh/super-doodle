@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import styles from "./Header.module.css";
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -11,21 +12,21 @@ export function Header() {
   };
 
   return (
-    <header className="app-header">
-      <Link to="/" className="header-brand">Home</Link>
-      <nav className="header-nav">
+    <header className={styles.header}>
+      <Link to="/" className={styles.brand}>Home</Link>
+      <nav className={styles.nav}>
         {user ? (
           <>
             <Link to="/admin">Admin</Link>
-            <span className="header-separator">·</span>
-            <span className="header-user">{user.username}</span>
-            <span className="header-separator">·</span>
-            <button onClick={handleLogout} className="header-logout">Logout</button>
+            <span className={styles.separator}>·</span>
+            <span className={styles.user}>{user.username}</span>
+            <span className={styles.separator}>·</span>
+            <button onClick={handleLogout} className={styles.logout}>Logout</button>
           </>
         ) : (
           <>
             <Link to="/login">Login</Link>
-            <span className="header-separator">·</span>
+            <span className={styles.separator}>·</span>
             <Link to="/register">Register</Link>
           </>
         )}
