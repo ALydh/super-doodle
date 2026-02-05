@@ -1,0 +1,60 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.brand {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--faction-primary);
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.nav a {
+  color: var(--text-muted);
+}
+
+.nav a:hover {
+  color: var(--faction-primary);
+  text-decoration: none;
+}
+
+.separator {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.user {
+  color: var(--text-secondary);
+}
+
+.logout {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.logout:hover {
+  color: var(--faction-primary);
+}

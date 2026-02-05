@@ -1,0 +1,250 @@
+.name {
+  margin-bottom: 8px;
+}
+
+.role {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.statsTable td,
+.weaponsTable td {
+  text-align: center;
+}
+
+.statsTable td:first-child,
+.weaponsTable td:first-child {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.statsTable th,
+.weaponsTable th {
+  text-align: center;
+}
+
+.statsTable th:first-child,
+.weaponsTable th:first-child {
+  text-align: left;
+}
+
+.costValue {
+  color: var(--faction-trim);
+  font-weight: 600;
+}
+
+.statsMobile,
+.weaponsMobile {
+  display: none;
+}
+
+.wargearOptionsList li {
+  padding: 8px 12px;
+  background-color: var(--surface-panel);
+  margin-bottom: 6px;
+  border-radius: 4px;
+  border-left: 2px solid var(--faction-secondary);
+}
+
+.abilitiesList li {
+  padding: 16px;
+  background-color: var(--surface-card);
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+}
+
+.abilitiesList li strong {
+  color: var(--faction-primary);
+  font-size: 1.1rem;
+}
+
+.keywordsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keyword {
+  background-color: var(--surface-card);
+  color: var(--faction-trim);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  border: 1px solid var(--surface-border);
+}
+
+.stratagemsList li {
+  padding: 16px;
+  background-color: var(--surface-card);
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+}
+
+.stratagemsList li strong {
+  color: var(--faction-primary);
+  font-size: 1.1rem;
+}
+
+.stratagemsList li span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 599px) {
+  .statsTable {
+    display: none;
+  }
+
+  .statsMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .statsCard {
+    background-color: var(--surface-card);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-border);
+    border-left: 3px solid var(--faction-primary);
+  }
+
+  .statsCardName {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .statsCardValues {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--surface-panel);
+    border-radius: 4px;
+    padding: 6px 4px;
+  }
+
+  .statLabel {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .statValue {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .weaponsTable {
+    display: none;
+  }
+
+  .weaponsMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .weaponCard {
+    background-color: var(--surface-card);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-border);
+    border-left: 3px solid var(--faction-secondary);
+  }
+
+  .weaponCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .weaponCardName {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+  }
+
+  .weaponCardRange {
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--text-body);
+    background-color: var(--surface-panel);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .weaponCardValues {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .weaponCard .statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--surface-panel);
+    border-radius: 4px;
+    padding: 6px 4px;
+  }
+
+  .weaponCard .statLabel {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .weaponCard .statValue {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .weaponCardAbilities {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .abilitiesList li {
+    padding: 14px;
+  }
+
+  .stratagemsList li {
+    padding: 14px;
+  }
+
+  .keywordsList {
+    gap: 6px;
+  }
+
+  .keyword {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .costsTable {
+    font-size: 0.95rem;
+  }
+
+  .costsTable th,
+  .costsTable td {
+    padding: 10px 12px;
+  }
+}

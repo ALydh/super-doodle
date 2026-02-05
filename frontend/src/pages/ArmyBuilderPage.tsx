@@ -20,6 +20,7 @@ import { ReferenceDataProvider } from "../context/ReferenceDataContext";
 import { DetachmentAbilitiesSection } from "./DetachmentAbilitiesSection";
 import { StrategemsSection } from "./StrategemsSection";
 import { PointsDisplay } from "./PointsDisplay";
+import styles from "./ArmyBuilderPage.module.css";
 
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
@@ -221,28 +222,28 @@ export function ArmyBuilderPage() {
   const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
 
   return (
-    <div data-faction={factionTheme} className="army-builder-page layout-a">
+    <div data-faction={factionTheme} data-page="army-builder" className={`${styles.page} ${styles.layoutA}`}>
       {factionTheme && (
         <img
           src={`/icons/${factionTheme}.svg`}
           alt=""
-          className="army-builder-bg-icon"
+          className={styles.bgIcon}
           aria-hidden="true"
         />
       )}
 
-      <div className="builder-header">
-        <h1 className="builder-title">{isEdit ? "Edit Army" : "Create Army"}</h1>
+      <div className={styles.header}>
+        <h1 className={styles.title}>{isEdit ? "Edit Army" : "Create Army"}</h1>
       </div>
 
-      <div className="builder-content">
-        <div className="builder-col builder-col-info">
-          <div className="col-header">Army Info</div>
-          <div className="army-settings-section">
+      <div className={styles.content}>
+        <div className={`${styles.col} ${styles.colInfo}`}>
+          <div className={styles.colHeader}>Army Info</div>
+          <div className={styles.settings}>
             <label>
               Army Name
               <input
-                className="army-name-input"
+                className={styles.nameInput}
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -251,7 +252,7 @@ export function ArmyBuilderPage() {
             <label>
               Battle Size
               <select
-                className="battle-size-select"
+                className={styles.sizeSelect}
                 value={battleSize}
                 onChange={(e) => setBattleSize(e.target.value as BattleSize)}
               >
@@ -263,7 +264,7 @@ export function ArmyBuilderPage() {
             <label>
               Detachment
               <select
-                className="detachment-select"
+                className={styles.detachmentSelect}
                 value={detachmentId}
                 onChange={(e) => setDetachmentId(e.target.value)}
               >
@@ -276,13 +277,13 @@ export function ArmyBuilderPage() {
           <PointsDisplay total={pointsTotal} battleSize={battleSize} />
           <DetachmentAbilitiesSection abilities={detachmentAbilities} />
           <StrategemsSection stratagems={filteredStratagems} />
-          <button className="btn-save save-army" onClick={handleSave} disabled={!name.trim()}>
+          <button className={styles.btnSave} onClick={handleSave} disabled={!name.trim()}>
             {isEdit ? "Update Army" : "Save Army"}
           </button>
         </div>
 
-        <div className="builder-col builder-col-units">
-          <div className="col-header">Selected Units</div>
+        <div className={`${styles.col} ${styles.colUnits}`}>
+          <div className={styles.colHeader}>Selected Units</div>
           <ValidationErrors errors={validationErrors} datasheets={loadedDatasheets} />
           <ReferenceDataProvider
             costs={combinedCosts}
@@ -291,8 +292,8 @@ export function ArmyBuilderPage() {
             datasheets={loadedDatasheets}
             options={allOptions}
           >
-            <div className="army-units-wrapper">
-              <table className="army-units-table">
+            <div className={styles.unitsWrapper}>
+              <table className={styles.unitsTable}>
                 <thead>
                   <tr>
                     <th>Unit</th>
@@ -322,8 +323,8 @@ export function ArmyBuilderPage() {
           </ReferenceDataProvider>
         </div>
 
-        <div className={`builder-col builder-col-picker ${pickerExpanded ? "" : "collapsed"}`}>
-          <button className="col-header col-header-toggle" onClick={() => setPickerExpanded(!pickerExpanded)}>
+        <div className={`${styles.col} ${styles.colPicker} ${pickerExpanded ? "" : styles.collapsed}`}>
+          <button className={`${styles.colHeader} ${styles.colHeaderToggle}`} onClick={() => setPickerExpanded(!pickerExpanded)}>
             Add Units {pickerExpanded ? "▼" : "▶"}
           </button>
           {pickerExpanded && (

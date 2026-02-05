@@ -1,0 +1,282 @@
+.page {
+  position: relative;
+}
+
+.bgIcon {
+  position: fixed;
+  width: 50vw;
+  height: 50vw;
+  opacity: 0.04;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.layoutA .bgIcon {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 70vw;
+  opacity: 0.03;
+}
+
+.page > *:not(.bgIcon) {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.content {
+  display: block;
+}
+
+.col {
+  background: var(--surface-panel);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--surface-border);
+}
+
+.colHeader {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--faction-primary);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.settings input,
+.settings select {
+  margin-top: 4px;
+}
+
+.col .pointsTotal {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 16px;
+  background: var(--surface-card);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.col .pointsText {
+  color: var(--faction-trim);
+}
+
+.col .overBudget .pointsText {
+  color: var(--state-danger);
+}
+
+.col .btnSave {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.colUnits {
+  overflow: hidden;
+}
+
+.unitsWrapper {
+  margin: 0;
+}
+
+.unitsTable {
+  display: block;
+  width: 100%;
+}
+
+.unitsTable thead {
+  display: none;
+}
+
+.unitsTable tbody {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 8px;
+}
+
+.unitsTable tbody td[colspan] {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.colPicker .unitPicker {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.colPicker .unitPicker h3 {
+  display: none;
+}
+
+.collapsed {
+  width: auto;
+  min-width: 0;
+}
+
+.colHeaderToggle {
+  cursor: pointer;
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.colHeaderToggle:hover {
+  background: var(--surface-card);
+}
+
+.btnSave {
+  background-color: var(--state-success);
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btnSave:hover {
+  background-color: #2da042;
+}
+
+.btnSave:disabled {
+  background-color: var(--state-disabled);
+}
+
+.layoutA .content {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.layoutA .colInfo,
+.layoutA .colPicker {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+@media (max-width: 1199px) {
+  .content {
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .col {
+    position: static !important;
+    max-height: none !important;
+    order: unset !important;
+    width: 100%;
+  }
+
+  .colHeader {
+    display: none;
+  }
+
+  .colHeaderToggle {
+    display: flex;
+  }
+
+  .colPicker .unitPicker h3 {
+    display: block;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .unitsTable {
+    font-size: 0.9rem;
+  }
+
+  .unitsTable th,
+  .unitsTable td {
+    padding: 10px 8px;
+  }
+
+  .unitsTable select {
+    font-size: 0.85rem;
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 599px) {
+  .page > div > label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .nameInput {
+    max-width: 100%;
+  }
+
+  .sizeSelect,
+  .detachmentSelect {
+    width: 100%;
+  }
+
+  .btnSave {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .bgIcon {
+    width: 60vw;
+    height: 60vw;
+    top: auto;
+    bottom: -10vw;
+    right: -15vw;
+    left: auto;
+    transform: none;
+    opacity: 0.06;
+  }
+}

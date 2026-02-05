@@ -1,0 +1,382 @@
+.detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warlordBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--faction-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.enhancementPill {
+  background: var(--faction-trim);
+  color: var(--surface-app);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 0.5rem;
+}
+
+.role {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.cost {
+  color: var(--faction-trim);
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.stats {
+  margin-bottom: 16px;
+}
+
+.weapons,
+.abilities,
+.enhancement,
+.keywords {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.weapons h4,
+.abilities h4,
+.enhancement h4,
+.keywords h4 {
+  color: var(--faction-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.enhancementDetail {
+  background: var(--surface-panel);
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 3px solid var(--faction-trim);
+}
+
+.enhancementHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.enhancementHeader strong {
+  color: var(--faction-trim);
+}
+
+.enhancementCost {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.enhancementDetail p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-body);
+  line-height: 1.5;
+}
+
+.statsTable {
+  margin-bottom: 0;
+}
+
+.statsTable th,
+.statsTable td {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.statsTable th:first-child,
+.statsTable td:first-child {
+  text-align: left;
+}
+
+.weaponsTable {
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+
+.weaponsTable th,
+.weaponsTable td {
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.weaponsTable th:first-child,
+.weaponsTable td:first-child {
+  text-align: left;
+}
+
+.weaponName {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.abilitiesList li {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  background-color: var(--surface-card);
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+}
+
+.abilitiesList li strong {
+  color: var(--faction-primary);
+}
+
+.abilitiesList li p {
+  margin: 4px 0 0 0;
+}
+
+.keywordsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keyword {
+  background-color: var(--surface-card);
+  color: var(--faction-trim);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  border: 1px solid var(--surface-border);
+}
+
+.factionKeyword {
+  background-color: var(--faction-secondary);
+  border-color: var(--faction-primary);
+}
+
+.statsMobile,
+.weaponsMobile {
+  display: none;
+}
+
+.statsCard {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--surface-border);
+  border-left: 3px solid var(--faction-primary);
+}
+
+.statsCardName {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.statsCardValues {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--surface-panel);
+  border-radius: 4px;
+  padding: 6px 4px;
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.weaponCard {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--surface-border);
+  border-left: 3px solid var(--faction-secondary);
+}
+
+.weaponCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.weaponCardName {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.weaponCardRange {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: var(--text-body);
+  background-color: var(--surface-panel);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.weaponCardValues {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.weaponCard .statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--surface-panel);
+  border-radius: 4px;
+  padding: 6px 4px;
+}
+
+.weaponCard .statLabel {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.weaponCard .statValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.weaponCardAbilities {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-border);
+}
+
+@media (max-width: 599px) {
+  .statsTable {
+    display: none;
+  }
+
+  .statsMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .weaponsTable {
+    display: none;
+  }
+
+  .weaponsMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.wide {
+  display: flex;
+  flex-direction: column;
+}
+
+.wideColumns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.wideLeft {
+  min-width: 0;
+}
+
+.wideRight {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wide .stats,
+.wide .weapons,
+.wide .enhancement,
+.wide .abilities {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.wide .stats h4 {
+  color: var(--faction-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wide .stats + .weapons {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.wide .enhancement + .abilities {
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+@media (min-width: 1200px) {
+  .wideColumns {
+    grid-template-columns: 1fr 320px;
+  }
+
+  .wideRight {
+    border-left: 1px solid var(--surface-border);
+    padding-left: 16px;
+  }
+}

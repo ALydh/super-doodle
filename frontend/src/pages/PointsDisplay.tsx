@@ -1,5 +1,6 @@
 import type { BattleSize } from "../types";
 import { BATTLE_SIZE_POINTS } from "../types";
+import styles from "./PointsDisplay.module.css";
 
 interface Props {
   total: number;
@@ -12,11 +13,11 @@ export function PointsDisplay({ total, battleSize }: Props) {
 
   return (
     <div
-      className={`points-total ${total > max ? "over-budget" : ""}`}
+      className={`${styles.total} ${total > max ? styles.overBudget : ""}`}
       style={{ "--points-percent": `${percent}%` } as React.CSSProperties}
     >
-      <div className="points-bar" />
-      <span className="points-text">{total} / {max} pts</span>
+      <div className={styles.bar} />
+      <span className={styles.text}>{total} / {max} pts</span>
     </div>
   );
 }

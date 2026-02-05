@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { BattleUnitData } from "../../types";
 import { UnitDetailWide } from "./UnitDetailWide";
+import styles from "./BattleUnitCard.module.css";
 
 interface Props {
   data: BattleUnitData;
@@ -17,44 +18,44 @@ export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count
   const totalCost = cost ? cost.cost * count + (enhancement?.cost ?? 0) : 0;
 
   return (
-    <div className={`battle-unit-card ${expanded ? "expanded" : ""} ${count > 1 ? "stacked-card" : ""}`}>
+    <div className={`${styles.card} ${expanded ? styles.expanded : ""} ${count > 1 ? styles.stacked : ""}`}>
       {count > 1 && (
         <>
-          <div className="stacked-card-shadow" />
-          <div className="stacked-card-shadow" />
+          <div className={styles.stackedShadow} />
+          <div className={styles.stackedShadow} />
         </>
       )}
       <button
-        className="battle-unit-card-header"
+        className={styles.header}
         onClick={() => setExpanded(!expanded)}
       >
-        <span className="expand-icon">{expanded ? "▼" : "▶"}</span>
-        <span className="battle-unit-card-name">
+        <span className={styles.expandIcon}>{expanded ? "▼" : "▶"}</span>
+        <span className={styles.name}>
           {datasheet.name}
-          {count > 1 && <span className="stacked-count">×{count}</span>}
-          {isWarlord && <span className="warlord-badge">★</span>}
+          {count > 1 && <span className={styles.stackedCount}>×{count}</span>}
+          {isWarlord && <span className={styles.warlordBadge}>★</span>}
         </span>
         {enhancement && (
-          <span className="enhancement-pill">{enhancement.name}</span>
+          <span className={styles.enhancementPill}>{enhancement.name}</span>
         )}
-        <span className="battle-unit-card-stats">
+        <span className={styles.stats}>
           {mainProfile && (
             <>
-              <span className="stat-pill">M{mainProfile.movement}</span>
-              <span className="stat-pill">T{mainProfile.toughness}</span>
-              <span className="stat-pill">W{mainProfile.wounds}</span>
-              <span className="stat-pill">SV{mainProfile.save}</span>
+              <span className={styles.statPill}>M{mainProfile.movement}</span>
+              <span className={styles.statPill}>T{mainProfile.toughness}</span>
+              <span className={styles.statPill}>W{mainProfile.wounds}</span>
+              <span className={styles.statPill}>SV{mainProfile.save}</span>
               {mainProfile.invulnerableSave && (
-                <span className="stat-pill">Inv{mainProfile.invulnerableSave}</span>
+                <span className={styles.statPill}>Inv{mainProfile.invulnerableSave}</span>
               )}
-              <span className="stat-pill">OC{mainProfile.objectiveControl}</span>
+              <span className={styles.statPill}>OC{mainProfile.objectiveControl}</span>
             </>
           )}
         </span>
-        <span className="battle-unit-card-cost">{totalCost}pts</span>
+        <span className={styles.cost}>{totalCost}pts</span>
       </button>
       {expanded && (
-        <div className="battle-unit-card-content">
+        <div className={styles.content}>
           <UnitDetailWide data={data} isWarlord={isWarlord} />
         </div>
       )}

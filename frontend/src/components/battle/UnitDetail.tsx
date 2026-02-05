@@ -1,6 +1,7 @@
 import type { BattleUnitData } from "../../types";
 import { WeaponAbilityText } from "../../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../../sanitize";
+import styles from "./UnitDetail.module.css";
 
 const stripFactionRestriction = (desc: string) =>
   desc.replace(/^[A-Z][A-Z\s]+ model only\.\s*/i, '');
@@ -14,25 +15,25 @@ export function UnitDetail({ data, isWarlord }: Props) {
   const { datasheet, profiles, wargear, abilities, keywords, cost, enhancement } = data;
 
   return (
-    <div className="unit-detail">
-      <div className="unit-detail-header">
-        <h3 className="unit-detail-name">
+    <div className={styles.detail}>
+      <div className={styles.header}>
+        <h3 className={styles.name}>
           {datasheet.name}
-          {isWarlord && <span className="warlord-badge">Warlord</span>}
+          {isWarlord && <span className={styles.warlordBadge}>Warlord</span>}
         </h3>
         {enhancement && (
-          <span className="enhancement-pill">{enhancement.name}</span>
+          <span className={styles.enhancementPill}>{enhancement.name}</span>
         )}
-        {cost && <span className="unit-detail-cost">{cost.cost}pts</span>}
+        {cost && <span className={styles.cost}>{cost.cost}pts</span>}
       </div>
 
       {datasheet.role && (
-        <div className="unit-detail-role">{datasheet.role}</div>
+        <div className={styles.role}>{datasheet.role}</div>
       )}
 
       {profiles.length > 0 && (
-        <div className="unit-detail-stats">
-          <table className="stats-table compact">
+        <div className={styles.stats}>
+          <table className={styles.statsTable}>
             <thead>
               <tr>
                 <th>M</th>
@@ -60,18 +61,18 @@ export function UnitDetail({ data, isWarlord }: Props) {
               ))}
             </tbody>
           </table>
-          <div className="stats-mobile">
+          <div className={styles.statsMobile}>
             {profiles.map((p, i) => (
-              <div key={i} className="stats-card">
-                {p.name && <div className="stats-card-name">{p.name}</div>}
-                <div className="stats-card-values">
-                  <div className="stat-item"><span className="stat-label">M</span><span className="stat-value">{p.movement}</span></div>
-                  <div className="stat-item"><span className="stat-label">T</span><span className="stat-value">{p.toughness}</span></div>
-                  <div className="stat-item"><span className="stat-label">SV</span><span className="stat-value">{p.save}</span></div>
-                  {p.invulnerableSave && <div className="stat-item"><span className="stat-label">Inv</span><span className="stat-value">{p.invulnerableSave}</span></div>}
-                  <div className="stat-item"><span className="stat-label">W</span><span className="stat-value">{p.wounds}</span></div>
-                  <div className="stat-item"><span className="stat-label">LD</span><span className="stat-value">{p.leadership}</span></div>
-                  <div className="stat-item"><span className="stat-label">OC</span><span className="stat-value">{p.objectiveControl}</span></div>
+              <div key={i} className={styles.statsCard}>
+                {p.name && <div className={styles.statsCardName}>{p.name}</div>}
+                <div className={styles.statsCardValues}>
+                  <div className={styles.statItem}><span className={styles.statLabel}>M</span><span className={styles.statValue}>{p.movement}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>T</span><span className={styles.statValue}>{p.toughness}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>SV</span><span className={styles.statValue}>{p.save}</span></div>
+                  {p.invulnerableSave && <div className={styles.statItem}><span className={styles.statLabel}>Inv</span><span className={styles.statValue}>{p.invulnerableSave}</span></div>}
+                  <div className={styles.statItem}><span className={styles.statLabel}>W</span><span className={styles.statValue}>{p.wounds}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>LD</span><span className={styles.statValue}>{p.leadership}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>OC</span><span className={styles.statValue}>{p.objectiveControl}</span></div>
                 </div>
               </div>
             ))}
@@ -80,9 +81,9 @@ export function UnitDetail({ data, isWarlord }: Props) {
       )}
 
       {wargear.length > 0 && (
-        <div className="unit-detail-weapons">
+        <div className={styles.weapons}>
           <h4>Weapons</h4>
-          <table className="weapons-table compact">
+          <table className={styles.weaponsTable}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -98,7 +99,7 @@ export function UnitDetail({ data, isWarlord }: Props) {
             <tbody>
               {wargear.map((wq, i) => (
                 <tr key={i}>
-                  <td className="weapon-name">{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</td>
+                  <td className={styles.weaponName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</td>
                   <td>{wq.wargear.range ?? "-"}</td>
                   <td>{wq.wargear.attacks ?? "-"}</td>
                   <td>{wq.wargear.ballisticSkill ?? "-"}</td>
@@ -110,23 +111,23 @@ export function UnitDetail({ data, isWarlord }: Props) {
               ))}
             </tbody>
           </table>
-          <div className="weapons-mobile">
+          <div className={styles.weaponsMobile}>
             {wargear.map((wq, i) => (
-              <div key={i} className="weapon-card">
-                <div className="weapon-card-header">
-                  <span className="weapon-card-name">{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
-                  <span className="weapon-card-range">
+              <div key={i} className={styles.weaponCard}>
+                <div className={styles.weaponCardHeader}>
+                  <span className={styles.weaponCardName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
+                  <span className={styles.weaponCardRange}>
                     {wq.wargear.range?.toLowerCase() === "melee" ? "Melee" : wq.wargear.range ?? "-"}
                   </span>
                 </div>
-                <div className="weapon-card-values">
-                  <div className="stat-item"><span className="stat-label">A</span><span className="stat-value">{wq.wargear.attacks ?? "-"}</span></div>
-                  <div className="stat-item"><span className="stat-label">BS/WS</span><span className="stat-value">{wq.wargear.ballisticSkill ?? "-"}</span></div>
-                  <div className="stat-item"><span className="stat-label">S</span><span className="stat-value">{wq.wargear.strength ?? "-"}</span></div>
-                  <div className="stat-item"><span className="stat-label">AP</span><span className="stat-value">{wq.wargear.armorPenetration ?? "-"}</span></div>
-                  <div className="stat-item"><span className="stat-label">D</span><span className="stat-value">{wq.wargear.damage ?? "-"}</span></div>
+                <div className={styles.weaponCardValues}>
+                  <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{wq.wargear.attacks ?? "-"}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>BS/WS</span><span className={styles.statValue}>{wq.wargear.ballisticSkill ?? "-"}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{wq.wargear.strength ?? "-"}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{wq.wargear.armorPenetration ?? "-"}</span></div>
+                  <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{wq.wargear.damage ?? "-"}</span></div>
                 </div>
-                {wq.wargear.description && <div className="weapon-card-abilities"><WeaponAbilityText text={wq.wargear.description} /></div>}
+                {wq.wargear.description && <div className={styles.weaponCardAbilities}><WeaponAbilityText text={wq.wargear.description} /></div>}
               </div>
             ))}
           </div>
@@ -134,12 +135,12 @@ export function UnitDetail({ data, isWarlord }: Props) {
       )}
 
       {enhancement && (
-        <div className="unit-detail-enhancement">
+        <div className={styles.enhancement}>
           <h4>Enhancement</h4>
-          <div className="enhancement-detail">
-            <div className="enhancement-header">
+          <div className={styles.enhancementDetail}>
+            <div className={styles.enhancementHeader}>
               <strong>{enhancement.name}</strong>
-              <span className="enhancement-cost">+{enhancement.cost}pts</span>
+              <span className={styles.enhancementCost}>+{enhancement.cost}pts</span>
             </div>
             {enhancement.description && (
               <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(stripFactionRestriction(enhancement.description)) }} />
@@ -149,9 +150,9 @@ export function UnitDetail({ data, isWarlord }: Props) {
       )}
 
       {abilities.filter((a) => a.name).length > 0 && (
-        <div className="unit-detail-abilities">
+        <div className={styles.abilities}>
           <h4>Abilities</h4>
-          <ul className="abilities-list compact">
+          <ul className={styles.abilitiesList}>
             {abilities.filter((a) => a.name).map((a, i) => (
               <li key={i}>
                 <strong>{a.name}</strong>
@@ -163,11 +164,11 @@ export function UnitDetail({ data, isWarlord }: Props) {
       )}
 
       {keywords.filter((k) => k.keyword).length > 0 && (
-        <div className="unit-detail-keywords">
+        <div className={styles.keywords}>
           <h4>Keywords</h4>
-          <div className="keywords-list">
+          <div className={styles.keywordsList}>
             {keywords.filter((k) => k.keyword).map((k, i) => (
-              <span key={i} className={`keyword ${k.isFactionKeyword ? "faction-keyword" : ""}`}>
+              <span key={i} className={`${styles.keyword} ${k.isFactionKeyword ? styles.factionKeyword : ""}`}>
                 {k.keyword}
               </span>
             ))}

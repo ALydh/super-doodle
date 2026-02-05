@@ -1,0 +1,44 @@
+.total {
+  position: relative;
+  background-color: var(--surface-card);
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 20px 0;
+  overflow: hidden;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--points-percent, 0%);
+  background: linear-gradient(
+    90deg,
+    var(--faction-secondary) 0%,
+    var(--faction-primary) 100%
+  );
+  opacity: 0.3;
+  transition: width 0.3s ease;
+}
+
+.text {
+  position: relative;
+  z-index: 1;
+}
+
+.overBudget .bar {
+  background: linear-gradient(
+    90deg,
+    var(--faction-danger) 0%,
+    var(--state-danger) 100%
+  );
+  opacity: 0.4;
+}
+
+.overBudget .text {
+  color: var(--state-danger);
+}
