@@ -26,6 +26,8 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "sm-iron-hands": "sm-iron-hands",
     "sm-salamanders": "sm-salamanders",
     "sm-white-scars": "sm-white-scars",
+    "sm-black-templars": "sm-black-templars",
+    "sm-deathwatch": "sm-deathwatch",
 
     // Chaos Space Marines
     "csm": "chaos",
