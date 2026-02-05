@@ -73,9 +73,17 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     Some(Role.Battleline), None, None, false, None, None, None, None, ""
   )
 
+  val coLeaderId: DatasheetId = DatasheetId("000000200")
+  val coLeaderDs: Datasheet = Datasheet(
+    coLeaderId, "Co-Leader", Some(orkFaction), None, None,
+    Some(Role.Characters), None, None, false, None,
+    Some("This model can be attached to a unit even if one Character model has already been attached"),
+    None, None, ""
+  )
+
   val allDatasheets: List[Datasheet] = List(
     warbossDs, boyzDs, trukDs, meganobzDs, ghazDs, painboyDs, smCaptainDs,
-    knightErrantDs, armigerWarglaiveDs, bloodlettersDs
+    knightErrantDs, armigerWarglaiveDs, bloodlettersDs, coLeaderDs
   )
 
   val orkKeywords: List[DatasheetKeyword] = List(
@@ -96,7 +104,8 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     DatasheetKeyword(armigerWarglaiveId, Some("QI"), None, true),
     DatasheetKeyword(armigerWarglaiveId, Some("IMPERIUM"), None, true),
     DatasheetKeyword(bloodlettersId, Some("CD"), None, true),
-    DatasheetKeyword(bloodlettersId, Some("CHAOS"), None, true)
+    DatasheetKeyword(bloodlettersId, Some("CHAOS"), None, true),
+    DatasheetKeyword(coLeaderId, Some("Ork"), None, true)
   )
 
   val unitCosts: List[UnitCost] = List(
@@ -110,7 +119,8 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     UnitCost(smCaptainId, 1, "1 model", 80),
     UnitCost(knightErrantId, 1, "1 model", 400),
     UnitCost(armigerWarglaiveId, 1, "1 model", 150),
-    UnitCost(bloodlettersId, 1, "10 models", 130)
+    UnitCost(bloodlettersId, 1, "10 models", 130),
+    UnitCost(coLeaderId, 1, "1 model", 60)
   )
 
   val enhancements: List[Enhancement] = List(
@@ -124,7 +134,8 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
   val leaderMappings: List[DatasheetLeader] = List(
     DatasheetLeader(warbossId, boyzId),
     DatasheetLeader(painboyId, boyzId),
-    DatasheetLeader(painboyId, meganobzId)
+    DatasheetLeader(painboyId, meganobzId),
+    DatasheetLeader(coLeaderId, boyzId)
   )
 
   val detachmentAbilities: List[DetachmentAbility] = List(
@@ -550,5 +561,36 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     ))
     val errors = ArmyValidator.validate(army, baseRef)
     errors.collect { case e: AlliedUnitLimitExceeded => e } should not be empty
+  }
+
+  "multi-leader validation" should "reject 2 non-co-leaders on same bodyguard" in {
+    val army = validArmy.copy(units = List(
+      ArmyUnit(warbossId, 1, None, Some(boyzId)),
+      ArmyUnit(painboyId, 1, None, Some(boyzId)),
+      ArmyUnit(boyzId, 1, None, None)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(TooManyLeaders(boyzId, 2, 1))
+  }
+
+  it should "accept co-leader + normal leader on same bodyguard" in {
+    val army = validArmy.copy(units = List(
+      ArmyUnit(warbossId, 1, None, Some(boyzId)),
+      ArmyUnit(coLeaderId, 1, None, Some(boyzId)),
+      ArmyUnit(boyzId, 1, None, None)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: TooManyLeaders => e } shouldBe empty
+  }
+
+  it should "reject 3 leaders even with co-leader" in {
+    val army = validArmy.copy(units = List(
+      ArmyUnit(warbossId, 1, None, Some(boyzId)),
+      ArmyUnit(painboyId, 1, None, Some(boyzId)),
+      ArmyUnit(coLeaderId, 1, None, Some(boyzId)),
+      ArmyUnit(boyzId, 1, None, None)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(TooManyLeaders(boyzId, 3, 2))
   }
 }

@@ -1,5 +1,7 @@
 package wahapedia.domain
 
+import wahapedia.domain.types.DatasheetId
+
 object Constants {
   object Validation {
     val MaxBattlelineDuplicates = 6
@@ -13,6 +15,14 @@ object Constants {
 
   object Defaults {
     val UnknownDatasheet = "Unknown"
+  }
+
+  object Leaders {
+    val SpecialBodyguards: Map[DatasheetId, Int] = Map(
+      DatasheetId("000000016") -> 2,
+      DatasheetId("000000534") -> 2
+    )
+    val SpecialBodyguardSizeLine: Int = 2
   }
 
   object Chapters {

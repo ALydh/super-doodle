@@ -43,6 +43,12 @@ case class InvalidLeaderAttachment(
   attachedToId: DatasheetId
 ) extends ValidationError
 
+case class TooManyLeaders(
+  bodyguardId: DatasheetId,
+  leaderCount: Int,
+  maxAllowed: Int
+) extends ValidationError
+
 case class TooManyEnhancements(count: Int) extends ValidationError
 
 case class DuplicateEnhancement(enhancementId: EnhancementId) extends ValidationError
