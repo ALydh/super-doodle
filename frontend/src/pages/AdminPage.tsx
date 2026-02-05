@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { createInvite, listInvites } from "../api";
 import type { Invite } from "../types";
+import styles from "./AdminPage.module.css";
 
 export function AdminPage() {
   const { user, loading: authLoading } = useAuth();
@@ -60,23 +61,23 @@ export function AdminPage() {
   }
 
   return (
-    <div className="admin-page">
+    <div className={styles.page}>
       <h1>Admin</h1>
 
-      <section className="admin-section">
+      <section className={styles.section}>
         <h2>Invite Codes</h2>
-        <button onClick={handleCreateInvite} disabled={creating} className="btn-create-invite">
+        <button onClick={handleCreateInvite} disabled={creating} className={styles.createBtn}>
           {creating ? "Creating..." : "Create Invite"}
         </button>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className={styles.errorMessage}>{error}</div>}
 
         {loading ? (
           <p>Loading invites...</p>
         ) : invites.length === 0 ? (
           <p>No invites created yet.</p>
         ) : (
-          <table className="invites-table">
+          <table className={styles.table}>
             <thead>
               <tr>
                 <th>Code</th>
@@ -87,15 +88,15 @@ export function AdminPage() {
             </thead>
             <tbody>
               {invites.map((invite) => (
-                <tr key={invite.code} className={invite.used ? "invite-used" : ""}>
-                  <td className="invite-code">{invite.code}</td>
+                <tr key={invite.code} className={invite.used ? styles.used : ""}>
+                  <td className={styles.code}>{invite.code}</td>
                   <td>{new Date(invite.createdAt).toLocaleDateString()}</td>
                   <td>{invite.used ? "Used" : "Available"}</td>
                   <td>
                     {!invite.used && (
                       <button
                         onClick={() => handleCopyCode(invite.code)}
-                        className="btn-copy"
+                        className={styles.copyBtn}
                       >
                         {copiedCode === invite.code ? "Copied!" : "Copy"}
                       </button>

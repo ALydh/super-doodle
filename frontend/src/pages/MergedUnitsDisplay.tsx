@@ -3,6 +3,7 @@ import type {
   ArmyUnit, Datasheet, UnitCost, Enhancement,
   DatasheetLeader, DatasheetOption,
 } from "../types";
+import styles from "./MergedUnitsDisplay.module.css";
 
 interface Props {
   units: ArmyUnit[];
@@ -119,7 +120,7 @@ export function MergedUnitsDisplay({
   };
 
   return (
-    <div className="merged-units-display">
+    <div className={styles.display}>
       {groups.map((group, groupIdx) => {
         if (group.type === "merged") {
           const isExpanded = expandedGroups.has(groupIdx);
@@ -127,25 +128,25 @@ export function MergedUnitsDisplay({
           const isWarlord = warlordId === group.leaderUnit!.datasheetId;
 
           return (
-            <div key={groupIdx} className="merged-group">
+            <div key={groupIdx} className={styles.mergedGroup}>
               <div
-                className={`merged-group-header ${isExpanded ? "expanded" : ""}`}
+                className={styles.mergedGroupHeader}
                 onClick={() => toggleGroup(groupIdx)}
               >
-                <span className="merge-indicator">⚔</span>
-                <span className="merged-name">
+                <span className={styles.mergeIndicator}>⚔</span>
+                <span className={styles.mergedName}>
                   {group.leaderDatasheet?.name} + {group.squadDatasheet?.name}
                 </span>
-                <span className="merged-cost">{totalCost}pts</span>
-                {isWarlord && <span className="warlord-badge">★ Warlord</span>}
-                <span className="expand-icon">{isExpanded ? "▼" : "▶"}</span>
+                <span className={styles.mergedCost}>{totalCost}pts</span>
+                {isWarlord && <span className={styles.warlordBadge}>★ Warlord</span>}
+                <span className={styles.expandIcon}>{isExpanded ? "▼" : "▶"}</span>
               </div>
               {isExpanded && (
-                <div className="merged-group-details">
-                  <div className="merged-unit-detail">
+                <div className={styles.groupDetails}>
+                  <div className={styles.unitDetail}>
                     <strong>Leader: {group.leaderDatasheet?.name}</strong>
                     <span> ({getCost(group.leaderUnit!)}pts)</span>
-                    <div className="merged-unit-controls">
+                    <div className={styles.unitControls}>
                       <select
                         value={group.leaderUnit!.sizeOptionLine}
                         onChange={(e) => onUpdate(group.leaderIndex!, {
@@ -180,10 +181,10 @@ export function MergedUnitsDisplay({
                       </label>
                     </div>
                   </div>
-                  <div className="merged-unit-detail">
+                  <div className={styles.unitDetail}>
                     <strong>Bodyguard: {group.squadDatasheet?.name}</strong>
                     <span> ({getCost(group.squadUnit!)}pts)</span>
-                    <div className="merged-unit-controls">
+                    <div className={styles.unitControls}>
                       <select
                         value={group.squadUnit!.sizeOptionLine}
                         onChange={(e) => onUpdate(group.squadIndex!, {
@@ -197,9 +198,9 @@ export function MergedUnitsDisplay({
                       </select>
                     </div>
                   </div>
-                  <div className="merged-group-actions">
+                  <div className={styles.groupActions}>
                     <button
-                      className="btn-detach"
+                      className={styles.btnDetach}
                       onClick={() => onUpdate(group.leaderIndex!, {
                         ...group.leaderUnit!,
                         attachedLeaderId: null,
@@ -209,7 +210,7 @@ export function MergedUnitsDisplay({
                       Detach Leader
                     </button>
                     <button
-                      className="btn-remove"
+                      className={styles.btnRemove}
                       onClick={() => {
                         onRemove(Math.max(group.leaderIndex!, group.squadIndex!));
                         onRemove(Math.min(group.leaderIndex!, group.squadIndex!));
@@ -235,9 +236,9 @@ export function MergedUnitsDisplay({
           const attachableUnits = datasheets.filter(ds => validLeaderTargets.includes(ds.id));
 
           return (
-            <div key={groupIdx} className="standalone-unit">
-              <div className="standalone-unit-row">
-                <span className="unit-name">{datasheet?.name}</span>
+            <div key={groupIdx} className={styles.standaloneUnit}>
+              <div className={styles.standaloneRow}>
+                <span className={styles.unitName}>{datasheet?.name}</span>
                 <select
                   value={unit.sizeOptionLine}
                   onChange={(e) => onUpdate(index, { ...unit, sizeOptionLine: Number(e.target.value) })}
@@ -279,9 +280,9 @@ export function MergedUnitsDisplay({
                     </label>
                   </>
                 )}
-                <span className="unit-cost">{unitCost}pts</span>
-                <button className="btn-copy" onClick={() => onCopy(index)}>Copy</button>
-                <button className="btn-remove" onClick={() => onRemove(index)}>Remove</button>
+                <span className={styles.unitCost}>{unitCost}pts</span>
+                <button className={styles.btnCopy} onClick={() => onCopy(index)}>Copy</button>
+                <button className={styles.btnRemove} onClick={() => onRemove(index)}>Remove</button>
               </div>
             </div>
           );

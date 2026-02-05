@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { WeaponAbility } from "../types";
 import { fetchWeaponAbilities } from "../api";
 import { sanitizeHtml } from "../sanitize";
+import styles from "./WeaponAbilityText.module.css";
 
 let cachedAbilities: WeaponAbility[] | null = null;
 let fetchPromise: Promise<WeaponAbility[]> | null = null;
@@ -108,7 +109,7 @@ function renderAbilitySegment(segment: string, abilities: WeaponAbility[], keyPr
       );
     }
     parts.push(
-      <span key={`${keyPrefix}-ability-${match.start}`} className="weapon-ability-tooltip" data-tooltip={match.ability.description}>
+      <span key={`${keyPrefix}-ability-${match.start}`} className={styles.tooltip} data-tooltip={match.ability.description}>
         {match.text}
       </span>
     );
@@ -139,9 +140,9 @@ export function WeaponAbilityText({ text }: Props) {
   }
 
   return (
-    <span className="weapon-abilities-list">
+    <span className={styles.list}>
       {segments.map((segment, i) => (
-        <span key={i} className="weapon-ability-item">
+        <span key={i} className={styles.item}>
           {abilities.length === 0
             ? <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(segment.trim()) }} />
             : renderAbilitySegment(segment.trim(), abilities, `seg-${i}`)}

@@ -1,0 +1,244 @@
+.page h1 {
+  margin-bottom: 32px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.emptyState p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+}
+
+.armyCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 48px;
+}
+
+.armyCard {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(
+    135deg,
+    var(--faction-secondary) 0%,
+    var(--surface-card) 100%
+  );
+  border-radius: 12px;
+  padding: 20px;
+  text-decoration: none;
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid var(--faction-primary);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  min-height: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.armyCardIcon {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  opacity: 0.15;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.armyCard:hover .armyCardIcon {
+  opacity: 0.25;
+  transform: scale(1.1);
+}
+
+.armyCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--faction-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+}
+
+.armyCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.armyCardFaction {
+  color: var(--faction-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.armyCardSize {
+  background-color: var(--faction-primary);
+  color: var(--surface-page);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.armyCardName {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 auto 0;
+  line-height: 1.3;
+}
+
+.armyCardWarlord {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.armyCardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.armyCardBattleSize {
+  color: var(--faction-trim);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.armyCardUpdated {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.armyCardOwner {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.newArmySection {
+  border-top: 1px solid var(--surface-border);
+  padding-top: 32px;
+}
+
+.newArmySection h2 {
+  margin-top: 0;
+}
+
+.factionGroup {
+  margin-bottom: 24px;
+}
+
+.factionGroupTitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 12px 0;
+}
+
+.factionCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.factionCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    var(--faction-secondary) 0%,
+    var(--surface-card) 100%
+  );
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-decoration: none;
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid var(--faction-primary);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.factionCardIcon {
+  position: absolute;
+  bottom: -15px;
+  right: -15px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.15;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.factionCard:hover .factionCardIcon {
+  opacity: 0.25;
+  transform: scale(1.1);
+}
+
+.factionCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--faction-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+}
+
+.factionCardName {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  z-index: 1;
+}
+
+@media (max-width: 599px) {
+  .armyCards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .armyCard {
+    min-height: 120px;
+    padding: 16px;
+  }
+
+  .armyCardName {
+    font-size: 1.1rem;
+  }
+
+  .emptyState {
+    padding: 24px 12px;
+  }
+
+  .newArmySection {
+    padding-top: 24px;
+  }
+}

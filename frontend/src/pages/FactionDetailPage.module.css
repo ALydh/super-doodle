@@ -1,0 +1,152 @@
+.page {
+  position: relative;
+}
+
+.bgIcon {
+  position: fixed;
+  width: 50vw;
+  height: 50vw;
+  opacity: 0.04;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 70vw;
+  opacity: 0.03;
+}
+
+.page > *:not(.bgIcon) {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.headerInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.headerIcon {
+  width: 48px;
+  height: 48px;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+.title {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.btnCreateArmy {
+  display: inline-block;
+  background-color: var(--faction-primary);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.btnCreateArmy:hover {
+  background-color: var(--faction-secondary);
+  text-decoration: none;
+}
+
+.unitsTab {
+  display: flex;
+  flex-direction: column;
+}
+
+.roleSection {
+  margin-bottom: 24px;
+}
+
+.roleHeading {
+  color: var(--text-primary);
+}
+
+.cardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.filters select {
+  min-width: 150px;
+}
+
+.stratagemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (max-width: 599px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .btnCreateArmy {
+    width: 100%;
+    text-align: center;
+  }
+
+  .roleSection {
+    margin-bottom: 24px;
+  }
+
+  .roleHeading {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters label {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filters select {
+    width: 100%;
+  }
+}

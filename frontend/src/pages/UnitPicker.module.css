@@ -1,0 +1,138 @@
+.picker {
+  background-color: var(--surface-panel);
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 24px;
+  border: 1px solid var(--surface-border);
+}
+
+.picker h3 {
+  margin-top: 0;
+  color: var(--faction-primary);
+}
+
+.list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 16px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background-color: var(--surface-card);
+  margin-bottom: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+  list-style: none;
+}
+
+.item:hover {
+  border-color: var(--faction-primary);
+}
+
+.roleGroup {
+  margin-bottom: 16px;
+}
+
+.roleHeading {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 16px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+}
+
+.costPill {
+  background: var(--surface-border);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.addBtn {
+  background: var(--faction-primary);
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addBtn:hover {
+  background-color: var(--faction-primary-dark);
+}
+
+.filters {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.filterPill {
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.filterPill:hover {
+  border-color: var(--faction-primary-dark);
+}
+
+.filterPillActive {
+  background: var(--surface-card);
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.chapterBadge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faction-primary);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.deprioritized {
+  opacity: 0.5;
+}
+
+@media (max-width: 599px) {
+  .picker {
+    padding: 12px;
+    margin-top: 16px;
+  }
+
+  .list {
+    max-height: 300px;
+  }
+
+  .item {
+    padding: 8px 10px;
+  }
+}

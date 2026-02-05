@@ -1,0 +1,79 @@
+.page h1 {
+  margin-bottom: 24px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section h2 {
+  margin-bottom: 16px;
+}
+
+.createBtn {
+  background-color: var(--faction-primary);
+  border: none;
+  border-radius: 6px;
+  color: var(--text-primary);
+  padding: 10px 18px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.createBtn:hover {
+  background-color: var(--faction-secondary);
+}
+
+.createBtn:disabled {
+  opacity: 0.5;
+}
+
+.errorMessage {
+  background-color: rgba(229, 83, 61, 0.1);
+  border: 1px solid var(--state-danger);
+  color: var(--state-danger);
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.table th {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.used {
+  opacity: 0.5;
+}
+
+.code {
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.copyBtn {
+  background: transparent;
+  border: 1px solid var(--surface-border);
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.copyBtn:hover {
+  background: var(--surface-hover);
+}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import styles from "./AuthPage.module.css";
 
 export function LoginPage() {
   const [username, setUsername] = useState("");
@@ -33,10 +34,10 @@ export function LoginPage() {
   };
 
   return (
-    <div className="auth-page">
+    <div className={styles.page}>
       <h1>Login</h1>
-      <form onSubmit={handleSubmit} className="auth-form">
-        {error && <div className="error-message">{error}</div>}
+      <form onSubmit={handleSubmit} className={styles.form}>
+        {error && <div className={styles.errorMessage}>{error}</div>}
         <div>
           <label>
             Username:
@@ -49,7 +50,7 @@ export function LoginPage() {
               aria-invalid={!!fieldErrors.username}
             />
           </label>
-          {fieldErrors.username && <div className="field-error">{fieldErrors.username}</div>}
+          {fieldErrors.username && <div className={styles.fieldError}>{fieldErrors.username}</div>}
         </div>
         <div>
           <label>
@@ -63,7 +64,7 @@ export function LoginPage() {
               aria-invalid={!!fieldErrors.password}
             />
           </label>
-          {fieldErrors.password && <div className="field-error">{fieldErrors.password}</div>}
+          {fieldErrors.password && <div className={styles.fieldError}>{fieldErrors.password}</div>}
         </div>
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}

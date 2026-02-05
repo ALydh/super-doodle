@@ -1,4 +1,5 @@
 import type { ValidationError, Datasheet } from "../types";
+import styles from "./ValidationErrors.module.css";
 
 function errorMessage(err: ValidationError, datasheets: Datasheet[]): string {
   const getUnitName = (id: string) => datasheets.find(d => d.id === id)?.name ?? id;
@@ -61,11 +62,11 @@ export function ValidationErrors({ errors, datasheets = [] }: Props) {
   if (errors.length === 0) return null;
 
   return (
-    <div className="validation-errors">
+    <div className={styles.errors}>
       <strong>Validation Errors:</strong>
       <ul>
         {errors.map((err, i) => (
-          <li key={i} className="validation-error">{errorMessage(err, datasheets)}</li>
+          <li key={i} className={styles.error}>{errorMessage(err, datasheets)}</li>
         ))}
       </ul>
     </div>

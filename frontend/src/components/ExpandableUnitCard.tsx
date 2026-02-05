@@ -3,6 +3,8 @@ import type { DatasheetDetail, Enhancement } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../sanitize";
+import styles from "./ExpandableUnitCard.module.css";
+import sharedStyles from "../shared.module.css";
 
 interface Props {
   datasheetId: string;
@@ -38,29 +40,29 @@ export function ExpandableUnitCard({
   const loading = isExpanded && !detail;
 
   return (
-    <div className={`expandable-unit-card ${isExpanded ? "expanded" : ""}`}>
-      <button className="expandable-unit-header" onClick={onToggle}>
-        <span className="expand-icon">{isExpanded ? "▼" : "▶"}</span>
-        <span className="unit-card-name">
+    <div className={`${styles.card} ${isExpanded ? styles.expanded : ""}`}>
+      <button className={styles.header} onClick={onToggle}>
+        <span className={styles.expandIcon}>{isExpanded ? "▼" : "▶"}</span>
+        <span className={styles.name}>
           {datasheetName}
-          {isWarlord && <span className="warlord-badge">Warlord</span>}
+          {isWarlord && <span className={styles.warlordBadge}>Warlord</span>}
         </span>
         {enhancement && (
-          <span className="unit-card-enhancement">+ {enhancement.name}</span>
+          <span className={styles.enhancement}>+ {enhancement.name}</span>
         )}
         {points !== undefined && points > 0 && (
-          <span className="unit-card-points">{points}pts</span>
+          <span className={styles.points}>{points}pts</span>
         )}
       </button>
 
       {isExpanded && (
-        <div className="expandable-unit-content">
-          {loading && <div className="loading">Loading...</div>}
+        <div className={styles.content}>
+          {loading && <div className={sharedStyles.loading}>Loading...</div>}
           {detail && (
             <>
               {detail.profiles.length > 0 && (
-                <div className="unit-stats-section">
-                  <table className="stats-table compact">
+                <div className={styles.statsSection}>
+                  <table className={`${sharedStyles.statsTable} ${styles.statsTable}`}>
                     <thead>
                       <tr>
                         <th>M</th>
@@ -84,15 +86,15 @@ export function ExpandableUnitCard({
                       ))}
                     </tbody>
                   </table>
-                  <div className="stats-mobile">
+                  <div className={styles.statsMobile}>
                     {detail.profiles.map((p, i) => (
-                      <div key={i} className="stats-card-values">
-                        <div className="stat-item"><span className="stat-label">M</span><span className="stat-value">{p.movement}</span></div>
-                        <div className="stat-item"><span className="stat-label">T</span><span className="stat-value">{p.toughness}</span></div>
-                        <div className="stat-item"><span className="stat-label">SV</span><span className="stat-value">{p.save}{p.invulnerableSave && `/${p.invulnerableSave}`}</span></div>
-                        <div className="stat-item"><span className="stat-label">W</span><span className="stat-value">{p.wounds}</span></div>
-                        <div className="stat-item"><span className="stat-label">LD</span><span className="stat-value">{p.leadership}</span></div>
-                        <div className="stat-item"><span className="stat-label">OC</span><span className="stat-value">{p.objectiveControl}</span></div>
+                      <div key={i} className={styles.statsCardValues}>
+                        <div className={styles.statItem}><span className={styles.statLabel}>M</span><span className={styles.statValue}>{p.movement}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>T</span><span className={styles.statValue}>{p.toughness}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>SV</span><span className={styles.statValue}>{p.save}{p.invulnerableSave && `/${p.invulnerableSave}`}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>W</span><span className={styles.statValue}>{p.wounds}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>LD</span><span className={styles.statValue}>{p.leadership}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>OC</span><span className={styles.statValue}>{p.objectiveControl}</span></div>
                       </div>
                     ))}
                   </div>
@@ -100,9 +102,9 @@ export function ExpandableUnitCard({
               )}
 
               {detail.wargear.filter(w => w.name).length > 0 && (
-                <div className="unit-weapons-section">
+                <div className={styles.weaponsSection}>
                   <h4>Weapons</h4>
-                  <table className="weapons-table compact">
+                  <table className={`${sharedStyles.weaponsTable} ${styles.weaponsTable}`}>
                     <thead>
                       <tr>
                         <th>Name</th>
@@ -130,23 +132,23 @@ export function ExpandableUnitCard({
                       ))}
                     </tbody>
                   </table>
-                  <div className="weapons-mobile">
+                  <div className={styles.weaponsMobile}>
                     {detail.wargear.filter(w => w.name).map((w, i) => (
-                      <div key={i} className="weapon-card">
-                        <div className="weapon-card-header">
-                          <span className="weapon-card-name">{w.name}</span>
-                          <span className="weapon-card-range">
+                      <div key={i} className={styles.weaponCard}>
+                        <div className={styles.weaponCardHeader}>
+                          <span className={styles.weaponCardName}>{w.name}</span>
+                          <span className={styles.weaponCardRange}>
                             {w.range?.toLowerCase() === "melee" ? "Melee" : w.range ?? "-"}
                           </span>
                         </div>
-                        <div className="weapon-card-values">
-                          <div className="stat-item"><span className="stat-label">A</span><span className="stat-value">{w.attacks ?? "-"}</span></div>
-                          <div className="stat-item"><span className="stat-label">BS/WS</span><span className="stat-value">{w.ballisticSkill ?? "-"}</span></div>
-                          <div className="stat-item"><span className="stat-label">S</span><span className="stat-value">{w.strength ?? "-"}</span></div>
-                          <div className="stat-item"><span className="stat-label">AP</span><span className="stat-value">{w.armorPenetration ?? "-"}</span></div>
-                          <div className="stat-item"><span className="stat-label">D</span><span className="stat-value">{w.damage ?? "-"}</span></div>
+                        <div className={styles.weaponCardValues}>
+                          <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{w.attacks ?? "-"}</span></div>
+                          <div className={styles.statItem}><span className={styles.statLabel}>BS/WS</span><span className={styles.statValue}>{w.ballisticSkill ?? "-"}</span></div>
+                          <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{w.strength ?? "-"}</span></div>
+                          <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{w.armorPenetration ?? "-"}</span></div>
+                          <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{w.damage ?? "-"}</span></div>
                         </div>
-                        {w.description && <div className="weapon-card-abilities"><WeaponAbilityText text={w.description} /></div>}
+                        {w.description && <div className={styles.weaponCardAbilities}><WeaponAbilityText text={w.description} /></div>}
                       </div>
                     ))}
                   </div>
@@ -154,9 +156,9 @@ export function ExpandableUnitCard({
               )}
 
               {detail.abilities.filter(a => a.name).length > 0 && (
-                <div className="unit-abilities-section">
+                <div className={styles.abilitiesSection}>
                   <h4>Abilities</h4>
-                  <ul className="abilities-list compact">
+                  <ul className={styles.abilitiesList}>
                     {detail.abilities.filter(a => a.name).map((a, i) => (
                       <li key={i}>
                         <strong>{a.name}</strong>
@@ -168,11 +170,11 @@ export function ExpandableUnitCard({
               )}
 
               {detail.keywords.filter(k => k.keyword).length > 0 && (
-                <div className="unit-keywords-section">
+                <div className={styles.keywordsSection}>
                   <h4>Keywords</h4>
-                  <div className="keywords-list">
+                  <div className={sharedStyles.keywordsList}>
                     {detail.keywords.filter(k => k.keyword).map((k, i) => (
-                      <span key={i} className="keyword">{k.keyword}</span>
+                      <span key={i} className={sharedStyles.keyword}>{k.keyword}</span>
                     ))}
                   </div>
                 </div>

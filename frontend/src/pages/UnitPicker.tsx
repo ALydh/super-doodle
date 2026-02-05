@@ -7,6 +7,7 @@ import type {
 } from "../types";
 import { sortByRoleOrder } from "../constants";
 import { CHAPTER_KEYWORDS } from "../chapters";
+import styles from "./UnitPicker.module.css";
 
 type ChapterFilter = "all" | "chapter";
 
@@ -103,27 +104,26 @@ export function UnitPicker({
   };
 
   return (
-    <div className="unit-picker">
+    <div className={styles.picker}>
       <h3>Add Units</h3>
       <input
-        className="unit-search"
         type="text"
         placeholder="Search units..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
       {chapterKeyword && (
-        <div className="unit-picker-filters">
+        <div className={styles.filters}>
           <button
             type="button"
-            className={`filter-pill ${chapterFilter === "all" ? "active" : ""}`}
+            className={`${styles.filterPill} ${chapterFilter === "all" ? styles.filterPillActive : ""}`}
             onClick={() => setChapterFilter("all")}
           >
             All
           </button>
           <button
             type="button"
-            className={`filter-pill ${chapterFilter === "chapter" ? "active" : ""}`}
+            className={`${styles.filterPill} ${chapterFilter === "chapter" ? styles.filterPillActive : ""}`}
             onClick={() => setChapterFilter("chapter")}
           >
             Chapter Only
@@ -131,30 +131,25 @@ export function UnitPicker({
         </div>
       )}
       {sortedRoles.map((role) => (
-        <div key={role} className="unit-picker-role-group">
-          <h4 className="unit-picker-role-heading">{role}</h4>
-          <ul className="unit-picker-list">
+        <div key={role} className={styles.roleGroup}>
+          <h4 className={styles.roleHeading}>{role}</h4>
+          <ul className={styles.list}>
             {filteredByRole[role].sort(sortUnit).map((ds) => {
               const { firstLine, minCost } = getCostForDatasheet(ds.id, costs);
               const unitClass = chapterKeyword ? classifyUnit(ds.id) : null;
               return (
                 <li
                   key={ds.id}
-                  className={`unit-picker-item ${unitClass === "other-chapter" ? "unit-picker-item-deprioritized" : ""}`}
+                  className={`${styles.item} ${unitClass === "other-chapter" ? styles.deprioritized : ""}`}
                 >
-                  <span className="unit-picker-name">
+                  <span className={styles.name}>
                     {ds.name}
                     {unitClass === "chapter" && (
-                      <span className="chapter-badge" />
+                      <span className={styles.chapterBadge} />
                     )}
                   </span>
-                  <span className="unit-picker-cost-pill">{minCost}</span>
-                  <button
-                    className="btn-add-icon"
-                    onClick={() => onAdd(ds.id, firstLine)}
-                  >
-                    +
-                  </button>
+                  <span className={styles.costPill}>{minCost}</span>
+                  <button className={styles.addBtn} onClick={() => onAdd(ds.id, firstLine)}>+</button>
                 </li>
               );
             })}

@@ -16,6 +16,7 @@ import { TabNavigation } from "../components/TabNavigation";
 import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { BattleUnitCard } from "../components/battle/BattleUnitCard";
+import styles from "./ArmyViewPage.module.css";
 
 interface GroupedUnit {
   data: BattleUnitData;
@@ -174,35 +175,35 @@ export function ArmyViewPage() {
   );
 
   return (
-    <div data-faction={factionTheme} className="army-view-page">
+    <div data-faction={factionTheme} className={styles.page}>
       {factionTheme && (
         <img
           src={`/icons/${factionTheme}.svg`}
           alt=""
-          className="army-builder-bg-icon"
+          className={styles.bgIcon}
           aria-hidden="true"
         />
       )}
-      <div className="army-view-header">
+      <div className={styles.header}>
         {factionTheme && (
           <img
             src={`/icons/${factionTheme}.svg`}
             alt=""
-            className="army-view-header-icon"
+            className={styles.headerIcon}
           />
         )}
-        <div className="army-view-header-text">
-          <h1 className="army-name">{battleData.name}</h1>
-          <p className="army-meta">
+        <div className={styles.headerText}>
+          <h1 className={styles.armyName}>{battleData.name}</h1>
+          <p className={styles.meta}>
             {battleData.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
           </p>
         </div>
-        <div className="army-view-actions">
+        <div className={styles.actions}>
           <Link to={`/armies/${armyId}/edit`}>
-            <button className="edit-army">Edit</button>
+            <button className={styles.editBtn}>Edit</button>
           </Link>
           {user && (
-            <button className="btn-delete delete-army" onClick={handleDelete}>Delete</button>
+            <button className={styles.deleteBtn} onClick={handleDelete}>Delete</button>
           )}
         </div>
       </div>
@@ -210,8 +211,8 @@ export function ArmyViewPage() {
       <TabNavigation tabs={TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />
 
       {activeTab === "units" && (
-        <div className="units-tab">
-          <div className="battle-search">
+        <div>
+          <div className={styles.search}>
             <input
               type="text"
               placeholder="Search units..."
@@ -219,7 +220,7 @@ export function ArmyViewPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="battle-grid">
+          <div className={styles.grid}>
             {filteredUnits.map((group, index) => (
               <BattleUnitCard
                 key={`${group.data.unit.datasheetId}-${index}`}
@@ -233,8 +234,8 @@ export function ArmyViewPage() {
       )}
 
       {activeTab === "stratagems" && (
-        <div className="stratagems-tab">
-          <div className="stratagems-list">
+        <div>
+          <div className={styles.stratagemsList}>
             {detachmentStratagems.map((s) => (
               <StratagemCard key={s.id} stratagem={s} />
             ))}
@@ -243,7 +244,7 @@ export function ArmyViewPage() {
       )}
 
       {activeTab === "detachment" && (
-        <div className="detachment-tab">
+        <div>
           <DetachmentCard
             name={detachmentName}
             abilities={detachmentAbilities}

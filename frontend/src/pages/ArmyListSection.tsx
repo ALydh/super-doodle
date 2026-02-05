@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { ArmySummary } from "../types";
 import { fetchArmiesByFaction } from "../api";
+import styles from "./ArmyListSection.module.css";
 
 interface Props {
   factionId: string;
@@ -15,15 +16,15 @@ export function ArmyListSection({ factionId }: Props) {
   }, [factionId]);
 
   return (
-    <div className="army-list-section">
+    <div className={styles.section}>
       <h2>Armies</h2>
-      <Link to={`/factions/${factionId}/armies/new`} className="create-army-link">
+      <Link to={`/factions/${factionId}/armies/new`} className={styles.createLink}>
         Create Army
       </Link>
       {armies.length > 0 && (
-        <ul className="army-list">
+        <ul className={styles.list}>
           {armies.map((a) => (
-            <li key={a.id} className="army-list-item">
+            <li key={a.id} className={styles.listItem}>
               <Link to={`/armies/${a.id}`}>{a.name}</Link>
               {" "}— {a.battleSize}
             </li>

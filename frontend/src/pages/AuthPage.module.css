@@ -1,0 +1,33 @@
+.page {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.errorMessage {
+  background-color: rgba(229, 83, 61, 0.1);
+  border: 1px solid var(--state-danger);
+  color: var(--state-danger);
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.fieldError {
+  color: var(--state-danger);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}

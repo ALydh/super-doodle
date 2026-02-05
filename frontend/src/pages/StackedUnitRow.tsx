@@ -4,6 +4,7 @@ import { fetchDatasheetDetail } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { useReferenceData } from "../context/ReferenceDataContext";
 import { sanitizeHtml } from "../sanitize";
+import styles from "./UnitRow.module.css";
 
 interface StackedUnit {
   unit: ArmyUnit;
@@ -62,41 +63,41 @@ export function StackedUnitRow({
   };
 
   return (
-    <tr className={`unit-row stacked-row ${isAllied ? "allied-unit" : ""}`}>
+    <tr className={`${styles.row} ${styles.stackedRow} ${isAllied ? styles.allied : ""}`}>
       <td colSpan={8}>
-        <div className="unit-card-builder stacked-card">
-          <div className="stacked-card-shadow" />
-          <div className="stacked-card-shadow" />
-          <div className="unit-card-header" onClick={() => setExpanded(!expanded)} style={{ cursor: 'pointer' }}>
-            <span className="unit-expand-btn">
+        <div className={`${styles.card} ${styles.stackedCard}`}>
+          <div className={styles.stackedShadow} />
+          <div className={styles.stackedShadow} />
+          <div className={styles.header} onClick={() => setExpanded(!expanded)} style={{ cursor: 'pointer' }}>
+            <span className={styles.expandBtn}>
               {expanded ? "▼" : "▶"}
             </span>
 
-            <div className="unit-card-title">
-              <span className="unit-name-text">{datasheet?.name ?? firstUnit.datasheetId}</span>
-              <span className="stacked-count">×{count}</span>
-              {isAllied && <span className="allied-badge">Allied</span>}
+            <div className={styles.title}>
+              <span className={styles.nameText}>{datasheet?.name ?? firstUnit.datasheetId}</span>
+              <span className={styles.stackedCount}>×{count}</span>
+              {isAllied && <span className={styles.alliedBadge}>Allied</span>}
             </div>
 
-            <span className="unit-cost-badge stacked-total">{totalPoints}pts</span>
+            <span className={`${styles.costBadge} ${styles.stackedTotal}`}>{totalPoints}pts</span>
 
             {!readOnly && (
-              <div className="unit-card-actions" onClick={(e) => e.stopPropagation()}>
-                <button className="btn-copy" onClick={handleCopyOne} title="Add another">+</button>
-                <button className="btn-remove" onClick={handleRemoveOne} title="Remove one">−</button>
+              <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                <button className={styles.btnCopy} onClick={handleCopyOne} title="Add another">+</button>
+                <button className={styles.btnRemove} onClick={handleRemoveOne} title="Remove one">−</button>
               </div>
             )}
           </div>
 
-          <div className="unit-card-controls">
+          <div className={styles.controls}>
             {unitCosts.length > 1 && (
-              <div className="control-group">
+              <div className={styles.controlGroup}>
                 <label>Size</label>
                 {readOnly ? (
-                  <span className="control-value">{selectedCost?.description}</span>
+                  <span className={styles.controlValue}>{selectedCost?.description}</span>
                 ) : (
                   <select
-                    className="unit-select"
+                    className={styles.unitSelect}
                     value={firstUnit.sizeOptionLine}
                     onChange={(e) => {
                       const newLine = Number(e.target.value);
@@ -115,39 +116,39 @@ export function StackedUnitRow({
           </div>
 
           {expanded && (
-            <div className="unit-card-expanded">
+            <div className={styles.expanded}>
               {loadingDetail && <div className="loading">Loading stats...</div>}
 
               {detail && (
-                <div className="unit-stats-preview">
+                <div className={styles.statsPreview}>
                   {detail.profiles.length > 0 && (
-                    <div className="stats-row">
+                    <div className={styles.statsRow}>
                       {detail.profiles.map((p, i) => (
-                        <div key={i} className="stat-line">
-                          <span className="stat"><b>M</b>{p.movement}</span>
-                          <span className="stat"><b>T</b>{p.toughness}</span>
-                          <span className="stat"><b>SV</b>{p.save}{p.invulnerableSave && `/${p.invulnerableSave}`}</span>
-                          <span className="stat"><b>W</b>{p.wounds}</span>
-                          <span className="stat"><b>LD</b>{p.leadership}</span>
-                          <span className="stat"><b>OC</b>{p.objectiveControl}</span>
+                        <div key={i} className={styles.statLine}>
+                          <span className={styles.stat}><b>M</b>{p.movement}</span>
+                          <span className={styles.stat}><b>T</b>{p.toughness}</span>
+                          <span className={styles.stat}><b>SV</b>{p.save}{p.invulnerableSave && `/${p.invulnerableSave}`}</span>
+                          <span className={styles.stat}><b>W</b>{p.wounds}</span>
+                          <span className={styles.stat}><b>LD</b>{p.leadership}</span>
+                          <span className={styles.stat}><b>OC</b>{p.objectiveControl}</span>
                         </div>
                       ))}
                     </div>
                   )}
 
                   {detail.wargear.filter(w => w.name).length > 0 && (
-                    <div className="weapons-preview">
-                      <h5>Weapons</h5>
-                      <div className="weapons-list">
+                    <div>
+                      <h5 className={styles.sectionHeading}>Weapons</h5>
+                      <div className={styles.weaponsList}>
                         {detail.wargear.filter(w => w.name).map((w, i) => (
-                          <div key={i} className="weapon-line">
-                            <span className="weapon-name">{w.name}</span>
-                            <span className="weapon-stat">{w.attacks ? `A:${w.attacks}` : ''}</span>
-                            <span className="weapon-stat">{w.ballisticSkill ? `BS:${w.ballisticSkill}` : ''}</span>
-                            <span className="weapon-stat">{w.strength ? `S:${w.strength}` : ''}</span>
-                            <span className="weapon-stat">{w.armorPenetration ? `AP:${w.armorPenetration}` : ''}</span>
-                            <span className="weapon-stat">{w.damage ? `D:${w.damage}` : ''}</span>
-                            <span className="weapon-abilities">
+                          <div key={i} className={styles.weaponLine}>
+                            <span className={styles.weaponName}>{w.name}</span>
+                            <span className={styles.weaponStat}>{w.attacks ? `A:${w.attacks}` : ''}</span>
+                            <span className={styles.weaponStat}>{w.ballisticSkill ? `BS:${w.ballisticSkill}` : ''}</span>
+                            <span className={styles.weaponStat}>{w.strength ? `S:${w.strength}` : ''}</span>
+                            <span className={styles.weaponStat}>{w.armorPenetration ? `AP:${w.armorPenetration}` : ''}</span>
+                            <span className={styles.weaponStat}>{w.damage ? `D:${w.damage}` : ''}</span>
+                            <span className={styles.weaponAbilities}>
                               {w.description && <WeaponAbilityText text={w.description} />}
                             </span>
                           </div>
@@ -159,11 +160,11 @@ export function StackedUnitRow({
               )}
 
               {detail && detail.abilities.filter(a => a.name).length > 0 && (
-                <div className="abilities-preview">
-                  <h5>Abilities</h5>
-                  <div className="abilities-list">
+                <div className={styles.abilitiesPreview}>
+                  <h5 className={styles.sectionHeading}>Abilities</h5>
+                  <div className={styles.abilitiesList}>
                     {detail.abilities.filter(a => a.name).map((a, i) => (
-                      <div key={i} className="ability-line">
+                      <div key={i} className={styles.abilityLine}>
                         <strong>{a.name}</strong>
                         {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
                       </div>
@@ -173,13 +174,13 @@ export function StackedUnitRow({
               )}
 
               {!readOnly && (
-                <div className="stacked-units-list">
+                <div className={styles.stackedUnitsList}>
                   <h5>Individual Units</h5>
                   {stackedUnits.map(({ index }, i) => (
-                    <div key={index} className="stacked-unit-item">
+                    <div key={index} className={styles.stackedUnitItem}>
                       <span>Unit #{i + 1}</span>
                       <span>{unitPoints}pts</span>
-                      <button className="btn-remove-small" onClick={() => onRemove(index)} title="Remove">×</button>
+                      <button className={styles.btnRemoveSmall} onClick={() => onRemove(index)} title="Remove">×</button>
                     </div>
                   ))}
                 </div>

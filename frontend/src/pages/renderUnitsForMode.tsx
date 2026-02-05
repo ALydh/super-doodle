@@ -6,6 +6,7 @@ import type {
 import { UnitRow } from "./UnitRow";
 import { StackedUnitRow } from "./StackedUnitRow";
 import { sortByRoleOrder } from "../constants";
+import styles from "./UnitRow.module.css";
 
 interface StackedUnit {
   unit: ArmyUnit;
@@ -268,9 +269,9 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
     if (!hasUnrenderedUnits) continue;
 
     rendered.push(
-      <tr key={`role-header-${role}`} className="role-header-row">
+      <tr key={`role-header-${role}`} className={styles.roleHeaderRow}>
         <td colSpan={8}>
-          <div className="role-header">{role}</div>
+          <div className={styles.roleHeader}>{role}</div>
         </td>
       </tr>
     );

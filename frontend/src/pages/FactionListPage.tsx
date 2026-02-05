@@ -4,6 +4,7 @@ import type { Faction, ArmySummary } from "../types";
 import { fetchFactions, fetchAllArmies } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { useAuth } from "../context/useAuth";
+import styles from "./FactionListPage.module.css";
 
 type FactionGroup = "Imperium" | "Chaos" | "Xenos";
 
@@ -80,34 +81,34 @@ export function FactionListPage() {
   }));
 
   return (
-    <div className="landing-page">
+    <div className={styles.page}>
       <h1>Armies</h1>
 
       {armies.length === 0 ? (
-        <div className="empty-state">
+        <div className={styles.emptyState}>
           <p>No armies yet. Browse a faction to get started.</p>
           {groupedFactions.map(({ group, factions: groupFactions }) => (
-            <div key={group} className="faction-group">
-              <h3 className="faction-group-title">{group}</h3>
-              <div className="faction-cards">
+            <div key={group} className={styles.factionGroup}>
+              <h3 className={styles.factionGroupTitle}>{group}</h3>
+              <div className={styles.factionCards}>
                 {groupFactions.map((f) => {
                   const factionTheme = getFactionTheme(f.id);
                   return (
                     <Link
                       key={f.id}
                       to={`/factions/${f.id}`}
-                      className="faction-card"
+                      className={styles.factionCard}
                       data-faction={factionTheme}
                     >
                       {factionTheme && (
                         <img
                           src={`/icons/${factionTheme}.svg`}
                           alt=""
-                          className="faction-card-icon"
+                          className={styles.factionCardIcon}
                           aria-hidden="true"
                         />
                       )}
-                      <span className="faction-card-name">{f.name}</span>
+                      <span className={styles.factionCardName}>{f.name}</span>
                     </Link>
                   );
                 })}
@@ -120,7 +121,7 @@ export function FactionListPage() {
           {myArmies.length > 0 && (
             <>
               <h2>My Armies</h2>
-              <div className="army-cards">
+              <div className={styles.armyCards}>
                 {myArmies.map((army) => {
                   const faction = factionMap.get(army.factionId);
                   const factionTheme = getFactionTheme(army.factionId);
@@ -129,34 +130,34 @@ export function FactionListPage() {
                     <Link
                       key={army.id}
                       to={`/armies/${army.id}`}
-                      className="army-card"
+                      className={styles.armyCard}
                       data-faction={factionTheme}
                     >
                       {factionTheme && (
                         <img
                           src={`/icons/${factionTheme}.svg`}
                           alt=""
-                          className="army-card-icon"
+                          className={styles.armyCardIcon}
                           aria-hidden="true"
                         />
                       )}
-                      <div className="army-card-header">
-                        <span className="army-card-faction">
+                      <div className={styles.armyCardHeader}>
+                        <span className={styles.armyCardFaction}>
                           {faction?.name || army.factionId}
                         </span>
-                        <span className="army-card-size">
+                        <span className={styles.armyCardSize}>
                           {army.totalPoints} pts
                         </span>
                       </div>
-                      <h3 className="army-card-name">{army.name}</h3>
+                      <h3 className={styles.armyCardName}>{army.name}</h3>
                       {army.warlordName && (
-                        <div className="army-card-warlord">{army.warlordName}</div>
+                        <div className={styles.armyCardWarlord}>{army.warlordName}</div>
                       )}
-                      <div className="army-card-footer">
-                        <span className="army-card-battle-size">
+                      <div className={styles.armyCardFooter}>
+                        <span className={styles.armyCardBattleSize}>
                           {army.battleSize}
                         </span>
-                        <span className="army-card-updated">
+                        <span className={styles.armyCardUpdated}>
                           {formatDate(army.updatedAt)}
                         </span>
                       </div>
@@ -170,7 +171,7 @@ export function FactionListPage() {
           {otherArmies.length > 0 && (
             <>
               <h2>Other Armies</h2>
-              <div className="army-cards">
+              <div className={styles.armyCards}>
                 {otherArmies.map((army) => {
                   const faction = factionMap.get(army.factionId);
                   const factionTheme = getFactionTheme(army.factionId);
@@ -179,39 +180,39 @@ export function FactionListPage() {
                     <Link
                       key={army.id}
                       to={`/armies/${army.id}`}
-                      className="army-card"
+                      className={styles.armyCard}
                       data-faction={factionTheme}
                     >
                       {factionTheme && (
                         <img
                           src={`/icons/${factionTheme}.svg`}
                           alt=""
-                          className="army-card-icon"
+                          className={styles.armyCardIcon}
                           aria-hidden="true"
                         />
                       )}
-                      <div className="army-card-header">
-                        <span className="army-card-faction">
+                      <div className={styles.armyCardHeader}>
+                        <span className={styles.armyCardFaction}>
                           {faction?.name || army.factionId}
                         </span>
-                        <span className="army-card-size">
+                        <span className={styles.armyCardSize}>
                           {army.totalPoints} pts
                         </span>
                       </div>
-                      <h3 className="army-card-name">{army.name}</h3>
+                      <h3 className={styles.armyCardName}>{army.name}</h3>
                       {army.warlordName && (
-                        <div className="army-card-warlord">{army.warlordName}</div>
+                        <div className={styles.armyCardWarlord}>{army.warlordName}</div>
                       )}
-                      <div className="army-card-footer">
-                        <span className="army-card-battle-size">
+                      <div className={styles.armyCardFooter}>
+                        <span className={styles.armyCardBattleSize}>
                           {army.battleSize}
                         </span>
-                        <span className="army-card-updated">
+                        <span className={styles.armyCardUpdated}>
                           {formatDate(army.updatedAt)}
                         </span>
                       </div>
                       {army.ownerName && (
-                        <div className="army-card-owner">{army.ownerName}</div>
+                        <div className={styles.armyCardOwner}>{army.ownerName}</div>
                       )}
                     </Link>
                   );
@@ -220,30 +221,30 @@ export function FactionListPage() {
             </>
           )}
 
-          <div className="new-army-section">
+          <div className={styles.newArmySection}>
             <h2>Explore Factions</h2>
             {groupedFactions.map(({ group, factions: groupFactions }) => (
-              <div key={group} className="faction-group">
-                <h3 className="faction-group-title">{group}</h3>
-                <div className="faction-cards">
+              <div key={group} className={styles.factionGroup}>
+                <h3 className={styles.factionGroupTitle}>{group}</h3>
+                <div className={styles.factionCards}>
                   {groupFactions.map((f) => {
                     const factionTheme = getFactionTheme(f.id);
                     return (
                       <Link
                         key={f.id}
                         to={`/factions/${f.id}`}
-                        className="faction-card"
+                        className={styles.factionCard}
                         data-faction={factionTheme}
                       >
                         {factionTheme && (
                           <img
                             src={`/icons/${factionTheme}.svg`}
                             alt=""
-                            className="faction-card-icon"
+                            className={styles.factionCardIcon}
                             aria-hidden="true"
                           />
                         )}
-                        <span className="faction-card-name">{f.name}</span>
+                        <span className={styles.factionCardName}>{f.name}</span>
                       </Link>
                     );
                   })}
