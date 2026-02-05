@@ -44,8 +44,8 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
     detachmentId = detId,
     warlordId = warbossId,
     units = List(
-      ArmyUnit(warbossId, 1, Some(enhId), None),
-      ArmyUnit(boyzId, 1, None, Some(warbossId))
+      ArmyUnit(warbossId, 1, Some(enhId), Some(boyzId)),
+      ArmyUnit(boyzId, 1, None, None)
     )
   )
 
@@ -80,8 +80,7 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
     val found = ArmyRepository.findById(created.id)(xa).unsafeRunSync().get
     val warbossUnit = found.army.units.find(_.datasheetId == warbossId).get
     warbossUnit.enhancementId shouldBe Some(enhId)
-    val boyzUnit = found.army.units.find(_.datasheetId == boyzId).get
-    boyzUnit.attachedLeaderId shouldBe Some(warbossId)
+    warbossUnit.attachedLeaderId shouldBe Some(boyzId)
   }
 
   "listSummariesByFaction" should "return only armies for the given faction" in {

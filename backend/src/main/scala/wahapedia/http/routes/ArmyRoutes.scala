@@ -124,7 +124,7 @@ object ArmyRoutes {
               persisted.id, persisted.name,
               FactionId.value(army.factionId), army.battleSize.toString,
               DetachmentId.value(army.detachmentId), DatasheetId.value(army.warlordId),
-              List.empty, army.chapterId
+              army.chapterId, List.empty
             ))
             case Some(datasheetIds) =>
               for {
@@ -176,7 +176,7 @@ object ArmyRoutes {
                   persisted.id, persisted.name,
                   FactionId.value(army.factionId), army.battleSize.toString,
                   DetachmentId.value(army.detachmentId), DatasheetId.value(army.warlordId),
-                  battleUnits, army.chapterId
+                  army.chapterId, battleUnits
                 ))
               } yield resp
           }

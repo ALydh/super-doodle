@@ -24,6 +24,10 @@ function errorMessage(err: ValidationError, datasheets: Datasheet[]): string {
       const targetName = getUnitName(err.attachedToId as string);
       return `${leaderName} cannot attach to ${targetName}`;
     }
+    case "TooManyLeaders": {
+      const bodyguardName = getUnitName(err.bodyguardId as string);
+      return `${bodyguardName}: ${err.leaderCount} leaders attached (max ${err.maxAllowed})`;
+    }
     case "TooManyEnhancements":
       return `Too many enhancements: ${err.count} (max 3)`;
     case "DuplicateEnhancement":

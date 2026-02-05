@@ -2,7 +2,7 @@ package wahapedia.domain.army
 
 import wahapedia.domain.types.{DatasheetId, FactionId, DetachmentId, Role}
 import wahapedia.domain.models.*
-import wahapedia.domain.Constants.{Validation, Keywords, Defaults, Chapters}
+import wahapedia.domain.Constants.{Validation, Keywords, Defaults, Chapters, Leaders}
 import wahapedia.domain.army.AllyRules.{ImperialKnightsFaction, ChaosKnightsFaction, ChaosDaemonsFaction, ImperialAgentsFaction}
 
 case class ReferenceData(
@@ -30,7 +30,7 @@ object ArmyValidator {
       validateWarlord(army, datasheetIndex),
       validateDuplicationLimits(army, datasheetIndex, keywordIndex),
       validateEpicHeroes(army, keywordIndex, datasheetIndex),
-      validateLeaderAttachments(army, leaderIndex),
+      validateLeaderAttachments(army, leaderIndex, datasheetIndex),
       validateEnhancementCount(army),
       validateEnhancementUniqueness(army),
       validateEnhancementsOnCharacters(army, datasheetIndex),
@@ -171,17 +171,49 @@ object ArmyValidator {
 
   private def validateLeaderAttachments(
     army: Army,
-    leaderIndex: Map[DatasheetId, List[DatasheetLeader]]
+    leaderIndex: Map[DatasheetId, List[DatasheetLeader]],
+    datasheetIndex: Map[DatasheetId, List[Datasheet]]
   ): List[ValidationError] = {
-    army.units.flatMap { unit =>
+    val pairingErrors = army.units.flatMap { unit =>
       unit.attachedLeaderId match {
         case None => Nil
-        case Some(leaderId) =>
-          val validBodyguards = leaderIndex.getOrElse(leaderId, Nil).map(_.attachedId)
-          if (validBodyguards.contains(unit.datasheetId)) Nil
-          else List(InvalidLeaderAttachment(leaderId, unit.datasheetId))
+        case Some(bodyguardId) =>
+          val validBodyguards = leaderIndex.getOrElse(unit.datasheetId, Nil).map(_.attachedId)
+          if (validBodyguards.contains(bodyguardId)) Nil
+          else List(InvalidLeaderAttachment(unit.datasheetId, bodyguardId))
       }
     }
+
+    val leadersAttached = army.units.filter(_.attachedLeaderId.isDefined)
+    val grouped = leadersAttached.groupBy(_.attachedLeaderId.get)
+
+    val countErrors = grouped.flatMap { case (bodyguardId, leaders) =>
+      if (leaders.size <= 1) Nil
+      else {
+        val isSpecialBodyguard = Leaders.SpecialBodyguards.get(bodyguardId).exists { maxLeaders =>
+          leaders.headOption.exists(_ => army.units.exists(u =>
+            u.datasheetId == bodyguardId && u.sizeOptionLine >= Leaders.SpecialBodyguardSizeLine
+          ))
+        }
+
+        val hasCoLeader = leaders.exists { unit =>
+          datasheetIndex.get(unit.datasheetId)
+            .flatMap(_.headOption)
+            .flatMap(_.leaderFooter)
+            .exists(_.toLowerCase.contains("even if"))
+        }
+
+        val max = if (isSpecialBodyguard)
+          Leaders.SpecialBodyguards(bodyguardId)
+        else if (hasCoLeader) 2
+        else 1
+
+        if (leaders.size > max) List(TooManyLeaders(bodyguardId, leaders.size, max))
+        else Nil
+      }
+    }.toList
+
+    pairingErrors ++ countErrors
   }
 
   private def validateEnhancementCount(army: Army): List[ValidationError] = {

@@ -32,6 +32,7 @@ object ValidationErrorDto {
   case class DuplicateExceeded(errorType: String, datasheetId: String, unitName: String, count: Int, maxAllowed: Int) extends ValidationErrorDto
   case class DuplicateEpicHero(errorType: String, datasheetId: String, unitName: String) extends ValidationErrorDto
   case class InvalidLeaderAttachment(errorType: String, leaderId: String, attachedToId: String) extends ValidationErrorDto
+  case class TooManyLeaders(errorType: String, bodyguardId: String, leaderCount: Int, maxAllowed: Int) extends ValidationErrorDto
   case class TooManyEnhancements(errorType: String, count: Int) extends ValidationErrorDto
   case class DuplicateEnhancement(errorType: String, enhancementId: String) extends ValidationErrorDto
   case class EnhancementOnNonCharacter(errorType: String, datasheetId: String, enhancementId: String) extends ValidationErrorDto
@@ -64,6 +65,8 @@ object ValidationErrorDto {
       DuplicateEpicHero("DuplicateEpicHero", DatasheetId.value(e.datasheetId), e.unitName)
     case e: wahapedia.domain.army.InvalidLeaderAttachment =>
       InvalidLeaderAttachment("InvalidLeaderAttachment", DatasheetId.value(e.leaderId), DatasheetId.value(e.attachedToId))
+    case e: wahapedia.domain.army.TooManyLeaders =>
+      TooManyLeaders("TooManyLeaders", DatasheetId.value(e.bodyguardId), e.leaderCount, e.maxAllowed)
     case e: wahapedia.domain.army.TooManyEnhancements =>
       TooManyEnhancements("TooManyEnhancements", e.count)
     case e: wahapedia.domain.army.DuplicateEnhancement =>
@@ -101,6 +104,7 @@ object ValidationErrorDto {
     case e: DuplicateExceeded => e.asJson(using Encoder.AsObject.derived[DuplicateExceeded])
     case e: DuplicateEpicHero => e.asJson(using Encoder.AsObject.derived[DuplicateEpicHero])
     case e: InvalidLeaderAttachment => e.asJson(using Encoder.AsObject.derived[InvalidLeaderAttachment])
+    case e: TooManyLeaders => e.asJson(using Encoder.AsObject.derived[TooManyLeaders])
     case e: TooManyEnhancements => e.asJson(using Encoder.AsObject.derived[TooManyEnhancements])
     case e: DuplicateEnhancement => e.asJson(using Encoder.AsObject.derived[DuplicateEnhancement])
     case e: EnhancementOnNonCharacter => e.asJson(using Encoder.AsObject.derived[EnhancementOnNonCharacter])
@@ -154,8 +158,8 @@ case class ArmyBattleData(
   battleSize: String,
   detachmentId: String,
   warlordId: String,
-  units: List[BattleUnitData],
-  chapterId: Option[String]
+  chapterId: Option[String],
+  units: List[BattleUnitData]
 )
 
 case class AlliedFactionInfo(

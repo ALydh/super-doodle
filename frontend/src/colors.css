@@ -188,6 +188,34 @@
   --faction-danger-dark: #9e2020;
 }
 
+[data-faction="sm-black-templars"] {
+  --faction-primary: #1A1A1A;
+  --faction-secondary: #333333;
+  --faction-trim: #C0C0C0;
+  --faction-emphasis: #B22222;
+  --faction-emphasis-text: #ffffff;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #0d0d0d;
+  --faction-secondary-dark: #1a1a1a;
+  --faction-trim-dark: #999999;
+  --faction-emphasis-dark: #8e1b1b;
+  --faction-danger-dark: #9e2020;
+}
+
+[data-faction="sm-deathwatch"] {
+  --faction-primary: #1C1C1C;
+  --faction-secondary: #2A2A2A;
+  --faction-trim: #C0C0C0;
+  --faction-emphasis: #8B8B8B;
+  --faction-emphasis-text: #ffffff;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #0f0f0f;
+  --faction-secondary-dark: #1a1a1a;
+  --faction-trim-dark: #999999;
+  --faction-emphasis-dark: #6e6e6e;
+  --faction-danger-dark: #9e2020;
+}
+
 /* Chaos Space Marines */
 [data-faction="chaos"] {
   --faction-primary: #8B0000;
