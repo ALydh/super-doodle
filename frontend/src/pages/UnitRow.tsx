@@ -6,6 +6,7 @@ import { useReferenceData } from "../context/ReferenceDataContext";
 import { sanitizeHtml } from "../sanitize";
 import { EnhancementSelector } from "../components/EnhancementSelector";
 import { WargearSelector } from "../components/WargearSelector";
+import { LeaderSlotsSection } from "../components/LeaderSlotsSection";
 import styles from "./UnitRow.module.css";
 
 function parseUnitSize(description: string): number {
@@ -33,7 +34,7 @@ interface Props {
 export function UnitRow({
   unit, index, datasheet,
   isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
-  displayMode = "table", allUnits = [], isGroupParent = false, isGroupChild = false, attachedLeaderInfo,
+  allUnits = [], isGroupParent = false, isGroupChild = false,
   readOnly = false,
 }: Props) {
   const { costs, enhancements, leaders, datasheets, options } = useReferenceData();
@@ -46,26 +47,12 @@ export function UnitRow({
   const isCharacter = datasheet?.role === "Characters";
   const unitOptions = options.filter((o) => o.datasheetId === unit.datasheetId);
 
-  const validLeaderTargets = leaders
-    .filter((l) => l.leaderId === unit.datasheetId)
-    .map((l) => l.attachedId);
-
-  const attachableUnitsInArmy = allUnits
-    .map((u, i) => ({ unit: u, index: i, ds: datasheets.find(d => d.id === u.datasheetId) }))
-    .filter(({ ds }) => ds && validLeaderTargets.includes(ds.id));
-
   const getUnitNumber = (unitIndex: number, datasheetId: string): { num: number; total: number } => {
     const sameTypeUnits = allUnits
       .map((u, i) => ({ datasheetId: u.datasheetId, index: i }))
       .filter(u => u.datasheetId === datasheetId);
     const num = sameTypeUnits.findIndex(u => u.index === unitIndex) + 1;
     return { num, total: sameTypeUnits.length };
-  };
-
-  const getUnitDisplayName = (ds: { name: string; id: string } | undefined, unitIndex: number): string => {
-    if (!ds) return "Unknown";
-    const { num, total } = getUnitNumber(unitIndex, ds.id);
-    return total > 1 ? `${ds.name} #${num}` : ds.name;
   };
 
   const thisUnitNumber = getUnitNumber(index, unit.datasheetId);
@@ -145,10 +132,6 @@ export function UnitRow({
     }).filter(choice => choice.length > 0);
   };
 
-  const nonCharacterUnitsWithIndices = allUnits
-    .map((u, i) => ({ unit: u, index: i, ds: datasheets.find(d => d.id === u.datasheetId) }))
-    .filter(({ ds }) => ds?.role !== "Characters");
-
   const isAllied = unit.isAllied === true;
 
   const rowClassName = [
@@ -157,58 +140,6 @@ export function UnitRow({
     isGroupChild ? styles.groupChild : "",
     isAllied ? styles.allied : "",
   ].filter(Boolean).join(" ");
-
-  const renderLeaderSelect = () => {
-    if (displayMode === "inline") {
-      if (attachedLeaderInfo) {
-        return <span className={styles.attachedLeaderBadge}>+ {attachedLeaderInfo.name}</span>;
-      }
-      return null;
-    }
-
-    if (displayMode === "instance" && isCharacter) {
-      return (
-        <select
-          className={styles.unitSelect}
-          value={unit.attachedToUnitIndex ?? ""}
-          onChange={(e) => onUpdate(index, {
-            ...unit,
-            attachedToUnitIndex: e.target.value ? Number(e.target.value) : null,
-            attachedLeaderId: null,
-          })}
-        >
-          <option value="">No attachment</option>
-          {nonCharacterUnitsWithIndices
-            .filter(({ index: unitIdx }) => {
-              const targetDatasheet = datasheets.find(d => d.id === allUnits[unitIdx].datasheetId);
-              return validLeaderTargets.includes(targetDatasheet?.id ?? "");
-            })
-            .map(({ index: unitIdx, ds }) => (
-              <option key={unitIdx} value={unitIdx}>
-                {ds?.name} #{unitIdx + 1}
-              </option>
-            ))}
-        </select>
-      );
-    }
-
-    if (isCharacter && attachableUnitsInArmy.length > 0) {
-      return (
-        <select
-          className={styles.unitSelect}
-          value={unit.attachedLeaderId ?? ""}
-          onChange={(e) => onUpdate(index, { ...unit, attachedLeaderId: e.target.value || null })}
-        >
-          <option value="">No attachment</option>
-          {attachableUnitsInArmy.map(({ index: unitIdx, ds }) => (
-            <option key={`${ds!.id}-${unitIdx}`} value={ds!.id}>{getUnitDisplayName(ds, unitIdx)}</option>
-          ))}
-        </select>
-      );
-    }
-
-    return null;
-  };
 
   return (
     <tr className={rowClassName}>
@@ -265,6 +196,32 @@ export function UnitRow({
           </div>
 
           <div className={styles.controls}>
+            {isCharacter && unit.attachedLeaderId && (
+              <div className={styles.controlGroup}>
+                <label>Leading</label>
+                <span className={styles.leadingPill}>
+                  {datasheets.find(d => d.id === unit.attachedLeaderId)?.name ?? "Unit"}
+                </span>
+              </div>
+            )}
+
+            {!isCharacter && !readOnly && (
+              <LeaderSlotsSection
+                unitDatasheetId={unit.datasheetId}
+                allUnits={allUnits}
+                datasheets={datasheets}
+                leaders={leaders}
+                onUpdate={onUpdate}
+              />
+            )}
+
+            {unitOptions.length > 0 && !readOnly && (
+              <div className={styles.controlGroup}>
+                <label>Wargear</label>
+                <span className={styles.wargearCount}>{wargearCount}/{unitOptions.length}</span>
+              </div>
+            )}
+
             {unitCosts.length > 1 && (
               <div className={styles.controlGroup}>
                 <label>Size</label>
@@ -281,20 +238,6 @@ export function UnitRow({
                     ))}
                   </select>
                 )}
-              </div>
-            )}
-
-            {isCharacter && attachableUnitsInArmy.length > 0 && !readOnly && (
-              <div className={styles.controlGroup}>
-                <label>Attach to</label>
-                {renderLeaderSelect()}
-              </div>
-            )}
-
-            {unitOptions.length > 0 && !readOnly && (
-              <div className={styles.controlGroup}>
-                <label>Wargear</label>
-                <span className={styles.wargearCount}>{wargearCount}/{unitOptions.length}</span>
               </div>
             )}
           </div>

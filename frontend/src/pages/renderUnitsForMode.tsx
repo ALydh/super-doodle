@@ -170,72 +170,25 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
 
   const renderUnitWithAttachment = (unit: ArmyUnit, index: number) => {
     const datasheet = ctx.datasheets.find(ds => ds.id === unit.datasheetId);
-    const isCharacter = datasheet?.role === "Characters";
     const isWarlord = ctx.warlordId === unit.datasheetId && findWarlordIndex() === index;
 
-    if (isCharacter && unit.attachedLeaderId) {
-      const bodyguardIndex = ctx.units.findIndex(u => u.datasheetId === unit.attachedLeaderId);
-      const bodyguardUnit = bodyguardIndex >= 0 ? ctx.units[bodyguardIndex] : null;
-      const bodyguardDatasheet = bodyguardUnit ? ctx.datasheets.find(ds => ds.id === bodyguardUnit.datasheetId) : undefined;
-
-      rendered.push(
-        <UnitRow
-          key={index}
-          unit={unit}
-          index={index}
-          datasheet={datasheet}
-          isWarlord={isWarlord}
-          onUpdate={ctx.onUpdate}
-          onRemove={ctx.onRemove}
-          onCopy={ctx.onCopy}
-          onSetWarlord={ctx.onSetWarlord}
-          displayMode="grouped"
-          allUnits={ctx.units}
-          isGroupParent={!!bodyguardUnit}
-          readOnly={ctx.readOnly}
-        />
-      );
-      renderedIndices.add(index);
-
-      if (bodyguardUnit && bodyguardIndex >= 0 && !renderedIndices.has(bodyguardIndex)) {
-        rendered.push(
-          <UnitRow
-            key={bodyguardIndex}
-            unit={bodyguardUnit}
-            index={bodyguardIndex}
-            datasheet={bodyguardDatasheet}
-            isWarlord={false}
-            onUpdate={ctx.onUpdate}
-            onRemove={ctx.onRemove}
-            onCopy={ctx.onCopy}
-            onSetWarlord={ctx.onSetWarlord}
-            displayMode="grouped"
-            allUnits={ctx.units}
-            isGroupChild={true}
-            readOnly={ctx.readOnly}
-          />
-        );
-        renderedIndices.add(bodyguardIndex);
-      }
-    } else {
-      rendered.push(
-        <UnitRow
-          key={index}
-          unit={unit}
-          index={index}
-          datasheet={datasheet}
-          isWarlord={isWarlord}
-          onUpdate={ctx.onUpdate}
-          onRemove={ctx.onRemove}
-          onCopy={ctx.onCopy}
-          onSetWarlord={ctx.onSetWarlord}
-          displayMode="grouped"
-          allUnits={ctx.units}
-          readOnly={ctx.readOnly}
-        />
-      );
-      renderedIndices.add(index);
-    }
+    rendered.push(
+      <UnitRow
+        key={index}
+        unit={unit}
+        index={index}
+        datasheet={datasheet}
+        isWarlord={isWarlord}
+        onUpdate={ctx.onUpdate}
+        onRemove={ctx.onRemove}
+        onCopy={ctx.onCopy}
+        onSetWarlord={ctx.onSetWarlord}
+        displayMode="grouped"
+        allUnits={ctx.units}
+        readOnly={ctx.readOnly}
+      />
+    );
+    renderedIndices.add(index);
   };
 
   const getRole = (datasheetId: string): string => {

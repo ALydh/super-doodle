@@ -487,6 +487,124 @@
   display: inline-block;
 }
 
+.leadingPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--faction-secondary);
+  border: 1px solid var(--faction-primary);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.leaderSlotsSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.leaderSlotsSection > label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.leaderSlots {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.leaderSlot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  min-height: 32px;
+}
+
+.leaderSlotEmpty {
+  border: 2px dashed var(--surface-border);
+  background: transparent;
+}
+
+.leaderSlotFilled {
+  border: 2px solid var(--faction-primary);
+  background: var(--surface-panel);
+}
+
+.leaderSlotName {
+  color: var(--faction-trim);
+  font-weight: 500;
+}
+
+.leaderSlotAdd {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  transition: color 0.15s ease;
+}
+
+.leaderSlotAdd:hover {
+  color: var(--faction-trim);
+}
+
+.leaderSlotRemove {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 1rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.leaderSlotRemove:hover {
+  color: var(--status-error);
+}
+
+.leaderPicker {
+  position: fixed;
+  z-index: 1000;
+  min-width: 200px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.leaderPickerOption {
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--text-body);
+  transition: background-color 0.15s ease;
+}
+
+.leaderPickerOption:hover {
+  background: var(--faction-secondary);
+  color: var(--text-primary);
+}
+
+.leaderPickerOption:not(:last-child) {
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.leaderPickerEmpty {
+  padding: 10px 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 @container (max-width: 280px) {
   .header {
     flex-wrap: wrap;
