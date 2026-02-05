@@ -23,6 +23,8 @@ object Constants {
       "blood-angels" -> "Blood Angels",
       "dark-angels" -> "Dark Angels",
       "space-wolves" -> "Space Wolves",
+      "black-templars" -> "Black Templars",
+      "deathwatch" -> "Deathwatch",
       "imperial-fists" -> "Imperial Fists",
       "raven-guard" -> "Raven Guard",
       "iron-hands" -> "Iron Hands",

@@ -269,6 +269,7 @@ export interface ArmyBattleData {
   battleSize: string;
   detachmentId: string;
   warlordId: string;
+  chapterId: string | null;
   units: BattleUnitData[];
 }
 

@@ -11,6 +11,7 @@ import {
   fetchDetachmentsByFaction,
 } from "../api";
 import { getFactionTheme } from "../factionTheme";
+import { getChapterTheme, isSpaceMarines, SM_CHAPTERS } from "../chapters";
 import { useAuth } from "../context/useAuth";
 import { TabNavigation } from "../components/TabNavigation";
 import { StratagemCard } from "../components/StratagemCard";
@@ -161,7 +162,12 @@ export function ArmyViewPage() {
   if (!battleData) return <div>Loading...</div>;
 
   const maxPoints = BATTLE_SIZE_POINTS[battleData.battleSize as BattleSize] ?? 0;
-  const factionTheme = getFactionTheme(battleData.factionId);
+  const isSM = isSpaceMarines(battleData.factionId);
+  const chapterTheme = isSM && battleData.chapterId ? getChapterTheme(battleData.chapterId) : null;
+  const factionTheme = chapterTheme ?? getFactionTheme(battleData.factionId);
+  const chapterName = isSM && battleData.chapterId
+    ? SM_CHAPTERS.find((c) => c.id === battleData.chapterId)?.name ?? null
+    : null;
 
   const detachmentInfo = detachments.find((d) => d.detachmentId === battleData.detachmentId);
   const detachmentName = detachmentInfo?.name ?? battleData.detachmentId;
@@ -178,7 +184,7 @@ export function ArmyViewPage() {
     <div data-faction={factionTheme} className={styles.page}>
       {factionTheme && (
         <img
-          src={`/icons/${factionTheme}.svg`}
+          src={`/icons/${chapterTheme ? "space-marines" : factionTheme}.svg`}
           alt=""
           className={styles.bgIcon}
           aria-hidden="true"
@@ -187,7 +193,7 @@ export function ArmyViewPage() {
       <div className={styles.header}>
         {factionTheme && (
           <img
-            src={`/icons/${factionTheme}.svg`}
+            src={`/icons/${chapterTheme ? "space-marines" : factionTheme}.svg`}
             alt=""
             className={styles.headerIcon}
           />
@@ -195,7 +201,7 @@ export function ArmyViewPage() {
         <div className={styles.headerText}>
           <h1 className={styles.armyName}>{battleData.name}</h1>
           <p className={styles.meta}>
-            {battleData.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
+            {chapterName && <>{chapterName} | </>}{battleData.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
           </p>
         </div>
         <div className={styles.actions}>
