@@ -29,7 +29,8 @@ case class ArmySummary(
   warlordName: Option[String],
   totalPoints: Int,
   ownerId: Option[String],
-  ownerName: Option[String]
+  ownerName: Option[String],
+  chapterId: Option[String]
 )
 
 private case class ArmyRow(
@@ -182,7 +183,8 @@ object ArmyRepository {
           COALESCE((SELECT SUM(uc.cost) FROM army_units au JOIN """ ++ unitCost ++ fr""" uc ON au.datasheet_id = uc.datasheet_id AND au.size_option_line = uc.line WHERE au.army_id = a.id), 0)
           + COALESCE((SELECT SUM(e.cost) FROM army_units au JOIN """ ++ enhancements ++ fr""" e ON au.enhancement_id = e.id WHERE au.army_id = a.id), 0),
           a.owner_id,
-          u.username
+          u.username,
+          a.chapter_id
         FROM armies a
         LEFT JOIN """ ++ datasheets ++ fr""" d ON a.warlord_id = d.id
         LEFT JOIN users u ON a.owner_id = u.id"""

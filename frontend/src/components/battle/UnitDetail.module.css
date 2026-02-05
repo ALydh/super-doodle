@@ -47,6 +47,13 @@
   margin-bottom: 12px;
 }
 
+.legend {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
 .cost {
   color: var(--faction-trim);
   font-weight: 600;
@@ -350,6 +357,11 @@
   border-top: none;
 }
 
+.wide .stats {
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
 .wide .stats h4 {
   color: var(--faction-primary);
   font-size: 0.9rem;
@@ -361,8 +373,6 @@
 
 .wide .stats + .weapons {
   margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--surface-border);
 }
 
 .wide .enhancement + .abilities {
@@ -370,7 +380,7 @@
   border-top: 1px solid var(--surface-border);
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 900px) {
   .wideColumns {
     grid-template-columns: 1fr 320px;
   }

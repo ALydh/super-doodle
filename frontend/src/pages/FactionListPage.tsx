@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import type { Faction, ArmySummary } from "../types";
 import { fetchFactions, fetchAllArmies } from "../api";
 import { getFactionTheme } from "../factionTheme";
+import { isSpaceMarines, SM_CHAPTERS, getChapterTheme } from "../chapters";
 import { useAuth } from "../context/useAuth";
 import styles from "./FactionListPage.module.css";
 
@@ -80,6 +81,23 @@ export function FactionListPage() {
       .sort((a, b) => a.name.localeCompare(b.name)),
   }));
 
+  function getArmyTheme(army: ArmySummary) {
+    const baseTheme = getFactionTheme(army.factionId);
+    if (army.chapterId && isSpaceMarines(army.factionId)) {
+      const chapter = SM_CHAPTERS.find((c) => c.id === army.chapterId);
+      return {
+        theme: getChapterTheme(army.chapterId),
+        icon: baseTheme,
+        displayName: chapter?.name ?? factionMap.get(army.factionId)?.name ?? army.factionId,
+      };
+    }
+    return {
+      theme: baseTheme,
+      icon: baseTheme,
+      displayName: factionMap.get(army.factionId)?.name ?? army.factionId,
+    };
+  }
+
   return (
     <div className={styles.page}>
       <h1>Armies</h1>
@@ -123,19 +141,18 @@ export function FactionListPage() {
               <h2>My Armies</h2>
               <div className={styles.armyCards}>
                 {myArmies.map((army) => {
-                  const faction = factionMap.get(army.factionId);
-                  const factionTheme = getFactionTheme(army.factionId);
+                  const { theme, icon, displayName } = getArmyTheme(army);
 
                   return (
                     <Link
                       key={army.id}
                       to={`/armies/${army.id}`}
                       className={styles.armyCard}
-                      data-faction={factionTheme}
+                      data-faction={theme}
                     >
-                      {factionTheme && (
+                      {icon && (
                         <img
-                          src={`/icons/${factionTheme}.svg`}
+                          src={`/icons/${icon}.svg`}
                           alt=""
                           className={styles.armyCardIcon}
                           aria-hidden="true"
@@ -143,7 +160,7 @@ export function FactionListPage() {
                       )}
                       <div className={styles.armyCardHeader}>
                         <span className={styles.armyCardFaction}>
-                          {faction?.name || army.factionId}
+                          {displayName}
                         </span>
                         <span className={styles.armyCardSize}>
                           {army.totalPoints} pts
@@ -173,19 +190,18 @@ export function FactionListPage() {
               <h2>Other Armies</h2>
               <div className={styles.armyCards}>
                 {otherArmies.map((army) => {
-                  const faction = factionMap.get(army.factionId);
-                  const factionTheme = getFactionTheme(army.factionId);
+                  const { theme, icon, displayName } = getArmyTheme(army);
 
                   return (
                     <Link
                       key={army.id}
                       to={`/armies/${army.id}`}
                       className={styles.armyCard}
-                      data-faction={factionTheme}
+                      data-faction={theme}
                     >
-                      {factionTheme && (
+                      {icon && (
                         <img
-                          src={`/icons/${factionTheme}.svg`}
+                          src={`/icons/${icon}.svg`}
                           alt=""
                           className={styles.armyCardIcon}
                           aria-hidden="true"
@@ -193,7 +209,7 @@ export function FactionListPage() {
                       )}
                       <div className={styles.armyCardHeader}>
                         <span className={styles.armyCardFaction}>
-                          {faction?.name || army.factionId}
+                          {displayName}
                         </span>
                         <span className={styles.armyCardSize}>
                           {army.totalPoints} pts

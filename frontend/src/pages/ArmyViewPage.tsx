@@ -162,9 +162,10 @@ export function ArmyViewPage() {
   if (!battleData) return <div>Loading...</div>;
 
   const maxPoints = BATTLE_SIZE_POINTS[battleData.battleSize as BattleSize] ?? 0;
+  const baseFactionTheme = getFactionTheme(battleData.factionId);
   const isSM = isSpaceMarines(battleData.factionId);
   const chapterTheme = isSM && battleData.chapterId ? getChapterTheme(battleData.chapterId) : null;
-  const factionTheme = chapterTheme ?? getFactionTheme(battleData.factionId);
+  const factionTheme = chapterTheme ?? baseFactionTheme;
   const chapterName = isSM && battleData.chapterId
     ? SM_CHAPTERS.find((c) => c.id === battleData.chapterId)?.name ?? null
     : null;
@@ -184,7 +185,7 @@ export function ArmyViewPage() {
     <div data-faction={factionTheme} className={styles.page}>
       {factionTheme && (
         <img
-          src={`/icons/${chapterTheme ? "space-marines" : factionTheme}.svg`}
+          src={`/icons/${baseFactionTheme}.svg`}
           alt=""
           className={styles.bgIcon}
           aria-hidden="true"
@@ -193,7 +194,7 @@ export function ArmyViewPage() {
       <div className={styles.header}>
         {factionTheme && (
           <img
-            src={`/icons/${chapterTheme ? "space-marines" : factionTheme}.svg`}
+            src={`/icons/${baseFactionTheme}.svg`}
             alt=""
             className={styles.headerIcon}
           />
