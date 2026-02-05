@@ -16,6 +16,17 @@ export function getFactionTheme(factionId: string | null | undefined): string | 
     "adeptus-astartes": "space-marines",
     "astartes": "space-marines",
 
+    // Space Marine Chapters
+    "sm-ultramarines": "sm-ultramarines",
+    "sm-blood-angels": "sm-blood-angels",
+    "sm-dark-angels": "sm-dark-angels",
+    "sm-space-wolves": "sm-space-wolves",
+    "sm-imperial-fists": "sm-imperial-fists",
+    "sm-raven-guard": "sm-raven-guard",
+    "sm-iron-hands": "sm-iron-hands",
+    "sm-salamanders": "sm-salamanders",
+    "sm-white-scars": "sm-white-scars",
+
     // Chaos Space Marines
     "csm": "chaos",
     "chaos": "chaos",

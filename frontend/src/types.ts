@@ -111,6 +111,7 @@ export interface Army {
   detachmentId: string;
   warlordId: string;
   units: ArmyUnit[];
+  chapterId: string | null;
 }
 
 export interface PersistedArmy {

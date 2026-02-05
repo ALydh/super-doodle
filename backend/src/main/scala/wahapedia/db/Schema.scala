@@ -321,6 +321,11 @@ object Schema {
     _ <- if (!hasCol) sql"ALTER TABLE factions ADD COLUMN faction_group TEXT".update.run else FC.unit
   } yield ()
 
+  private val migrateChapterId: ConnectionIO[Unit] = for {
+    hasCol <- sql"PRAGMA table_info(armies)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.exists(_._2 == "chapter_id"))
+    _ <- if (!hasCol) sql"ALTER TABLE armies ADD COLUMN chapter_id TEXT".update.run else FC.unit
+  } yield ()
+
   private val populateFactionGroups: ConnectionIO[Unit] = {
     val imperium = List("AS", "AC", "AdM", "TL", "AM", "GK", "AoI", "QI", "SM")
     val chaos = List("CD", "QT", "CSM", "DG", "EC", "TS", "WE")
@@ -337,7 +342,7 @@ object Schema {
     (refTables.traverse_(_.update.run) *> migrateFactionGroup *> populateFactionGroups).transact(xa)
 
   def initializeUserSchema(xa: Transactor[IO]): IO[Unit] =
-    (userTables.traverse_(_.update.run) *> migrateArmies *> migrateIsAdmin).transact(xa)
+    (userTables.traverse_(_.update.run) *> migrateArmies *> migrateIsAdmin *> migrateChapterId).transact(xa)
 
   def initialize(xa: Transactor[IO]): IO[Unit] =
     initializeRefSchema(xa) *> initializeUserSchema(xa)

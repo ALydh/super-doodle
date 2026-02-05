@@ -4,7 +4,7 @@ import { useAuth } from "../context/useAuth";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
   DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem, DatasheetOption,
-  AlliedFactionInfo,
+  AlliedFactionInfo, DatasheetKeyword,
 } from "../types";
 import {
   fetchDatasheetsByFaction, fetchDetachmentsByFaction,
@@ -20,6 +20,7 @@ import { ReferenceDataProvider } from "../context/ReferenceDataContext";
 import { DetachmentAbilitiesSection } from "./DetachmentAbilitiesSection";
 import { StrategemsSection } from "./StrategemsSection";
 import { PointsDisplay } from "./PointsDisplay";
+import { SM_CHAPTERS, CHAPTER_DETACHMENTS, ALL_CHAPTER_DETACHMENT_IDS, getChapterTheme, isSpaceMarines } from "../chapters";
 
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
@@ -32,6 +33,7 @@ export function ArmyBuilderPage() {
   const [detachmentId, setDetachmentId] = useState("");
   const [units, setUnits] = useState<ArmyUnit[]>([]);
   const [warlordId, setWarlordId] = useState("");
+  const [chapterId, setChapterId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
 
   const [datasheets, setDatasheets] = useState<Datasheet[] | null>(null);
@@ -46,6 +48,7 @@ export function ArmyBuilderPage() {
   const [loadedArmyFactionId, setLoadedArmyFactionId] = useState<string>("");
   const [alliedFactions, setAlliedFactions] = useState<AlliedFactionInfo[]>([]);
   const [alliedCosts, setAlliedCosts] = useState<UnitCost[]>([]);
+  const [keywordsByDatasheet, setKeywordsByDatasheet] = useState<Map<string, DatasheetKeyword[]>>(new Map());
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const detachmentInitializedRef = useRef(false);
@@ -76,6 +79,7 @@ export function ArmyBuilderPage() {
         }));
         setUnits(unitsWithWargear);
         setWarlordId(persisted.army.warlordId);
+        setChapterId(persisted.army.chapterId ?? null);
         setLoadedArmyFactionId(persisted.army.factionId);
       });
     }
@@ -110,6 +114,12 @@ export function ArmyBuilderPage() {
       setAllOptions(options);
       setDatasheets(ds);
 
+      const kwMap = new Map<string, DatasheetKeyword[]>();
+      for (const d of details) {
+        kwMap.set(d.datasheet.id, d.keywords);
+      }
+      setKeywordsByDatasheet(kwMap);
+
       const alliedDatasheetIds = allies.flatMap((a) => a.datasheets.map((d) => d.id));
       if (alliedDatasheetIds.length > 0) {
         Promise.all(allies.map((a) => fetchDatasheetDetailsByFaction(a.factionId)))
@@ -136,8 +146,9 @@ export function ArmyBuilderPage() {
       detachmentId,
       warlordId: warlordId || (units[0]?.datasheetId ?? ""),
       units,
+      chapterId,
     };
-  }, [effectiveFactionId, battleSize, detachmentId, warlordId, units]);
+  }, [effectiveFactionId, battleSize, detachmentId, warlordId, units, chapterId]);
 
   useEffect(() => {
     if (loading) return;
@@ -214,9 +225,25 @@ export function ArmyBuilderPage() {
 
   if (loading) return <div>Loading...</div>;
 
-  const factionTheme = getFactionTheme(effectiveFactionId);
+  const isSM = isSpaceMarines(effectiveFactionId);
+  const chapterTheme = isSM && chapterId ? getChapterTheme(chapterId) : null;
+  const factionTheme = chapterTheme ?? getFactionTheme(effectiveFactionId);
+  const selectedChapter = isSM ? SM_CHAPTERS.find((c) => c.id === chapterId) ?? null : null;
   const alliedDatasheets = alliedFactions.flatMap((a) => a.datasheets);
   const loadedDatasheets = [...(datasheets ?? []), ...alliedDatasheets];
+
+  const chapterDetachmentIds = chapterId ? new Set(CHAPTER_DETACHMENTS[chapterId] ?? []) : null;
+  const sortedDetachments = chapterDetachmentIds
+    ? detachments
+        .filter((d) => chapterDetachmentIds.has(d.detachmentId) || !ALL_CHAPTER_DETACHMENT_IDS.has(d.detachmentId))
+        .sort((a, b) => {
+          const aIsChapter = chapterDetachmentIds.has(a.detachmentId);
+          const bIsChapter = chapterDetachmentIds.has(b.detachmentId);
+          if (aIsChapter && !bIsChapter) return -1;
+          if (!aIsChapter && bIsChapter) return 1;
+          return 0;
+        })
+    : detachments;
 
   const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
 
@@ -224,7 +251,7 @@ export function ArmyBuilderPage() {
     <div data-faction={factionTheme} className="army-builder-page layout-a">
       {factionTheme && (
         <img
-          src={`/icons/${factionTheme}.svg`}
+          src={`/icons/${chapterTheme ? "space-marines" : factionTheme}.svg`}
           alt=""
           className="army-builder-bg-icon"
           aria-hidden="true"
@@ -260,6 +287,21 @@ export function ArmyBuilderPage() {
                 <option value="Onslaught">Onslaught (3000pts)</option>
               </select>
             </label>
+            {isSM && (
+              <label>
+                Chapter
+                <select
+                  className="chapter-select"
+                  value={chapterId ?? ""}
+                  onChange={(e) => setChapterId(e.target.value || null)}
+                >
+                  <option value="">No Chapter</option>
+                  {SM_CHAPTERS.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label>
               Detachment
               <select
@@ -267,7 +309,7 @@ export function ArmyBuilderPage() {
                 value={detachmentId}
                 onChange={(e) => setDetachmentId(e.target.value)}
               >
-                {detachments.map((d) => (
+                {sortedDetachments.map((d) => (
                   <option key={d.detachmentId} value={d.detachmentId}>{d.name}</option>
                 ))}
               </select>
@@ -333,6 +375,8 @@ export function ArmyBuilderPage() {
               onAdd={handleAddUnit}
               alliedFactions={alliedFactions}
               alliedCosts={alliedCosts}
+              chapterKeyword={selectedChapter?.keyword ?? null}
+              keywordsByDatasheet={keywordsByDatasheet}
             />
           )}
         </div>

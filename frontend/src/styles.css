@@ -1268,6 +1268,47 @@ button:disabled {
   flex-shrink: 0;
 }
 
+.unit-picker-filters {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.filter-pill {
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filter-pill:hover {
+  border-color: var(--faction-primary-dark);
+}
+
+.filter-pill.active {
+  background: var(--surface-card);
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.chapter-badge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faction-trim);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.unit-picker-item-deprioritized {
+  opacity: 0.5;
+}
+
 .btn-add-icon {
   background: var(--faction-primary);
   border: none;
