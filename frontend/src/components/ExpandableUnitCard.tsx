@@ -79,13 +79,14 @@ export function ExpandableUnitCard({
             const hasRightColumn = filteredAbilities.length > 0;
 
             return (<>
-              {detail.datasheet.legend && (
-                <div className={styles.legend}>{detail.datasheet.legend}</div>
-              )}
               <div className={styles.wideColumns}>
                 <div className={styles.wideLeft}>
+                  {detail.datasheet.legend && (
+                    <div className={styles.legend}>{detail.datasheet.legend}</div>
+                  )}
                   {detail.profiles.length > 0 && (
                     <div className={styles.statsSection}>
+                      <h4>Stats</h4>
                       <table className={`${sharedStyles.statsTable} ${styles.statsTable}`}>
                         <thead>
                           <tr>
@@ -200,7 +201,6 @@ export function ExpandableUnitCard({
                         </ul>
                       </div>
                     )}
-
                   </div>
                 )}
               </div>

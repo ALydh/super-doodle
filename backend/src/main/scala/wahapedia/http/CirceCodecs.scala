@@ -122,7 +122,7 @@ object CirceCodecs {
     )
   }
 
-  given Encoder[ArmyBattleData] = Encoder.forProduct7(
-    "id", "name", "factionId", "battleSize", "detachmentId", "warlordId", "units"
-  )((a: ArmyBattleData) => (a.id, a.name, a.factionId, a.battleSize, a.detachmentId, a.warlordId, a.units))
+  given Encoder[ArmyBattleData] = Encoder.forProduct8(
+    "id", "name", "factionId", "battleSize", "detachmentId", "warlordId", "units", "chapterId"
+  )((a: ArmyBattleData) => (a.id, a.name, a.factionId, a.battleSize, a.detachmentId, a.warlordId, a.units, a.chapterId))
 }

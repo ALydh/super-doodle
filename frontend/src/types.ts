@@ -150,6 +150,7 @@ export interface ArmySummary {
   totalPoints: number;
   ownerId: string | null;
   ownerName: string | null;
+  chapterId: string | null;
 }
 
 export interface Enhancement {
@@ -270,6 +271,7 @@ export interface ArmyBattleData {
   detachmentId: string;
   warlordId: string;
   units: BattleUnitData[];
+  chapterId: string | null;
 }
 
 export interface AlliedFactionInfo {

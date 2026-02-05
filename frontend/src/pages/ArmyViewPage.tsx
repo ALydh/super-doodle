@@ -11,6 +11,7 @@ import {
   fetchDetachmentsByFaction,
 } from "../api";
 import { getFactionTheme } from "../factionTheme";
+import { getChapterTheme, isSpaceMarines } from "../chapters";
 import { useAuth } from "../context/useAuth";
 import { TabNavigation } from "../components/TabNavigation";
 import { StratagemCard } from "../components/StratagemCard";
@@ -161,7 +162,10 @@ export function ArmyViewPage() {
   if (!battleData) return <div>Loading...</div>;
 
   const maxPoints = BATTLE_SIZE_POINTS[battleData.battleSize as BattleSize] ?? 0;
-  const factionTheme = getFactionTheme(battleData.factionId);
+  const baseFactionTheme = getFactionTheme(battleData.factionId);
+  const chapterTheme = battleData.chapterId && isSpaceMarines(battleData.factionId)
+    ? getChapterTheme(battleData.chapterId) : null;
+  const factionTheme = chapterTheme ?? baseFactionTheme;
 
   const detachmentInfo = detachments.find((d) => d.detachmentId === battleData.detachmentId);
   const detachmentName = detachmentInfo?.name ?? battleData.detachmentId;
@@ -178,7 +182,7 @@ export function ArmyViewPage() {
     <div data-faction={factionTheme} className={styles.page}>
       {factionTheme && (
         <img
-          src={`/icons/${factionTheme}.svg`}
+          src={`/icons/${baseFactionTheme}.svg`}
           alt=""
           className={styles.bgIcon}
           aria-hidden="true"
@@ -187,7 +191,7 @@ export function ArmyViewPage() {
       <div className={styles.header}>
         {factionTheme && (
           <img
-            src={`/icons/${factionTheme}.svg`}
+            src={`/icons/${baseFactionTheme}.svg`}
             alt=""
             className={styles.headerIcon}
           />

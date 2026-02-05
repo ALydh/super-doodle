@@ -127,6 +127,7 @@
   margin-top: 16px;
 }
 
+.statsSection h4,
 .weaponsSection h4,
 .abilitiesSection h4,
 .keywordsSection h4 {
@@ -297,15 +298,15 @@
 
 .wideColumns .statsSection {
   margin-top: 0;
-}
-
-.wideColumns .weaponsSection {
-  margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--surface-border);
 }
 
-@media (min-width: 1200px) {
+.wideColumns .weaponsSection {
+  margin-top: 16px;
+}
+
+@media (min-width: 900px) {
   .wideColumns {
     grid-template-columns: 1fr 320px;
   }

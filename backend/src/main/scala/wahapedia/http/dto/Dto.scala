@@ -154,7 +154,8 @@ case class ArmyBattleData(
   battleSize: String,
   detachmentId: String,
   warlordId: String,
-  units: List[BattleUnitData]
+  units: List[BattleUnitData],
+  chapterId: Option[String]
 )
 
 case class AlliedFactionInfo(
