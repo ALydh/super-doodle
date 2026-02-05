@@ -74,8 +74,6 @@ export function FactionDetailPage() {
     });
   }, [activeTab, detachments, detachmentAbilities]);
 
-  if (error) return <div className="error-message">{error}</div>;
-
   const datasheets = useMemo(
     () => datasheetDetails.map((d) => d.datasheet).filter((ds) => !ds.virtual),
     [datasheetDetails],
@@ -105,8 +103,8 @@ export function FactionDetailPage() {
   const factionTheme = chapterTheme ?? baseFactionTheme;
 
   const classifyUnit = useMemo(() => {
-    if (!chapterKeyword) return () => "generic" as const;
     return (datasheetId: string): "chapter" | "generic" | "other-chapter" => {
+      if (!chapterKeyword) return "generic";
       const keywords = keywordsByDatasheet.get(datasheetId) ?? [];
       const factionKeywords = keywords
         .filter((k) => k.isFactionKeyword)
@@ -117,6 +115,8 @@ export function FactionDetailPage() {
       return "generic";
     };
   }, [chapterKeyword, keywordsByDatasheet]);
+
+  if (error) return <div className="error-message">{error}</div>;
 
   const filtered = datasheets.filter((ds) => {
     if (!ds.name.toLowerCase().includes(search.toLowerCase())) return false;
