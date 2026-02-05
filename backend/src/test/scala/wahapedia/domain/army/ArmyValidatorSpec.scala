@@ -342,8 +342,8 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
   // Rule 8: leader attachment
   "leader attachment validation" should "accept valid leader-bodyguard pairing" in {
     val army = validArmy.copy(units = List(
-      ArmyUnit(warbossId, 1, None, None),
-      ArmyUnit(boyzId, 1, None, Some(warbossId)) // warboss can lead boyz
+      ArmyUnit(warbossId, 1, None, Some(boyzId)),
+      ArmyUnit(boyzId, 1, None, None)
     ))
     val errors = ArmyValidator.validate(army, baseRef)
     errors.collect { case e: InvalidLeaderAttachment => e } shouldBe empty
@@ -351,8 +351,8 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
 
   it should "reject invalid leader-bodyguard pairing" in {
     val army = validArmy.copy(units = List(
-      ArmyUnit(warbossId, 1, None, None),
-      ArmyUnit(meganobzId, 1, None, Some(warbossId)) // warboss can't lead meganobz
+      ArmyUnit(warbossId, 1, None, Some(meganobzId)),
+      ArmyUnit(meganobzId, 1, None, None)
     ))
     val errors = ArmyValidator.validate(army, baseRef)
     errors should contain(InvalidLeaderAttachment(warbossId, meganobzId))
@@ -361,8 +361,8 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
   it should "accept painboy leading meganobz" in {
     val army = validArmy.copy(units = List(
       ArmyUnit(warbossId, 1, None, None),
-      ArmyUnit(painboyId, 1, None, None),
-      ArmyUnit(meganobzId, 1, None, Some(painboyId))
+      ArmyUnit(painboyId, 1, None, Some(meganobzId)),
+      ArmyUnit(meganobzId, 1, None, None)
     ))
     val errors = ArmyValidator.validate(army, baseRef)
     errors.collect { case e: InvalidLeaderAttachment => e } shouldBe empty
