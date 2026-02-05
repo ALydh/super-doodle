@@ -154,6 +154,7 @@ case class ArmyBattleData(
   battleSize: String,
   detachmentId: String,
   warlordId: String,
+  chapterId: Option[String],
   units: List[BattleUnitData]
 )
 
