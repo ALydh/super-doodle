@@ -47,6 +47,13 @@
   margin-bottom: 12px;
 }
 
+.legend {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
 .cost {
   color: var(--faction-trim);
   font-weight: 600;

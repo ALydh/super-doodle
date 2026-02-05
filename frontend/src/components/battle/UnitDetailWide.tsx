@@ -36,6 +36,10 @@ export function UnitDetailWide({ data, isWarlord }: Props) {
         <div className={styles.role}>{datasheet.role}</div>
       )}
 
+      {datasheet.legend && (
+        <div className={styles.legend}>{datasheet.legend}</div>
+      )}
+
       {(profiles.length > 0 || hasWeapons || hasRightColumn) && (
         <div className={styles.wideColumns}>
           <div className={styles.wideLeft}>

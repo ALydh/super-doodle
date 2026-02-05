@@ -42,12 +42,28 @@
 }
 
 .name {
-  flex: 1;
+  min-width: 150px;
   font-weight: 600;
   color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.stats {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.statPill {
+  background: var(--surface-panel);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-family: monospace;
 }
 
 .warlordBadge {
@@ -82,6 +98,13 @@
 .content .loading {
   padding: 16px 0;
   color: var(--text-muted);
+}
+
+.legend {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-top: 12px;
 }
 
 .statsSection {
@@ -255,6 +278,44 @@
   border-top: 1px solid var(--surface-border);
 }
 
+.wideColumns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.wideLeft {
+  min-width: 0;
+}
+
+.wideRight {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wideColumns .statsSection {
+  margin-top: 0;
+}
+
+.wideColumns .weaponsSection {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+@media (min-width: 1200px) {
+  .wideColumns {
+    grid-template-columns: 1fr 320px;
+  }
+
+  .wideRight {
+    border-left: 1px solid var(--surface-border);
+    padding-left: 16px;
+  }
+}
+
 @media (max-width: 599px) {
   .header {
     padding: 14px 12px;
@@ -263,7 +324,15 @@
   }
 
   .name {
+    min-width: auto;
+    flex: 1;
     flex-basis: calc(100% - 28px);
+  }
+
+  .stats {
+    order: 3;
+    flex: 1 1 100%;
+    margin-top: 8px;
   }
 
   .enhancement {

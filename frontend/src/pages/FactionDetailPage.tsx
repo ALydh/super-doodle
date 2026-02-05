@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import type { Datasheet, Stratagem, DetachmentInfo, DetachmentAbility, Enhancement } from "../types";
+import type { Datasheet, DatasheetDetail, Stratagem, DetachmentInfo, DetachmentAbility, Enhancement, ModelProfile, DatasheetKeyword } from "../types";
 import {
-  fetchDatasheetsByFaction,
+  fetchDatasheetDetailsByFaction,
   fetchStratagemsByFaction,
   fetchDetachmentsByFaction,
   fetchDetachmentAbilities,
@@ -10,6 +10,7 @@ import {
   fetchFactions,
 } from "../api";
 import { getFactionTheme } from "../factionTheme";
+import { isSpaceMarines, SM_CHAPTERS, CHAPTER_KEYWORDS, getChapterTheme } from "../chapters";
 import { TabNavigation } from "../components/TabNavigation";
 import { ExpandableUnitCard } from "../components/ExpandableUnitCard";
 import { StratagemCard } from "../components/StratagemCard";
@@ -28,7 +29,7 @@ const TABS = [
 export function FactionDetailPage() {
   const { factionId } = useParams<{ factionId: string }>();
   const [factionName, setFactionName] = useState<string>("");
-  const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
+  const [datasheetDetails, setDatasheetDetails] = useState<DatasheetDetail[]>([]);
   const [stratagems, setStratagems] = useState<Stratagem[]>([]);
   const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
   const [detachmentAbilities, setDetachmentAbilities] = useState<Map<string, DetachmentAbility[]>>(new Map());
@@ -38,18 +39,21 @@ export function FactionDetailPage() {
   const [expandedUnit, setExpandedUnit] = useState<string | null>(null);
   const [stratagemDetachmentFilter, setStratagemDetachmentFilter] = useState<string>("all");
   const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [chapterId, setChapterId] = useState<string | null>(null);
+  const [chapterFilter, setChapterFilter] = useState<"all" | "chapter">("all");
 
   useEffect(() => {
     if (!factionId) return;
     Promise.all([
-      fetchDatasheetsByFaction(factionId),
+      fetchDatasheetDetailsByFaction(factionId),
       fetchStratagemsByFaction(factionId),
       fetchDetachmentsByFaction(factionId),
       fetchEnhancementsByFaction(factionId),
       fetchFactions(),
     ])
       .then(([ds, strat, det, enh, factions]) => {
-        setDatasheets(ds);
+        setDatasheetDetails(ds);
         setStratagems(strat);
         setDetachments(det);
         setEnhancements(enh);
@@ -72,9 +76,69 @@ export function FactionDetailPage() {
 
   if (error) return <div className="error-message">{error}</div>;
 
-  const factionTheme = getFactionTheme(factionId);
+  const datasheets = useMemo(
+    () => datasheetDetails.map((d) => d.datasheet).filter((ds) => !ds.virtual),
+    [datasheetDetails],
+  );
 
-  const datasheetsByRole = datasheets.reduce<Record<string, Datasheet[]>>(
+  const profilesByDatasheet = useMemo(() => {
+    const map = new Map<string, ModelProfile[]>();
+    for (const d of datasheetDetails) {
+      if (d.profiles.length > 0) map.set(d.datasheet.id, d.profiles);
+    }
+    return map;
+  }, [datasheetDetails]);
+
+  const keywordsByDatasheet = useMemo(() => {
+    const map = new Map<string, DatasheetKeyword[]>();
+    for (const d of datasheetDetails) {
+      map.set(d.datasheet.id, d.keywords);
+    }
+    return map;
+  }, [datasheetDetails]);
+
+  const isSM = factionId ? isSpaceMarines(factionId) : false;
+  const chapterObj = SM_CHAPTERS.find((c) => c.id === chapterId);
+  const chapterKeyword = chapterObj?.keyword ?? null;
+  const chapterTheme = chapterId ? getChapterTheme(chapterId) : null;
+  const baseFactionTheme = getFactionTheme(factionId);
+  const factionTheme = chapterTheme ?? baseFactionTheme;
+
+  const classifyUnit = useMemo(() => {
+    if (!chapterKeyword) return () => "generic" as const;
+    return (datasheetId: string): "chapter" | "generic" | "other-chapter" => {
+      const keywords = keywordsByDatasheet.get(datasheetId) ?? [];
+      const factionKeywords = keywords
+        .filter((k) => k.isFactionKeyword)
+        .map((k) => k.keyword)
+        .filter(Boolean) as string[];
+      if (factionKeywords.includes(chapterKeyword)) return "chapter";
+      if (factionKeywords.some((k) => CHAPTER_KEYWORDS.has(k))) return "other-chapter";
+      return "generic";
+    };
+  }, [chapterKeyword, keywordsByDatasheet]);
+
+  const filtered = datasheets.filter((ds) => {
+    if (!ds.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (chapterKeyword && chapterFilter === "chapter") {
+      const cls = classifyUnit(ds.id);
+      return cls === "chapter" || cls === "generic";
+    }
+    return true;
+  });
+
+  const sortUnit = (a: Datasheet, b: Datasheet) => {
+    if (chapterKeyword) {
+      const aClass = classifyUnit(a.id);
+      const bClass = classifyUnit(b.id);
+      const order = { chapter: 0, generic: 1, "other-chapter": 2 };
+      const diff = order[aClass] - order[bClass];
+      if (diff !== 0) return diff;
+    }
+    return a.name.localeCompare(b.name);
+  };
+
+  const datasheetsByRole = filtered.reduce<Record<string, Datasheet[]>>(
     (acc, ds) => {
       const role = ds.role ?? "Other";
       if (!acc[role]) acc[role] = [];
@@ -85,6 +149,7 @@ export function FactionDetailPage() {
   );
 
   const sortedRoles = sortByRoleOrder(Object.keys(datasheetsByRole));
+  const noResults = filtered.length === 0 && datasheets.length > 0;
 
   const phases = [...new Set(stratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
 
@@ -132,21 +197,71 @@ export function FactionDetailPage() {
 
       {activeTab === "units" && (
         <div className={styles.unitsTab}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Search units..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {isSM && (
+            <div className={styles.chapterControls}>
+              <select
+                className={styles.chapterSelect}
+                value={chapterId ?? ""}
+                onChange={(e) => {
+                  const val = e.target.value || null;
+                  setChapterId(val);
+                  if (!val) setChapterFilter("all");
+                }}
+              >
+                <option value="">No Chapter</option>
+                {SM_CHAPTERS.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              {chapterKeyword && (
+                <div className={styles.chapterFilters}>
+                  <button
+                    type="button"
+                    className={`${styles.filterPill} ${chapterFilter === "all" ? styles.filterPillActive : ""}`}
+                    onClick={() => setChapterFilter("all")}
+                  >
+                    All
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.filterPill} ${chapterFilter === "chapter" ? styles.filterPillActive : ""}`}
+                    onClick={() => setChapterFilter("chapter")}
+                  >
+                    Chapter Only
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {noResults && <p className={styles.noResults}>No units found</p>}
           {sortedRoles.map((role) => (
             <section key={role} className={styles.roleSection}>
               <h2 className={styles.roleHeading}>{role}</h2>
               <div className={styles.cardsList}>
-                {datasheetsByRole[role]
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((ds) => (
-                    <ExpandableUnitCard
+                {datasheetsByRole[role].sort(sortUnit).map((ds) => {
+                  const unitClass = chapterKeyword ? classifyUnit(ds.id) : null;
+                  return (
+                    <div
                       key={ds.id}
-                      datasheetId={ds.id}
-                      datasheetName={ds.name}
-                      isExpanded={expandedUnit === ds.id}
-                      onToggle={() => handleUnitToggle(ds.id)}
-                    />
-                  ))}
+                      className={unitClass === "other-chapter" ? styles.deprioritized : undefined}
+                    >
+                      <ExpandableUnitCard
+                        datasheetId={ds.id}
+                        datasheetName={ds.name}
+                        isExpanded={expandedUnit === ds.id}
+                        onToggle={() => handleUnitToggle(ds.id)}
+                        profiles={profilesByDatasheet.get(ds.id)}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </section>
           ))}
