@@ -2,7 +2,7 @@ package wahapedia.domain.army
 
 import wahapedia.domain.types.{DatasheetId, FactionId, DetachmentId, Role}
 import wahapedia.domain.models.*
-import wahapedia.domain.Constants.{Validation, Keywords, Defaults}
+import wahapedia.domain.Constants.{Validation, Keywords, Defaults, Chapters}
 import wahapedia.domain.army.AllyRules.{ImperialKnightsFaction, ChaosKnightsFaction, ChaosDaemonsFaction, ImperialAgentsFaction}
 
 case class ReferenceData(
@@ -35,7 +35,8 @@ object ArmyValidator {
       validateEnhancementUniqueness(army),
       validateEnhancementsOnCharacters(army, datasheetIndex),
       validateEnhancementDetachment(army, enhancementIndex),
-      validateAlliedUnits(army, datasheetIndex, keywordIndex, costIndex)
+      validateAlliedUnits(army, datasheetIndex, keywordIndex, costIndex),
+      validateChapterUnits(army, datasheetIndex, keywordIndex)
     ).flatten
   }
 
@@ -309,5 +310,33 @@ object ArmyValidator {
     }
 
     enhancementErrors ++ factionErrors ++ limitErrors
+  }
+
+  private def validateChapterUnits(
+    army: Army,
+    datasheetIndex: Map[DatasheetId, List[Datasheet]],
+    keywordIndex: Map[DatasheetId, List[DatasheetKeyword]]
+  ): List[ValidationError] = {
+    val chapterKeyword = army.chapterId
+      .filter(_ => FactionId.value(army.factionId) == Chapters.FactionId)
+      .flatMap(Chapters.Keywords.get)
+
+    chapterKeyword match {
+      case None => Nil
+      case Some(selected) =>
+        army.units.filterNot(_.isAllied).flatMap { unit =>
+          val factionKws = keywordIndex.getOrElse(unit.datasheetId, Nil)
+            .filter(_.isFactionKeyword)
+            .flatMap(_.keyword)
+
+          val wrongChapter = factionKws.find(kw => Chapters.AllKeywords.contains(kw) && kw != selected)
+          wrongChapter match {
+            case Some(kw) =>
+              val name = datasheetIndex.get(unit.datasheetId).flatMap(_.headOption).map(_.name).getOrElse(Defaults.UnknownDatasheet)
+              List(ChapterMismatch(unit.datasheetId, name, selected, kw))
+            case None => Nil
+          }
+        }
+    }
   }
 }

@@ -44,6 +44,7 @@ object ValidationErrorDto {
   case class AlliedUnitLimitExceeded(errorType: String, allyType: String, message: String) extends ValidationErrorDto
   case class AlliedPointsExceeded(errorType: String, allyType: String, used: Int, limit: Int) extends ValidationErrorDto
   case class AlliedFactionNotAllowed(errorType: String, datasheetId: String, factionId: String) extends ValidationErrorDto
+  case class ChapterMismatch(errorType: String, datasheetId: String, unitName: String, selectedChapter: String, unitChapter: String) extends ValidationErrorDto
   case class Generic(errorType: String, message: String) extends ValidationErrorDto
 
   def fromDomain(err: ValidationError): ValidationErrorDto = err match {
@@ -87,6 +88,8 @@ object ValidationErrorDto {
       AlliedPointsExceeded("AlliedPointsExceeded", e.allyType, e.used, e.limit)
     case e: wahapedia.domain.army.AlliedFactionNotAllowed =>
       AlliedFactionNotAllowed("AlliedFactionNotAllowed", DatasheetId.value(e.datasheetId), FactionId.value(e.factionId))
+    case e: wahapedia.domain.army.ChapterMismatch =>
+      ChapterMismatch("ChapterMismatch", DatasheetId.value(e.datasheetId), e.unitName, e.selectedChapter, e.unitChapter)
   }
 
   given Encoder[ValidationErrorDto] = Encoder.instance {
@@ -110,6 +113,7 @@ object ValidationErrorDto {
     case e: AlliedUnitLimitExceeded => e.asJson(using Encoder.AsObject.derived[AlliedUnitLimitExceeded])
     case e: AlliedPointsExceeded => e.asJson(using Encoder.AsObject.derived[AlliedPointsExceeded])
     case e: AlliedFactionNotAllowed => e.asJson(using Encoder.AsObject.derived[AlliedFactionNotAllowed])
+    case e: ChapterMismatch => e.asJson(using Encoder.AsObject.derived[ChapterMismatch])
     case e: Generic => e.asJson(using Encoder.AsObject.derived[Generic])
   }
 }

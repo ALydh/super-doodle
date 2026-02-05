@@ -45,6 +45,8 @@ function errorMessage(err: ValidationError, datasheets: Datasheet[]): string {
       return `${err.allyType} points exceeded: ${err.used}/${err.limit}`;
     case "AlliedFactionNotAllowed":
       return "Allied faction not allowed for this army";
+    case "ChapterMismatch":
+      return `${err.unitName} belongs to ${err.unitChapter}, not compatible with selected chapter`;
     default:
       return `Validation error: ${err.errorType}`;
   }
