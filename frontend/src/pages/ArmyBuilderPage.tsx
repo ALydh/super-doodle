@@ -4,12 +4,13 @@ import { useAuth } from "../context/useAuth";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
   DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem, DatasheetOption,
+  AlliedFactionInfo,
 } from "../types";
 import {
   fetchDatasheetsByFaction, fetchDetachmentsByFaction,
   fetchEnhancementsByFaction, fetchLeadersByFaction,
   fetchArmy, createArmy, updateArmy, validateArmy, fetchDetachmentAbilities,
-  fetchStratagemsByFaction, fetchDatasheetDetailsByFaction,
+  fetchStratagemsByFaction, fetchDatasheetDetailsByFaction, fetchAvailableAllies,
 } from "../api";
 import { UnitPicker } from "./UnitPicker";
 import { ValidationErrors } from "./ValidationErrors";
@@ -43,6 +44,8 @@ export function ArmyBuilderPage() {
   const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
   const [pickerExpanded, setPickerExpanded] = useState(false);
   const [loadedArmyFactionId, setLoadedArmyFactionId] = useState<string>("");
+  const [alliedFactions, setAlliedFactions] = useState<AlliedFactionInfo[]>([]);
+  const [alliedCosts, setAlliedCosts] = useState<UnitCost[]>([]);
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const detachmentInitializedRef = useRef(false);
@@ -89,12 +92,14 @@ export function ArmyBuilderPage() {
       fetchLeadersByFaction(effectiveFactionId),
       fetchStratagemsByFaction(effectiveFactionId),
       fetchDatasheetDetailsByFaction(effectiveFactionId),
-    ]).then(([ds, det, enh, ldr, strat, details]) => {
+      fetchAvailableAllies(effectiveFactionId),
+    ]).then(([ds, det, enh, ldr, strat, details, allies]) => {
       if (cancelled) return;
       setDetachments(det);
       setEnhancements(enh);
       setLeaders(ldr);
       setAllStratagems(strat);
+      setAlliedFactions(allies);
       if (!detachmentInitializedRef.current && det.length > 0) {
         setDetachmentId(det[0].detachmentId);
         detachmentInitializedRef.current = true;
@@ -104,6 +109,15 @@ export function ArmyBuilderPage() {
       setAllCosts(costs);
       setAllOptions(options);
       setDatasheets(ds);
+
+      const alliedDatasheetIds = allies.flatMap((a) => a.datasheets.map((d) => d.id));
+      if (alliedDatasheetIds.length > 0) {
+        Promise.all(allies.map((a) => fetchDatasheetDetailsByFaction(a.factionId)))
+          .then((alliedDetails) => {
+            const alliedCostsData = alliedDetails.flatMap((d) => d.flatMap((dd) => dd.costs));
+            setAlliedCosts(alliedCostsData);
+          });
+      }
     });
 
     return () => { cancelled = true; };
@@ -139,14 +153,15 @@ export function ArmyBuilderPage() {
     return () => clearTimeout(validateTimerRef.current);
   }, [units, battleSize, detachmentId, warlordId, loading, buildArmy]);
 
+  const combinedCosts = [...allCosts, ...alliedCosts];
   const pointsTotal = units.reduce((sum, u) => {
-    const cost = allCosts.find((c) => c.datasheetId === u.datasheetId && c.line === u.sizeOptionLine);
+    const cost = combinedCosts.find((c) => c.datasheetId === u.datasheetId && c.line === u.sizeOptionLine);
     const enhCost = u.enhancementId ? enhancements.find((e) => e.id === u.enhancementId)?.cost ?? 0 : 0;
     return sum + (cost?.cost ?? 0) + enhCost;
   }, 0);
 
-  const handleAddUnit = (datasheetId: string, sizeOptionLine: number) => {
-    setUnits([...units, { datasheetId, sizeOptionLine, enhancementId: null, attachedLeaderId: null, attachedToUnitIndex: null, wargearSelections: [] }]);
+  const handleAddUnit = (datasheetId: string, sizeOptionLine: number, isAllied?: boolean) => {
+    setUnits([...units, { datasheetId, sizeOptionLine, enhancementId: null, attachedLeaderId: null, attachedToUnitIndex: null, wargearSelections: [], isAllied }]);
   };
 
   const handleUpdateUnit = (index: number, unit: ArmyUnit) => {
@@ -200,7 +215,8 @@ export function ArmyBuilderPage() {
   if (loading) return <div>Loading...</div>;
 
   const factionTheme = getFactionTheme(effectiveFactionId);
-  const loadedDatasheets = datasheets ?? [];
+  const alliedDatasheets = alliedFactions.flatMap((a) => a.datasheets);
+  const loadedDatasheets = [...(datasheets ?? []), ...alliedDatasheets];
 
   const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
 
@@ -269,7 +285,7 @@ export function ArmyBuilderPage() {
           <div className="col-header">Selected Units</div>
           <ValidationErrors errors={validationErrors} datasheets={loadedDatasheets} />
           <ReferenceDataProvider
-            costs={allCosts}
+            costs={combinedCosts}
             enhancements={enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId)}
             leaders={leaders}
             datasheets={loadedDatasheets}
@@ -311,7 +327,13 @@ export function ArmyBuilderPage() {
             Add Units {pickerExpanded ? "▼" : "▶"}
           </button>
           {pickerExpanded && (
-            <UnitPicker datasheets={loadedDatasheets} costs={allCosts} onAdd={handleAddUnit} />
+            <UnitPicker
+              datasheets={datasheets ?? []}
+              costs={allCosts}
+              onAdd={handleAddUnit}
+              alliedFactions={alliedFactions}
+              alliedCosts={alliedCosts}
+            />
           )}
         </div>
       </div>

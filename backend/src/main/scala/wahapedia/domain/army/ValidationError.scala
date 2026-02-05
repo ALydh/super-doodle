@@ -69,3 +69,28 @@ case class UnitCostNotFound(
 case class DatasheetNotFound(
   datasheetId: DatasheetId
 ) extends ValidationError
+
+case class AlliedWarlord(
+  datasheetId: DatasheetId
+) extends ValidationError
+
+case class AlliedEnhancement(
+  datasheetId: DatasheetId,
+  enhancementId: EnhancementId
+) extends ValidationError
+
+case class AlliedUnitLimitExceeded(
+  allyType: String,
+  message: String
+) extends ValidationError
+
+case class AlliedPointsExceeded(
+  allyType: String,
+  used: Int,
+  limit: Int
+) extends ValidationError
+
+case class AlliedFactionNotAllowed(
+  datasheetId: DatasheetId,
+  factionId: FactionId
+) extends ValidationError
