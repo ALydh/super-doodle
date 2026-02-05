@@ -11,7 +11,7 @@ import {
   fetchDetachmentsByFaction,
 } from "../api";
 import { getFactionTheme } from "../factionTheme";
-import { getChapterTheme, isSpaceMarines } from "../chapters";
+import { getChapterTheme, isSpaceMarines, SM_CHAPTERS } from "../chapters";
 import { useAuth } from "../context/useAuth";
 import { TabNavigation } from "../components/TabNavigation";
 import { StratagemCard } from "../components/StratagemCard";
@@ -165,6 +165,9 @@ export function ArmyViewPage() {
   const isSM = isSpaceMarines(battleData.factionId);
   const chapterTheme = isSM && battleData.chapterId ? getChapterTheme(battleData.chapterId) : null;
   const factionTheme = chapterTheme ?? getFactionTheme(battleData.factionId);
+  const chapterName = isSM && battleData.chapterId
+    ? SM_CHAPTERS.find((c) => c.id === battleData.chapterId)?.name ?? null
+    : null;
 
   const detachmentInfo = detachments.find((d) => d.detachmentId === battleData.detachmentId);
   const detachmentName = detachmentInfo?.name ?? battleData.detachmentId;
@@ -198,7 +201,7 @@ export function ArmyViewPage() {
         <div className={styles.headerText}>
           <h1 className={styles.armyName}>{battleData.name}</h1>
           <p className={styles.meta}>
-            {battleData.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
+            {chapterName && <>{chapterName} | </>}{battleData.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
           </p>
         </div>
         <div className={styles.actions}>
