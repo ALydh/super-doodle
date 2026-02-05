@@ -94,3 +94,10 @@ case class AlliedFactionNotAllowed(
   datasheetId: DatasheetId,
   factionId: FactionId
 ) extends ValidationError
+
+case class ChapterMismatch(
+  datasheetId: DatasheetId,
+  unitName: String,
+  selectedChapter: String,
+  unitChapter: String
+) extends ValidationError

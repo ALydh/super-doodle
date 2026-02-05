@@ -23,5 +23,6 @@ case class Army(
   battleSize: BattleSize,
   detachmentId: DetachmentId,
   warlordId: DatasheetId,
-  units: List[ArmyUnit]
+  units: List[ArmyUnit],
+  chapterId: Option[String] = None
 )

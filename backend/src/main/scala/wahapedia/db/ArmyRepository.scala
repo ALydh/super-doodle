@@ -41,7 +41,8 @@ private case class ArmyRow(
   warlordId: DatasheetId,
   ownerId: Option[UserId],
   createdAt: String,
-  updatedAt: String
+  updatedAt: String,
+  chapterId: Option[String]
 )
 
 private case class ArmyUnitRow(
@@ -67,7 +68,7 @@ object ArmyRepository {
   def findById(id: String)(xa: Transactor[IO]): IO[Option[PersistedArmy]] =
     for {
       _ <- IO.println(s"[$now] [ArmyRepository.findById] Loading army $id")
-      rowOpt <- sql"SELECT id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at FROM armies WHERE id = $id"
+      rowOpt <- sql"SELECT id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at, chapter_id FROM armies WHERE id = $id"
         .query[ArmyRow].option.transact(xa)
       result <- rowOpt match {
         case None =>
@@ -87,7 +88,7 @@ object ArmyRepository {
               }
               ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, wargear)
             }
-            val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units)
+            val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units, row.chapterId)
             val persisted = PersistedArmy(row.id, row.name, army, row.ownerId.map(UserId.value), row.createdAt, row.updatedAt)
             IO.println(s"[$now] [ArmyRepository.findById] Found army: ${row.name} with ${units.size} units").as(Some(persisted))
           }
@@ -99,8 +100,8 @@ object ArmyRepository {
     for {
       _ <- IO.println(s"[$now] [ArmyRepository.create] Creating army $name with ${army.units.size} units")
       _ <- (for {
-        _ <- sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at)
-                   VALUES ($id, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $ownerId, $now, $now)""".update.run
+        _ <- sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at, chapter_id)
+                   VALUES ($id, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $ownerId, $now, $now, ${army.chapterId})""".update.run
         _ <- army.units.traverse_ { unit =>
           for {
             _ <- sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id)
@@ -127,7 +128,7 @@ object ArmyRepository {
           for {
             _ <- sql"DELETE FROM army_units WHERE army_id = $id".update.run
             _ <- sql"""UPDATE armies SET name = $name, faction_id = ${army.factionId}, battle_size = ${army.battleSize},
-                       detachment_id = ${army.detachmentId}, warlord_id = ${army.warlordId}, updated_at = $now
+                       detachment_id = ${army.detachmentId}, warlord_id = ${army.warlordId}, chapter_id = ${army.chapterId}, updated_at = $now
                        WHERE id = $id""".update.run
             _ <- army.units.traverse_ { unit =>
               for {

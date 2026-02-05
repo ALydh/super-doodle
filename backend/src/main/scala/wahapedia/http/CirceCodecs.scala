@@ -35,12 +35,19 @@ object CirceCodecs {
     } yield ArmyUnit(datasheetId, sizeOptionLine, enhancementId, attachedLeaderId, wargearSelections, isAllied)
   }
 
-  given Encoder[Army] = Encoder.forProduct5("factionId", "battleSize", "detachmentId", "warlordId", "units")(
-    (a: Army) => (a.factionId, a.battleSize, a.detachmentId, a.warlordId, a.units)
+  given Encoder[Army] = Encoder.forProduct6("factionId", "battleSize", "detachmentId", "warlordId", "units", "chapterId")(
+    (a: Army) => (a.factionId, a.battleSize, a.detachmentId, a.warlordId, a.units, a.chapterId)
   )
-  given Decoder[Army] = Decoder.forProduct5("factionId", "battleSize", "detachmentId", "warlordId", "units")(
-    Army.apply
-  )
+  given Decoder[Army] = Decoder.instance { cursor =>
+    for {
+      factionId <- cursor.get[FactionId]("factionId")
+      battleSize <- cursor.get[BattleSize]("battleSize")
+      detachmentId <- cursor.get[DetachmentId]("detachmentId")
+      warlordId <- cursor.get[DatasheetId]("warlordId")
+      units <- cursor.get[List[ArmyUnit]]("units")
+      chapterId <- cursor.getOrElse[Option[String]]("chapterId")(None)
+    } yield Army(factionId, battleSize, detachmentId, warlordId, units, chapterId)
+  }
 
   given Encoder[Datasheet] = Encoder.forProduct14(
     "id", "name", "factionId", "sourceId", "legend", "role", "loadout", "transport",

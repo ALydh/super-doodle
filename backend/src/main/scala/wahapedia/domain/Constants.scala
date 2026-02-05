@@ -14,4 +14,22 @@ object Constants {
   object Defaults {
     val UnknownDatasheet = "Unknown"
   }
+
+  object Chapters {
+    val FactionId = "SM"
+
+    val Keywords: Map[String, String] = Map(
+      "ultramarines" -> "Ultramarines",
+      "blood-angels" -> "Blood Angels",
+      "dark-angels" -> "Dark Angels",
+      "space-wolves" -> "Space Wolves",
+      "imperial-fists" -> "Imperial Fists",
+      "raven-guard" -> "Raven Guard",
+      "iron-hands" -> "Iron Hands",
+      "salamanders" -> "Salamanders",
+      "white-scars" -> "White Scars"
+    )
+
+    val AllKeywords: Set[String] = Keywords.values.toSet
+  }
 }

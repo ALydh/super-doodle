@@ -81,6 +81,47 @@
   background-color: var(--faction-primary-dark);
 }
 
+.filters {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.filterPill {
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.filterPill:hover {
+  border-color: var(--faction-primary-dark);
+}
+
+.filterPillActive {
+  background: var(--surface-card);
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.chapterBadge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faction-primary);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.deprioritized {
+  opacity: 0.5;
+}
+
 @media (max-width: 599px) {
   .picker {
     padding: 12px;

@@ -53,6 +53,141 @@
   --faction-danger-dark: #9e2020;
 }
 
+/* Space Marines: Ultramarines */
+[data-faction="sm-ultramarines"] {
+  --faction-primary: #1E5AA8;
+  --faction-secondary: #0B2E59;
+  --faction-trim: #D4AF37;
+  --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #174785;
+  --faction-secondary-dark: #081f3d;
+  --faction-trim-dark: #a8892c;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #9e2020;
+}
+
+/* Space Marines: Blood Angels */
+[data-faction="sm-blood-angels"] {
+  --faction-primary: #8B1A1A;
+  --faction-secondary: #3D0000;
+  --faction-trim: #D4AF37;
+  --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
+  --faction-danger: #FF4444;
+  --faction-primary-dark: #6f1515;
+  --faction-secondary-dark: #2b0000;
+  --faction-trim-dark: #a8892c;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #cc3636;
+}
+
+/* Space Marines: Dark Angels */
+[data-faction="sm-dark-angels"] {
+  --faction-primary: #1A4D2A;
+  --faction-secondary: #0D2614;
+  --faction-trim: #D8CFC4;
+  --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #153d22;
+  --faction-secondary-dark: #091a0e;
+  --faction-trim-dark: #ada69d;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #9e2020;
+}
+
+/* Space Marines: Space Wolves */
+[data-faction="sm-space-wolves"] {
+  --faction-primary: #5B7A8C;
+  --faction-secondary: #2E4050;
+  --faction-trim: #C9A227;
+  --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #496270;
+  --faction-secondary-dark: #233340;
+  --faction-trim-dark: #a1821f;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #9e2020;
+}
+
+/* Space Marines: Imperial Fists */
+[data-faction="sm-imperial-fists"] {
+  --faction-primary: #D4A017;
+  --faction-secondary: #7A5A10;
+  --faction-trim: #1A1A1A;
+  --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #a98012;
+  --faction-secondary-dark: #5c430c;
+  --faction-trim-dark: #0d0d0d;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #9e2020;
+}
+
+/* Space Marines: Raven Guard */
+[data-faction="sm-raven-guard"] {
+  --faction-primary: #1A1A1A;
+  --faction-secondary: #0D0D0D;
+  --faction-trim: #E6EAF2;
+  --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #141414;
+  --faction-secondary-dark: #080808;
+  --faction-trim-dark: #b8bbc2;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #9e2020;
+}
+
+/* Space Marines: Iron Hands */
+[data-faction="sm-iron-hands"] {
+  --faction-primary: #2A2A2A;
+  --faction-secondary: #151515;
+  --faction-trim: #9FA8B0;
+  --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #222222;
+  --faction-secondary-dark: #0e0e0e;
+  --faction-trim-dark: #7f868d;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #9e2020;
+}
+
+/* Space Marines: Salamanders */
+[data-faction="sm-salamanders"] {
+  --faction-primary: #1A5C2A;
+  --faction-secondary: #0D2E14;
+  --faction-trim: #D4571A;
+  --faction-emphasis: #FFFFFF;
+  --faction-emphasis-text: #1a1a1a;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #154a22;
+  --faction-secondary-dark: #09200e;
+  --faction-trim-dark: #a94615;
+  --faction-emphasis-dark: #d9d9d9;
+  --faction-danger-dark: #9e2020;
+}
+
+/* Space Marines: White Scars */
+[data-faction="sm-white-scars"] {
+  --faction-primary: #E6E6E6;
+  --faction-secondary: #B0B0B0;
+  --faction-trim: #B22222;
+  --faction-emphasis: #1A1A1A;
+  --faction-emphasis-text: #ffffff;
+  --faction-danger: #C62828;
+  --faction-primary-dark: #b8b8b8;
+  --faction-secondary-dark: #8d8d8d;
+  --faction-trim-dark: #8e1b1b;
+  --faction-emphasis-dark: #0d0d0d;
+  --faction-danger-dark: #9e2020;
+}
+
 /* Chaos Space Marines */
 [data-faction="chaos"] {
   --faction-primary: #8B0000;
