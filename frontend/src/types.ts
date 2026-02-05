@@ -272,7 +272,6 @@ export interface ArmyBattleData {
   warlordId: string;
   chapterId: string | null;
   units: BattleUnitData[];
-  chapterId: string | null;
 }
 
 export interface AlliedFactionInfo {
