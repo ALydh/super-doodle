@@ -11,6 +11,7 @@ import {
   fetchEnhancementsByFaction, fetchLeadersByFaction,
   fetchArmy, createArmy, updateArmy, validateArmy, fetchDetachmentAbilities,
   fetchStratagemsByFaction, fetchDatasheetDetailsByFaction, fetchAvailableAllies,
+  fetchInventory,
 } from "../api";
 import { UnitPicker } from "./UnitPicker";
 import { ValidationErrors } from "./ValidationErrors";
@@ -50,6 +51,7 @@ export function ArmyBuilderPage() {
   const [alliedFactions, setAlliedFactions] = useState<AlliedFactionInfo[]>([]);
   const [alliedCosts, setAlliedCosts] = useState<UnitCost[]>([]);
   const [keywordsByDatasheet, setKeywordsByDatasheet] = useState<Map<string, DatasheetKeyword[]>>(new Map());
+  const [inventory, setInventory] = useState<Map<string, number> | null>(null);
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const detachmentInitializedRef = useRef(false);
@@ -138,6 +140,19 @@ export function ArmyBuilderPage() {
     if (!detachmentId) return;
     fetchDetachmentAbilities(detachmentId).then(setDetachmentAbilities);
   }, [detachmentId]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchInventory().then((entries) => {
+      const map = new Map<string, number>();
+      for (const e of entries) {
+        map.set(e.datasheetId, e.quantity);
+      }
+      setInventory(map);
+    }).catch(() => {
+      // Inventory is optional, don't block the page
+    });
+  }, [user]);
 
   const buildArmy = useCallback((): Army | null => {
     if (!effectiveFactionId || !detachmentId) return null;
@@ -378,6 +393,7 @@ export function ArmyBuilderPage() {
               alliedCosts={alliedCosts}
               chapterKeyword={selectedChapter?.keyword ?? null}
               keywordsByDatasheet={keywordsByDatasheet}
+              inventory={inventory}
             />
           )}
         </div>

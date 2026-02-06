@@ -10,6 +10,7 @@ import { CHAPTER_KEYWORDS } from "../chapters";
 import styles from "./UnitPicker.module.css";
 
 type ChapterFilter = "all" | "chapter";
+type InventoryFilter = "all" | "owned" | "missing";
 
 interface Props {
   datasheets: Datasheet[];
@@ -23,6 +24,7 @@ interface Props {
   alliedCosts?: UnitCost[];
   chapterKeyword?: string | null;
   keywordsByDatasheet?: Map<string, DatasheetKeyword[]>;
+  inventory?: Map<string, number> | null;
 }
 
 export function UnitPicker({
@@ -33,10 +35,12 @@ export function UnitPicker({
   alliedCosts = [],
   chapterKeyword = null,
   keywordsByDatasheet = new Map(),
+  inventory = null,
 }: Props) {
   const [search, setSearch] = useState("");
   const [alliesExpanded, setAlliesExpanded] = useState(false);
   const [chapterFilter, setChapterFilter] = useState<ChapterFilter>("all");
+  const [inventoryFilter, setInventoryFilter] = useState<InventoryFilter>("all");
 
   const classifyUnit = useMemo(() => {
     if (!chapterKeyword) return () => "generic" as const;
@@ -58,7 +62,12 @@ export function UnitPicker({
     if (!ds.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (chapterKeyword && chapterFilter === "chapter") {
       const cls = classifyUnit(ds.id);
-      return cls === "chapter" || cls === "generic";
+      if (cls !== "chapter" && cls !== "generic") return false;
+    }
+    if (inventory && inventoryFilter !== "all") {
+      const qty = inventory.get(ds.id) ?? 0;
+      if (inventoryFilter === "owned" && qty === 0) return false;
+      if (inventoryFilter === "missing" && qty > 0) return false;
     }
     return true;
   });
@@ -112,24 +121,52 @@ export function UnitPicker({
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      {chapterKeyword && (
-        <div className={styles.filters}>
-          <button
-            type="button"
-            className={`${styles.filterPill} ${chapterFilter === "all" ? styles.filterPillActive : ""}`}
-            onClick={() => setChapterFilter("all")}
-          >
-            All
-          </button>
-          <button
-            type="button"
-            className={`${styles.filterPill} ${chapterFilter === "chapter" ? styles.filterPillActive : ""}`}
-            onClick={() => setChapterFilter("chapter")}
-          >
-            Chapter Only
-          </button>
-        </div>
-      )}
+      <div className={styles.filters}>
+        {chapterKeyword && (
+          <>
+            <button
+              type="button"
+              className={`${styles.filterPill} ${chapterFilter === "all" ? styles.filterPillActive : ""}`}
+              onClick={() => setChapterFilter("all")}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              className={`${styles.filterPill} ${chapterFilter === "chapter" ? styles.filterPillActive : ""}`}
+              onClick={() => setChapterFilter("chapter")}
+            >
+              Chapter Only
+            </button>
+          </>
+        )}
+        {inventory && (
+          <>
+            {chapterKeyword && <span className={styles.filterSeparator}>|</span>}
+            <button
+              type="button"
+              className={`${styles.filterPill} ${inventoryFilter === "all" ? styles.filterPillActive : ""}`}
+              onClick={() => setInventoryFilter("all")}
+            >
+              All Units
+            </button>
+            <button
+              type="button"
+              className={`${styles.filterPill} ${inventoryFilter === "owned" ? styles.filterPillActive : ""}`}
+              onClick={() => setInventoryFilter("owned")}
+            >
+              Owned
+            </button>
+            <button
+              type="button"
+              className={`${styles.filterPill} ${inventoryFilter === "missing" ? styles.filterPillActive : ""}`}
+              onClick={() => setInventoryFilter("missing")}
+            >
+              Missing
+            </button>
+          </>
+        )}
+      </div>
       {sortedRoles.map((role) => (
         <div key={role} className={styles.roleGroup}>
           <h4 className={styles.roleHeading}>{role}</h4>
@@ -137,10 +174,11 @@ export function UnitPicker({
             {filteredByRole[role].sort(sortUnit).map((ds) => {
               const { firstLine, minCost } = getCostForDatasheet(ds.id, costs);
               const unitClass = chapterKeyword ? classifyUnit(ds.id) : null;
+              const ownedQty = inventory?.get(ds.id) ?? 0;
               return (
                 <li
                   key={ds.id}
-                  className={`${styles.item} ${unitClass === "other-chapter" ? styles.deprioritized : ""}`}
+                  className={`${styles.item} ${unitClass === "other-chapter" ? styles.deprioritized : ""} ${inventory && ownedQty > 0 ? styles.itemOwned : ""}`}
                 >
                   <span className={styles.name}>
                     {ds.name}
@@ -148,6 +186,9 @@ export function UnitPicker({
                       <span className={styles.chapterBadge} />
                     )}
                   </span>
+                  {inventory && ownedQty > 0 && (
+                    <span className={styles.ownedBadge}>{ownedQty} owned</span>
+                  )}
                   <span className={styles.costPill}>{minCost}</span>
                   <button className={styles.addBtn} onClick={() => onAdd(ds.id, firstLine)}>+</button>
                 </li>

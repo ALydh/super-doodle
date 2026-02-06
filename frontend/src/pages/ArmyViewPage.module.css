@@ -124,6 +124,50 @@
   gap: 12px;
 }
 
+.shoppingItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: var(--surface-card);
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+}
+
+.shoppingOwned {
+  border-left: 3px solid var(--faction-primary);
+}
+
+.shoppingMissing {
+  border-left: 3px solid var(--faction-danger, #c0392b);
+}
+
+.shoppingName {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.shoppingDetails {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.shoppingBadge {
+  background: var(--surface-border);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.shoppingMissingBadge {
+  background: var(--faction-danger, #c0392b);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 @media (max-width: 599px) {
   .header {
     flex-wrap: wrap;

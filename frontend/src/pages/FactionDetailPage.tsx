@@ -9,6 +9,7 @@ import {
   fetchEnhancementsByFaction,
   fetchFactions,
 } from "../api";
+import { useAuth } from "../context/useAuth";
 import { getFactionTheme } from "../factionTheme";
 import { isSpaceMarines, SM_CHAPTERS, CHAPTER_KEYWORDS, getChapterTheme } from "../chapters";
 import { TabNavigation } from "../components/TabNavigation";
@@ -28,6 +29,7 @@ const TABS = [
 
 export function FactionDetailPage() {
   const { factionId } = useParams<{ factionId: string }>();
+  const { user } = useAuth();
   const [factionName, setFactionName] = useState<string>("");
   const [datasheetDetails, setDatasheetDetails] = useState<DatasheetDetail[]>([]);
   const [stratagems, setStratagems] = useState<Stratagem[]>([]);
@@ -188,9 +190,16 @@ export function FactionDetailPage() {
           )}
           <h1 className={styles.title}>{factionName}</h1>
         </div>
-        <Link to={`/factions/${factionId}/armies/new`} className={styles.btnCreateArmy}>
-          + Create Army
-        </Link>
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          {user && (
+            <Link to={`/factions/${factionId}/inventory`} className={styles.btnCreateArmy}>
+              Inventory
+            </Link>
+          )}
+          <Link to={`/factions/${factionId}/armies/new`} className={styles.btnCreateArmy}>
+            + Create Army
+          </Link>
+        </div>
       </div>
 
       <TabNavigation tabs={TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />

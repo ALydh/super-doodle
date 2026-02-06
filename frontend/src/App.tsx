@@ -8,6 +8,7 @@ import { FactionDetailPage } from "./pages/FactionDetailPage";
 import { DatasheetDetailPage } from "./pages/DatasheetDetailPage";
 import { ArmyBuilderPage } from "./pages/ArmyBuilderPage";
 import { ArmyViewPage } from "./pages/ArmyViewPage";
+import { InventoryPage } from "./pages/InventoryPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { AdminPage } from "./pages/AdminPage";
@@ -25,6 +26,7 @@ export function App() {
             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
             <Route path="/factions/:factionId" element={<FactionDetailPage />} />
             <Route path="/factions/:factionId/armies/new" element={<ProtectedRoute><ArmyBuilderPage /></ProtectedRoute>} />
+            <Route path="/factions/:factionId/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
             <Route path="/datasheets/:datasheetId" element={<DatasheetDetailPage />} />
             <Route path="/armies/:armyId" element={<ArmyViewPage />} />
             <Route path="/armies/:armyId/edit" element={<ProtectedRoute><ArmyBuilderPage /></ProtectedRoute>} />
