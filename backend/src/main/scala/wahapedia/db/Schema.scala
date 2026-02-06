@@ -62,6 +62,14 @@ object Schema {
       notes TEXT,
       PRIMARY KEY (army_unit_id, option_line),
       FOREIGN KEY (army_unit_id) REFERENCES army_units(id) ON DELETE CASCADE
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS user_inventory (
+      user_id TEXT NOT NULL,
+      datasheet_id TEXT NOT NULL,
+      quantity INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY (user_id, datasheet_id),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )"""
   )
 

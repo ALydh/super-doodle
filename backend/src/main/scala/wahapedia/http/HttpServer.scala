@@ -93,5 +93,6 @@ object HttpServer {
     AuthRoutes.routes(userXa, loginRateLimiter) <+>
     FactionRoutes.routes(refXa) <+>
     ArmyRoutes.routesWithRef(refXa, userXa, refPrefix) <+>
-    DatasheetRoutes.routes(refXa)
+    DatasheetRoutes.routes(refXa) <+>
+    InventoryRoutes.routes(userXa)
 }

@@ -118,6 +118,26 @@
   vertical-align: middle;
 }
 
+.itemOwned {
+  border-left: 3px solid var(--faction-primary);
+}
+
+.ownedBadge {
+  background: var(--faction-primary);
+  color: var(--text-primary);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.filterSeparator {
+  color: var(--text-muted);
+  padding: 0 4px;
+  align-self: center;
+}
+
 .deprioritized {
   opacity: 0.5;
 }

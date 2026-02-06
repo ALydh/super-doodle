@@ -3,7 +3,7 @@ import type {
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
   Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
   User, AuthResponse, Invite, ArmyBattleData, WargearWithQuantity,
-  AlliedFactionInfo,
+  AlliedFactionInfo, InventoryEntry,
 } from "./types";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -284,4 +284,40 @@ export async function fetchAvailableAllies(factionId: string): Promise<AlliedFac
     if (!res.ok) throw new Error(`Failed to fetch available allies: ${res.status}`);
     return res.json();
   });
+}
+
+export async function fetchInventory(): Promise<InventoryEntry[]> {
+  const res = await fetch("/api/inventory", {
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Failed to fetch inventory: ${res.status}`);
+  return res.json();
+}
+
+export async function upsertInventoryEntry(datasheetId: string, quantity: number): Promise<InventoryEntry> {
+  const res = await fetch("/api/inventory", {
+    method: "PUT",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ datasheetId, quantity }),
+  });
+  if (!res.ok) throw new Error(`Failed to update inventory: ${res.status}`);
+  return res.json();
+}
+
+export async function bulkUpsertInventory(entries: { datasheetId: string; quantity: number }[]): Promise<InventoryEntry[]> {
+  const res = await fetch("/api/inventory/bulk", {
+    method: "PUT",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ entries }),
+  });
+  if (!res.ok) throw new Error(`Failed to bulk update inventory: ${res.status}`);
+  return res.json();
+}
+
+export async function deleteInventoryEntry(datasheetId: string): Promise<void> {
+  const res = await fetch(`/api/inventory/${datasheetId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Failed to delete inventory entry: ${res.status}`);
 }

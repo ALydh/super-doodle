@@ -280,3 +280,9 @@ export interface AlliedFactionInfo {
   allyType: string;
   datasheets: Datasheet[];
 }
+
+export interface InventoryEntry {
+  userId: string;
+  datasheetId: string;
+  quantity: number;
+}

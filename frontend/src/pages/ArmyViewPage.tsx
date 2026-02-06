@@ -9,6 +9,7 @@ import {
   fetchDetachmentAbilities,
   fetchEnhancementsByFaction,
   fetchDetachmentsByFaction,
+  fetchInventory,
 } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { getChapterTheme, isSpaceMarines, SM_CHAPTERS } from "../chapters";
@@ -76,12 +77,17 @@ function groupUnits(units: BattleUnitData[], warlordId: string): GroupedUnit[] {
   return result;
 }
 
-type TabId = "units" | "stratagems" | "detachment";
+type TabId = "units" | "stratagems" | "detachment" | "shopping";
 
 const TABS = [
   { id: "units" as const, label: "Units" },
   { id: "stratagems" as const, label: "Stratagems" },
   { id: "detachment" as const, label: "Detachment" },
+];
+
+const TABS_WITH_SHOPPING = [
+  ...TABS,
+  { id: "shopping" as const, label: "Shopping List" },
 ];
 
 export function ArmyViewPage() {
@@ -96,6 +102,7 @@ export function ArmyViewPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("units");
   const [searchQuery, setSearchQuery] = useState("");
+  const [inventory, setInventory] = useState<Map<string, number> | null>(null);
 
   useEffect(() => {
     if (!armyId) return;
@@ -126,6 +133,53 @@ export function ArmyViewPage() {
 
     return () => { cancelled = true; };
   }, [armyId]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchInventory().then((entries) => {
+      const map = new Map<string, number>();
+      for (const e of entries) {
+        map.set(e.datasheetId, e.quantity);
+      }
+      setInventory(map);
+    }).catch(() => {});
+  }, [user]);
+
+  const shoppingList = useMemo(() => {
+    if (!battleData || !inventory) return [];
+
+    // Count how many of each datasheet the army needs
+    const needed = new Map<string, { name: string; count: number }>();
+    for (const unit of battleData.units) {
+      const dsId = unit.unit.datasheetId;
+      const existing = needed.get(dsId);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        needed.set(dsId, { name: unit.datasheet.name, count: 1 });
+      }
+    }
+
+    // Compare with inventory
+    const list: { datasheetId: string; name: string; needed: number; owned: number; missing: number }[] = [];
+    for (const [dsId, { name, count }] of needed) {
+      const owned = inventory.get(dsId) ?? 0;
+      list.push({
+        datasheetId: dsId,
+        name,
+        needed: count,
+        owned,
+        missing: Math.max(0, count - owned),
+      });
+    }
+
+    return list.sort((a, b) => {
+      // Missing first, then by name
+      if (a.missing > 0 && b.missing === 0) return -1;
+      if (a.missing === 0 && b.missing > 0) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [battleData, inventory]);
 
   const groupedUnits = useMemo(() => {
     if (!battleData) return [];
@@ -215,7 +269,7 @@ export function ArmyViewPage() {
         </div>
       </div>
 
-      <TabNavigation tabs={TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />
+      <TabNavigation tabs={inventory ? TABS_WITH_SHOPPING : TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />
 
       {activeTab === "units" && (
         <div>
@@ -257,6 +311,39 @@ export function ArmyViewPage() {
             abilities={detachmentAbilities}
             enhancements={detachmentEnhancements}
           />
+        </div>
+      )}
+
+      {activeTab === "shopping" && inventory && (
+        <div>
+          <p className={styles.meta} style={{ marginBottom: 16 }}>
+            {shoppingList.filter((s) => s.missing > 0).length === 0
+              ? "You own all units needed for this army!"
+              : `${shoppingList.filter((s) => s.missing > 0).length} unit(s) need to be acquired`}
+          </p>
+          <div className={styles.grid}>
+            {shoppingList.map((item) => (
+              <div
+                key={item.datasheetId}
+                className={`${styles.shoppingItem} ${item.missing > 0 ? styles.shoppingMissing : styles.shoppingOwned}`}
+              >
+                <span className={styles.shoppingName}>{item.name}</span>
+                <div className={styles.shoppingDetails}>
+                  <span className={styles.shoppingBadge}>
+                    Need: {item.needed}
+                  </span>
+                  <span className={styles.shoppingBadge}>
+                    Own: {item.owned}
+                  </span>
+                  {item.missing > 0 && (
+                    <span className={`${styles.shoppingBadge} ${styles.shoppingMissingBadge}`}>
+                      Missing: {item.missing}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

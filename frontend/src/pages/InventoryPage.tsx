@@ -1,0 +1,250 @@
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useParams, Link } from "react-router-dom";
+import type { Datasheet, DatasheetDetail } from "../types";
+import {
+  fetchDatasheetDetailsByFaction,
+  fetchFactions,
+  fetchInventory,
+  upsertInventoryEntry,
+} from "../api";
+import { useAuth } from "../context/useAuth";
+import { getFactionTheme } from "../factionTheme";
+import { sortByRoleOrder } from "../constants";
+import styles from "./InventoryPage.module.css";
+
+type InventoryFilter = "all" | "owned" | "missing";
+
+export function InventoryPage() {
+  const { factionId } = useParams<{ factionId: string }>();
+  const { user, loading: authLoading } = useAuth();
+
+  const [factionName, setFactionName] = useState<string>("");
+  const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
+  const [inventory, setInventory] = useState<Map<string, number>>(new Map());
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<InventoryFilter>("all");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!factionId || !user) return;
+    let cancelled = false;
+
+    Promise.all([
+      fetchDatasheetDetailsByFaction(factionId),
+      fetchInventory(),
+      fetchFactions(),
+    ])
+      .then(([details, inv, factions]) => {
+        if (cancelled) return;
+        setDatasheets(details.map((d: DatasheetDetail) => d.datasheet).filter((ds: Datasheet) => !ds.virtual));
+        const faction = factions.find((f) => f.id === factionId);
+        setFactionName(faction?.name ?? factionId);
+
+        const invMap = new Map<string, number>();
+        for (const entry of inv) {
+          invMap.set(entry.datasheetId, entry.quantity);
+        }
+        setInventory(invMap);
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e.message);
+      });
+
+    return () => { cancelled = true; };
+  }, [factionId, user]);
+
+  const handleQuantityChange = useCallback(
+    (datasheetId: string, delta: number) => {
+      const current = inventory.get(datasheetId) ?? 0;
+      const next = Math.max(0, current + delta);
+      setInventory((prev) => {
+        const updated = new Map(prev);
+        if (next === 0) {
+          updated.delete(datasheetId);
+        } else {
+          updated.set(datasheetId, next);
+        }
+        return updated;
+      });
+      upsertInventoryEntry(datasheetId, next).catch(() => {
+        // revert on failure
+        setInventory((prev) => {
+          const reverted = new Map(prev);
+          if (current === 0) {
+            reverted.delete(datasheetId);
+          } else {
+            reverted.set(datasheetId, current);
+          }
+          return reverted;
+        });
+      });
+    },
+    [inventory],
+  );
+
+  const filtered = useMemo(() => {
+    return datasheets.filter((ds) => {
+      if (!ds.name.toLowerCase().includes(search.toLowerCase())) return false;
+      const qty = inventory.get(ds.id) ?? 0;
+      if (filter === "owned" && qty === 0) return false;
+      if (filter === "missing" && qty > 0) return false;
+      return true;
+    });
+  }, [datasheets, search, filter, inventory]);
+
+  const byRole = useMemo(() => {
+    return filtered.reduce<Record<string, Datasheet[]>>((acc, ds) => {
+      const role = ds.role ?? "Other";
+      if (!acc[role]) acc[role] = [];
+      acc[role].push(ds);
+      return acc;
+    }, {});
+  }, [filtered]);
+
+  const sortedRoles = sortByRoleOrder(Object.keys(byRole));
+
+  const ownedCount = useMemo(() => {
+    let count = 0;
+    for (const ds of datasheets) {
+      if ((inventory.get(ds.id) ?? 0) > 0) count++;
+    }
+    return count;
+  }, [datasheets, inventory]);
+
+  const totalModels = useMemo(() => {
+    let total = 0;
+    for (const [, qty] of inventory) {
+      total += qty;
+    }
+    return total;
+  }, [inventory]);
+
+  if (authLoading) return <div>Loading...</div>;
+
+  if (!user) {
+    return (
+      <div>
+        <p>You must be logged in to manage your inventory.</p>
+        <Link to="/login">Login</Link> or <Link to="/register">Register</Link>
+      </div>
+    );
+  }
+
+  if (error) return <div className="error-message">{error}</div>;
+
+  const factionTheme = getFactionTheme(factionId);
+
+  return (
+    <div data-faction={factionTheme} className={styles.page}>
+      {factionTheme && (
+        <img
+          src={`/icons/${factionTheme}.svg`}
+          alt=""
+          className={styles.bgIcon}
+          aria-hidden="true"
+        />
+      )}
+      <div className={styles.header}>
+        <div className={styles.headerInfo}>
+          {factionTheme && (
+            <img
+              src={`/icons/${factionTheme}.svg`}
+              alt=""
+              className={styles.headerIcon}
+            />
+          )}
+          <h1 className={styles.title}>{factionName} - Inventory</h1>
+        </div>
+      </div>
+
+      <div className={styles.summary}>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryLabel}>Unique units owned</span>
+          <span className={styles.summaryValue}>{ownedCount} / {datasheets.length}</span>
+        </div>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryLabel}>Total models</span>
+          <span className={styles.summaryValue}>{totalModels}</span>
+        </div>
+      </div>
+
+      <div className={styles.controls}>
+        <input
+          type="text"
+          className={styles.searchInput}
+          placeholder="Search units..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className={styles.filterPills}>
+          <button
+            type="button"
+            className={`${styles.filterPill} ${filter === "all" ? styles.filterPillActive : ""}`}
+            onClick={() => setFilter("all")}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            className={`${styles.filterPill} ${filter === "owned" ? styles.filterPillActive : ""}`}
+            onClick={() => setFilter("owned")}
+          >
+            Owned
+          </button>
+          <button
+            type="button"
+            className={`${styles.filterPill} ${filter === "missing" ? styles.filterPillActive : ""}`}
+            onClick={() => setFilter("missing")}
+          >
+            Missing
+          </button>
+        </div>
+      </div>
+
+      {filtered.length === 0 && datasheets.length > 0 && (
+        <p className={styles.noResults}>No units found</p>
+      )}
+
+      {sortedRoles.map((role) => (
+        <section key={role} className={styles.roleSection}>
+          <h2 className={styles.roleHeading}>{role}</h2>
+          <div className={styles.unitList}>
+            {byRole[role]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((ds) => {
+                const qty = inventory.get(ds.id) ?? 0;
+                return (
+                  <div
+                    key={ds.id}
+                    className={`${styles.unitItem} ${qty > 0 ? styles.unitItemOwned : ""}`}
+                  >
+                    <span className={styles.unitName}>{ds.name}</span>
+                    <div className={styles.quantityControl}>
+                      <button
+                        className={styles.quantityBtn}
+                        onClick={() => handleQuantityChange(ds.id, -1)}
+                        disabled={qty === 0}
+                      >
+                        -
+                      </button>
+                      <span
+                        className={`${styles.quantityValue} ${qty === 0 ? styles.quantityValueZero : ""}`}
+                      >
+                        {qty}
+                      </span>
+                      <button
+                        className={`${styles.quantityBtn} ${qty === 0 ? "" : styles.quantityBtnActive}`}
+                        onClick={() => handleQuantityChange(ds.id, 1)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
