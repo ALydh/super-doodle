@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import type { Datasheet, DatasheetDetail, InventoryEntry } from "../types";
+import type { Datasheet, DatasheetDetail } from "../types";
 import {
   fetchDatasheetDetailsByFaction,
   fetchFactions,
