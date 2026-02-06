@@ -94,14 +94,21 @@
   font-weight: 600;
 }
 
-.enhancementPill {
-  background: var(--faction-trim);
-  color: var(--surface-app);
+.enhancementDot {
+  color: var(--faction-trim);
+  font-size: 0.6rem;
+  flex-shrink: 0;
+}
+
+.enhancementLabel {
+  color: var(--faction-trim);
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-left: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .stats {
@@ -141,17 +148,12 @@
   .name {
     min-width: auto;
     flex: 1 1 100%;
-    order: 1;
   }
 
   .stats {
-    order: 3;
-    flex: 1 1 100%;
-    margin-top: 8px;
   }
 
   .cost {
-    order: 2;
   }
 
   .statPill {

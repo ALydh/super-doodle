@@ -6,9 +6,10 @@ import styles from "./UnitDetail.module.css";
 interface Props {
   data: BattleUnitData;
   isWarlord: boolean;
+  hideHeader?: boolean;
 }
 
-export function UnitDetailWide({ data, isWarlord }: Props) {
+export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
   const { datasheet, profiles, wargear, abilities, keywords, cost, enhancement } = data;
 
   const hasEnhancement = !!enhancement;
@@ -21,19 +22,23 @@ export function UnitDetailWide({ data, isWarlord }: Props) {
 
   return (
     <div className={styles.wide}>
-      <div className={styles.header}>
-        <h3 className={styles.name}>
-          {datasheet.name}
-          {isWarlord && <span className={styles.warlordBadge}>Warlord</span>}
-        </h3>
-        {enhancement && (
-          <span className={styles.enhancementPill}>{enhancement.name}</span>
-        )}
-        {cost && <span className={styles.cost}>{cost.cost}pts</span>}
-      </div>
+      {!hideHeader && (
+        <>
+          <div className={styles.header}>
+            <h3 className={styles.name}>
+              {datasheet.name}
+              {isWarlord && <span className={styles.warlordBadge}>Warlord</span>}
+            </h3>
+            {enhancement && (
+              <span className={styles.enhancementPill}>{enhancement.name}</span>
+            )}
+            {cost && <span className={styles.cost}>{cost.cost}pts</span>}
+          </div>
 
-      {datasheet.role && (
-        <div className={styles.role}>{datasheet.role}</div>
+          {datasheet.role && (
+            <div className={styles.role}>{datasheet.role}</div>
+          )}
+        </>
       )}
 
       {(profiles.length > 0 || hasWeapons || hasRightColumn || datasheet.legend) && (
@@ -76,7 +81,7 @@ export function UnitDetailWide({ data, isWarlord }: Props) {
                 <div className={styles.statsMobile}>
                   {profiles.map((p, i) => (
                     <div key={i} className={styles.statsCard}>
-                      {p.name && <div className={styles.statsCardName}>{p.name}</div>}
+                      {p.name && !(hideHeader && profiles.length === 1) && <div className={styles.statsCardName}>{p.name}</div>}
                       <div className={styles.statsCardValues}>
                         <div className={styles.statItem}><span className={styles.statLabel}>M</span><span className={styles.statValue}>{p.movement}</span></div>
                         <div className={styles.statItem}><span className={styles.statLabel}>T</span><span className={styles.statValue}>{p.toughness}</span></div>

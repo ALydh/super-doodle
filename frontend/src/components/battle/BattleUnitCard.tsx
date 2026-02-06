@@ -29,15 +29,17 @@ export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count
         className={styles.header}
         onClick={() => setExpanded(!expanded)}
       >
-        <span className={styles.expandIcon}>{expanded ? "▼" : "▶"}</span>
         <span className={styles.name}>
           {datasheet.name}
           {count > 1 && <span className={styles.stackedCount}>×{count}</span>}
           {isWarlord && <span className={styles.warlordBadge}>★</span>}
+          {enhancement && (
+            <>
+              <span className={styles.enhancementDot}>●</span>
+              <span className={styles.enhancementLabel}>{enhancement.name}</span>
+            </>
+          )}
         </span>
-        {enhancement && (
-          <span className={styles.enhancementPill}>{enhancement.name}</span>
-        )}
         <span className={styles.stats}>
           {mainProfile && (
             <>
@@ -48,6 +50,7 @@ export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count
               {mainProfile.invulnerableSave && (
                 <span className={styles.statPill}>Inv{mainProfile.invulnerableSave}</span>
               )}
+              <span className={styles.statPill}>LD{mainProfile.leadership}</span>
               <span className={styles.statPill}>OC{mainProfile.objectiveControl}</span>
             </>
           )}
@@ -56,7 +59,7 @@ export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count
       </button>
       {expanded && (
         <div className={styles.content}>
-          <UnitDetailWide data={data} isWarlord={isWarlord} />
+          <UnitDetailWide data={data} isWarlord={isWarlord} hideHeader />
         </div>
       )}
     </div>
