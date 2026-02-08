@@ -254,15 +254,19 @@ export function ArmyViewPage() {
               <div key={rg.role}>
                 <div className={styles.roleHeader}>{rg.role}</div>
                 {rg.units.map((unit, index) => {
+                  const unitIndex = battleData.units.indexOf(unit);
                   const leadingName = unit.unit.attachedLeaderId
                     ? battleData.units.find(u => u.unit.datasheetId === unit.unit.attachedLeaderId)?.datasheet.name
                     : undefined;
+                  const attachedLeader = battleData.units
+                    .find(u => u.unit.attachedToUnitIndex === unitIndex)?.datasheet.name;
                   return (
                     <BattleUnitCard
                       key={`${unit.unit.datasheetId}-${index}`}
                       data={unit}
                       isWarlord={battleData.warlordId === unit.unit.datasheetId}
                       leadingUnit={leadingName}
+                      attachedLeader={attachedLeader}
                     />
                   );
                 })}
