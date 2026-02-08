@@ -24,15 +24,13 @@ interface Props {
   onCopy: (index: number) => void;
   onSetWarlord: (index: number) => void;
   allUnits?: ArmyUnit[];
-  isGroupParent?: boolean;
-  isGroupChild?: boolean;
   readOnly?: boolean;
 }
 
 export function UnitRow({
   unit, index, datasheet,
   isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
-  allUnits = [], isGroupParent = false, isGroupChild = false,
+  allUnits = [],
   readOnly = false,
 }: Props) {
   const { costs, enhancements, leaders, datasheets, options } = useReferenceData();
@@ -134,8 +132,6 @@ export function UnitRow({
 
   const rowClassName = [
     styles.row,
-    isGroupParent ? styles.groupParent : "",
-    isGroupChild ? styles.groupChild : "",
     isAllied ? styles.allied : "",
   ].filter(Boolean).join(" ");
 
@@ -157,10 +153,8 @@ export function UnitRow({
             </span>
 
             <div className={styles.title}>
-              {isGroupChild && <span className={styles.groupConnector}>└─ </span>}
               <span className={styles.nameText}>{datasheet?.name ?? unit.datasheetId}</span>
               {thisUnitNumber.total > 1 && <span className={styles.unitNumber}>#{thisUnitNumber.num}</span>}
-              {isGroupParent && <span className={styles.leadingBadge}>leading</span>}
               {isAllied && <span className={styles.alliedBadge}>Allied</span>}
             </div>
 
