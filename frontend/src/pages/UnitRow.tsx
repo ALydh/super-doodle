@@ -53,6 +53,13 @@ export function UnitRow({
 
   const thisUnitNumber = getUnitNumber(index, unit.datasheetId);
 
+  const attachedLeaderName = !isCharacter
+    ? allUnits
+        .filter(u => u.attachedLeaderId === unit.datasheetId)
+        .map(u => datasheets.find(d => d.id === u.datasheetId)?.name)
+        .find(Boolean) ?? null
+    : null;
+
   const selectedCost = unitCosts.find((c) => c.line === unit.sizeOptionLine);
   const enhancementCost = unit.enhancementId
     ? enhancements.find((e) => e.id === unit.enhancementId)?.cost ?? 0
@@ -156,6 +163,7 @@ export function UnitRow({
               <span className={styles.nameText}>{datasheet?.name ?? unit.datasheetId}</span>
               {thisUnitNumber.total > 1 && <span className={styles.unitNumber}>#{thisUnitNumber.num}</span>}
               {isAllied && <span className={styles.alliedBadge}>Allied</span>}
+              {attachedLeaderName && <span className={styles.leaderAttachedPill}>{attachedLeaderName}</span>}
             </div>
 
             {isCharacter && !readOnly && !isAllied && (

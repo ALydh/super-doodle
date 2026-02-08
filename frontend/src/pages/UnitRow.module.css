@@ -70,6 +70,17 @@
   font-weight: 600;
 }
 
+.leaderAttachedPill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  background: var(--faction-secondary);
+  border: 1px solid var(--faction-primary);
+  border-radius: 4px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
 .allied {
   opacity: 0.85;
 }
