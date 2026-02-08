@@ -55,7 +55,7 @@ export function UnitRow({
 
   const attachedLeaderName = !isCharacter
     ? allUnits
-        .filter(u => u.attachedLeaderId === unit.datasheetId)
+        .filter(u => u.attachedToUnitIndex === index)
         .map(u => datasheets.find(d => d.id === u.datasheetId)?.name)
         .find(Boolean) ?? null
     : null;
