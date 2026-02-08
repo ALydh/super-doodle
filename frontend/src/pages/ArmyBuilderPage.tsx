@@ -74,13 +74,21 @@ export function ArmyBuilderPage() {
         setBattleSize(persisted.army.battleSize);
         setDetachmentId(persisted.army.detachmentId);
         detachmentInitializedRef.current = true;
-        // Ensure backward compatibility for units without wargearSelections or attachedToUnitIndex
-        const unitsWithWargear = persisted.army.units.map(unit => ({
+        const rawUnits = persisted.army.units.map(unit => ({
           ...unit,
           wargearSelections: unit.wargearSelections ?? [],
           attachedToUnitIndex: unit.attachedToUnitIndex ?? null,
         }));
-        setUnits(unitsWithWargear);
+        const claimedIndices = new Set<number>();
+        const migratedUnits = rawUnits.map(unit => {
+          if (!unit.attachedLeaderId || unit.attachedToUnitIndex != null) return unit;
+          const bodyguardIndex = rawUnits.findIndex((u, i) =>
+            u.datasheetId === unit.attachedLeaderId && !claimedIndices.has(i)
+          );
+          if (bodyguardIndex >= 0) claimedIndices.add(bodyguardIndex);
+          return { ...unit, attachedToUnitIndex: bodyguardIndex >= 0 ? bodyguardIndex : null };
+        });
+        setUnits(migratedUnits);
         setWarlordId(persisted.army.warlordId);
         setChapterId(persisted.army.chapterId ?? null);
         setLoadedArmyFactionId(persisted.army.factionId);

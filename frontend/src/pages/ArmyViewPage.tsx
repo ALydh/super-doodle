@@ -74,6 +74,15 @@ export function ArmyViewPage() {
     fetchArmyForBattle(armyId)
       .then((data) => {
         if (cancelled) return;
+        const claimedIndices = new Set<number>();
+        data.units = data.units.map(bu => {
+          if (!bu.unit.attachedLeaderId || bu.unit.attachedToUnitIndex != null) return bu;
+          const bodyguardIndex = data.units.findIndex((other, i) =>
+            other.unit.datasheetId === bu.unit.attachedLeaderId && !claimedIndices.has(i)
+          );
+          if (bodyguardIndex >= 0) claimedIndices.add(bodyguardIndex);
+          return { ...bu, unit: { ...bu.unit, attachedToUnitIndex: bodyguardIndex >= 0 ? bodyguardIndex : null } };
+        });
         setBattleData(data);
         return Promise.all([
           fetchStratagemsByFaction(data.factionId),
