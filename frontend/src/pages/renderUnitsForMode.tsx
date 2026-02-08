@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
 import type {
   ArmyUnit, Datasheet,
-  LeaderDisplayMode,
 } from "../types";
 import { UnitRow } from "./UnitRow";
 import { StackedUnitRow } from "./StackedUnitRow";
@@ -93,73 +92,21 @@ interface RenderContext {
   readOnly: boolean;
 }
 
-function getAttachedLeaderForUnit(
-  unitIndex: number,
+export function renderUnitsForMode(
   units: ArmyUnit[],
-  datasheets: Datasheet[]
-): { leaderUnit: ArmyUnit; leaderIndex: number; leaderDatasheet: Datasheet | undefined } | null {
-  const unit = units[unitIndex];
-  const unitDatasheet = datasheets.find(ds => ds.id === unit.datasheetId);
-  if (!unitDatasheet) return null;
+  datasheets: Datasheet[],
+  warlordId: string,
+  onUpdate: (index: number, unit: ArmyUnit) => void,
+  onRemove: (index: number) => void,
+  onCopy: (index: number) => void,
+  onSetWarlord: (index: number) => void,
+  readOnly = false
+): ReactElement[] {
+  const ctx: RenderContext = {
+    units, datasheets,
+    warlordId, onUpdate, onRemove, onCopy, onSetWarlord, readOnly,
+  };
 
-  for (let i = 0; i < units.length; i++) {
-    if (i === unitIndex) continue;
-    const potentialLeader = units[i];
-    const leaderDs = datasheets.find(ds => ds.id === potentialLeader.datasheetId);
-    if (leaderDs?.role !== "Characters") continue;
-
-    if (potentialLeader.attachedLeaderId === unit.datasheetId) {
-      return { leaderUnit: potentialLeader, leaderIndex: i, leaderDatasheet: leaderDs };
-    }
-    if (potentialLeader.attachedToUnitIndex === unitIndex) {
-      return { leaderUnit: potentialLeader, leaderIndex: i, leaderDatasheet: leaderDs };
-    }
-  }
-  return null;
-}
-
-function renderTableMode(ctx: RenderContext): ReactElement[] {
-  const { stacks, singles } = groupIdenticalUnits(ctx.units, ctx.warlordId);
-  const result: ReactElement[] = [];
-
-  for (const stack of stacks) {
-    const firstUnit = stack[0].unit;
-    result.push(
-      <StackedUnitRow
-        key={`stack-${stack[0].index}`}
-        stackedUnits={stack}
-        datasheet={ctx.datasheets.find((ds) => ds.id === firstUnit.datasheetId)}
-        onUpdate={ctx.onUpdate}
-        onRemove={ctx.onRemove}
-        onCopy={ctx.onCopy}
-        readOnly={ctx.readOnly}
-      />
-    );
-  }
-
-  for (const { unit, index } of singles) {
-    result.push(
-      <UnitRow
-        key={index}
-        unit={unit}
-        index={index}
-        datasheet={ctx.datasheets.find((ds) => ds.id === unit.datasheetId)}
-        isWarlord={ctx.warlordId === unit.datasheetId}
-        onUpdate={ctx.onUpdate}
-        onRemove={ctx.onRemove}
-        onCopy={ctx.onCopy}
-        onSetWarlord={ctx.onSetWarlord}
-        displayMode="table"
-        allUnits={ctx.units}
-        readOnly={ctx.readOnly}
-      />
-    );
-  }
-
-  return result;
-}
-
-function renderGroupedMode(ctx: RenderContext): ReactElement[] {
   const { stacks, singles } = groupIdenticalUnits(ctx.units, ctx.warlordId);
   const rendered: ReactElement[] = [];
   const renderedIndices = new Set<number>();
@@ -183,7 +130,6 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
         onRemove={ctx.onRemove}
         onCopy={ctx.onCopy}
         onSetWarlord={ctx.onSetWarlord}
-        displayMode="grouped"
         allUnits={ctx.units}
         readOnly={ctx.readOnly}
       />
@@ -260,80 +206,4 @@ function renderGroupedMode(ctx: RenderContext): ReactElement[] {
   }
 
   return rendered;
-}
-
-function renderInlineMode(ctx: RenderContext): ReactElement[] {
-  return ctx.units.map((unit, i) => {
-    const datasheet = ctx.datasheets.find(ds => ds.id === unit.datasheetId);
-    const attachedLeader = getAttachedLeaderForUnit(i, ctx.units, ctx.datasheets);
-
-    return (
-      <UnitRow
-        key={i}
-        unit={unit}
-        index={i}
-        datasheet={datasheet}
-        isWarlord={ctx.warlordId === unit.datasheetId}
-        onUpdate={ctx.onUpdate}
-        onRemove={ctx.onRemove}
-        onCopy={ctx.onCopy}
-        onSetWarlord={ctx.onSetWarlord}
-        displayMode="inline"
-        allUnits={ctx.units}
-        attachedLeaderInfo={attachedLeader ? {
-          name: attachedLeader.leaderDatasheet?.name ?? "Leader",
-          index: attachedLeader.leaderIndex,
-        } : undefined}
-        readOnly={ctx.readOnly}
-      />
-    );
-  });
-}
-
-function renderInstanceMode(ctx: RenderContext): ReactElement[] {
-  return ctx.units.map((unit, i) => (
-    <UnitRow
-      key={i}
-      unit={unit}
-      index={i}
-      datasheet={ctx.datasheets.find((ds) => ds.id === unit.datasheetId)}
-      isWarlord={ctx.warlordId === unit.datasheetId}
-      onUpdate={ctx.onUpdate}
-      onRemove={ctx.onRemove}
-      onCopy={ctx.onCopy}
-      onSetWarlord={ctx.onSetWarlord}
-      displayMode="instance"
-      allUnits={ctx.units}
-      readOnly={ctx.readOnly}
-    />
-  ));
-}
-
-export function renderUnitsForMode(
-  mode: LeaderDisplayMode,
-  units: ArmyUnit[],
-  datasheets: Datasheet[],
-  warlordId: string,
-  onUpdate: (index: number, unit: ArmyUnit) => void,
-  onRemove: (index: number) => void,
-  onCopy: (index: number) => void,
-  onSetWarlord: (index: number) => void,
-  readOnly = false
-): ReactElement[] {
-  const ctx: RenderContext = {
-    units, datasheets,
-    warlordId, onUpdate, onRemove, onCopy, onSetWarlord, readOnly,
-  };
-
-  switch (mode) {
-    case "grouped":
-      return renderGroupedMode(ctx);
-    case "inline":
-      return renderInlineMode(ctx);
-    case "instance":
-      return renderInstanceMode(ctx);
-    case "table":
-    default:
-      return renderTableMode(ctx);
-  }
 }

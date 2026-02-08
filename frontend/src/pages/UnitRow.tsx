@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import type { ArmyUnit, Datasheet, WargearSelection, LeaderDisplayMode, DatasheetDetail, WargearWithQuantity } from "../types";
+import type { ArmyUnit, Datasheet, WargearSelection, DatasheetDetail, WargearWithQuantity } from "../types";
 import { fetchDatasheetDetail, filterWargear } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { useReferenceData } from "../context/ReferenceDataContext";
@@ -23,11 +23,9 @@ interface Props {
   onRemove: (index: number) => void;
   onCopy: (index: number) => void;
   onSetWarlord: (index: number) => void;
-  displayMode?: LeaderDisplayMode;
   allUnits?: ArmyUnit[];
   isGroupParent?: boolean;
   isGroupChild?: boolean;
-  attachedLeaderInfo?: { name: string; index: number };
   readOnly?: boolean;
 }
 

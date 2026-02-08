@@ -365,7 +365,6 @@ export function ArmyBuilderPage() {
                 </thead>
                 <tbody>
                   {renderUnitsForMode(
-                    "grouped",
                     units,
                     loadedDatasheets,
                     warlordId,
