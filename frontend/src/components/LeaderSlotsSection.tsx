@@ -4,6 +4,7 @@ import styles from "../pages/UnitRow.module.css";
 
 interface Props {
   unitDatasheetId: string;
+  unitIndex: number;
   allUnits: ArmyUnit[];
   datasheets: Datasheet[];
   leaders: DatasheetLeader[];
@@ -14,7 +15,7 @@ function canBeAdditionalLeader(datasheet: Datasheet): boolean {
   return datasheet.leaderFooter?.toLowerCase().includes("even if") ?? false;
 }
 
-export function LeaderSlotsSection({ unitDatasheetId, allUnits, datasheets, leaders, onUpdate }: Props) {
+export function LeaderSlotsSection({ unitDatasheetId, unitIndex, allUnits, datasheets, leaders, onUpdate }: Props) {
   const leaderMappings = leaders.filter((l) => l.attachedId === unitDatasheetId);
   const validLeaderDatasheetIds = leaderMappings.map((l) => l.leaderId);
 
@@ -23,7 +24,9 @@ export function LeaderSlotsSection({ unitDatasheetId, allUnits, datasheets, lead
     .filter(({ datasheet }) => datasheet?.role === "Characters" && validLeaderDatasheetIds.includes(datasheet.id))
     .filter((item): item is { unit: ArmyUnit; index: number; datasheet: Datasheet } => item.datasheet !== undefined);
 
-  const attachedLeaders = characterUnits.filter(({ unit }) => unit.attachedLeaderId === unitDatasheetId);
+  const attachedLeaders = characterUnits.filter(({ unit }) =>
+    unit.attachedLeaderId === unitDatasheetId && unit.attachedToUnitIndex === unitIndex
+  );
   const availableLeaders = characterUnits.filter(({ unit }) => !unit.attachedLeaderId);
   const availableAdditionalLeaders = availableLeaders.filter(({ datasheet }) => canBeAdditionalLeader(datasheet));
 
@@ -50,12 +53,12 @@ export function LeaderSlotsSection({ unitDatasheetId, allUnits, datasheets, lead
 
   const handleAttach = (leaderIndex: number) => {
     const leaderUnit = allUnits[leaderIndex];
-    onUpdate(leaderIndex, { ...leaderUnit, attachedLeaderId: unitDatasheetId });
+    onUpdate(leaderIndex, { ...leaderUnit, attachedLeaderId: unitDatasheetId, attachedToUnitIndex: unitIndex });
   };
 
   const handleDetach = (leaderIndex: number) => {
     const leaderUnit = allUnits[leaderIndex];
-    onUpdate(leaderIndex, { ...leaderUnit, attachedLeaderId: null });
+    onUpdate(leaderIndex, { ...leaderUnit, attachedLeaderId: null, attachedToUnitIndex: null });
   };
 
   const slots: { leader: typeof attachedLeaders[number] | null; availableForSlot: typeof availableLeaders }[] = [];

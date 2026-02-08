@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import type { ArmyUnit, Datasheet, WargearSelection, LeaderDisplayMode, DatasheetDetail, WargearWithQuantity } from "../types";
+import type { ArmyUnit, Datasheet, WargearSelection, DatasheetDetail, WargearWithQuantity } from "../types";
 import { fetchDatasheetDetail, filterWargear } from "../api";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { useReferenceData } from "../context/ReferenceDataContext";
@@ -23,18 +23,14 @@ interface Props {
   onRemove: (index: number) => void;
   onCopy: (index: number) => void;
   onSetWarlord: (index: number) => void;
-  displayMode?: LeaderDisplayMode;
   allUnits?: ArmyUnit[];
-  isGroupParent?: boolean;
-  isGroupChild?: boolean;
-  attachedLeaderInfo?: { name: string; index: number };
   readOnly?: boolean;
 }
 
 export function UnitRow({
   unit, index, datasheet,
   isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
-  allUnits = [], isGroupParent = false, isGroupChild = false,
+  allUnits = [],
   readOnly = false,
 }: Props) {
   const { costs, enhancements, leaders, datasheets, options } = useReferenceData();
@@ -56,6 +52,13 @@ export function UnitRow({
   };
 
   const thisUnitNumber = getUnitNumber(index, unit.datasheetId);
+
+  const attachedLeaderName = !isCharacter
+    ? allUnits
+        .filter(u => u.attachedToUnitIndex === index)
+        .map(u => datasheets.find(d => d.id === u.datasheetId)?.name)
+        .find(Boolean) ?? null
+    : null;
 
   const selectedCost = unitCosts.find((c) => c.line === unit.sizeOptionLine);
   const enhancementCost = unit.enhancementId
@@ -136,8 +139,6 @@ export function UnitRow({
 
   const rowClassName = [
     styles.row,
-    isGroupParent ? styles.groupParent : "",
-    isGroupChild ? styles.groupChild : "",
     isAllied ? styles.allied : "",
   ].filter(Boolean).join(" ");
 
@@ -159,11 +160,10 @@ export function UnitRow({
             </span>
 
             <div className={styles.title}>
-              {isGroupChild && <span className={styles.groupConnector}>└─ </span>}
               <span className={styles.nameText}>{datasheet?.name ?? unit.datasheetId}</span>
               {thisUnitNumber.total > 1 && <span className={styles.unitNumber}>#{thisUnitNumber.num}</span>}
-              {isGroupParent && <span className={styles.leadingBadge}>leading</span>}
               {isAllied && <span className={styles.alliedBadge}>Allied</span>}
+              {attachedLeaderName && <span className={styles.leaderAttachedPill}>{attachedLeaderName}</span>}
             </div>
 
             {isCharacter && !readOnly && !isAllied && (
@@ -208,6 +208,7 @@ export function UnitRow({
             {!isCharacter && !readOnly && (
               <LeaderSlotsSection
                 unitDatasheetId={unit.datasheetId}
+                unitIndex={index}
                 allUnits={allUnits}
                 datasheets={datasheets}
                 leaders={leaders}

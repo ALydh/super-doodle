@@ -103,7 +103,6 @@ export interface ArmyUnit {
   isAllied?: boolean;
 }
 
-export type LeaderDisplayMode = "table" | "grouped" | "inline" | "merged" | "instance";
 
 export interface Army {
   factionId: string;

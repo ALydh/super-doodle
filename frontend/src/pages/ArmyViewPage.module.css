@@ -112,6 +112,15 @@
   max-width: 400px;
 }
 
+.roleHeader {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 8px 0 4px 0;
+}
+
 .grid {
   display: flex;
   flex-direction: column;

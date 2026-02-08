@@ -7,37 +7,37 @@ interface Props {
   data: BattleUnitData;
   isWarlord: boolean;
   defaultExpanded?: boolean;
-  count?: number;
+  leadingUnit?: string;
+  attachedLeader?: string;
 }
 
-export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count = 1 }: Props) {
+export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, leadingUnit, attachedLeader }: Props) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const { datasheet, profiles, cost, enhancement } = data;
 
   const mainProfile = profiles[0];
-  const totalCost = cost ? cost.cost * count + (enhancement?.cost ?? 0) : 0;
+  const totalCost = (cost?.cost ?? 0) + (enhancement?.cost ?? 0);
 
   return (
-    <div className={`${styles.card} ${expanded ? styles.expanded : ""} ${count > 1 ? styles.stacked : ""}`}>
-      {count > 1 && (
-        <>
-          <div className={styles.stackedShadow} />
-          <div className={styles.stackedShadow} />
-        </>
-      )}
+    <div className={`${styles.card} ${expanded ? styles.expanded : ""}`}>
       <button
         className={styles.header}
         onClick={() => setExpanded(!expanded)}
       >
         <span className={styles.name}>
           {datasheet.name}
-          {count > 1 && <span className={styles.stackedCount}>×{count}</span>}
           {isWarlord && <span className={styles.warlordBadge}>★</span>}
           {enhancement && (
             <>
               <span className={styles.enhancementDot}>●</span>
               <span className={styles.enhancementLabel}>{enhancement.name}</span>
             </>
+          )}
+          {leadingUnit && (
+            <span className={styles.leadingPill}>{leadingUnit}</span>
+          )}
+          {attachedLeader && (
+            <span className={styles.leadingPill}>{attachedLeader}</span>
           )}
         </span>
         <span className={styles.stats}>

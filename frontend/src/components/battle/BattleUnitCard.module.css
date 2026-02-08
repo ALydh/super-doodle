@@ -9,32 +9,6 @@
   backdrop-filter: blur(4px);
 }
 
-.card.stacked {
-  margin-bottom: 16px;
-}
-
-.stackedShadow {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  right: -4px;
-  bottom: -4px;
-  background-color: var(--surface-card);
-  border-radius: 8px;
-  border-left: 4px solid var(--faction-primary);
-  opacity: 0.6;
-  z-index: -1;
-}
-
-.stackedShadow:nth-child(2) {
-  top: 8px;
-  left: 8px;
-  right: -8px;
-  bottom: -8px;
-  opacity: 0.3;
-  z-index: -2;
-}
-
 .card.expanded {
   border-color: var(--faction-primary);
 }
@@ -72,16 +46,6 @@
   min-width: 150px;
 }
 
-.stackedCount {
-  background-color: var(--faction-primary);
-  color: var(--surface-app);
-  font-weight: 700;
-  font-size: 0.85rem;
-  padding: 2px 8px;
-  border-radius: 12px;
-  margin-left: 4px;
-}
-
 .warlordBadge {
   display: inline-flex;
   align-items: center;
@@ -109,6 +73,17 @@
   text-overflow: ellipsis;
   flex-shrink: 1;
   min-width: 0;
+}
+
+.leadingPill {
+  background: var(--faction-secondary);
+  border: 1px solid var(--faction-primary);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .stats {

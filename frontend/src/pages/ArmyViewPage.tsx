@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import type { Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, ArmyBattleData, BattleUnitData } from "../types";
+import { sortByRoleOrder } from "../constants";
 import { BATTLE_SIZE_POINTS, BattleSize } from "../types";
 import {
   fetchArmyForBattle,
@@ -20,61 +21,23 @@ import { DetachmentCard } from "../components/DetachmentCard";
 import { BattleUnitCard } from "../components/battle/BattleUnitCard";
 import styles from "./ArmyViewPage.module.css";
 
-interface GroupedUnit {
-  data: BattleUnitData;
-  count: number;
+interface RoleGroup {
+  role: string;
+  units: BattleUnitData[];
 }
 
-function areUnitsIdentical(a: BattleUnitData, b: BattleUnitData): boolean {
-  if (a.unit.datasheetId !== b.unit.datasheetId) return false;
-  if (a.unit.sizeOptionLine !== b.unit.sizeOptionLine) return false;
-  if (a.unit.enhancementId !== b.unit.enhancementId) return false;
-  if (a.unit.attachedLeaderId || b.unit.attachedLeaderId) return false;
-  if (a.unit.attachedToUnitIndex != null || b.unit.attachedToUnitIndex != null) return false;
-
-  const aSelections = a.unit.wargearSelections.filter(s => s.selected).sort((x, y) => x.optionLine - y.optionLine);
-  const bSelections = b.unit.wargearSelections.filter(s => s.selected).sort((x, y) => x.optionLine - y.optionLine);
-
-  if (aSelections.length !== bSelections.length) return false;
-  for (let i = 0; i < aSelections.length; i++) {
-    if (aSelections[i].optionLine !== bSelections[i].optionLine) return false;
+function unitsByRole(units: BattleUnitData[]): RoleGroup[] {
+  const byRole: Record<string, BattleUnitData[]> = {};
+  for (const u of units) {
+    const role = u.datasheet.role ?? "Other";
+    if (!byRole[role]) byRole[role] = [];
+    byRole[role].push(u);
   }
 
-  return true;
-}
-
-function groupUnits(units: BattleUnitData[], warlordId: string): GroupedUnit[] {
-  const result: GroupedUnit[] = [];
-  const processed = new Set<number>();
-
-  for (let i = 0; i < units.length; i++) {
-    if (processed.has(i)) continue;
-
-    const unit = units[i];
-    const isWarlord = warlordId === unit.unit.datasheetId &&
-      units.findIndex(u => u.unit.datasheetId === warlordId) === i;
-
-    if (isWarlord || unit.unit.attachedLeaderId || unit.unit.attachedToUnitIndex != null) {
-      result.push({ data: unit, count: 1 });
-      processed.add(i);
-      continue;
-    }
-
-    let count = 1;
-    processed.add(i);
-
-    for (let j = i + 1; j < units.length; j++) {
-      if (processed.has(j)) continue;
-      if (areUnitsIdentical(unit, units[j])) {
-        count++;
-        processed.add(j);
-      }
-    }
-
-    result.push({ data: unit, count });
-  }
-
-  return result;
+  return sortByRoleOrder(Object.keys(byRole)).map((role) => ({
+    role,
+    units: byRole[role],
+  }));
 }
 
 type TabId = "units" | "stratagems" | "detachment" | "shopping";
@@ -111,6 +74,15 @@ export function ArmyViewPage() {
     fetchArmyForBattle(armyId)
       .then((data) => {
         if (cancelled) return;
+        const claimedIndices = new Set<number>();
+        data.units = data.units.map(bu => {
+          if (!bu.unit.attachedLeaderId || bu.unit.attachedToUnitIndex != null) return bu;
+          const bodyguardIndex = data.units.findIndex((other, i) =>
+            other.unit.datasheetId === bu.unit.attachedLeaderId && !claimedIndices.has(i)
+          );
+          if (bodyguardIndex >= 0) claimedIndices.add(bodyguardIndex);
+          return { ...bu, unit: { ...bu.unit, attachedToUnitIndex: bodyguardIndex >= 0 ? bodyguardIndex : null } };
+        });
         setBattleData(data);
         return Promise.all([
           fetchStratagemsByFaction(data.factionId),
@@ -181,18 +153,23 @@ export function ArmyViewPage() {
     });
   }, [battleData, inventory]);
 
-  const groupedUnits = useMemo(() => {
+  const roleGroups = useMemo(() => {
     if (!battleData) return [];
-    return groupUnits(battleData.units, battleData.warlordId);
+    return unitsByRole(battleData.units);
   }, [battleData]);
 
-  const filteredUnits = useMemo(() => {
-    if (!searchQuery.trim()) return groupedUnits;
+  const filteredRoleGroups = useMemo(() => {
+    if (!searchQuery.trim()) return roleGroups;
     const query = searchQuery.toLowerCase();
-    return groupedUnits.filter((g) =>
-      g.data.datasheet.name.toLowerCase().includes(query)
-    );
-  }, [groupedUnits, searchQuery]);
+    return roleGroups
+      .map((rg) => ({
+        role: rg.role,
+        units: rg.units.filter((u) =>
+          u.datasheet.name.toLowerCase().includes(query)
+        ),
+      }))
+      .filter((rg) => rg.units.length > 0);
+  }, [roleGroups, searchQuery]);
 
   const totalPoints = useMemo(() => {
     if (!battleData) return 0;
@@ -282,13 +259,27 @@ export function ArmyViewPage() {
             />
           </div>
           <div className={styles.grid}>
-            {filteredUnits.map((group, index) => (
-              <BattleUnitCard
-                key={`${group.data.unit.datasheetId}-${index}`}
-                data={group.data}
-                isWarlord={battleData.warlordId === group.data.unit.datasheetId}
-                count={group.count}
-              />
+            {filteredRoleGroups.map((rg) => (
+              <div key={rg.role}>
+                <div className={styles.roleHeader}>{rg.role}</div>
+                {rg.units.map((unit, index) => {
+                  const leadingName = unit.unit.attachedLeaderId
+                    ? battleData.units.find(u => u.unit.datasheetId === unit.unit.attachedLeaderId)?.datasheet.name
+                    : undefined;
+                  const unitIndex = battleData.units.indexOf(unit);
+                  const attachedLeader = battleData.units
+                    .find(u => u.unit.attachedToUnitIndex === unitIndex)?.datasheet.name;
+                  return (
+                    <BattleUnitCard
+                      key={`${unit.unit.datasheetId}-${index}`}
+                      data={unit}
+                      isWarlord={battleData.warlordId === unit.unit.datasheetId}
+                      leadingUnit={leadingName}
+                      attachedLeader={attachedLeader}
+                    />
+                  );
+                })}
+              </div>
             ))}
           </div>
         </div>
