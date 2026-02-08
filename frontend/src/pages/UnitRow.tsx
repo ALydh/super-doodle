@@ -53,12 +53,17 @@ export function UnitRow({
 
   const thisUnitNumber = getUnitNumber(index, unit.datasheetId);
 
-  const attachedLeaderName = !isCharacter
-    ? allUnits
-        .filter(u => u.attachedToUnitIndex === index)
-        .map(u => datasheets.find(d => d.id === u.datasheetId)?.name)
-        .find(Boolean) ?? null
-    : null;
+  const attachedLeaderName = (() => {
+    if (isCharacter) return null;
+    const leader = allUnits.find(u =>
+      u.attachedLeaderId === unit.datasheetId &&
+      datasheets.find(d => d.id === u.datasheetId)?.role === "Characters"
+    );
+    if (!leader) return null;
+    const firstBodyguardIndex = allUnits.findIndex(u => u.datasheetId === unit.datasheetId);
+    if (firstBodyguardIndex !== index) return null;
+    return datasheets.find(d => d.id === leader.datasheetId)?.name ?? null;
+  })();
 
   const selectedCost = unitCosts.find((c) => c.line === unit.sizeOptionLine);
   const enhancementCost = unit.enhancementId
