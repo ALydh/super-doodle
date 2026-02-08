@@ -26,7 +26,7 @@ interface RoleGroup {
   units: BattleUnitData[];
 }
 
-function unitsByRole(units: BattleUnitData[]): RoleGroup[] {
+function unitsByRole(units: BattleUnitData[], warlordId: string): RoleGroup[] {
   const byRole: Record<string, BattleUnitData[]> = {};
   for (const u of units) {
     const role = u.datasheet.role ?? "Other";
@@ -36,7 +36,13 @@ function unitsByRole(units: BattleUnitData[]): RoleGroup[] {
 
   return sortByRoleOrder(Object.keys(byRole)).map((role) => ({
     role,
-    units: byRole[role],
+    units: byRole[role].sort((a, b) => {
+      const aIsWarlord = a.unit.datasheetId === warlordId;
+      const bIsWarlord = b.unit.datasheetId === warlordId;
+      if (aIsWarlord && !bIsWarlord) return -1;
+      if (!aIsWarlord && bIsWarlord) return 1;
+      return 0;
+    }),
   }));
 }
 
@@ -155,7 +161,7 @@ export function ArmyViewPage() {
 
   const roleGroups = useMemo(() => {
     if (!battleData) return [];
-    return unitsByRole(battleData.units);
+    return unitsByRole(battleData.units, battleData.warlordId);
   }, [battleData]);
 
   const filteredRoleGroups = useMemo(() => {
