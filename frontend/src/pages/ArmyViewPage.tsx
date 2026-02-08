@@ -306,14 +306,20 @@ export function ArmyViewPage() {
             {filteredRoleGroups.map((rg) => (
               <div key={rg.role}>
                 <div className={styles.roleHeader}>{rg.role}</div>
-                {rg.units.map((group, index) => (
-                  <BattleUnitCard
-                    key={`${group.data.unit.datasheetId}-${index}`}
-                    data={group.data}
-                    isWarlord={battleData.warlordId === group.data.unit.datasheetId}
-                    count={group.count}
-                  />
-                ))}
+                {rg.units.map((group, index) => {
+                  const leadingName = group.data.unit.attachedLeaderId
+                    ? battleData.units.find(u => u.unit.datasheetId === group.data.unit.attachedLeaderId)?.datasheet.name
+                    : undefined;
+                  return (
+                    <BattleUnitCard
+                      key={`${group.data.unit.datasheetId}-${index}`}
+                      data={group.data}
+                      isWarlord={battleData.warlordId === group.data.unit.datasheetId}
+                      count={group.count}
+                      leadingUnit={leadingName}
+                    />
+                  );
+                })}
               </div>
             ))}
           </div>

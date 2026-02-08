@@ -8,9 +8,10 @@ interface Props {
   isWarlord: boolean;
   defaultExpanded?: boolean;
   count?: number;
+  leadingUnit?: string;
 }
 
-export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count = 1 }: Props) {
+export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count = 1, leadingUnit }: Props) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const { datasheet, profiles, cost, enhancement } = data;
 
@@ -38,6 +39,9 @@ export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count
               <span className={styles.enhancementDot}>●</span>
               <span className={styles.enhancementLabel}>{enhancement.name}</span>
             </>
+          )}
+          {leadingUnit && (
+            <span className={styles.leadingPill}>→ {leadingUnit}</span>
           )}
         </span>
         <span className={styles.stats}>

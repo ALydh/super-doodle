@@ -111,6 +111,17 @@
   min-width: 0;
 }
 
+.leadingPill {
+  background: var(--faction-secondary);
+  border: 1px solid var(--faction-primary);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
 .stats {
   display: flex;
   gap: 6px;
