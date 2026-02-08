@@ -258,15 +258,8 @@ export function ArmyViewPage() {
                     ? battleData.units.find(u => u.unit.datasheetId === unit.unit.attachedLeaderId)?.datasheet.name
                     : undefined;
                   const unitIndex = battleData.units.indexOf(unit);
-                  const leader = battleData.units.find(u =>
-                    u.datasheet.role === "Characters" &&
-                    u.unit.attachedLeaderId === unit.unit.datasheetId &&
-                    (u.unit.attachedToUnitIndex === unitIndex || u.unit.attachedToUnitIndex == null)
-                  );
-                  const isFirstMatch = leader && battleData.units
-                    .filter(bu => bu.unit.datasheetId === unit.unit.datasheetId)
-                    .indexOf(unit) === 0;
-                  const attachedLeader = isFirstMatch ? leader?.datasheet.name : undefined;
+                  const attachedLeader = battleData.units
+                    .find(u => u.unit.attachedToUnitIndex === unitIndex)?.datasheet.name;
                   return (
                     <BattleUnitCard
                       key={`${unit.unit.datasheetId}-${index}`}
