@@ -41,7 +41,7 @@ export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, count
             </>
           )}
           {leadingUnit && (
-            <span className={styles.leadingPill}>→ {leadingUnit}</span>
+            <span className={styles.leadingPill}>{leadingUnit}</span>
           )}
         </span>
         <span className={styles.stats}>
