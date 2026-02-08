@@ -126,33 +126,36 @@ export function ArmyViewPage() {
   const shoppingList = useMemo(() => {
     if (!battleData || !inventory) return [];
 
-    // Count how many of each datasheet the army needs
-    const needed = new Map<string, { name: string; count: number }>();
+    const parseModels = (desc: string): number => {
+      const match = desc.match(/(\d+)\s*model/i);
+      return match ? parseInt(match[1], 10) : 1;
+    };
+
+    const needed = new Map<string, { name: string; models: number }>();
     for (const unit of battleData.units) {
       const dsId = unit.unit.datasheetId;
+      const models = unit.cost ? parseModels(unit.cost.description) : 1;
       const existing = needed.get(dsId);
       if (existing) {
-        existing.count += 1;
+        existing.models += models;
       } else {
-        needed.set(dsId, { name: unit.datasheet.name, count: 1 });
+        needed.set(dsId, { name: unit.datasheet.name, models });
       }
     }
 
-    // Compare with inventory
     const list: { datasheetId: string; name: string; needed: number; owned: number; missing: number }[] = [];
-    for (const [dsId, { name, count }] of needed) {
+    for (const [dsId, { name, models }] of needed) {
       const owned = inventory.get(dsId) ?? 0;
       list.push({
         datasheetId: dsId,
         name,
-        needed: count,
+        needed: models,
         owned,
-        missing: Math.max(0, count - owned),
+        missing: Math.max(0, models - owned),
       });
     }
 
     return list.sort((a, b) => {
-      // Missing first, then by name
       if (a.missing > 0 && b.missing === 0) return -1;
       if (a.missing === 0 && b.missing > 0) return 1;
       return a.name.localeCompare(b.name);
