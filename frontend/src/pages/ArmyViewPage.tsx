@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import type { Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, ArmyBattleData, BattleUnitData } from "../types";
+import { sortByRoleOrder } from "../constants";
 import { BATTLE_SIZE_POINTS, BattleSize } from "../types";
 import {
   fetchArmyForBattle,
@@ -25,6 +26,11 @@ interface GroupedUnit {
   count: number;
 }
 
+interface RoleGroup {
+  role: string;
+  units: GroupedUnit[];
+}
+
 function areUnitsIdentical(a: BattleUnitData, b: BattleUnitData): boolean {
   if (a.unit.datasheetId !== b.unit.datasheetId) return false;
   if (a.unit.sizeOptionLine !== b.unit.sizeOptionLine) return false;
@@ -43,8 +49,8 @@ function areUnitsIdentical(a: BattleUnitData, b: BattleUnitData): boolean {
   return true;
 }
 
-function groupUnits(units: BattleUnitData[], warlordId: string): GroupedUnit[] {
-  const result: GroupedUnit[] = [];
+function groupUnits(units: BattleUnitData[], warlordId: string): RoleGroup[] {
+  const flat: GroupedUnit[] = [];
   const processed = new Set<number>();
 
   for (let i = 0; i < units.length; i++) {
@@ -55,7 +61,7 @@ function groupUnits(units: BattleUnitData[], warlordId: string): GroupedUnit[] {
       units.findIndex(u => u.unit.datasheetId === warlordId) === i;
 
     if (isWarlord || unit.unit.attachedLeaderId || unit.unit.attachedToUnitIndex != null) {
-      result.push({ data: unit, count: 1 });
+      flat.push({ data: unit, count: 1 });
       processed.add(i);
       continue;
     }
@@ -71,10 +77,20 @@ function groupUnits(units: BattleUnitData[], warlordId: string): GroupedUnit[] {
       }
     }
 
-    result.push({ data: unit, count });
+    flat.push({ data: unit, count });
   }
 
-  return result;
+  const byRole: Record<string, GroupedUnit[]> = {};
+  for (const g of flat) {
+    const role = g.data.datasheet.role ?? "Other";
+    if (!byRole[role]) byRole[role] = [];
+    byRole[role].push(g);
+  }
+
+  return sortByRoleOrder(Object.keys(byRole)).map((role) => ({
+    role,
+    units: byRole[role],
+  }));
 }
 
 type TabId = "units" | "stratagems" | "detachment" | "shopping";
@@ -181,18 +197,23 @@ export function ArmyViewPage() {
     });
   }, [battleData, inventory]);
 
-  const groupedUnits = useMemo(() => {
+  const roleGroups = useMemo(() => {
     if (!battleData) return [];
     return groupUnits(battleData.units, battleData.warlordId);
   }, [battleData]);
 
-  const filteredUnits = useMemo(() => {
-    if (!searchQuery.trim()) return groupedUnits;
+  const filteredRoleGroups = useMemo(() => {
+    if (!searchQuery.trim()) return roleGroups;
     const query = searchQuery.toLowerCase();
-    return groupedUnits.filter((g) =>
-      g.data.datasheet.name.toLowerCase().includes(query)
-    );
-  }, [groupedUnits, searchQuery]);
+    return roleGroups
+      .map((rg) => ({
+        role: rg.role,
+        units: rg.units.filter((g) =>
+          g.data.datasheet.name.toLowerCase().includes(query)
+        ),
+      }))
+      .filter((rg) => rg.units.length > 0);
+  }, [roleGroups, searchQuery]);
 
   const totalPoints = useMemo(() => {
     if (!battleData) return 0;
@@ -282,13 +303,18 @@ export function ArmyViewPage() {
             />
           </div>
           <div className={styles.grid}>
-            {filteredUnits.map((group, index) => (
-              <BattleUnitCard
-                key={`${group.data.unit.datasheetId}-${index}`}
-                data={group.data}
-                isWarlord={battleData.warlordId === group.data.unit.datasheetId}
-                count={group.count}
-              />
+            {filteredRoleGroups.map((rg) => (
+              <div key={rg.role}>
+                <div className={styles.roleHeader}>{rg.role}</div>
+                {rg.units.map((group, index) => (
+                  <BattleUnitCard
+                    key={`${group.data.unit.datasheetId}-${index}`}
+                    data={group.data}
+                    isWarlord={battleData.warlordId === group.data.unit.datasheetId}
+                    count={group.count}
+                  />
+                ))}
+              </div>
             ))}
           </div>
         </div>
