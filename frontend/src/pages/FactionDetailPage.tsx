@@ -13,10 +13,10 @@ import { useAuth } from "../context/useAuth";
 import { getFactionTheme } from "../factionTheme";
 import { isSpaceMarines, SM_CHAPTERS, CHAPTER_KEYWORDS, getChapterTheme } from "../chapters";
 import { TabNavigation } from "../components/TabNavigation";
-import { ExpandableUnitCard } from "../components/ExpandableUnitCard";
-import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { sortByRoleOrder } from "../constants";
+import { UnitsTab } from "./faction-detail/UnitsTab";
+import { StrategemsTab } from "./faction-detail/StrategemsTab";
 import styles from "./FactionDetailPage.module.css";
 
 type TabId = "units" | "stratagems" | "detachments";
@@ -205,114 +205,36 @@ export function FactionDetailPage() {
       <TabNavigation tabs={TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />
 
       {activeTab === "units" && (
-        <div className={styles.unitsTab}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Search units..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {isSM && (
-            <div className={styles.chapterControls}>
-              <select
-                className={styles.chapterSelect}
-                value={chapterId ?? ""}
-                onChange={(e) => {
-                  const val = e.target.value || null;
-                  setChapterId(val);
-                  if (!val) setChapterFilter("all");
-                }}
-              >
-                <option value="">No Chapter</option>
-                {SM_CHAPTERS.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-              {chapterKeyword && (
-                <div className={styles.chapterFilters}>
-                  <button
-                    type="button"
-                    className={`${styles.filterPill} ${chapterFilter === "all" ? styles.filterPillActive : ""}`}
-                    onClick={() => setChapterFilter("all")}
-                  >
-                    All
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.filterPill} ${chapterFilter === "chapter" ? styles.filterPillActive : ""}`}
-                    onClick={() => setChapterFilter("chapter")}
-                  >
-                    Chapter Only
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-          {noResults && <p className={styles.noResults}>No units found</p>}
-          {sortedRoles.map((role) => (
-            <section key={role} className={styles.roleSection}>
-              <h2 className={styles.roleHeading}>{role}</h2>
-              <div className={styles.cardsList}>
-                {datasheetsByRole[role].sort(sortUnit).map((ds) => {
-                  const unitClass = chapterKeyword ? classifyUnit(ds.id) : null;
-                  return (
-                    <div
-                      key={ds.id}
-                      className={unitClass === "other-chapter" ? styles.deprioritized : undefined}
-                    >
-                      <ExpandableUnitCard
-                        datasheetId={ds.id}
-                        datasheetName={ds.name}
-                        isExpanded={expandedUnit === ds.id}
-                        onToggle={() => handleUnitToggle(ds.id)}
-                        profiles={profilesByDatasheet.get(ds.id)}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
-        </div>
+        <UnitsTab
+          search={search}
+          onSearchChange={setSearch}
+          isSM={isSM}
+          chapterId={chapterId}
+          onChapterIdChange={setChapterId}
+          chapterKeyword={chapterKeyword}
+          chapterFilter={chapterFilter}
+          onChapterFilterChange={setChapterFilter}
+          noResults={noResults}
+          sortedRoles={sortedRoles}
+          datasheetsByRole={datasheetsByRole}
+          sortUnit={sortUnit}
+          classifyUnit={classifyUnit}
+          expandedUnit={expandedUnit}
+          onUnitToggle={handleUnitToggle}
+          profilesByDatasheet={profilesByDatasheet}
+        />
       )}
 
       {activeTab === "stratagems" && (
-        <div>
-          <div className={styles.filters}>
-            <label>
-              Detachment:
-              <select
-                value={stratagemDetachmentFilter}
-                onChange={(e) => setStratagemDetachmentFilter(e.target.value)}
-              >
-                <option value="all">All Detachments</option>
-                {detachments.map((d) => (
-                  <option key={d.detachmentId} value={d.detachmentId}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Phase:
-              <select
-                value={stratagemPhaseFilter}
-                onChange={(e) => setStratagemPhaseFilter(e.target.value)}
-              >
-                <option value="all">All Phases</option>
-                {phases.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <div className={styles.stratagemsList}>
-            {filteredStratagems.map((s) => (
-              <StratagemCard key={s.id} stratagem={s} />
-            ))}
-          </div>
-        </div>
+        <StrategemsTab
+          filteredStratagems={filteredStratagems}
+          detachments={detachments}
+          phases={phases}
+          stratagemDetachmentFilter={stratagemDetachmentFilter}
+          onDetachmentFilterChange={setStratagemDetachmentFilter}
+          stratagemPhaseFilter={stratagemPhaseFilter}
+          onPhaseFilterChange={setStratagemPhaseFilter}
+        />
       )}
 
       {activeTab === "detachments" && (

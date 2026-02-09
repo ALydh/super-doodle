@@ -18,7 +18,8 @@ import { useAuth } from "../context/useAuth";
 import { TabNavigation } from "../components/TabNavigation";
 import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
-import { BattleUnitCard } from "../components/battle/BattleUnitCard";
+import { UnitsTab } from "./army-view/UnitsTab";
+import { ShoppingTab } from "./army-view/ShoppingTab";
 import styles from "./ArmyViewPage.module.css";
 
 interface RoleGroup {
@@ -258,40 +259,12 @@ export function ArmyViewPage() {
       <TabNavigation tabs={inventory ? TABS_WITH_SHOPPING : TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />
 
       {activeTab === "units" && (
-        <div>
-          <div className={styles.search}>
-            <input
-              type="text"
-              placeholder="Search units..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className={styles.grid}>
-            {filteredRoleGroups.map((rg) => (
-              <div key={rg.role}>
-                <div className={styles.roleHeader}>{rg.role}</div>
-                {rg.units.map((unit, index) => {
-                  const leadingName = unit.unit.attachedLeaderId
-                    ? battleData.units.find(u => u.unit.datasheetId === unit.unit.attachedLeaderId)?.datasheet.name
-                    : undefined;
-                  const unitIndex = battleData.units.indexOf(unit);
-                  const attachedLeader = battleData.units
-                    .find(u => u.unit.attachedToUnitIndex === unitIndex)?.datasheet.name;
-                  return (
-                    <BattleUnitCard
-                      key={`${unit.unit.datasheetId}-${index}`}
-                      data={unit}
-                      isWarlord={battleData.warlordId === unit.unit.datasheetId}
-                      leadingUnit={leadingName}
-                      attachedLeader={attachedLeader}
-                    />
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
+        <UnitsTab
+          filteredRoleGroups={filteredRoleGroups}
+          battleData={battleData}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
       )}
 
       {activeTab === "stratagems" && (
@@ -315,36 +288,7 @@ export function ArmyViewPage() {
       )}
 
       {activeTab === "shopping" && inventory && (
-        <div>
-          <p className={styles.meta} style={{ marginBottom: 16 }}>
-            {shoppingList.filter((s) => s.missing > 0).length === 0
-              ? "You own all units needed for this army!"
-              : `${shoppingList.filter((s) => s.missing > 0).length} unit(s) need to be acquired`}
-          </p>
-          <div className={styles.grid}>
-            {shoppingList.map((item) => (
-              <div
-                key={item.datasheetId}
-                className={`${styles.shoppingItem} ${item.missing > 0 ? styles.shoppingMissing : styles.shoppingOwned}`}
-              >
-                <span className={styles.shoppingName}>{item.name}</span>
-                <div className={styles.shoppingDetails}>
-                  <span className={styles.shoppingBadge}>
-                    Need: {item.needed}
-                  </span>
-                  <span className={styles.shoppingBadge}>
-                    Own: {item.owned}
-                  </span>
-                  {item.missing > 0 && (
-                    <span className={`${styles.shoppingBadge} ${styles.shoppingMissingBadge}`}>
-                      Missing: {item.missing}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ShoppingTab shoppingList={shoppingList} />
       )}
     </div>
   );
