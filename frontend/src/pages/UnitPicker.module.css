@@ -142,6 +142,34 @@
   opacity: 0.5;
 }
 
+.alliedSection {
+  margin-top: 16px;
+  border-top: 1px solid var(--surface-border);
+  padding-top: 12px;
+}
+
+.alliedToggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.alliedToggle:hover {
+  color: var(--text-primary);
+}
+
+.allyTypeBadge {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
 @media (max-width: 599px) {
   .picker {
     padding: 12px;
