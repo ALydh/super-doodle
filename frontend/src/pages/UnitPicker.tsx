@@ -199,23 +199,22 @@ export function UnitPicker({
       ))}
 
       {filteredAlliedFactions.length > 0 && (
-        <div className="unit-picker-allied-section">
+        <div className={styles.alliedSection}>
           <button
             type="button"
-            className="unit-picker-allied-toggle"
+            className={styles.alliedToggle}
             onClick={() => setAlliesExpanded(!alliesExpanded)}
           >
-            <span className="expand-icon">{alliesExpanded ? "▼" : "▶ "}</span>
-            Allied Units
+            {alliesExpanded ? "▼" : "▶"} Allied Units
           </button>
           {alliesExpanded &&
             filteredAlliedFactions.map((ally) => (
-              <div key={ally.factionId} className="unit-picker-allied-faction">
-                <h4 className="unit-picker-ally-heading">
+              <div key={ally.factionId} className={styles.roleGroup}>
+                <h4 className={styles.roleHeading}>
                   {ally.factionName}
-                  <span className="ally-type-badge"> - {ally.allyType}</span>
+                  <span className={styles.allyTypeBadge}> - {ally.allyType}</span>
                 </h4>
-                <ul className="unit-picker-list">
+                <ul className={styles.list}>
                   {ally.datasheets
                     .sort((a, b) => a.name.localeCompare(b.name))
                     .map((ds) => {
@@ -224,20 +223,10 @@ export function UnitPicker({
                         alliedCosts,
                       );
                       return (
-                        <li
-                          key={ds.id}
-                          className="unit-picker-item unit-picker-item-allied"
-                        >
-                          <span className="unit-picker-name">{ds.name}</span>
-                          <span className="unit-picker-cost-pill">
-                            {minCost}
-                          </span>
-                          <button
-                            className="btn-add-icon"
-                            onClick={() => onAdd(ds.id, firstLine, true)}
-                          >
-                            +
-                          </button>
+                        <li key={ds.id} className={styles.item}>
+                          <span className={styles.name}>{ds.name}</span>
+                          <span className={styles.costPill}>{minCost}</span>
+                          <button className={styles.addBtn} onClick={() => onAdd(ds.id, firstLine, true)}>+</button>
                         </li>
                       );
                     })}
