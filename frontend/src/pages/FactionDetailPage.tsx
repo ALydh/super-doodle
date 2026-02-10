@@ -118,6 +118,25 @@ export function FactionDetailPage() {
     };
   }, [chapterKeyword, keywordsByDatasheet]);
 
+  const visibleDetachments = useMemo(() => {
+    if (!chapterId || chapterFilter !== "chapter") return detachments;
+    const ids = new Set(CHAPTER_DETACHMENTS[chapterId] ?? []);
+    return detachments
+      .filter((d) => ids.has(d.detachmentId) || !ALL_CHAPTER_DETACHMENT_IDS.has(d.detachmentId))
+      .sort((a, b) => {
+        const aIsChapter = ids.has(a.detachmentId);
+        const bIsChapter = ids.has(b.detachmentId);
+        if (aIsChapter && !bIsChapter) return -1;
+        if (!aIsChapter && bIsChapter) return 1;
+        return 0;
+      });
+  }, [detachments, chapterId, chapterFilter]);
+
+  const visibleDetachmentIds = useMemo(
+    () => new Set(visibleDetachments.map((d) => d.detachmentId)),
+    [visibleDetachments],
+  );
+
   if (error) return <div className="error-message">{error}</div>;
 
   const filtered = datasheets.filter((ds) => {
@@ -152,26 +171,6 @@ export function FactionDetailPage() {
 
   const sortedRoles = sortByRoleOrder(Object.keys(datasheetsByRole));
   const noResults = filtered.length === 0 && datasheets.length > 0;
-
-  const chapterDetachmentIds = chapterId ? new Set(CHAPTER_DETACHMENTS[chapterId] ?? []) : null;
-
-  const visibleDetachments = useMemo(() => {
-    if (!chapterDetachmentIds || chapterFilter !== "chapter") return detachments;
-    return detachments
-      .filter((d) => chapterDetachmentIds.has(d.detachmentId) || !ALL_CHAPTER_DETACHMENT_IDS.has(d.detachmentId))
-      .sort((a, b) => {
-        const aIsChapter = chapterDetachmentIds.has(a.detachmentId);
-        const bIsChapter = chapterDetachmentIds.has(b.detachmentId);
-        if (aIsChapter && !bIsChapter) return -1;
-        if (!aIsChapter && bIsChapter) return 1;
-        return 0;
-      });
-  }, [detachments, chapterDetachmentIds, chapterFilter]);
-
-  const visibleDetachmentIds = useMemo(
-    () => new Set(visibleDetachments.map((d) => d.detachmentId)),
-    [visibleDetachments],
-  );
 
   const phases = [...new Set(stratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
 
