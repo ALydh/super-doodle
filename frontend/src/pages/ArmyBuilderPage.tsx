@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
@@ -7,7 +7,7 @@ import type {
   AlliedFactionInfo, DatasheetKeyword,
 } from "../types";
 import {
-  fetchDatasheetsByFaction, fetchDetachmentsByFaction,
+  fetchDetachmentsByFaction,
   fetchEnhancementsByFaction, fetchLeadersByFaction,
   fetchArmy, createArmy, updateArmy, validateArmy, fetchDetachmentAbilities,
   fetchStratagemsByFaction, fetchDatasheetDetailsByFaction, fetchAvailableAllies,
@@ -27,6 +27,8 @@ import styles from "./ArmyBuilderPage.module.css";
 export function ArmyBuilderPage() {
   const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const routerFactionId: string = (location.state as { factionId?: string } | null)?.factionId ?? "";
   const { user, loading: authLoading } = useAuth();
   const isEdit = !!armyId;
 
@@ -59,10 +61,10 @@ export function ArmyBuilderPage() {
   // Derive effective faction ID: for edit mode use loaded army's faction, for create use URL param
   const effectiveFactionId = useMemo(() => {
     if (isEdit) {
-      return loadedArmyFactionId;
+      return loadedArmyFactionId || routerFactionId;
     }
     return factionId ?? "";
-  }, [isEdit, loadedArmyFactionId, factionId]);
+  }, [isEdit, loadedArmyFactionId, routerFactionId, factionId]);
 
   // Derive loading state from data presence
   const loading = effectiveFactionId !== "" && datasheets === null;
@@ -101,14 +103,13 @@ export function ArmyBuilderPage() {
     let cancelled = false;
 
     Promise.all([
-      fetchDatasheetsByFaction(effectiveFactionId),
       fetchDetachmentsByFaction(effectiveFactionId),
       fetchEnhancementsByFaction(effectiveFactionId),
       fetchLeadersByFaction(effectiveFactionId),
       fetchStratagemsByFaction(effectiveFactionId),
       fetchDatasheetDetailsByFaction(effectiveFactionId),
       fetchAvailableAllies(effectiveFactionId),
-    ]).then(([ds, det, enh, ldr, strat, details, allies]) => {
+    ]).then(([det, enh, ldr, strat, details, allies]) => {
       if (cancelled) return;
       setDetachments(det);
       setEnhancements(enh);
@@ -123,7 +124,7 @@ export function ArmyBuilderPage() {
       const options = details.flatMap((d) => d.options);
       setAllCosts(costs);
       setAllOptions(options);
-      setDatasheets(ds);
+      setDatasheets(details.map((d) => d.datasheet));
 
       const kwMap = new Map<string, DatasheetKeyword[]>();
       for (const d of details) {

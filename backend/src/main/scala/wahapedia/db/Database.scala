@@ -28,12 +28,24 @@ case class Databases(refXa: Transactor[IO], userXa: Transactor[IO])
 
 object Database {
 
+  private val readOnlyPragmas: ConnectionIO[Unit] = List(
+    sql"PRAGMA busy_timeout=5000",
+    sql"PRAGMA cache_size=-20000",
+    sql"PRAGMA mmap_size=268435456",
+    sql"PRAGMA temp_store=MEMORY"
+  ).traverse_(_.update.run.void)
+
+  private val readWritePragmas: ConnectionIO[Unit] =
+    (sql"PRAGMA journal_mode=WAL".update.run.void *>
+      sql"PRAGMA synchronous=NORMAL".update.run.void) *> readOnlyPragmas
+
   def transactors(config: DatabaseConfig): Databases = {
-    val refXa = Transactor.fromDriverManager[IO](
+    val baseRefXa = Transactor.fromDriverManager[IO](
       driver = "org.sqlite.JDBC",
       url = s"jdbc:sqlite:file:${config.refDbPath}?mode=ro",
       logHandler = None
     )
+    val refXa = Transactor.before.modify(baseRefXa, _ *> readOnlyPragmas)
 
     val baseUserXa = Transactor.fromDriverManager[IO](
       driver = "org.sqlite.JDBC",
@@ -44,15 +56,17 @@ object Database {
     val attachRefDb: ConnectionIO[Unit] =
       sql"ATTACH DATABASE ${config.refDbPath} AS ref".update.run.void
 
-    val userXa = Transactor.before.modify(baseUserXa, _ *> attachRefDb)
+    val userXa = Transactor.before.modify(baseUserXa, _ *> readWritePragmas *> attachRefDb)
 
     Databases(refXa, userXa)
   }
 
-  def singleTransactor(path: String): Transactor[IO] =
-    Transactor.fromDriverManager[IO](
+  def singleTransactor(path: String): Transactor[IO] = {
+    val base = Transactor.fromDriverManager[IO](
       driver = "org.sqlite.JDBC",
       url = s"jdbc:sqlite:file:$path?foreign_keys=on",
       logHandler = None
     )
+    Transactor.before.modify(base, _ *> readWritePragmas)
+  }
 }
