@@ -28,16 +28,25 @@ case class Databases(refXa: Transactor[IO], userXa: Transactor[IO])
 
 object Database {
 
-  private val readOnlyPragmas: ConnectionIO[Unit] = List(
-    sql"PRAGMA busy_timeout=5000",
-    sql"PRAGMA cache_size=-20000",
-    sql"PRAGMA mmap_size=268435456",
-    sql"PRAGMA temp_store=MEMORY"
-  ).traverse_(_.update.run.void)
+  private def execPragma(frag: Fragment): ConnectionIO[Unit] =
+    frag.execWith(FPS.execute.void)
+
+  private val readOnlyPragmas: ConnectionIO[Unit] =
+    FC.setAutoCommit(true) *>
+      List(
+        sql"PRAGMA busy_timeout=5000",
+        sql"PRAGMA cache_size=-20000",
+        sql"PRAGMA mmap_size=268435456",
+        sql"PRAGMA temp_store=MEMORY"
+      ).traverse_(execPragma) *>
+      FC.setAutoCommit(false)
 
   private val readWritePragmas: ConnectionIO[Unit] =
-    (sql"PRAGMA journal_mode=WAL".update.run.void *>
-      sql"PRAGMA synchronous=NORMAL".update.run.void) *> readOnlyPragmas
+    FC.setAutoCommit(true) *>
+      execPragma(sql"PRAGMA journal_mode=WAL") *>
+      execPragma(sql"PRAGMA synchronous=NORMAL") *>
+      FC.setAutoCommit(false) *>
+      readOnlyPragmas
 
   def transactors(config: DatabaseConfig): Databases = {
     val baseRefXa = Transactor.fromDriverManager[IO](
@@ -54,7 +63,7 @@ object Database {
     )
 
     val attachRefDb: ConnectionIO[Unit] =
-      sql"ATTACH DATABASE ${config.refDbPath} AS ref".update.run.void
+      execPragma(sql"ATTACH DATABASE ${config.refDbPath} AS ref")
 
     val userXa = Transactor.before.modify(baseUserXa, _ *> readWritePragmas *> attachRefDb)
 
