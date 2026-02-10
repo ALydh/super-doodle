@@ -1,6 +1,6 @@
 package wahapedia.domain.army
 
-import wahapedia.domain.models.{Wargear, ParsedWargearOption, WargearAction, ModelLoadout, LoadoutParser, CompositionLineParser, ParsedCompositionLine}
+import wahapedia.domain.models.{Wargear, ParsedWargearOption, WargearAction, ModelLoadout, LoadoutParser, CompositionLineParser, ParsedCompositionLine, DatasheetAbility}
 
 case class WargearWithQuantity(
   wargear: Wargear,
@@ -218,6 +218,33 @@ object WargearFilter {
     val normalizedWeapon = weaponName.toLowerCase
     val normalizedPrefix = prefix.toLowerCase
     normalizedWeapon == normalizedPrefix || normalizedWeapon.startsWith(normalizedPrefix + " ")
+  }
+
+  def filterAbilities(
+    abilities: List[DatasheetAbility],
+    parsedOptions: List[ParsedWargearOption],
+    selections: List[WargearSelection]
+  ): List[DatasheetAbility] = {
+    if (parsedOptions.isEmpty) return abilities
+
+    val allOptionNames = parsedOptions.map(_.weaponName.toLowerCase).toSet
+    val (_, activeAdds) = calculateSelectionChanges(parsedOptions, selections)
+
+    abilities.filter { a =>
+      a.abilityType match {
+        case Some("Wargear") =>
+          a.name match {
+            case Some(name) =>
+              val lowerName = name.toLowerCase
+              if (allOptionNames.exists(opt => matchesWeaponPrefix(lowerName, opt) || matchesWeaponPrefix(opt, lowerName)))
+                activeAdds.keys.exists(add => matchesWeaponPrefix(lowerName, add) || matchesWeaponPrefix(add, lowerName))
+              else
+                true
+            case None => true
+          }
+        case _ => true
+      }
+    }
   }
 
   private def getSelectedChoiceIndex(

@@ -161,11 +161,14 @@ object ArmyRoutes {
                       allWargear, parsedOpts, unit.wargearSelections, defaults, unitSize
                     )
                     val wargearDtos = filteredWargear.map(w => wahapedia.http.dto.WargearWithQuantity(w.wargear, w.quantity, w.modelType))
+                    val filteredAbilities = WargearFilter.filterAbilities(
+                      abilitiesMap.getOrElse(dsId, List.empty), parsedOpts, unit.wargearSelections
+                    )
                     BattleUnitData(
                       unit, datasheet,
                       profilesMap.getOrElse(dsId, List.empty),
                       wargearDtos,
-                      abilitiesMap.getOrElse(dsId, List.empty),
+                      filteredAbilities,
                       keywordsMap.getOrElse(dsId, List.empty),
                       unitCost, enh
                     )
