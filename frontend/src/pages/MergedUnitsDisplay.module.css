@@ -42,7 +42,7 @@
 
 .warlordBadge {
   background-color: var(--faction-primary);
-  color: var(--text-primary);
+  color: var(--faction-primary-text);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.85em;
@@ -149,6 +149,7 @@
 
 .btnCopy {
   background-color: var(--faction-emphasis);
+  color: var(--faction-emphasis-text);
   padding: 6px 12px;
   font-size: 0.85rem;
   margin-right: 4px;

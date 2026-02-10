@@ -190,7 +190,7 @@ input[type="radio"] {
 
 button {
   background-color: var(--faction-primary);
-  color: var(--text-primary);
+  color: var(--faction-primary-text);
   border: none;
   padding: 10px 18px;
   border-radius: 6px;

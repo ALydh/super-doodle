@@ -25,7 +25,7 @@
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
   background: var(--faction-primary);
-  color: var(--text-primary);
+  color: var(--faction-primary-text);
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 600;

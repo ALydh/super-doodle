@@ -22,6 +22,7 @@
 
   /* Faction flavor defaults (fallback) */
   --faction-primary: #888888;
+  --faction-primary-text: var(--text-primary);
   --faction-secondary: #666666;
   --faction-trim: #AAAAAA;
   --faction-emphasis: #CCCCCC;
@@ -116,6 +117,7 @@
 /* Space Marines: Imperial Fists */
 [data-faction="sm-imperial-fists"] {
   --faction-primary: #D4A017;
+  --faction-primary-text: #1a1a1a;
   --faction-secondary: #7A5A10;
   --faction-trim: #1A1A1A;
   --faction-emphasis: #FFFFFF;
@@ -176,6 +178,7 @@
 /* Space Marines: White Scars */
 [data-faction="sm-white-scars"] {
   --faction-primary: #E6E6E6;
+  --faction-primary-text: #1a1a1a;
   --faction-secondary: #B0B0B0;
   --faction-trim: #B22222;
   --faction-emphasis: #1A1A1A;
@@ -324,6 +327,7 @@
 /* Necrons */
 [data-faction="necrons"] {
   --faction-primary: #00FF9C;
+  --faction-primary-text: #1a1a1a;
   --faction-secondary: #0A3F2A;
   --faction-trim: #8FA6A0;
   --faction-emphasis: #00C2FF;
@@ -354,6 +358,7 @@
 /* T'au Empire */
 [data-faction="tau"] {
   --faction-primary: #E8E6E1;
+  --faction-primary-text: #1a1a1a;
   --faction-secondary: #AEB4BC;
   --faction-trim: #FF6F00;
   --faction-emphasis: #3FA9F5;
@@ -384,6 +389,7 @@
 /* Leagues of Votann */
 [data-faction="votann"] {
   --faction-primary: #D47F2A;
+  --faction-primary-text: #1a1a1a;
   --faction-secondary: #7A4A1A;
   --faction-trim: #9FA8B0;
   --faction-emphasis: #5BC0BE;
@@ -399,6 +405,7 @@
 /* Adeptus Custodes */
 [data-faction="adeptus-custodes"] {
   --faction-primary: #C9A227;
+  --faction-primary-text: #1a1a1a;
   --faction-secondary: #4A3C1F;
   --faction-trim: #8B0000;
   --faction-emphasis: #FFD700;

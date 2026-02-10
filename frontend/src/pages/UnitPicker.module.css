@@ -124,7 +124,7 @@
 
 .ownedBadge {
   background: var(--faction-primary);
-  color: var(--text-primary);
+  color: var(--faction-primary-text);
   font-size: 0.7rem;
   padding: 2px 8px;
   border-radius: 10px;

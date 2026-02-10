@@ -54,7 +54,7 @@
 .btnCreateArmy {
   display: inline-block;
   background-color: var(--faction-primary);
-  color: var(--text-primary);
+  color: var(--faction-primary-text);
   padding: 12px 24px;
   border-radius: 6px;
   font-weight: 600;
