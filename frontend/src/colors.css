@@ -17,6 +17,7 @@
 
   /* Text */
   --text-muted: #8A93A3;       /* Metadata, hints */
+  --text-secondary: #A8B1BE;   /* Secondary / supplementary */
   --text-body: #C9CFDA;        /* Body copy */
   --text-primary: #E6EAF2;     /* Headings, key values */
 
