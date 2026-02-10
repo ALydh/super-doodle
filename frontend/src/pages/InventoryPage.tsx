@@ -14,6 +14,11 @@ import styles from "./InventoryPage.module.css";
 
 type InventoryFilter = "all" | "owned" | "missing";
 
+const parseModels = (desc: string): number => {
+  const match = desc.match(/(\d+)\s*model/i);
+  return match ? parseInt(match[1], 10) : 1;
+};
+
 export function InventoryPage() {
   const { factionId } = useParams<{ factionId: string }>();
   const { user, loading: authLoading } = useAuth();
@@ -126,12 +131,17 @@ export function InventoryPage() {
     return total;
   }, [inventory]);
 
-  const totalPoints = useMemo(() => {
-    const parseModels = (desc: string): number => {
-      const match = desc.match(/(\d+)\s*model/i);
-      return match ? parseInt(match[1], 10) : 1;
-    };
+  const minModelsByDatasheet = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const [id, costs] of costsByDatasheet) {
+      if (costs.length > 0) {
+        map.set(id, Math.min(...costs.map((c) => parseModels(c.description))));
+      }
+    }
+    return map;
+  }, [costsByDatasheet]);
 
+  const totalPoints = useMemo(() => {
     let total = 0;
     for (const [datasheetId, qty] of inventory) {
       const costs = costsByDatasheet.get(datasheetId);
@@ -250,6 +260,7 @@ export function InventoryPage() {
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((ds) => {
                 const qty = inventory.get(ds.id) ?? 0;
+                const step = minModelsByDatasheet.get(ds.id) ?? 1;
                 return (
                   <div
                     key={ds.id}
@@ -259,10 +270,10 @@ export function InventoryPage() {
                     <div className={styles.quantityControl}>
                       <button
                         className={styles.quantityBtn}
-                        onClick={() => handleQuantityChange(ds.id, -1)}
+                        onClick={() => handleQuantityChange(ds.id, -step)}
                         disabled={qty === 0}
                       >
-                        -
+                        -{step > 1 ? step : ""}
                       </button>
                       <span
                         className={`${styles.quantityValue} ${qty === 0 ? styles.quantityValueZero : ""}`}
@@ -271,9 +282,9 @@ export function InventoryPage() {
                       </span>
                       <button
                         className={`${styles.quantityBtn} ${qty === 0 ? "" : styles.quantityBtnActive}`}
-                        onClick={() => handleQuantityChange(ds.id, 1)}
+                        onClick={() => handleQuantityChange(ds.id, step)}
                       >
-                        +
+                        +{step > 1 ? step : ""}
                       </button>
                     </div>
                   </div>
