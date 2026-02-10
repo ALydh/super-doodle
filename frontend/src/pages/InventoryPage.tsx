@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import type { Datasheet, DatasheetDetail } from "../types";
+import type { Datasheet, DatasheetDetail, UnitCost } from "../types";
 import {
   fetchDatasheetDetailsByFaction,
   fetchFactions,
@@ -20,6 +20,7 @@ export function InventoryPage() {
 
   const [factionName, setFactionName] = useState<string>("");
   const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
+  const [costsByDatasheet, setCostsByDatasheet] = useState<Map<string, UnitCost[]>>(new Map());
   const [inventory, setInventory] = useState<Map<string, number>>(new Map());
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<InventoryFilter>("all");
@@ -36,7 +37,13 @@ export function InventoryPage() {
     ])
       .then(([details, inv, factions]) => {
         if (cancelled) return;
-        setDatasheets(details.map((d: DatasheetDetail) => d.datasheet).filter((ds: Datasheet) => !ds.virtual));
+        const nonVirtual = details.filter((d: DatasheetDetail) => !d.datasheet.virtual);
+        setDatasheets(nonVirtual.map((d) => d.datasheet));
+        const costs = new Map<string, UnitCost[]>();
+        for (const d of nonVirtual) {
+          costs.set(d.datasheet.id, d.costs);
+        }
+        setCostsByDatasheet(costs);
         const faction = factions.find((f) => f.id === factionId);
         setFactionName(faction?.name ?? factionId);
 
@@ -119,6 +126,18 @@ export function InventoryPage() {
     return total;
   }, [inventory]);
 
+  const totalPoints = useMemo(() => {
+    let total = 0;
+    for (const [datasheetId, qty] of inventory) {
+      const costs = costsByDatasheet.get(datasheetId);
+      if (costs && costs.length > 0) {
+        const minCost = Math.min(...costs.map((c) => c.cost));
+        total += minCost * qty;
+      }
+    }
+    return total;
+  }, [inventory, costsByDatasheet]);
+
   if (authLoading) return <div>Loading...</div>;
 
   if (!user) {
@@ -165,6 +184,10 @@ export function InventoryPage() {
         <div className={styles.summaryItem}>
           <span className={styles.summaryLabel}>Total models</span>
           <span className={styles.summaryValue}>{totalModels}</span>
+        </div>
+        <div className={styles.summaryItem}>
+          <span className={styles.summaryLabel}>Total points</span>
+          <span className={styles.summaryValue}>{totalPoints}</span>
         </div>
       </div>
 
