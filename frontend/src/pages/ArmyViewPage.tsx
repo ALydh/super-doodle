@@ -11,6 +11,9 @@ import {
   fetchEnhancementsByFaction,
   fetchDetachmentsByFaction,
   fetchInventory,
+  fetchDatasheetDetailsByFaction,
+  fetchLeadersByFaction,
+  fetchAvailableAllies,
 } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { getChapterTheme, isSpaceMarines, SM_CHAPTERS } from "../chapters";
@@ -91,6 +94,9 @@ export function ArmyViewPage() {
           return { ...bu, unit: { ...bu.unit, attachedToUnitIndex: bodyguardIndex >= 0 ? bodyguardIndex : null } };
         });
         setBattleData(data);
+        fetchDatasheetDetailsByFaction(data.factionId);
+        fetchLeadersByFaction(data.factionId);
+        fetchAvailableAllies(data.factionId);
         return Promise.all([
           fetchStratagemsByFaction(data.factionId),
           fetchEnhancementsByFaction(data.factionId),
@@ -247,7 +253,7 @@ export function ArmyViewPage() {
           </p>
         </div>
         <div className={styles.actions}>
-          <Link to={`/armies/${armyId}/edit`}>
+          <Link to={`/armies/${armyId}/edit`} state={{ factionId: battleData.factionId }}>
             <button className={styles.editBtn}>Edit</button>
           </Link>
           {user && (
