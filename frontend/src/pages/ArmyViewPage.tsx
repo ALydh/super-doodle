@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import type { Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, ArmyBattleData, BattleUnitData } from "../types";
+import type { Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, ArmyBattleData, BattleUnitData, Army } from "../types";
 import { sortByRoleOrder } from "../constants";
 import { BATTLE_SIZE_POINTS, BattleSize } from "../types";
 import {
   fetchArmyForBattle,
   deleteArmy,
+  createArmy,
   fetchStratagemsByFaction,
   fetchDetachmentAbilities,
   fetchEnhancementsByFaction,
@@ -196,6 +197,20 @@ export function ArmyViewPage() {
     }, 0);
   }, [battleData]);
 
+  const handleCopy = async () => {
+    if (!battleData) return;
+    const army: Army = {
+      factionId: battleData.factionId,
+      battleSize: battleData.battleSize as BattleSize,
+      detachmentId: battleData.detachmentId,
+      warlordId: battleData.warlordId,
+      units: battleData.units.map((bu) => bu.unit),
+      chapterId: battleData.chapterId,
+    };
+    const persisted = await createArmy(`${battleData.name} (Copy)`, army);
+    navigate(`/armies/${persisted.id}`);
+  };
+
   const handleDelete = async () => {
     if (!armyId) return;
     if (!window.confirm("Are you sure you want to delete this army? This cannot be undone.")) {
@@ -253,6 +268,9 @@ export function ArmyViewPage() {
           </p>
         </div>
         <div className={styles.actions}>
+          {user && (
+            <button className={styles.copyBtn} onClick={handleCopy}>Copy</button>
+          )}
           <Link to={`/armies/${armyId}/edit`} state={{ factionId: battleData.factionId }}>
             <button className={styles.editBtn}>Edit</button>
           </Link>
