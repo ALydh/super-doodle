@@ -127,12 +127,26 @@ export function InventoryPage() {
   }, [inventory]);
 
   const totalPoints = useMemo(() => {
+    const parseModels = (desc: string): number => {
+      const match = desc.match(/(\d+)\s*model/i);
+      return match ? parseInt(match[1], 10) : 1;
+    };
+
     let total = 0;
     for (const [datasheetId, qty] of inventory) {
       const costs = costsByDatasheet.get(datasheetId);
-      if (costs && costs.length > 0) {
-        const minCost = Math.min(...costs.map((c) => c.cost));
-        total += minCost * qty;
+      if (!costs || costs.length === 0 || qty === 0) continue;
+
+      const options = costs
+        .map((c) => ({ models: parseModels(c.description), cost: c.cost }))
+        .sort((a, b) => b.models - a.models);
+
+      let remaining = qty;
+      for (const opt of options) {
+        if (opt.models <= 0) continue;
+        const fits = Math.floor(remaining / opt.models);
+        total += fits * opt.cost;
+        remaining -= fits * opt.models;
       }
     }
     return total;
