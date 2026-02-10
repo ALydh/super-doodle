@@ -55,6 +55,7 @@
   gap: 8px;
 }
 
+.copyBtn,
 .editBtn,
 .deleteBtn {
   width: 32px;
@@ -72,9 +73,23 @@
   color: white;
 }
 
+.copyBtn:hover,
 .editBtn:hover,
 .deleteBtn:hover {
   opacity: 1;
+}
+
+.copyBtn {
+  background-color: var(--faction-primary);
+}
+
+.copyBtn::before {
+  content: "⧉";
+  font-size: 1rem;
+}
+
+.copyBtn:hover {
+  background-color: var(--faction-secondary);
 }
 
 .editBtn {
