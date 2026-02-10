@@ -11,7 +11,7 @@ import {
 } from "../api";
 import { useAuth } from "../context/useAuth";
 import { getFactionTheme } from "../factionTheme";
-import { isSpaceMarines, SM_CHAPTERS, CHAPTER_KEYWORDS, getChapterTheme } from "../chapters";
+import { isSpaceMarines, SM_CHAPTERS, CHAPTER_KEYWORDS, CHAPTER_DETACHMENTS, ALL_CHAPTER_DETACHMENT_IDS, getChapterTheme } from "../chapters";
 import { TabNavigation } from "../components/TabNavigation";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { sortByRoleOrder } from "../constants";
@@ -153,9 +153,30 @@ export function FactionDetailPage() {
   const sortedRoles = sortByRoleOrder(Object.keys(datasheetsByRole));
   const noResults = filtered.length === 0 && datasheets.length > 0;
 
+  const chapterDetachmentIds = chapterId ? new Set(CHAPTER_DETACHMENTS[chapterId] ?? []) : null;
+
+  const visibleDetachments = useMemo(() => {
+    if (!chapterDetachmentIds || chapterFilter !== "chapter") return detachments;
+    return detachments
+      .filter((d) => chapterDetachmentIds.has(d.detachmentId) || !ALL_CHAPTER_DETACHMENT_IDS.has(d.detachmentId))
+      .sort((a, b) => {
+        const aIsChapter = chapterDetachmentIds.has(a.detachmentId);
+        const bIsChapter = chapterDetachmentIds.has(b.detachmentId);
+        if (aIsChapter && !bIsChapter) return -1;
+        if (!aIsChapter && bIsChapter) return 1;
+        return 0;
+      });
+  }, [detachments, chapterDetachmentIds, chapterFilter]);
+
+  const visibleDetachmentIds = useMemo(
+    () => new Set(visibleDetachments.map((d) => d.detachmentId)),
+    [visibleDetachments],
+  );
+
   const phases = [...new Set(stratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
 
   const filteredStratagems = stratagems.filter((s) => {
+    if (s.detachmentId && !visibleDetachmentIds.has(s.detachmentId)) return false;
     if (stratagemDetachmentFilter !== "all" && s.detachmentId !== stratagemDetachmentFilter) {
       return false;
     }
@@ -204,16 +225,47 @@ export function FactionDetailPage() {
 
       <TabNavigation tabs={TABS} activeTab={activeTab} onTabChange={(t) => setActiveTab(t as TabId)} />
 
+      {isSM && (
+        <div className={styles.chapterControls}>
+          <select
+            className={styles.chapterSelect}
+            value={chapterId ?? ""}
+            onChange={(e) => {
+              const val = e.target.value || null;
+              setChapterId(val);
+              if (!val) setChapterFilter("all");
+            }}
+          >
+            <option value="">No Chapter</option>
+            {SM_CHAPTERS.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          {chapterKeyword && (
+            <div className={styles.chapterFilters}>
+              <button
+                type="button"
+                className={`${styles.filterPill} ${chapterFilter === "all" ? styles.filterPillActive : ""}`}
+                onClick={() => setChapterFilter("all")}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                className={`${styles.filterPill} ${chapterFilter === "chapter" ? styles.filterPillActive : ""}`}
+                onClick={() => setChapterFilter("chapter")}
+              >
+                Chapter Only
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {activeTab === "units" && (
         <UnitsTab
           search={search}
           onSearchChange={setSearch}
-          isSM={isSM}
-          chapterId={chapterId}
-          onChapterIdChange={setChapterId}
-          chapterKeyword={chapterKeyword}
-          chapterFilter={chapterFilter}
-          onChapterFilterChange={setChapterFilter}
           noResults={noResults}
           sortedRoles={sortedRoles}
           datasheetsByRole={datasheetsByRole}
@@ -222,13 +274,14 @@ export function FactionDetailPage() {
           expandedUnit={expandedUnit}
           onUnitToggle={handleUnitToggle}
           profilesByDatasheet={profilesByDatasheet}
+          chapterKeyword={chapterKeyword}
         />
       )}
 
       {activeTab === "stratagems" && (
         <StrategemsTab
           filteredStratagems={filteredStratagems}
-          detachments={detachments}
+          detachments={visibleDetachments}
           phases={phases}
           stratagemDetachmentFilter={stratagemDetachmentFilter}
           onDetachmentFilterChange={setStratagemDetachmentFilter}
@@ -239,7 +292,7 @@ export function FactionDetailPage() {
 
       {activeTab === "detachments" && (
         <div>
-          {detachments.map((det) => (
+          {visibleDetachments.map((det) => (
             <DetachmentCard
               key={det.detachmentId}
               name={det.name}
