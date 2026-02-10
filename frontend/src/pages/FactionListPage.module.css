@@ -85,7 +85,7 @@
 
 .armyCardSize {
   background-color: var(--faction-primary);
-  color: var(--surface-page);
+  color: var(--faction-primary-text);
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 0.8rem;
