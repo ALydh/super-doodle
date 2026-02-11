@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { ArmyUnit, DatasheetDetail, WargearWithQuantity, Enhancement, DatasheetOption, WargearSelection } from "../types";
 import { WeaponAbilityText } from "./WeaponAbilityText";
 import { sanitizeHtml } from "../sanitize";
@@ -42,6 +43,7 @@ export function UnitRowExpanded({
   extractWargearChoices,
   getWargearSelection,
 }: Props) {
+  const [expandedCore, setExpandedCore] = useState<number | null>(null);
   return (
     <div className={styles.expanded}>
       {loadingDetail && <div className="loading">Loading stats...</div>}
@@ -127,19 +129,42 @@ export function UnitRowExpanded({
         </div>
       )}
 
-      {detail && detail.abilities.filter(a => a.name).length > 0 && (
-        <div className={styles.abilitiesPreview}>
-          <h5 className={styles.sectionHeading}>Abilities</h5>
-          <div className={styles.abilitiesList}>
-            {detail.abilities.filter(a => a.name).map((a, i) => (
-              <div key={i} className={styles.abilityLine}>
-                <strong>{a.name}</strong>
-                {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
+      {detail && detail.abilities.filter(a => a.name).length > 0 && (() => {
+        const named = detail.abilities.filter(a => a.name);
+        const core = named.filter(a => a.abilityType === "Core");
+        const other = named.filter(a => a.abilityType !== "Core" && a.abilityType !== "Faction");
+        return (
+          <div className={styles.abilitiesPreview}>
+            <h5 className={styles.sectionHeading}>Abilities</h5>
+            {core.length > 0 && (
+              <>
+                <div className={styles.coreAbilitiesPills}>
+                  {core.map((a, i) => (
+                    <span
+                      key={i}
+                      className={`${styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
+                      onClick={() => setExpandedCore(expandedCore === i ? null : i)}
+                    >{a.name}</span>
+                  ))}
+                </div>
+                {expandedCore !== null && core[expandedCore]?.description && (
+                  <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
+                )}
+              </>
+            )}
+            {other.length > 0 && (
+              <div className={styles.abilitiesList}>
+                {other.map((a, i) => (
+                  <div key={i} className={styles.abilityLine}>
+                    <strong>{a.name}</strong>
+                    {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

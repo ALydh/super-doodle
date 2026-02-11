@@ -1,5 +1,6 @@
 import type { DetachmentAbility, Enhancement } from "../types";
 import { sanitizeHtml } from "../sanitize";
+import { useCompactMode } from "../context/CompactModeContext";
 import styles from "./DetachmentCard.module.css";
 
 const stripFactionRestriction = (desc: string) =>
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function DetachmentCard({ name, abilities, enhancements }: Props) {
+  const { compact } = useCompactMode();
   return (
     <div className={styles.card}>
       <h3 className={styles.name}>{name}</h3>
@@ -22,7 +24,7 @@ export function DetachmentCard({ name, abilities, enhancements }: Props) {
           {abilities.map((ability) => (
             <div key={ability.id} className={styles.ability}>
               <strong>{ability.name}</strong>
-              {ability.legend && (
+              {!compact && ability.legend && (
                 <div className={styles.abilityLegend}>{ability.legend}</div>
               )}
               <div
@@ -44,7 +46,7 @@ export function DetachmentCard({ name, abilities, enhancements }: Props) {
                   <span className={styles.enhancementName}>{enhancement.name}</span>
                   <span className={styles.enhancementCost}>{enhancement.cost}pts</span>
                 </div>
-                {enhancement.legend && (
+                {!compact && enhancement.legend && (
                   <div className={styles.enhancementLegend}>{enhancement.legend}</div>
                 )}
                 <div

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { BattleUnitData } from "../../types";
 import { WeaponAbilityText } from "../../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../../sanitize";
@@ -13,6 +14,7 @@ interface Props {
 
 export function UnitDetail({ data, isWarlord }: Props) {
   const { datasheet, profiles, wargear, abilities, keywords, cost, enhancement } = data;
+  const [expandedCore, setExpandedCore] = useState<number | null>(null);
 
   return (
     <div className={styles.detail}>
@@ -149,19 +151,42 @@ export function UnitDetail({ data, isWarlord }: Props) {
         </div>
       )}
 
-      {abilities.filter((a) => a.name).length > 0 && (
-        <div className={styles.abilities}>
-          <h4>Abilities</h4>
-          <ul className={styles.abilitiesList}>
-            {abilities.filter((a) => a.name).map((a, i) => (
-              <li key={i}>
-                <strong>{a.name}</strong>
-                {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {abilities.filter((a) => a.name).length > 0 && (() => {
+        const named = abilities.filter((a) => a.name);
+        const core = named.filter((a) => a.abilityType === "Core");
+        const other = named.filter((a) => a.abilityType !== "Core" && a.abilityType !== "Faction");
+        return (
+          <div className={styles.abilities}>
+            <h4>Abilities</h4>
+            {core.length > 0 && (
+              <>
+                <div className={styles.coreAbilitiesPills}>
+                  {core.map((a, i) => (
+                    <span
+                      key={i}
+                      className={`${styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
+                      onClick={() => setExpandedCore(expandedCore === i ? null : i)}
+                    >{a.name}</span>
+                  ))}
+                </div>
+                {expandedCore !== null && core[expandedCore]?.description && (
+                  <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
+                )}
+              </>
+            )}
+            {other.length > 0 && (
+              <ul className={styles.abilitiesList}>
+                {other.map((a, i) => (
+                  <li key={i}>
+                    <strong>{a.name}</strong>
+                    {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })()}
 
       {keywords.filter((k) => k.keyword).length > 0 && (
         <div className={styles.keywords}>

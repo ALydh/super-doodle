@@ -1,6 +1,8 @@
+import { useState } from "react";
 import type { DatasheetDetail } from "../types";
 import { WeaponAbilityText } from "../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../sanitize";
+import { useCompactMode } from "../context/CompactModeContext";
 import styles from "./ExpandableUnitCard.module.css";
 import sharedStyles from "../shared.module.css";
 
@@ -9,6 +11,8 @@ interface Props {
 }
 
 export function UnitCardDetail({ detail }: Props) {
+  const { compact } = useCompactMode();
+  const [expandedCore, setExpandedCore] = useState<number | null>(null);
   const filteredAbilities = detail.abilities.filter(a => a.name);
   const filteredKeywords = detail.keywords.filter(k => k.keyword);
   const filteredWargear = detail.wargear.filter(w => w.name);
@@ -17,7 +21,7 @@ export function UnitCardDetail({ detail }: Props) {
   return (<>
     <div className={styles.wideColumns}>
       <div className={styles.wideLeft}>
-        {detail.datasheet.legend && (
+        {!compact && detail.datasheet.legend && (
           <div className={styles.legend}>{detail.datasheet.legend}</div>
         )}
         {detail.profiles.length > 0 && (
@@ -122,23 +126,43 @@ export function UnitCardDetail({ detail }: Props) {
         )}
       </div>
 
-      {hasRightColumn && (
-        <div className={styles.wideRight}>
-          {filteredAbilities.length > 0 && (
+      {hasRightColumn && (() => {
+        const core = filteredAbilities.filter(a => a.abilityType === "Core");
+        const other = filteredAbilities.filter(a => a.abilityType !== "Core" && a.abilityType !== "Faction");
+        return (
+          <div className={styles.wideRight}>
             <div className={styles.abilitiesSection}>
               <h4>Abilities</h4>
-              <ul className={styles.abilitiesList}>
-                {filteredAbilities.map((a, i) => (
-                  <li key={i}>
-                    <strong>{a.name}</strong>
-                    {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
-                  </li>
-                ))}
-              </ul>
+              {core.length > 0 && (
+                <>
+                  <div className={styles.coreAbilitiesPills}>
+                    {core.map((a, i) => (
+                      <span
+                        key={i}
+                        className={`${styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
+                        onClick={() => setExpandedCore(expandedCore === i ? null : i)}
+                      >{a.name}</span>
+                    ))}
+                  </div>
+                  {expandedCore !== null && core[expandedCore]?.description && (
+                    <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
+                  )}
+                </>
+              )}
+              {other.length > 0 && (
+                <ul className={styles.abilitiesList}>
+                  {other.map((a, i) => (
+                    <li key={i}>
+                      <strong>{a.name}</strong>
+                      {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        );
+      })()}
     </div>
 
     {filteredKeywords.length > 0 && (

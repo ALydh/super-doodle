@@ -1,14 +1,17 @@
 import type { Stratagem } from "../types";
 import { sanitizeHtml } from "../sanitize";
+import { useCompactMode } from "../context/CompactModeContext";
 import styles from "./StratagemCard.module.css";
 
 interface Props {
   stratagem: Stratagem;
+  accent?: boolean;
 }
 
-export function StratagemCard({ stratagem }: Props) {
+export function StratagemCard({ stratagem, accent }: Props) {
+  const { compact } = useCompactMode();
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${accent ? styles.accent : ""}`}>
       <div className={styles.header}>
         <span className={styles.name}>{stratagem.name}</span>
         {stratagem.cpCost !== null && (
@@ -26,7 +29,7 @@ export function StratagemCard({ stratagem }: Props) {
           <span className={styles.turn}>{stratagem.turn}</span>
         )}
       </div>
-      {stratagem.legend && (
+      {!compact && stratagem.legend && (
         <div className={styles.legend}>{stratagem.legend}</div>
       )}
       <div

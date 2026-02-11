@@ -157,6 +157,49 @@
   color: var(--faction-primary);
 }
 
+.coreAbilitiesPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.coreAbilityPill {
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--faction-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--faction-primary);
+}
+
+.coreAbilityPillClickable {
+  cursor: pointer;
+}
+
+.coreAbilityPillClickable:hover,
+.coreAbilityPillActive {
+  background-color: var(--faction-primary);
+  color: var(--faction-primary-text);
+}
+
+.coreAbilityExpanded {
+  padding: 8px 12px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  background-color: var(--surface-card);
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+  border-left: 3px solid var(--faction-primary);
+}
+
+.coreAbilityExpanded :global(.stratLegend2) {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
 .keywordsList {
   gap: 6px;
 }

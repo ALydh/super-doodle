@@ -147,15 +147,32 @@ object ReferenceDataRepository {
       .query[DatasheetKeyword].to[List].transact(xa)
 
   def allDatasheetAbilities(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
-    sql"SELECT datasheet_id, line, ability_id, model, name, description, ability_type, parameter FROM datasheet_abilities"
+    sql"""SELECT da.datasheet_id, da.line, da.ability_id, da.model,
+                 COALESCE(NULLIF(da.name, ''), a.name) as name,
+                 COALESCE(NULLIF(da.description, ''), a.description) as description,
+                 da.ability_type, da.parameter
+          FROM datasheet_abilities da
+          LEFT JOIN abilities a ON da.ability_id = a.id"""
       .query[DatasheetAbility].to[List].transact(xa)
 
   def abilitiesForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
-    sql"SELECT datasheet_id, line, ability_id, model, name, description, ability_type, parameter FROM datasheet_abilities WHERE datasheet_id = $datasheetId"
+    sql"""SELECT da.datasheet_id, da.line, da.ability_id, da.model,
+                 COALESCE(NULLIF(da.name, ''), a.name) as name,
+                 COALESCE(NULLIF(da.description, ''), a.description) as description,
+                 da.ability_type, da.parameter
+          FROM datasheet_abilities da
+          LEFT JOIN abilities a ON da.ability_id = a.id
+          WHERE da.datasheet_id = $datasheetId"""
       .query[DatasheetAbility].to[List].transact(xa)
 
   def abilitiesForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
-    (fr"SELECT datasheet_id, line, ability_id, model, name, description, ability_type, parameter FROM datasheet_abilities WHERE " ++ Fragments.in(fr"datasheet_id", datasheetIds))
+    (fr"""SELECT da.datasheet_id, da.line, da.ability_id, da.model,
+                 COALESCE(NULLIF(da.name, ''), a.name) as name,
+                 COALESCE(NULLIF(da.description, ''), a.description) as description,
+                 da.ability_type, da.parameter
+          FROM datasheet_abilities da
+          LEFT JOIN abilities a ON da.ability_id = a.id
+          WHERE """ ++ Fragments.in(fr"da.datasheet_id", datasheetIds))
       .query[DatasheetAbility].to[List].transact(xa)
 
   def allDatasheetOptions(xa: Transactor[IO]): IO[List[DatasheetOption]] =

@@ -58,3 +58,18 @@
 .logout:hover {
   color: var(--faction-primary);
 }
+
+.compactToggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.compactToggle:hover {
+  color: var(--faction-primary);
+}
