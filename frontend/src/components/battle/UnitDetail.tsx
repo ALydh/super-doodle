@@ -154,7 +154,7 @@ export function UnitDetail({ data, isWarlord }: Props) {
       {abilities.filter((a) => a.name).length > 0 && (() => {
         const named = abilities.filter((a) => a.name);
         const core = named.filter((a) => a.abilityType === "Core");
-        const other = named.filter((a) => a.abilityType !== "Core");
+        const other = named.filter((a) => a.abilityType !== "Core" && a.abilityType !== "Faction");
         return (
           <div className={styles.abilities}>
             <h4>Abilities</h4>

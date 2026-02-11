@@ -132,7 +132,7 @@ export function UnitRowExpanded({
       {detail && detail.abilities.filter(a => a.name).length > 0 && (() => {
         const named = detail.abilities.filter(a => a.name);
         const core = named.filter(a => a.abilityType === "Core");
-        const other = named.filter(a => a.abilityType !== "Core");
+        const other = named.filter(a => a.abilityType !== "Core" && a.abilityType !== "Faction");
         return (
           <div className={styles.abilitiesPreview}>
             <h5 className={styles.sectionHeading}>Abilities</h5>

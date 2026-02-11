@@ -172,26 +172,24 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
               )}
 
               {hasAbilities && (() => {
-                const faction = filteredAbilities.filter((a) => a.abilityType === "Faction");
                 const core = filteredAbilities.filter((a) => a.abilityType === "Core");
-                const pills = [...faction, ...core];
                 const other = filteredAbilities.filter((a) => a.abilityType !== "Core" && a.abilityType !== "Faction");
                 return (
                   <div className={styles.abilities}>
                     <h4>Abilities</h4>
-                    {pills.length > 0 && (
+                    {core.length > 0 && (
                       <>
                         <div className={styles.coreAbilitiesPills}>
-                          {pills.map((a, i) => (
+                          {core.map((a, i) => (
                             <span
                               key={i}
-                              className={`${a.abilityType === "Faction" ? styles.factionAbilityPill : styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
+                              className={`${styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
                               onClick={() => setExpandedCore(expandedCore === i ? null : i)}
                             >{a.name}</span>
                           ))}
                         </div>
-                        {expandedCore !== null && pills[expandedCore]?.description && (
-                          <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(pills[expandedCore].description!) }} />
+                        {expandedCore !== null && core[expandedCore]?.description && (
+                          <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
                         )}
                       </>
                     )}

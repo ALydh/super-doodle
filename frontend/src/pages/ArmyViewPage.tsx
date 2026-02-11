@@ -239,6 +239,32 @@ export function ArmyViewPage() {
     (s) => s.detachmentId === battleData.detachmentId || !s.detachmentId
   );
 
+  const factionAbilityCards: Stratagem[] = (() => {
+    const seen = new Set<string>();
+    const result: Stratagem[] = [];
+    for (const unit of battleData.units) {
+      for (const a of unit.abilities) {
+        if (a.abilityType === "Faction" && a.name && !seen.has(a.name)) {
+          seen.add(a.name);
+          result.push({
+            factionId: battleData.factionId,
+            name: a.name,
+            id: `faction-ability-${a.name}`,
+            stratagemType: "Faction Ability",
+            cpCost: null,
+            legend: null,
+            turn: null,
+            phase: null,
+            detachment: null,
+            detachmentId: null,
+            description: a.description ?? "",
+          });
+        }
+      }
+    }
+    return result;
+  })();
+
   const detachmentEnhancements = enhancements.filter(
     (e) => e.detachmentId === battleData.detachmentId
   );
@@ -294,6 +320,9 @@ export function ArmyViewPage() {
       {activeTab === "stratagems" && (
         <div>
           <div className={styles.stratagemsList}>
+            {factionAbilityCards.map((s) => (
+              <StratagemCard key={s.id} stratagem={s} accent />
+            ))}
             {detachmentStratagems.map((s) => (
               <StratagemCard key={s.id} stratagem={s} />
             ))}

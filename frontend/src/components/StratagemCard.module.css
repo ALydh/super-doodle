@@ -6,6 +6,10 @@
   margin-bottom: 12px;
 }
 
+.accent {
+  border-left: 4px solid var(--faction-trim);
+}
+
 .header {
   display: flex;
   justify-content: space-between;

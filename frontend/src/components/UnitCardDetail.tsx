@@ -126,7 +126,7 @@ export function UnitCardDetail({ detail }: Props) {
 
       {hasRightColumn && (() => {
         const core = filteredAbilities.filter(a => a.abilityType === "Core");
-        const other = filteredAbilities.filter(a => a.abilityType !== "Core");
+        const other = filteredAbilities.filter(a => a.abilityType !== "Core" && a.abilityType !== "Faction");
         return (
           <div className={styles.wideRight}>
             <div className={styles.abilitiesSection}>
