@@ -290,6 +290,12 @@ button:disabled {
   }
 }
 
+[data-compact] .legend2,
+[data-compact] .stratLegend2,
+[data-compact] .ShowFluff {
+  display: none;
+}
+
 @media (min-width: 600px) and (max-width: 899px) {
   #root {
     padding: 16px;

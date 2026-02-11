@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { BattleUnitData } from "../../types";
 import { WeaponAbilityText } from "../../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../../sanitize";
+import { useCompactMode } from "../../context/CompactModeContext";
 import styles from "./UnitDetail.module.css";
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
+  const { compact } = useCompactMode();
   const { datasheet, profiles, wargear, abilities, keywords, cost, enhancement } = data;
   const [expandedCore, setExpandedCore] = useState<number | null>(null);
 
@@ -46,7 +48,7 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
       {(profiles.length > 0 || hasWeapons || hasRightColumn || datasheet.legend) && (
         <div className={styles.wideColumns}>
           <div className={styles.wideLeft}>
-            {datasheet.legend && (
+            {!compact && datasheet.legend && (
               <div className={styles.legend}>{datasheet.legend}</div>
             )}
             {profiles.length > 0 && (

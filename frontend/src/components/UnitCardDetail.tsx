@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { DatasheetDetail } from "../types";
 import { WeaponAbilityText } from "../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../sanitize";
+import { useCompactMode } from "../context/CompactModeContext";
 import styles from "./ExpandableUnitCard.module.css";
 import sharedStyles from "../shared.module.css";
 
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function UnitCardDetail({ detail }: Props) {
+  const { compact } = useCompactMode();
   const [expandedCore, setExpandedCore] = useState<number | null>(null);
   const filteredAbilities = detail.abilities.filter(a => a.name);
   const filteredKeywords = detail.keywords.filter(k => k.keyword);
@@ -19,7 +21,7 @@ export function UnitCardDetail({ detail }: Props) {
   return (<>
     <div className={styles.wideColumns}>
       <div className={styles.wideLeft}>
-        {detail.datasheet.legend && (
+        {!compact && detail.datasheet.legend && (
           <div className={styles.legend}>{detail.datasheet.legend}</div>
         )}
         {detail.profiles.length > 0 && (
