@@ -122,23 +122,34 @@ export function UnitCardDetail({ detail }: Props) {
         )}
       </div>
 
-      {hasRightColumn && (
-        <div className={styles.wideRight}>
-          {filteredAbilities.length > 0 && (
+      {hasRightColumn && (() => {
+        const core = filteredAbilities.filter(a => a.abilityType === "Core");
+        const other = filteredAbilities.filter(a => a.abilityType !== "Core");
+        return (
+          <div className={styles.wideRight}>
             <div className={styles.abilitiesSection}>
               <h4>Abilities</h4>
-              <ul className={styles.abilitiesList}>
-                {filteredAbilities.map((a, i) => (
-                  <li key={i}>
-                    <strong>{a.name}</strong>
-                    {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
-                  </li>
-                ))}
-              </ul>
+              {core.length > 0 && (
+                <div className={styles.coreAbilitiesPills}>
+                  {core.map((a, i) => (
+                    <span key={i} className={styles.coreAbilityPill}>{a.name}</span>
+                  ))}
+                </div>
+              )}
+              {other.length > 0 && (
+                <ul className={styles.abilitiesList}>
+                  {other.map((a, i) => (
+                    <li key={i}>
+                      <strong>{a.name}</strong>
+                      {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        );
+      })()}
     </div>
 
     {filteredKeywords.length > 0 && (

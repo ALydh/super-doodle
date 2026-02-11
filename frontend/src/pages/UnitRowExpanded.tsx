@@ -127,19 +127,33 @@ export function UnitRowExpanded({
         </div>
       )}
 
-      {detail && detail.abilities.filter(a => a.name).length > 0 && (
-        <div className={styles.abilitiesPreview}>
-          <h5 className={styles.sectionHeading}>Abilities</h5>
-          <div className={styles.abilitiesList}>
-            {detail.abilities.filter(a => a.name).map((a, i) => (
-              <div key={i} className={styles.abilityLine}>
-                <strong>{a.name}</strong>
-                {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
+      {detail && detail.abilities.filter(a => a.name).length > 0 && (() => {
+        const named = detail.abilities.filter(a => a.name);
+        const core = named.filter(a => a.abilityType === "Core");
+        const other = named.filter(a => a.abilityType !== "Core");
+        return (
+          <div className={styles.abilitiesPreview}>
+            <h5 className={styles.sectionHeading}>Abilities</h5>
+            {core.length > 0 && (
+              <div className={styles.coreAbilitiesPills}>
+                {core.map((a, i) => (
+                  <span key={i} className={styles.coreAbilityPill}>{a.name}</span>
+                ))}
               </div>
-            ))}
+            )}
+            {other.length > 0 && (
+              <div className={styles.abilitiesList}>
+                {other.map((a, i) => (
+                  <div key={i} className={styles.abilityLine}>
+                    <strong>{a.name}</strong>
+                    {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

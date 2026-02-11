@@ -169,19 +169,32 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
                 </div>
               )}
 
-              {hasAbilities && (
-                <div className={styles.abilities}>
-                  <h4>Abilities</h4>
-                  <ul className={styles.abilitiesList}>
-                    {filteredAbilities.map((a, i) => (
-                      <li key={i}>
-                        <strong>{a.name}</strong>
-                        {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {hasAbilities && (() => {
+                const core = filteredAbilities.filter((a) => a.abilityType === "Core");
+                const other = filteredAbilities.filter((a) => a.abilityType !== "Core");
+                return (
+                  <div className={styles.abilities}>
+                    <h4>Abilities</h4>
+                    {core.length > 0 && (
+                      <div className={styles.coreAbilitiesPills}>
+                        {core.map((a, i) => (
+                          <span key={i} className={styles.coreAbilityPill}>{a.name}</span>
+                        ))}
+                      </div>
+                    )}
+                    {other.length > 0 && (
+                      <ul className={styles.abilitiesList}>
+                        {other.map((a, i) => (
+                          <li key={i}>
+                            <strong>{a.name}</strong>
+                            {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>

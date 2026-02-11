@@ -149,19 +149,33 @@ export function UnitDetail({ data, isWarlord }: Props) {
         </div>
       )}
 
-      {abilities.filter((a) => a.name).length > 0 && (
-        <div className={styles.abilities}>
-          <h4>Abilities</h4>
-          <ul className={styles.abilitiesList}>
-            {abilities.filter((a) => a.name).map((a, i) => (
-              <li key={i}>
-                <strong>{a.name}</strong>
-                {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {abilities.filter((a) => a.name).length > 0 && (() => {
+        const named = abilities.filter((a) => a.name);
+        const core = named.filter((a) => a.abilityType === "Core");
+        const other = named.filter((a) => a.abilityType !== "Core");
+        return (
+          <div className={styles.abilities}>
+            <h4>Abilities</h4>
+            {core.length > 0 && (
+              <div className={styles.coreAbilitiesPills}>
+                {core.map((a, i) => (
+                  <span key={i} className={styles.coreAbilityPill}>{a.name}</span>
+                ))}
+              </div>
+            )}
+            {other.length > 0 && (
+              <ul className={styles.abilitiesList}>
+                {other.map((a, i) => (
+                  <li key={i}>
+                    <strong>{a.name}</strong>
+                    {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })()}
 
       {keywords.filter((k) => k.keyword).length > 0 && (
         <div className={styles.keywords}>

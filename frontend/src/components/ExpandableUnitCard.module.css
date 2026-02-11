@@ -157,6 +157,23 @@
   color: var(--faction-primary);
 }
 
+.coreAbilitiesPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.coreAbilityPill {
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--faction-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--faction-primary);
+}
+
 .keywordsList {
   gap: 6px;
 }
