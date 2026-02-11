@@ -49,6 +49,11 @@
   margin-top: 8px;
 }
 
+.abilityDescription :global(.legend2) {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
 .enhancementList {
   display: flex;
   flex-direction: column;
