@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { BattleUnitData } from "../../types";
 import { WeaponAbilityText } from "../../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../../sanitize";
@@ -13,6 +14,7 @@ interface Props {
 
 export function UnitDetail({ data, isWarlord }: Props) {
   const { datasheet, profiles, wargear, abilities, keywords, cost, enhancement } = data;
+  const [expandedCore, setExpandedCore] = useState<number | null>(null);
 
   return (
     <div className={styles.detail}>
@@ -157,11 +159,20 @@ export function UnitDetail({ data, isWarlord }: Props) {
           <div className={styles.abilities}>
             <h4>Abilities</h4>
             {core.length > 0 && (
-              <div className={styles.coreAbilitiesPills}>
-                {core.map((a, i) => (
-                  <span key={i} className={styles.coreAbilityPill}>{a.name}</span>
-                ))}
-              </div>
+              <>
+                <div className={styles.coreAbilitiesPills}>
+                  {core.map((a, i) => (
+                    <span
+                      key={i}
+                      className={`${styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
+                      onClick={() => setExpandedCore(expandedCore === i ? null : i)}
+                    >{a.name}</span>
+                  ))}
+                </div>
+                {expandedCore !== null && core[expandedCore]?.description && (
+                  <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
+                )}
+              </>
             )}
             {other.length > 0 && (
               <ul className={styles.abilitiesList}>

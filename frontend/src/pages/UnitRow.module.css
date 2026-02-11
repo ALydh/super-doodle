@@ -374,6 +374,32 @@
   border: 1px solid var(--faction-primary);
 }
 
+.coreAbilityPillClickable {
+  cursor: pointer;
+}
+
+.coreAbilityPillClickable:hover,
+.coreAbilityPillActive {
+  background-color: var(--faction-primary);
+  color: var(--faction-primary-text);
+}
+
+.coreAbilityExpanded {
+  padding: 8px 12px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  background-color: var(--surface-card);
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+  border-left: 3px solid var(--faction-primary);
+}
+
+.coreAbilityExpanded :global(.stratLegend2) {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
 .abilitiesList {
   display: flex;
   flex-direction: column;

@@ -149,7 +149,7 @@ object ReferenceDataRepository {
   def allDatasheetAbilities(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
     sql"""SELECT da.datasheet_id, da.line, da.ability_id, da.model,
                  COALESCE(NULLIF(da.name, ''), a.name) as name,
-                 COALESCE(NULLIF(da.description, ''), a.legend) as description,
+                 COALESCE(NULLIF(da.description, ''), a.description) as description,
                  da.ability_type, da.parameter
           FROM datasheet_abilities da
           LEFT JOIN abilities a ON da.ability_id = a.id"""
@@ -158,7 +158,7 @@ object ReferenceDataRepository {
   def abilitiesForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
     sql"""SELECT da.datasheet_id, da.line, da.ability_id, da.model,
                  COALESCE(NULLIF(da.name, ''), a.name) as name,
-                 COALESCE(NULLIF(da.description, ''), a.legend) as description,
+                 COALESCE(NULLIF(da.description, ''), a.description) as description,
                  da.ability_type, da.parameter
           FROM datasheet_abilities da
           LEFT JOIN abilities a ON da.ability_id = a.id
@@ -168,7 +168,7 @@ object ReferenceDataRepository {
   def abilitiesForDatasheets(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[DatasheetAbility]] =
     (fr"""SELECT da.datasheet_id, da.line, da.ability_id, da.model,
                  COALESCE(NULLIF(da.name, ''), a.name) as name,
-                 COALESCE(NULLIF(da.description, ''), a.legend) as description,
+                 COALESCE(NULLIF(da.description, ''), a.description) as description,
                  da.ability_type, da.parameter
           FROM datasheet_abilities da
           LEFT JOIN abilities a ON da.ability_id = a.id
