@@ -1,3 +1,30 @@
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.pageHeader h1 {
+  margin: 0;
+}
+
+.importBtn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+  background-color: var(--surface-card);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.importBtn:hover {
+  background-color: var(--surface-border);
+}
+
 .page h1 {
   margin-bottom: 32px;
 }

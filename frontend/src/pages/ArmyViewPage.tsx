@@ -197,19 +197,92 @@ export function ArmyViewPage() {
     }, 0);
   }, [battleData]);
 
+  const buildArmy = (): Army => ({
+    factionId: battleData!.factionId,
+    battleSize: battleData!.battleSize as BattleSize,
+    detachmentId: battleData!.detachmentId,
+    warlordId: battleData!.warlordId,
+    units: battleData!.units.map((bu) => bu.unit),
+    chapterId: battleData!.chapterId,
+  });
+
   const handleCopy = async () => {
     if (!battleData) return;
-    const army: Army = {
-      factionId: battleData.factionId,
-      battleSize: battleData.battleSize as BattleSize,
-      detachmentId: battleData.detachmentId,
-      warlordId: battleData.warlordId,
-      units: battleData.units.map((bu) => bu.unit),
-      chapterId: battleData.chapterId,
-    };
-    const persisted = await createArmy(`${battleData.name} (Copy)`, army);
+    const persisted = await createArmy(`${battleData.name} (Copy)`, buildArmy());
     navigate(`/armies/${persisted.id}`);
   };
+
+  const handleExport = () => {
+    if (!battleData) return;
+    const army = buildArmy();
+    const readableUnits = army.units.map((u, i) => {
+      const bu = battleData.units[i];
+      const models = bu.cost?.description.match(/(\d+)\s*model/i)?.[1];
+      return {
+        _name: bu.datasheet.name,
+        ...(models ? { _models: parseInt(models, 10) } : {}),
+        ...u,
+      };
+    });
+    const payload = JSON.stringify({ name: battleData.name, army: { ...army, units: readableUnits } }, null, 2);
+    const blob = new Blob([payload], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${battleData.name}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportTxt = () => {
+    if (!battleData) return;
+    const lines: string[] = [];
+    lines.push(battleData.name);
+    lines.push(`${battleData.battleSize} — ${totalPoints}pts`);
+    lines.push("");
+
+    const attached = new Map<number, BattleUnitData[]>();
+    battleData.units.forEach((bu) => {
+      if (bu.unit.attachedToUnitIndex != null) {
+        const list = attached.get(bu.unit.attachedToUnitIndex) ?? [];
+        list.push(bu);
+        attached.set(bu.unit.attachedToUnitIndex, list);
+      }
+    });
+
+    const printed = new Set<number>();
+    battleData.units.forEach((bu, i) => {
+      if (printed.has(i)) return;
+      printed.add(i);
+      const models = bu.cost?.description.match(/(\d+)\s*model/i)?.[1];
+      const pts = (bu.cost?.cost ?? 0) + (bu.enhancement?.cost ?? 0);
+      let line = `${bu.datasheet.name}`;
+      if (models) line += ` (${models})`;
+      line += ` — ${pts}pts`;
+      if (bu.enhancement) line += ` [${bu.enhancement.name}]`;
+      lines.push(line);
+
+      const leaders = attached.get(i);
+      if (leaders) {
+        for (const leader of leaders) {
+          printed.add(battleData.units.indexOf(leader));
+          const lPts = (leader.cost?.cost ?? 0) + (leader.enhancement?.cost ?? 0);
+          let lLine = `  ↳ ${leader.datasheet.name} — ${lPts}pts`;
+          if (leader.enhancement) lLine += ` [${leader.enhancement.name}]`;
+          lines.push(lLine);
+        }
+      }
+    });
+
+    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${battleData.name}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
 
   const handleDelete = async () => {
     if (!armyId) return;
@@ -294,6 +367,8 @@ export function ArmyViewPage() {
           </p>
         </div>
         <div className={styles.actions}>
+          <button className={styles.exportBtn} onClick={handleExport}>Export</button>
+          <button className={styles.exportTxtBtn} onClick={handleExportTxt}>Text</button>
           {user && (
             <button className={styles.copyBtn} onClick={handleCopy}>Copy</button>
           )}
