@@ -55,6 +55,8 @@
   gap: 8px;
 }
 
+.exportBtn,
+.exportTxtBtn,
 .copyBtn,
 .editBtn,
 .deleteBtn {
@@ -73,10 +75,39 @@
   color: white;
 }
 
+.exportBtn:hover,
+.exportTxtBtn:hover,
 .copyBtn:hover,
 .editBtn:hover,
 .deleteBtn:hover {
   opacity: 1;
+}
+
+.exportBtn {
+  background-color: var(--faction-primary);
+}
+
+.exportBtn::before {
+  content: "↓";
+  font-size: 1rem;
+}
+
+.exportBtn:hover {
+  background-color: var(--faction-secondary);
+}
+
+.exportTxtBtn {
+  background-color: var(--faction-primary);
+}
+
+.exportTxtBtn::before {
+  content: "T";
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.exportTxtBtn:hover {
+  background-color: var(--faction-secondary);
 }
 
 .copyBtn {

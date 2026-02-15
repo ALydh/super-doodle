@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import type { Faction, ArmySummary } from "../types";
-import { fetchFactions, fetchAllArmies } from "../api";
+import { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import type { Faction, ArmySummary, Army } from "../types";
+import { fetchFactions, fetchAllArmies, createArmy } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { isSpaceMarines, SM_CHAPTERS, getChapterTheme } from "../chapters";
 import { useAuth } from "../context/useAuth";
@@ -52,9 +52,24 @@ function formatDate(dateStr: string): string {
 
 export function FactionListPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [factions, setFactions] = useState<Faction[]>([]);
   const [armies, setArmies] = useState<ArmySummary[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text) as { name: string; army: Army };
+      const persisted = await createArmy(data.name, data.army);
+      navigate(`/armies/${persisted.id}`);
+    } catch {
+      alert("Invalid army file.");
+    }
+  };
 
   useEffect(() => {
     Promise.all([fetchFactions(), fetchAllArmies()])
@@ -100,7 +115,15 @@ export function FactionListPage() {
 
   return (
     <div className={styles.page}>
-      <h1>Armies</h1>
+      <div className={styles.pageHeader}>
+        <h1>Armies</h1>
+        {user && (
+          <>
+            <button className={styles.importBtn} onClick={() => importInputRef.current?.click()}>Import Army</button>
+            <input ref={importInputRef} type="file" accept=".json" hidden onChange={handleImport} />
+          </>
+        )}
+      </div>
 
       {armies.length === 0 ? (
         <div className={styles.emptyState}>
