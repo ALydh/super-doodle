@@ -5,7 +5,8 @@
       { "pattern": "application\\.conf.*" },
       { "pattern": "\\.json$" },
       { "pattern": "\\.properties$" },
-      { "pattern": "logback\\.xml$" }
+      { "pattern": "logback\\.xml$" },
+      { "pattern": "META-INF/resources/webjars/swagger-ui/.*" }
     ]
   }
 }

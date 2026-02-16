@@ -44,6 +44,7 @@ nativeImageOptions := Seq(
   "--initialize-at-run-time=wahapedia.db.DatabaseConfig$,wahapedia.Main$",
   "-H:IncludeResources=.*\\.csv$",
   "-H:IncludeResources=application\\.conf.*",
+  "-H:IncludeResources=META-INF/resources/webjars/swagger-ui/.*",
   "--allow-incomplete-classpath"
 )
 
