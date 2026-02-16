@@ -168,3 +168,6 @@ case class AlliedFactionInfo(
   allyType: String,
   datasheets: List[wahapedia.domain.models.Datasheet]
 )
+
+case class UpsertInventoryRequest(datasheetId: String, quantity: Int)
+case class BulkUpsertInventoryRequest(entries: List[UpsertInventoryRequest])

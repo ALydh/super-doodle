@@ -3,6 +3,7 @@ package wahapedia.domain.types
 import wahapedia.errors.ParseError
 import wahapedia.errors.InvalidId
 import io.circe.{Encoder, Decoder}
+import sttp.tapir.Schema
 import cats.syntax.either.*
 
 opaque type DatasheetId = String
@@ -22,6 +23,7 @@ object DatasheetId {
 
   given Encoder[DatasheetId] = Encoder.encodeString.contramap(value)
   given Decoder[DatasheetId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
+  given Schema[DatasheetId] = Schema.string
 }
 
 object FactionId {
@@ -35,6 +37,7 @@ object FactionId {
 
   given Encoder[FactionId] = Encoder.encodeString.contramap(value)
   given Decoder[FactionId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
+  given Schema[FactionId] = Schema.string
 }
 
 object AbilityId {
@@ -47,6 +50,8 @@ object AbilityId {
   }
 
   given Encoder[AbilityId] = Encoder.encodeString.contramap(value)
+  given Decoder[AbilityId] = Decoder.decodeString.map(apply)
+  given Schema[AbilityId] = Schema.string
 }
 
 object SourceId {
@@ -60,6 +65,7 @@ object SourceId {
 
   given Encoder[SourceId] = Encoder.encodeString.contramap(value)
   given Decoder[SourceId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
+  given Schema[SourceId] = Schema.string
 }
 
 object DetachmentId {
@@ -73,4 +79,5 @@ object DetachmentId {
 
   given Encoder[DetachmentId] = Encoder.encodeString.contramap(value)
   given Decoder[DetachmentId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
+  given Schema[DetachmentId] = Schema.string
 }

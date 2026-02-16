@@ -5,7 +5,8 @@ import wahapedia.errors.{ParseError, ParseException}
 import wahapedia.csv.{StreamingCsvParser, CsvParsing}
 import cats.effect.IO
 import cats.syntax.either.*
-import io.circe.Encoder
+import io.circe.{Encoder, Decoder}
+import sttp.tapir.Schema
 
 opaque type DetachmentAbilityId = String
 
@@ -19,6 +20,8 @@ object DetachmentAbilityId {
   }
 
   given Encoder[DetachmentAbilityId] = Encoder.encodeString.contramap(value)
+  given Decoder[DetachmentAbilityId] = Decoder.decodeString.map(apply)
+  given Schema[DetachmentAbilityId] = Schema.string
 }
 
 case class DetachmentAbility(

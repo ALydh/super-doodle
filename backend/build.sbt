@@ -2,7 +2,13 @@ scalaVersion := "3.3.4"
 
 enablePlugins(NativeImagePlugin, JavaAppPackaging, AssemblyPlugin)
 
+val tapirVersion = "1.11.11"
+
 libraryDependencies ++= Seq(
+  "com.softwaremill.sttp.tapir" %% "tapir-core" % tapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
   "org.typelevel" %% "cats-effect" % "3.5.2",
   "co.fs2" %% "fs2-core" % "3.9.3",
   "co.fs2" %% "fs2-io" % "3.9.3",

@@ -6,6 +6,7 @@ import wahapedia.csv.{StreamingCsvParser, CsvParsing}
 import cats.effect.IO
 import cats.syntax.either.*
 import io.circe.{Encoder, Decoder}
+import sttp.tapir.Schema
 
 enum WargearAction:
   case Remove, Add
@@ -24,6 +25,7 @@ object WargearAction:
 
   given Encoder[WargearAction] = Encoder.encodeString.contramap(asString)
   given Decoder[WargearAction] = Decoder.decodeString.emap(s => parse(s).left.map(_.toString))
+  given Schema[WargearAction] = Schema.string
 
 case class ParsedWargearOption(
   datasheetId: DatasheetId,
