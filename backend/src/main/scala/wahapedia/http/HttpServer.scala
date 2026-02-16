@@ -90,9 +90,10 @@ object HttpServer {
 
   def routes(refXa: Transactor[IO], userXa: Transactor[IO], refPrefix: String, loginRateLimiter: RateLimiter): HttpRoutes[IO] =
     healthRoute <+>
-    AuthRoutes.routes(userXa, loginRateLimiter) <+>
-    FactionRoutes.routes(refXa) <+>
-    ArmyRoutes.routesWithRef(refXa, userXa, refPrefix) <+>
-    DatasheetRoutes.routes(refXa) <+>
-    InventoryRoutes.routes(userXa)
+    AuthRoutesTapir.routes(userXa, loginRateLimiter) <+>
+    FactionRoutesTapir.routes(refXa) <+>
+    ArmyRoutesTapir.routes(refXa, userXa, refPrefix) <+>
+    DatasheetRoutesTapir.routes(refXa) <+>
+    InventoryRoutesTapir.routes(userXa) <+>
+    SwaggerRoutes.routes
 }

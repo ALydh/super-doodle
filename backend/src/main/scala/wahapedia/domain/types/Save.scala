@@ -4,6 +4,7 @@ import wahapedia.errors.ParseError
 import wahapedia.errors.InvalidFormat
 import cats.syntax.either.*
 import io.circe.{Encoder, Decoder}
+import sttp.tapir.Schema
 
 opaque type Save = Int
 
@@ -26,4 +27,5 @@ object Save {
 
   given Encoder[Save] = Encoder.encodeString.contramap(_.asString)
   given Decoder[Save] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
+  given Schema[Save] = Schema.string
 }

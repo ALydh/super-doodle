@@ -2,6 +2,7 @@ package wahapedia.domain.types
 
 import wahapedia.errors.{ParseError, InvalidFormat}
 import io.circe.{Encoder, Decoder}
+import sttp.tapir.Schema
 import cats.syntax.either.*
 
 enum Role:
@@ -31,4 +32,5 @@ object Role {
 
   given Encoder[Role] = Encoder.encodeString.contramap(asString)
   given Decoder[Role] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
+  given Schema[Role] = Schema.string
 }

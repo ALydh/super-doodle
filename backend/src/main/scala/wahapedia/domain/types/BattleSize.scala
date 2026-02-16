@@ -1,6 +1,7 @@
 package wahapedia.domain.types
 
 import io.circe.{Encoder, Decoder}
+import sttp.tapir.Schema
 
 enum BattleSize(val maxPoints: Int):
   case Incursion extends BattleSize(1000)
@@ -17,4 +18,5 @@ object BattleSize {
 
   given Encoder[BattleSize] = Encoder.encodeString.contramap(_.toString)
   given Decoder[BattleSize] = Decoder.decodeString.emap(parse)
+  given Schema[BattleSize] = Schema.string
 }

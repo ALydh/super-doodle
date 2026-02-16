@@ -4,6 +4,7 @@ import wahapedia.domain.types.FactionId
 import wahapedia.errors.{ParseError, ParseException}
 import wahapedia.csv.{StreamingCsvParser, CsvParsing}
 import io.circe.{Encoder, Decoder}
+import sttp.tapir.Schema
 import cats.effect.IO
 import cats.syntax.either.*
 
@@ -20,6 +21,7 @@ object EnhancementId {
 
   given Encoder[EnhancementId] = Encoder.encodeString.contramap(value)
   given Decoder[EnhancementId] = Decoder.decodeString.emap(str => parse(str).leftMap(err => ParseError.formatError(err)))
+  given Schema[EnhancementId] = Schema.string
 }
 
 case class Enhancement(
