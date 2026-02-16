@@ -163,13 +163,55 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/wp40k
+            # Back up current binary for rollback
+            if [ -f backend ]; then
+              cp backend backend.prev
+            fi
+            if [ -f wahapedia-ref.db ]; then
+              cp wahapedia-ref.db wahapedia-ref.db.prev
+            fi
+            # Deploy new artifacts
             if [ -f target/native-image/backend ]; then
               mv target/native-image/backend backend
               chmod +x backend
             fi
-            if [ -f wahapedia-ref.db ]; then
-              mv wahapedia-ref.db wahapedia-ref.db.new && mv wahapedia-ref.db.new wahapedia-ref.db
-            fi
             rm -rf target
             sudo systemctl start wp40k
             cd /opt/wp40k/deploy && docker-compose -f docker-compose.observability.yml up -d --pull always || true
+
+      - name: Smoke test
+        id: smoke
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            for i in 1 2 3 4 5; do
+              if curl -sf http://localhost:8080/health; then
+                echo "Health check passed"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "Health check failed after 5 attempts"
+            exit 1
+
+      - name: Rollback on failure
+        if: failure() && steps.smoke.outcome == 'failure'
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/wp40k
+            sudo systemctl stop wp40k || true
+            if [ -f backend.prev ]; then
+              mv backend.prev backend
+            fi
+            if [ -f wahapedia-ref.db.prev ]; then
+              mv wahapedia-ref.db.prev wahapedia-ref.db
+            fi
+            sudo systemctl start wp40k
+            echo "Rolled back to previous version"
