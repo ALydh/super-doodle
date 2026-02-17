@@ -76,6 +76,8 @@ export function ArmyViewPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("units");
   const [searchQuery, setSearchQuery] = useState("");
+  const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState("all");
+  const [stratagemTurnFilter, setStratagemTurnFilter] = useState("all");
   const [inventory, setInventory] = useState<Map<string, number> | null>(null);
 
   useEffect(() => {
@@ -312,6 +314,15 @@ export function ArmyViewPage() {
     (s) => s.detachmentId === battleData.detachmentId || !s.detachmentId
   );
 
+  const stratagemPhases = [...new Set(detachmentStratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
+  const stratagemTurns = [...new Set(detachmentStratagems.filter((s) => s.turn).map((s) => s.turn!))].sort();
+
+  const filteredStratagems = detachmentStratagems.filter((s) => {
+    if (stratagemPhaseFilter !== "all" && s.phase !== stratagemPhaseFilter) return false;
+    if (stratagemTurnFilter !== "all" && s.turn !== stratagemTurnFilter) return false;
+    return true;
+  });
+
   const factionAbilityCards: Stratagem[] = (() => {
     const seen = new Set<string>();
     const result: Stratagem[] = [];
@@ -394,11 +405,37 @@ export function ArmyViewPage() {
 
       {activeTab === "stratagems" && (
         <div>
+          <div className={styles.filters}>
+            <label>
+              Phase:
+              <select
+                value={stratagemPhaseFilter}
+                onChange={(e) => setStratagemPhaseFilter(e.target.value)}
+              >
+                <option value="all">All Phases</option>
+                {stratagemPhases.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Turn:
+              <select
+                value={stratagemTurnFilter}
+                onChange={(e) => setStratagemTurnFilter(e.target.value)}
+              >
+                <option value="all">All Turns</option>
+                {stratagemTurns.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </label>
+          </div>
           <div className={styles.stratagemsList}>
             {factionAbilityCards.map((s) => (
               <StratagemCard key={s.id} stratagem={s} accent />
             ))}
-            {detachmentStratagems.map((s) => (
+            {filteredStratagems.map((s) => (
               <StratagemCard key={s.id} stratagem={s} />
             ))}
           </div>

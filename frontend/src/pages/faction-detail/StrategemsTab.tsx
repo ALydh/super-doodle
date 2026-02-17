@@ -10,6 +10,9 @@ interface Props {
   onDetachmentFilterChange: (value: string) => void;
   stratagemPhaseFilter: string;
   onPhaseFilterChange: (value: string) => void;
+  turns: string[];
+  stratagemTurnFilter: string;
+  onTurnFilterChange: (value: string) => void;
 }
 
 export function StrategemsTab({
@@ -20,6 +23,9 @@ export function StrategemsTab({
   onDetachmentFilterChange,
   stratagemPhaseFilter,
   onPhaseFilterChange,
+  turns,
+  stratagemTurnFilter,
+  onTurnFilterChange,
 }: Props) {
   return (
     <div>
@@ -47,6 +53,18 @@ export function StrategemsTab({
             <option value="all">All Phases</option>
             {phases.map((p) => (
               <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Turn:
+          <select
+            value={stratagemTurnFilter}
+            onChange={(e) => onTurnFilterChange(e.target.value)}
+          >
+            <option value="all">All Turns</option>
+            {turns.map((t) => (
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
         </label>
