@@ -179,6 +179,7 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
     // Commands
     const commandDefs: { name: string; action: () => void }[] = [
       { name: "Home", action: () => go("/") },
+      { name: "Glossary", action: () => go("/glossary") },
       { name: "Toggle compact mode", action: () => { toggleCompact(); onClose(); } },
     ];
     if (user) {

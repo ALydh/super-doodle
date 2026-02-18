@@ -18,6 +18,7 @@ import { InventoryPage } from "./pages/InventoryPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { AdminPage } from "./pages/AdminPage";
+import { GlossaryPage } from "./pages/GlossaryPage";
 
 function AppShell() {
   const { compact } = useCompactMode();
@@ -53,6 +54,7 @@ function AppShell() {
         <Route path="/" element={<FactionListPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/glossary" element={<GlossaryPage />} />
         <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
         <Route path="/factions/:factionId" element={<FactionDetailPage />} />
         <Route path="/factions/:factionId/armies/new" element={<ProtectedRoute><ArmyBuilderPage /></ProtectedRoute>} />

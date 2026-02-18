@@ -47,6 +47,8 @@ export function Header({ onSearchClick }: HeaderProps) {
           )}
         </button>
         <span className={styles.separator}>·</span>
+        <Link to="/glossary">Glossary</Link>
+        <span className={styles.separator}>·</span>
         {user ? (
           <>
             <Link to="/admin">Admin</Link>
