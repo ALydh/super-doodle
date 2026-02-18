@@ -7,6 +7,7 @@ import {
 } from "../api";
 import { useAuth } from "../context/useAuth";
 import { useCompactMode } from "../context/CompactModeContext";
+import { glossarySections } from "../data/glossary";
 import { sanitizeHtml } from "../sanitize";
 import styles from "./SpotlightSearch.module.css";
 
@@ -292,6 +293,17 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
         title: "Core Abilities",
         items: filteredCore.map((a) => ({ type: "expand", name: a.name, description: a.description })),
       });
+    }
+
+    // Static glossary sections
+    for (const section of glossarySections) {
+      const filtered = filterSorted(section.entries, (e) => e.name);
+      if (filtered.length > 0) {
+        result.push({
+          title: section.title,
+          items: filtered.map((e) => ({ type: "expand", name: e.name, description: e.description })),
+        });
+      }
     }
 
     return result;
