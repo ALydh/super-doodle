@@ -32,12 +32,10 @@
 }
 
 @media (max-width: 599px) {
-  .navigation {
-    flex-wrap: wrap;
-  }
-
   .button {
-    padding: 12px 16px;
+    flex: 1;
+    padding: 12px 8px;
     font-size: 0.9rem;
+    text-align: center;
   }
 }
