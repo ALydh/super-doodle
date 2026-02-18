@@ -225,12 +225,26 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
     if (filteredStratagems.length > 0) {
       result.push({
         title: "Stratagems",
-        items: filteredStratagems.map((s) => ({
-          type: "expand",
-          name: s.name,
-          subtitle: s.cpCost != null ? `${s.cpCost} CP` : undefined,
-          description: s.description,
-        })),
+        items: filteredStratagems.map((s) => {
+          const cpSubtitle = s.cpCost != null ? `${s.cpCost} CP` : undefined;
+          const subtitle = s.detachment && cpSubtitle
+            ? `${cpSubtitle} · ${s.detachment}`
+            : cpSubtitle ?? (s.detachment ?? undefined);
+          if (s.factionId) {
+            return {
+              type: "navigate" as const,
+              name: s.name,
+              subtitle,
+              action: () => go(`/factions/${s.factionId}?tab=stratagems`),
+            };
+          }
+          return {
+            type: "expand" as const,
+            name: s.name,
+            subtitle,
+            description: s.description,
+          };
+        }),
       });
     }
 
@@ -239,12 +253,25 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
     if (filteredEnhancements.length > 0) {
       result.push({
         title: "Enhancements",
-        items: filteredEnhancements.map((e) => ({
-          type: "expand",
-          name: e.name,
-          subtitle: `${e.cost} pts`,
-          description: e.description,
-        })),
+        items: filteredEnhancements.map((e) => {
+          const subtitle = e.detachment
+            ? `${e.cost} pts · ${e.detachment}`
+            : `${e.cost} pts`;
+          if (e.factionId && e.detachmentId) {
+            return {
+              type: "navigate" as const,
+              name: e.name,
+              subtitle,
+              action: () => go(`/factions/${e.factionId}?detachment=${e.detachmentId}`),
+            };
+          }
+          return {
+            type: "expand" as const,
+            name: e.name,
+            subtitle,
+            description: e.description,
+          };
+        }),
       });
     }
 
