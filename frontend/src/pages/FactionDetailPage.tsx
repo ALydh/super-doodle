@@ -92,16 +92,17 @@ export function FactionDetailPage() {
     const tabParam = searchParams.get("tab") as TabId | null;
     if (!tabParam) return;
     setSearchParams((prev) => { prev.delete("tab"); return prev; }, { replace: true });
-    setActiveTab(tabParam);
+    requestAnimationFrame(() => {
+      if (tabParam === "stratagems" || tabParam === "detachments") setActiveTab(tabParam);
+    });
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     const detachmentParam = searchParams.get("detachment");
     if (!detachmentParam || detachments.length === 0) return;
     setSearchParams((prev) => { prev.delete("detachment"); return prev; }, { replace: true });
-    setActiveTab("detachments");
-    // Wait for the detachments tab to render before scrolling
     requestAnimationFrame(() => {
+      setActiveTab("detachments");
       requestAnimationFrame(() => {
         const el = document.getElementById(`detachment-${detachmentParam}`);
         el?.scrollIntoView({ behavior: "smooth", block: "start" });
