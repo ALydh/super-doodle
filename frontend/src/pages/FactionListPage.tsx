@@ -102,7 +102,7 @@ export function FactionListPage() {
       const chapter = SM_CHAPTERS.find((c) => c.id === army.chapterId);
       return {
         theme: getChapterTheme(army.chapterId),
-        icon: baseTheme,
+        icon: getChapterTheme(army.chapterId),
         displayName: chapter?.name ?? factionMap.get(army.factionId)?.name ?? army.factionId,
       };
     }

@@ -357,7 +357,7 @@ export function ArmyViewPage() {
     <div data-faction={factionTheme} className={styles.page}>
       {factionTheme && (
         <img
-          src={`/icons/${baseFactionTheme}.svg`}
+          src={`/icons/${factionTheme}.svg`}
           alt=""
           className={styles.bgIcon}
           aria-hidden="true"
@@ -366,7 +366,7 @@ export function ArmyViewPage() {
       <div className={styles.header}>
         {factionTheme && (
           <img
-            src={`/icons/${baseFactionTheme}.svg`}
+            src={`/icons/${factionTheme}.svg`}
             alt=""
             className={styles.headerIcon}
           />
