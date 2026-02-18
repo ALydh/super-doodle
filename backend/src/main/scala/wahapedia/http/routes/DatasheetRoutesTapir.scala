@@ -81,7 +81,7 @@ object DatasheetRoutesTapir {
 
     val getCoreAbilitiesRoute = Http4sServerInterpreter[IO]().toRoutes(
       DatasheetEndpoints.getCoreAbilities.serverLogic { _ =>
-        ReferenceDataRepository.coreAbilities(xa).map(Right(_))
+        ReferenceDataRepository.allAbilities(xa).map(Right(_))
       }
     )
 
