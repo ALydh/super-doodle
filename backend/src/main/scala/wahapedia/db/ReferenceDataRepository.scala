@@ -198,7 +198,7 @@ object ReferenceDataRepository {
 
   def stratagemsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[Stratagem]] =
     sql"""SELECT faction_id, name, id, stratagem_type, cp_cost, legend, turn, phase,
-           detachment, detachment_id, description FROM stratagems WHERE faction_id = $factionId"""
+           detachment, detachment_id, description FROM stratagems WHERE faction_id = $factionId OR faction_id IS NULL"""
       .query[Stratagem].to[List].transact(xa)
 
   def allDatasheetStratagems(xa: Transactor[IO]): IO[List[DatasheetStratagem]] =
