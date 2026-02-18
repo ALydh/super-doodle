@@ -51,6 +51,6 @@ nativeImageOptions := Seq(
 // Assembly configuration for fallback
 assembly / assemblyMergeStrategy := {
   case PathList("META-INF", _*) => MergeStrategy.discard
-  case "application.conf" => MergeStrategy.concat
-  case x => MergeStrategy.first
+  case "application.conf"       => MergeStrategy.concat
+  case x                        => MergeStrategy.first
 }
