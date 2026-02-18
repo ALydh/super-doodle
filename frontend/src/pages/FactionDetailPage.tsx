@@ -88,6 +88,20 @@ export function FactionDetailPage() {
     });
   }, [searchParams, datasheetDetails, setSearchParams]);
 
+  useEffect(() => {
+    const detachmentParam = searchParams.get("detachment");
+    if (!detachmentParam || detachments.length === 0) return;
+    setSearchParams((prev) => { prev.delete("detachment"); return prev; }, { replace: true });
+    setActiveTab("detachments");
+    // Wait for the detachments tab to render before scrolling
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(`detachment-${detachmentParam}`);
+        el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }, [searchParams, detachments, setSearchParams]);
+
   const datasheets = useMemo(
     () => datasheetDetails.map((d) => d.datasheet).filter((ds) => !ds.virtual),
     [datasheetDetails],
@@ -311,12 +325,13 @@ export function FactionDetailPage() {
       {activeTab === "detachments" && (
         <div>
           {visibleDetachments.map((det) => (
-            <DetachmentCard
-              key={det.detachmentId}
-              name={det.name}
-              abilities={detachmentAbilities.get(det.detachmentId) ?? []}
-              enhancements={enhancements.filter((e) => e.detachmentId === det.detachmentId)}
-            />
+            <div key={det.detachmentId} id={`detachment-${det.detachmentId}`}>
+              <DetachmentCard
+                name={det.name}
+                abilities={detachmentAbilities.get(det.detachmentId) ?? []}
+                enhancements={enhancements.filter((e) => e.detachmentId === det.detachmentId)}
+              />
+            </div>
           ))}
         </div>
       )}

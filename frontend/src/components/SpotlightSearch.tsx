@@ -239,12 +239,25 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
     if (filteredEnhancements.length > 0) {
       result.push({
         title: "Enhancements",
-        items: filteredEnhancements.map((e) => ({
-          type: "expand",
-          name: e.name,
-          subtitle: `${e.cost} pts`,
-          description: e.description,
-        })),
+        items: filteredEnhancements.map((e) => {
+          const subtitle = e.detachment
+            ? `${e.cost} pts · ${e.detachment}`
+            : `${e.cost} pts`;
+          if (e.factionId && e.detachmentId) {
+            return {
+              type: "navigate" as const,
+              name: e.name,
+              subtitle,
+              action: () => go(`/factions/${e.factionId}?detachment=${e.detachmentId}`),
+            };
+          }
+          return {
+            type: "expand" as const,
+            name: e.name,
+            subtitle,
+            description: e.description,
+          };
+        }),
       });
     }
 
