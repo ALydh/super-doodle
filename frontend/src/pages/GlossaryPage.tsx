@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { WeaponAbility, CoreAbility } from "../types";
-import { fetchWeaponAbilities, fetchCoreAbilities } from "../api";
+import type { WeaponAbility, CoreAbility, Faction } from "../types";
+import { fetchWeaponAbilities, fetchCoreAbilities, fetchFactions } from "../api";
 import { sanitizeHtml } from "../sanitize";
 import styles from "./GlossaryPage.module.css";
 
@@ -31,14 +31,16 @@ function GlossaryEntry({ name, description }: EntryProps) {
 export function GlossaryPage() {
   const [weaponAbilities, setWeaponAbilities] = useState<WeaponAbility[]>([]);
   const [coreAbilities, setCoreAbilities] = useState<CoreAbility[]>([]);
+  const [factions, setFactions] = useState<Faction[]>([]);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([fetchWeaponAbilities(), fetchCoreAbilities()])
-      .then(([w, c]) => {
+    Promise.all([fetchWeaponAbilities(), fetchCoreAbilities(), fetchFactions()])
+      .then(([w, c, f]) => {
         setWeaponAbilities(w);
         setCoreAbilities(c);
+        setFactions(f);
       })
       .catch((e) => setError(e.message));
   }, []);
@@ -52,6 +54,20 @@ export function GlossaryPage() {
   const filteredCore = coreAbilities
     .filter((a) => a.name.toLowerCase().includes(lowerSearch))
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  const generalCore = filteredCore.filter((a) => !a.factionId);
+  const factionCore = filteredCore.filter((a) => a.factionId);
+
+  const factionNameById = new Map(factions.map((f) => [f.id, f.name]));
+  const factionGroups = new Map<string, CoreAbility[]>();
+  for (const a of factionCore) {
+    const list = factionGroups.get(a.factionId!);
+    if (list) list.push(a);
+    else factionGroups.set(a.factionId!, [a]);
+  }
+  const sortedFactionIds = [...factionGroups.keys()].sort((a, b) =>
+    (factionNameById.get(a) ?? a).localeCompare(factionNameById.get(b) ?? b)
+  );
 
   const noResults = filteredWeapon.length === 0 && filteredCore.length === 0;
 
@@ -78,14 +94,27 @@ export function GlossaryPage() {
         </div>
       )}
 
-      {filteredCore.length > 0 && (
+      {generalCore.length > 0 && (
         <div className={styles.section}>
           <h2>Core Abilities</h2>
-          {filteredCore.map((a) => (
+          {generalCore.map((a) => (
             <GlossaryEntry key={a.id} name={a.name} description={a.description} />
           ))}
         </div>
       )}
+
+      {sortedFactionIds.map((fid) => {
+        const abilities = factionGroups.get(fid)!;
+        const factionName = factionNameById.get(fid) ?? fid;
+        return (
+          <div key={fid} className={styles.section}>
+            <h2>{factionName} Abilities</h2>
+            {abilities.map((a) => (
+              <GlossaryEntry key={a.id} name={a.name} description={a.description} />
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 }
