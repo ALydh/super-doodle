@@ -276,7 +276,7 @@ export function ArmyBuilderPage() {
     <div data-faction={factionTheme} data-page="army-builder" className={`${styles.page} ${styles.layoutA}`}>
       {factionTheme && (
         <img
-          src={`/icons/${chapterTheme ? "space-marines" : factionTheme}.svg`}
+          src={`/icons/${factionTheme}.svg`}
           alt=""
           className={styles.bgIcon}
           aria-hidden="true"
