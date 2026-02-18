@@ -104,7 +104,7 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
 
   useEffect(() => {
     if (loaded) return;
-    Promise.all([
+    Promise.allSettled([
       fetchFactions(),
       fetchAllDatasheets(),
       fetchAllStratagems(),
@@ -112,18 +112,16 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
       fetchWeaponAbilities(),
       fetchCoreAbilities(),
       fetchAllArmies(),
-    ])
-      .then(([f, d, s, e, wa, ca, a]) => {
-        setFactions(f);
-        setDatasheets(d);
-        setStratagems(s);
-        setEnhancements(e);
-        setWeaponAbilities(wa);
-        setCoreAbilities(ca);
-        setArmies(a);
-        setLoaded(true);
-      })
-      .catch(() => {});
+    ]).then(([f, d, s, e, wa, ca, a]) => {
+      if (f.status === "fulfilled") setFactions(f.value);
+      if (d.status === "fulfilled") setDatasheets(d.value);
+      if (s.status === "fulfilled") setStratagems(s.value);
+      if (e.status === "fulfilled") setEnhancements(e.value);
+      if (wa.status === "fulfilled") setWeaponAbilities(wa.value);
+      if (ca.status === "fulfilled") setCoreAbilities(ca.value);
+      if (a.status === "fulfilled") setArmies(a.value);
+      setLoaded(true);
+    });
   }, [loaded]);
 
   useEffect(() => {
