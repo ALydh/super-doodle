@@ -42,6 +42,7 @@ export function FactionDetailPage() {
   const [expandedUnit, setExpandedUnit] = useState<string | null>(() => searchParams.get("unit"));
   const [stratagemDetachmentFilter, setStratagemDetachmentFilter] = useState<string>("all");
   const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState<string>("all");
+  const [stratagemTurnFilter, setStratagemTurnFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [chapterId, setChapterId] = useState<string | null>(null);
   const [chapterFilter, setChapterFilter] = useState<"all" | "chapter">("all");
@@ -184,6 +185,7 @@ export function FactionDetailPage() {
   const noResults = filtered.length === 0 && datasheets.length > 0;
 
   const phases = [...new Set(stratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
+  const turns = [...new Set(stratagems.filter((s) => s.turn).map((s) => s.turn!))].sort();
 
   const filteredStratagems = stratagems.filter((s) => {
     if (s.detachmentId && !visibleDetachmentIds.has(s.detachmentId)) return false;
@@ -191,6 +193,9 @@ export function FactionDetailPage() {
       return false;
     }
     if (stratagemPhaseFilter !== "all" && s.phase !== stratagemPhaseFilter) {
+      return false;
+    }
+    if (stratagemTurnFilter !== "all" && s.turn !== stratagemTurnFilter) {
       return false;
     }
     return true;
@@ -297,6 +302,9 @@ export function FactionDetailPage() {
           onDetachmentFilterChange={setStratagemDetachmentFilter}
           stratagemPhaseFilter={stratagemPhaseFilter}
           onPhaseFilterChange={setStratagemPhaseFilter}
+          turns={turns}
+          stratagemTurnFilter={stratagemTurnFilter}
+          onTurnFilterChange={setStratagemTurnFilter}
         />
       )}
 

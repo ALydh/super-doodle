@@ -173,6 +173,26 @@
   gap: 8px;
 }
 
+.filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.filters select {
+  min-width: 150px;
+}
+
 .stratagemsList {
   display: flex;
   flex-direction: column;
@@ -238,5 +258,18 @@
   .headerIcon {
     width: 36px;
     height: 36px;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters label {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filters select {
+    width: 100%;
   }
 }
