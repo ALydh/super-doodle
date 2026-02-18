@@ -17,6 +17,56 @@ interface SpotlightSearchProps {
 
 const MAX_RESULTS_PER_SECTION = 10;
 
+/**
+ * Returns a fuzzy match score for how well `query` matches `target`.
+ * Returns null if query characters cannot all be found in order within target.
+ *
+ * Scoring:
+ *  - Exact substring match scores highest (1000 + start-of-string bonus)
+ *  - Otherwise, all query chars must appear in order (subsequence match)
+ *  - Consecutive matched characters earn increasing bonuses
+ *  - Matches at word boundaries (start or after a space) earn extra points
+ */
+function fuzzyScore(target: string, query: string): number | null {
+  if (!query) return 0;
+  const t = target.toLowerCase();
+  const q = query.toLowerCase();
+
+  // Exact substring match — highest priority
+  const exactIdx = t.indexOf(q);
+  if (exactIdx !== -1) {
+    return 1000 + (exactIdx === 0 ? 50 : 0);
+  }
+
+  // Fuzzy: every char in q must appear in t in order
+  let score = 0;
+  let ti = 0;
+  let qi = 0;
+  let consecutive = 0;
+  let lastTi = -1;
+
+  while (ti < t.length && qi < q.length) {
+    if (t[ti] === q[qi]) {
+      score += 1;
+      if (lastTi === ti - 1) {
+        consecutive++;
+        score += consecutive; // growing bonus for runs of consecutive chars
+      } else {
+        consecutive = 0;
+      }
+      // word-boundary bonus
+      if (ti === 0 || t[ti - 1] === " ") {
+        score += 5;
+      }
+      lastTi = ti;
+      qi++;
+    }
+    ti++;
+  }
+
+  return qi < q.length ? null : score; // null = not all chars matched
+}
+
 type ResultItem =
   | { type: "navigate"; name: string; subtitle?: string; action: () => void }
   | { type: "expand"; name: string; subtitle?: string; description: string };
@@ -94,11 +144,23 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
     const lowerSearch = search.toLowerCase();
     const hasSearch = lowerSearch.length > 0;
 
-    const filterSorted = <T,>(items: T[], getName: (item: T) => string) =>
-      items
-        .filter((item) => getName(item).toLowerCase().includes(lowerSearch))
-        .sort((a, b) => getName(a).localeCompare(getName(b)))
+    const filterSorted = <T,>(items: T[], getName: (item: T) => string) => {
+      if (!hasSearch) {
+        return items
+          .sort((a, b) => getName(a).localeCompare(getName(b)))
+          .slice(0, MAX_RESULTS_PER_SECTION);
+      }
+      return items
+        .map((item) => ({ item, score: fuzzyScore(getName(item), lowerSearch) }))
+        .filter(({ score }) => score !== null)
+        .sort((a, b) =>
+          b.score !== a.score
+            ? (b.score ?? 0) - (a.score ?? 0)
+            : getName(a.item).localeCompare(getName(b.item))
+        )
+        .map(({ item }) => item)
         .slice(0, MAX_RESULTS_PER_SECTION);
+    };
 
     const result: ResultSection[] = [];
 
