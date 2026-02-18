@@ -33,13 +33,11 @@
 
 @media (max-width: 599px) {
   .navigation {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    flex-wrap: wrap;
   }
 
   .button {
     padding: 12px 16px;
     font-size: 0.9rem;
-    white-space: nowrap;
   }
 }
