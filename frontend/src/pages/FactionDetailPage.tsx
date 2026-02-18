@@ -39,7 +39,7 @@ export function FactionDetailPage() {
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("units");
-  const [expandedUnit, setExpandedUnit] = useState<string | null>(null);
+  const [expandedUnit, setExpandedUnit] = useState<string | null>(() => searchParams.get("unit"));
   const [stratagemDetachmentFilter, setStratagemDetachmentFilter] = useState<string>("all");
   const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
@@ -80,8 +80,6 @@ export function FactionDetailPage() {
   useEffect(() => {
     const unitParam = searchParams.get("unit");
     if (!unitParam || datasheetDetails.length === 0) return;
-    setActiveTab("units");
-    setExpandedUnit(unitParam);
     setSearchParams((prev) => { prev.delete("unit"); return prev; }, { replace: true });
     requestAnimationFrame(() => {
       const el = document.getElementById(`unit-${unitParam}`);

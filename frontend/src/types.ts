@@ -231,6 +231,14 @@ export interface WeaponAbility {
   description: string;
 }
 
+export interface CoreAbility {
+  id: string;
+  name: string;
+  legend: string | null;
+  factionId: string | null;
+  description: string;
+}
+
 export type WargearAction = "remove" | "add";
 
 export interface ParsedWargearOption {
