@@ -225,12 +225,26 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
     if (filteredStratagems.length > 0) {
       result.push({
         title: "Stratagems",
-        items: filteredStratagems.map((s) => ({
-          type: "expand",
-          name: s.name,
-          subtitle: s.cpCost != null ? `${s.cpCost} CP` : undefined,
-          description: s.description,
-        })),
+        items: filteredStratagems.map((s) => {
+          const cpSubtitle = s.cpCost != null ? `${s.cpCost} CP` : undefined;
+          const subtitle = s.detachment && cpSubtitle
+            ? `${cpSubtitle} · ${s.detachment}`
+            : cpSubtitle ?? (s.detachment ?? undefined);
+          if (s.factionId) {
+            return {
+              type: "navigate" as const,
+              name: s.name,
+              subtitle,
+              action: () => go(`/factions/${s.factionId}?tab=stratagems`),
+            };
+          }
+          return {
+            type: "expand" as const,
+            name: s.name,
+            subtitle,
+            description: s.description,
+          };
+        }),
       });
     }
 

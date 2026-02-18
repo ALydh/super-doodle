@@ -89,6 +89,13 @@ export function FactionDetailPage() {
   }, [searchParams, datasheetDetails, setSearchParams]);
 
   useEffect(() => {
+    const tabParam = searchParams.get("tab") as TabId | null;
+    if (!tabParam) return;
+    setSearchParams((prev) => { prev.delete("tab"); return prev; }, { replace: true });
+    setActiveTab(tabParam);
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
     const detachmentParam = searchParams.get("detachment");
     if (!detachmentParam || detachments.length === 0) return;
     setSearchParams((prev) => { prev.delete("detachment"); return prev; }, { replace: true });
