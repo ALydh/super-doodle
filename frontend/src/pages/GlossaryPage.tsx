@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { WeaponAbility, CoreAbility, Faction } from "../types";
 import { fetchWeaponAbilities, fetchCoreAbilities, fetchFactions } from "../api";
+import { glossarySections } from "../data/glossary";
 import { sanitizeHtml } from "../sanitize";
 import styles from "./GlossaryPage.module.css";
 
@@ -45,9 +46,8 @@ export function GlossaryPage() {
       .catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <div className="error-message">{error}</div>;
-
   const lowerSearch = search.toLowerCase();
+
   const filteredWeapon = weaponAbilities
     .filter((a) => a.name.toLowerCase().includes(lowerSearch))
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -69,7 +69,21 @@ export function GlossaryPage() {
     (factionNameById.get(a) ?? a).localeCompare(factionNameById.get(b) ?? b)
   );
 
-  const noResults = filteredWeapon.length === 0 && filteredCore.length === 0;
+  const filteredSections = glossarySections
+    .map((section) => ({
+      ...section,
+      entries: section.entries
+        .filter((e) => e.name.toLowerCase().includes(lowerSearch))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+    .filter((section) => section.entries.length > 0);
+
+  const noResults =
+    filteredWeapon.length === 0 &&
+    filteredCore.length === 0 &&
+    filteredSections.length === 0;
+
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className={styles.page}>
@@ -78,12 +92,12 @@ export function GlossaryPage() {
         autoFocus
         className={styles.search}
         type="text"
-        placeholder="Search abilities... (Ctrl+K)"
+        placeholder="Search glossary... (Ctrl+K)"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {noResults && <p className={styles.empty}>No matching abilities found.</p>}
+      {noResults && <p className={styles.empty}>No matching entries found.</p>}
 
       {filteredWeapon.length > 0 && (
         <div className={styles.section}>
@@ -115,6 +129,15 @@ export function GlossaryPage() {
           </div>
         );
       })}
+
+      {filteredSections.map((section) => (
+        <div className={styles.section} key={section.title}>
+          <h2>{section.title}</h2>
+          {section.entries.map((e) => (
+            <GlossaryEntry key={e.name} name={e.name} description={e.description} />
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
