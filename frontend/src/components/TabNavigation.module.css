@@ -32,14 +32,10 @@
 }
 
 @media (max-width: 599px) {
-  .navigation {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
   .button {
-    padding: 12px 16px;
+    flex: 1;
+    padding: 12px 8px;
     font-size: 0.9rem;
-    white-space: nowrap;
+    text-align: center;
   }
 }
