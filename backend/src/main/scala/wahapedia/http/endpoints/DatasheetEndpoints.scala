@@ -36,5 +36,25 @@ object DatasheetEndpoints {
       .in("api" / "weapon-abilities")
       .out(jsonBody[List[WeaponAbility]])
 
-  val all = List(getDatasheet, filterWargear, getDetachmentAbilities, getWeaponAbilities)
+  val getCoreAbilities: PublicEndpoint[Unit, Unit, List[Ability], Any] =
+    endpoint.get
+      .in("api" / "core-abilities")
+      .out(jsonBody[List[Ability]])
+
+  val listAllDatasheets: PublicEndpoint[Unit, Unit, List[Datasheet], Any] =
+    endpoint.get
+      .in("api" / "datasheets")
+      .out(jsonBody[List[Datasheet]])
+
+  val listAllStratagems: PublicEndpoint[Unit, Unit, List[Stratagem], Any] =
+    endpoint.get
+      .in("api" / "stratagems")
+      .out(jsonBody[List[Stratagem]])
+
+  val listAllEnhancements: PublicEndpoint[Unit, Unit, List[Enhancement], Any] =
+    endpoint.get
+      .in("api" / "enhancements")
+      .out(jsonBody[List[Enhancement]])
+
+  val all = List(getDatasheet, filterWargear, getDetachmentAbilities, getWeaponAbilities, getCoreAbilities, listAllDatasheets, listAllStratagems, listAllEnhancements)
 }

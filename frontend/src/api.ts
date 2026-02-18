@@ -2,7 +2,7 @@ import type {
   Faction, Datasheet, DatasheetDetail, DetachmentInfo,
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
   Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
-  User, AuthResponse, Invite, ArmyBattleData, WargearWithQuantity,
+  CoreAbility, User, AuthResponse, Invite, ArmyBattleData, WargearWithQuantity,
   AlliedFactionInfo, InventoryEntry,
 } from "./types";
 
@@ -253,6 +253,38 @@ export async function fetchWeaponAbilities(): Promise<WeaponAbility[]> {
   return cachedFetch("weaponAbilities", async () => {
     const res = await fetch("/api/weapon-abilities");
     if (!res.ok) throw new Error(`Failed to fetch weapon abilities: ${res.status}`);
+    return res.json();
+  });
+}
+
+export async function fetchCoreAbilities(): Promise<CoreAbility[]> {
+  return cachedFetch("coreAbilities", async () => {
+    const res = await fetch("/api/core-abilities");
+    if (!res.ok) throw new Error(`Failed to fetch core abilities: ${res.status}`);
+    return res.json();
+  });
+}
+
+export async function fetchAllDatasheets(): Promise<Datasheet[]> {
+  return cachedFetch("allDatasheets", async () => {
+    const res = await fetch("/api/datasheets");
+    if (!res.ok) throw new Error(`Failed to fetch datasheets: ${res.status}`);
+    return res.json();
+  });
+}
+
+export async function fetchAllStratagems(): Promise<Stratagem[]> {
+  return cachedFetch("allStratagems", async () => {
+    const res = await fetch("/api/stratagems");
+    if (!res.ok) throw new Error(`Failed to fetch stratagems: ${res.status}`);
+    return res.json();
+  });
+}
+
+export async function fetchAllEnhancements(): Promise<Enhancement[]> {
+  return cachedFetch("allEnhancements", async () => {
+    const res = await fetch("/api/enhancements");
+    if (!res.ok) throw new Error(`Failed to fetch enhancements: ${res.status}`);
     return res.json();
   });
 }

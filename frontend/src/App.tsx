@@ -1,9 +1,15 @@
+import { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CompactModeProvider, useCompactMode } from "./context/CompactModeContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Header } from "./components/Header";
+import { SpotlightSearch } from "./components/SpotlightSearch";
+import {
+  fetchFactions, fetchAllDatasheets, fetchAllStratagems, fetchAllEnhancements,
+  fetchWeaponAbilities, fetchCoreAbilities, fetchAllArmies,
+} from "./api";
 import { FactionListPage } from "./pages/FactionListPage";
 import { FactionDetailPage } from "./pages/FactionDetailPage";
 import { ArmyBuilderPage } from "./pages/ArmyBuilderPage";
@@ -15,9 +21,34 @@ import { AdminPage } from "./pages/AdminPage";
 
 function AppShell() {
   const { compact } = useCompactMode();
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
+  const closeSpotlight = useCallback(() => setSpotlightOpen(false), []);
+
+  useEffect(() => {
+    fetchFactions();
+    fetchAllDatasheets();
+    fetchAllStratagems();
+    fetchAllEnhancements();
+    fetchWeaponAbilities();
+    fetchCoreAbilities();
+    fetchAllArmies();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSpotlightOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <div data-compact={compact || undefined}>
-      <Header />
+      <Header onSearchClick={() => setSpotlightOpen(true)} />
+      <SpotlightSearch open={spotlightOpen} onClose={closeSpotlight} />
       <Routes>
         <Route path="/" element={<FactionListPage />} />
         <Route path="/login" element={<LoginPage />} />

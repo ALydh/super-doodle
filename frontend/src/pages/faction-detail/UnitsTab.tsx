@@ -48,6 +48,7 @@ export function UnitsTab({
               return (
                 <div
                   key={ds.id}
+                  id={`unit-${ds.id}`}
                   className={unitClass === "other-chapter" ? styles.deprioritized : undefined}
                 >
                   <ExpandableUnitCard

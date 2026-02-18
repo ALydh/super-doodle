@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import type { Datasheet, DatasheetDetail, Stratagem, DetachmentInfo, DetachmentAbility, Enhancement, ModelProfile, DatasheetKeyword } from "../types";
 import {
   fetchDatasheetDetailsByFaction,
@@ -29,6 +29,7 @@ const TABS = [
 
 export function FactionDetailPage() {
   const { factionId } = useParams<{ factionId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const [factionName, setFactionName] = useState<string>("");
   const [datasheetDetails, setDatasheetDetails] = useState<DatasheetDetail[]>([]);
@@ -38,7 +39,7 @@ export function FactionDetailPage() {
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("units");
-  const [expandedUnit, setExpandedUnit] = useState<string | null>(null);
+  const [expandedUnit, setExpandedUnit] = useState<string | null>(() => searchParams.get("unit"));
   const [stratagemDetachmentFilter, setStratagemDetachmentFilter] = useState<string>("all");
   const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState<string>("all");
   const [stratagemTurnFilter, setStratagemTurnFilter] = useState<string>("all");
@@ -76,6 +77,16 @@ export function FactionDetailPage() {
       }
     });
   }, [activeTab, detachments, detachmentAbilities]);
+
+  useEffect(() => {
+    const unitParam = searchParams.get("unit");
+    if (!unitParam || datasheetDetails.length === 0) return;
+    setSearchParams((prev) => { prev.delete("unit"); return prev; }, { replace: true });
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`unit-${unitParam}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [searchParams, datasheetDetails, setSearchParams]);
 
   const datasheets = useMemo(
     () => datasheetDetails.map((d) => d.datasheet).filter((ds) => !ds.virtual),

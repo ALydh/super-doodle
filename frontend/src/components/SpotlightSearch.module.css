@@ -1,0 +1,141 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+}
+
+.panel {
+  width: 500px;
+  max-height: 70vh;
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.search {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--surface-border);
+  border-radius: 12px 12px 0 0;
+  background-color: var(--surface-card);
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.search::placeholder {
+  color: var(--text-muted);
+}
+
+.results {
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.section h2 {
+  font-size: 0.85rem;
+  margin: 8px 8px 8px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section + .section {
+  margin-top: 8px;
+}
+
+.entry {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.entry:hover,
+.entryActive {
+  background-color: var(--surface-border);
+}
+
+.entryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.entryName {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.subtitle {
+  margin-left: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.entryArrow {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.entryToggle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.entryToggle[data-open="true"] {
+  transform: rotate(180deg);
+}
+
+.entryDescription {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary, var(--text-primary));
+}
+
+.entryDescription :global(ul) {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.entryDescription :global(.kwb),
+.entryDescription :global(.kwb2) {
+  font-weight: 600;
+}
+
+.entryDescription :global(.redExample) {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--surface-border);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.entryDescription :global(.frameLight) {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 32px 0;
+}

@@ -3,7 +3,11 @@ import { useAuth } from "../context/useAuth";
 import { useCompactMode } from "../context/CompactModeContext";
 import styles from "./Header.module.css";
 
-export function Header() {
+interface HeaderProps {
+  onSearchClick?: () => void;
+}
+
+export function Header({ onSearchClick }: HeaderProps) {
   const { user, logout } = useAuth();
   const { compact, toggleCompact } = useCompactMode();
   const navigate = useNavigate();
@@ -17,6 +21,17 @@ export function Header() {
     <header className={styles.header}>
       <Link to="/" className={styles.brand}>Home</Link>
       <nav className={styles.nav}>
+        {onSearchClick && (
+          <>
+            <button onClick={onSearchClick} className={styles.compactToggle} title="Search (Ctrl+K)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+            <span className={styles.separator}>·</span>
+          </>
+        )}
         <button onClick={toggleCompact} className={styles.compactToggle} title={compact ? "Show flavor text" : "Hide flavor text"}>
           {compact ? (
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

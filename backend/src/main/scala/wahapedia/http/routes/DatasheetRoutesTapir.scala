@@ -79,7 +79,31 @@ object DatasheetRoutesTapir {
       }
     )
 
-    val tapirRoutes = getDatasheetRoute <+> filterWargearRoute <+> getDetachmentAbilitiesRoute <+> getWeaponAbilitiesRoute
+    val getCoreAbilitiesRoute = Http4sServerInterpreter[IO]().toRoutes(
+      DatasheetEndpoints.getCoreAbilities.serverLogic { _ =>
+        ReferenceDataRepository.allAbilities(xa).map(Right(_))
+      }
+    )
+
+    val listAllDatasheetsRoute = Http4sServerInterpreter[IO]().toRoutes(
+      DatasheetEndpoints.listAllDatasheets.serverLogic { _ =>
+        ReferenceDataRepository.allDatasheets(xa).map(Right(_))
+      }
+    )
+
+    val listAllStratagemsRoute = Http4sServerInterpreter[IO]().toRoutes(
+      DatasheetEndpoints.listAllStratagems.serverLogic { _ =>
+        ReferenceDataRepository.allStratagems(xa).map(Right(_))
+      }
+    )
+
+    val listAllEnhancementsRoute = Http4sServerInterpreter[IO]().toRoutes(
+      DatasheetEndpoints.listAllEnhancements.serverLogic { _ =>
+        ReferenceDataRepository.allEnhancements(xa).map(Right(_))
+      }
+    )
+
+    val tapirRoutes = getDatasheetRoute <+> filterWargearRoute <+> getDetachmentAbilitiesRoute <+> getWeaponAbilitiesRoute <+> getCoreAbilitiesRoute <+> listAllDatasheetsRoute <+> listAllStratagemsRoute <+> listAllEnhancementsRoute
 
     Kleisli { req =>
       tapirRoutes(req).map(_.putHeaders(cacheHeaders))
