@@ -69,8 +69,6 @@
 .enhancement,
 .keywords {
   margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--surface-border);
 }
 
 .weapons h4,
@@ -377,8 +375,6 @@
   grid-template-columns: 1fr;
   gap: 16px;
   margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--surface-border);
 }
 
 .wideLeft {
@@ -402,7 +398,6 @@
 
 .wide .stats {
   padding-top: 16px;
-  border-top: 1px solid var(--surface-border);
 }
 
 .wide .stats h4 {
@@ -420,7 +415,6 @@
 
 .wide .enhancement + .abilities {
   padding-top: 16px;
-  border-top: 1px solid var(--surface-border);
 }
 
 @media (min-width: 900px) {
@@ -429,7 +423,6 @@
   }
 
   .wideRight {
-    border-left: 1px solid var(--surface-border);
     padding-left: 16px;
   }
 }
