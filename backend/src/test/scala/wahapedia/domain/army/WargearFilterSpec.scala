@@ -139,6 +139,20 @@ class WargearFilterSpec extends AnyFlatSpec with Matchers {
     )
   }
 
+  it should "replace all weapons when maxCount is 0 (all models replacement)" in {
+    val allWargear = List(wargear("Mace of absolution"), wargear("Power weapon"))
+    val defaults = List(WargearDefault("mace of absolution", 3, None))
+    val parsed = List(
+      parsedOptionWithTarget(1, WargearAction.Remove, "mace of absolution", maxCount = 0),
+      parsedOptionWithTarget(1, WargearAction.Add, "power weapon", maxCount = 0)
+    )
+    val selections = List(WargearSelection(1, true, None))
+    val result = WargearFilter.filterWargearWithDefaults(allWargear, parsed, selections, defaults, 5)
+
+    result.find(_.wargear.name.contains("Mace of absolution")) shouldBe None
+    result.find(_.wargear.name.contains("Power weapon")).map(_.quantity) shouldBe Some(3)
+  }
+
   it should "handle unit size of 1" in {
     val allWargear = List(wargear("Guardian spear"))
     val loadouts = parseLoadout("<b>This model is equipped with:</b> guardian spear.")
