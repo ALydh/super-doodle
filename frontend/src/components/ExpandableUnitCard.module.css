@@ -92,7 +92,6 @@
 
 .content {
   padding: 0 16px 16px;
-  border-top: 1px solid var(--surface-border);
 }
 
 .content .loading {
@@ -342,7 +341,6 @@
 .wideColumns .statsSection {
   margin-top: 0;
   padding-top: 16px;
-  border-top: 1px solid var(--surface-border);
 }
 
 .wideColumns .weaponsSection {
@@ -355,7 +353,6 @@
   }
 
   .wideRight {
-    border-left: 1px solid var(--surface-border);
     padding-left: 16px;
   }
 }
