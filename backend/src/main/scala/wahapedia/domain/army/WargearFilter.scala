@@ -78,7 +78,7 @@ object WargearFilter {
     }
 
     val baseWeaponCounts = calculateBaseWeaponCounts(loadouts, unitSize, hasUniversal, hasSpecific)
-    val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections)
+    val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections, baseWeaponCounts)
 
     allWargear.filter(_.name.isDefined).flatMap { wargear =>
       val weaponName = wargear.name.map(_.toLowerCase).getOrElse("")
@@ -108,7 +108,7 @@ object WargearFilter {
 
     val baseWeaponCounts = defaults.map(d => d.weapon -> d.count).toMap
     val modelTypes = defaults.flatMap(d => d.modelType.map(d.weapon -> _)).toMap
-    val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections)
+    val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections, baseWeaponCounts)
 
     allWargear.filter(_.name.isDefined).flatMap { wargear =>
       val weaponName = wargear.name.map(_.toLowerCase).getOrElse("")
@@ -164,7 +164,8 @@ object WargearFilter {
 
   private def calculateSelectionChanges(
     parsedOptions: List[ParsedWargearOption],
-    selections: List[WargearSelection]
+    selections: List[WargearSelection],
+    baseWeaponCounts: Map[String, Int] = Map.empty
   ): (Map[String, Int], Map[String, Int]) = {
     val activeSelections = selections.filter(_.selected)
 
@@ -176,9 +177,14 @@ object WargearFilter {
           (p.choiceIndex == 0 || selectedChoiceIndex.contains(p.choiceIndex))
       }
 
+      val removeAllCount = parsed
+        .find(p => p.action == WargearAction.Remove && p.maxCount == 0)
+        .map(p => findCountByWeaponMatch(p.weaponName.toLowerCase, baseWeaponCounts))
+        .filter(_ > 0)
+
       parsed.foldLeft((removals, additions)) { case ((rem, add), p) =>
         val weaponName = p.weaponName.toLowerCase
-        val count = if (p.maxCount > 0) p.maxCount else 1
+        val count = if (p.maxCount > 0) p.maxCount else removeAllCount.getOrElse(1)
 
         p.action match {
           case WargearAction.Remove =>
