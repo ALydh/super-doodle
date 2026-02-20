@@ -317,11 +317,13 @@ export function ArmyViewPage() {
   const stratagemPhases = [...new Set(detachmentStratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
   const stratagemTurns = [...new Set(detachmentStratagems.filter((s) => s.turn).map((s) => s.turn!))].sort();
 
-  const filteredStratagems = detachmentStratagems.filter((s) => {
-    if (stratagemPhaseFilter !== "all" && s.phase !== stratagemPhaseFilter) return false;
-    if (stratagemTurnFilter !== "all" && s.turn !== stratagemTurnFilter) return false;
-    return true;
-  });
+  const filteredStratagems = detachmentStratagems
+    .filter((s) => {
+      if (stratagemPhaseFilter !== "all" && s.phase !== stratagemPhaseFilter) return false;
+      if (stratagemTurnFilter !== "all" && s.turn !== stratagemTurnFilter) return false;
+      return true;
+    })
+    .sort((a, b) => (a.detachmentId ? 0 : 1) - (b.detachmentId ? 0 : 1));
 
   const factionAbilityCards: Stratagem[] = (() => {
     const seen = new Set<string>();
