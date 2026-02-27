@@ -115,6 +115,26 @@ export function InventoryPage() {
 
   const sortedRoles = sortByRoleOrder(Object.keys(byRole));
 
+  const handleExportCsv = useCallback(() => {
+    const rows: string[] = ["name,role,quantity,points"];
+    for (const ds of datasheets) {
+      const qty = inventory.get(ds.id) ?? 0;
+      if (qty === 0) continue;
+      const pts = pointsPerUnit.get(ds.id) ?? "";
+      const name = `"${ds.name.replace(/"/g, '""')}"`;
+      const role = `"${(ds.role ?? "Other").replace(/"/g, '""')}"`;
+      rows.push(`${name},${role},${qty},${pts}`);
+    }
+    const csv = rows.join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${factionName.replace(/\s+/g, "_")}_inventory.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [datasheets, inventory, pointsPerUnit, factionName]);
+
   const ownedCount = useMemo(() => {
     let count = 0;
     for (const ds of datasheets) {
@@ -219,6 +239,14 @@ export function InventoryPage() {
           )}
           <h1 className={styles.title}>{factionName} - Inventory</h1>
         </div>
+        <button
+          type="button"
+          className={styles.exportBtn}
+          onClick={handleExportCsv}
+          disabled={inventory.size === 0}
+        >
+          Export CSV
+        </button>
       </div>
 
       <div className={styles.summary}>
