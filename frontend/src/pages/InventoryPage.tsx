@@ -141,6 +141,27 @@ export function InventoryPage() {
     return map;
   }, [costsByDatasheet]);
 
+  const pointsPerUnit = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const [datasheetId, qty] of inventory) {
+      const costs = costsByDatasheet.get(datasheetId);
+      if (!costs || costs.length === 0 || qty === 0) continue;
+      const options = costs
+        .map((c) => ({ models: parseModels(c.description), cost: c.cost }))
+        .sort((a, b) => b.models - a.models);
+      let points = 0;
+      let remaining = qty;
+      for (const opt of options) {
+        if (opt.models <= 0) continue;
+        const fits = Math.floor(remaining / opt.models);
+        points += fits * opt.cost;
+        remaining -= fits * opt.models;
+      }
+      map.set(datasheetId, points);
+    }
+    return map;
+  }, [inventory, costsByDatasheet]);
+
   const totalPoints = useMemo(() => {
     let total = 0;
     for (const [datasheetId, qty] of inventory) {
@@ -267,6 +288,9 @@ export function InventoryPage() {
                     className={`${styles.unitItem} ${qty > 0 ? styles.unitItemOwned : ""}`}
                   >
                     <span className={styles.unitName}>{ds.name}</span>
+                    {qty > 0 && pointsPerUnit.has(ds.id) && (
+                      <span className={styles.unitPoints}>{pointsPerUnit.get(ds.id)}pts</span>
+                    )}
                     <div className={styles.quantityControl}>
                       <button
                         className={styles.quantityBtn}
