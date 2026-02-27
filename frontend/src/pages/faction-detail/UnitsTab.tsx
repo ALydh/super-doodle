@@ -14,6 +14,7 @@ interface Props {
   expandedUnit: string | null;
   onUnitToggle: (datasheetId: string) => void;
   profilesByDatasheet: Map<string, ModelProfile[]>;
+  costsByDatasheet: Map<string, number>;
 }
 
 export function UnitsTab({
@@ -28,6 +29,7 @@ export function UnitsTab({
   expandedUnit,
   onUnitToggle,
   profilesByDatasheet,
+  costsByDatasheet,
 }: Props) {
   return (
     <div className={styles.unitsTab}>
@@ -57,6 +59,7 @@ export function UnitsTab({
                     isExpanded={expandedUnit === ds.id}
                     onToggle={() => onUnitToggle(ds.id)}
                     profiles={profilesByDatasheet.get(ds.id)}
+                    points={costsByDatasheet.get(ds.id)}
                   />
                 </div>
               );
