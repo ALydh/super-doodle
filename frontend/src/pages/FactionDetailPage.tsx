@@ -123,6 +123,17 @@ export function FactionDetailPage() {
     return map;
   }, [datasheetDetails]);
 
+  const costsByDatasheet = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const d of datasheetDetails) {
+      if (d.costs.length > 0) {
+        const base = d.costs.reduce((min, c) => c.line < min.line ? c : min, d.costs[0]);
+        map.set(d.datasheet.id, base.cost);
+      }
+    }
+    return map;
+  }, [datasheetDetails]);
+
   const keywordsByDatasheet = useMemo(() => {
     const map = new Map<string, DatasheetKeyword[]>();
     for (const d of datasheetDetails) {
@@ -311,6 +322,7 @@ export function FactionDetailPage() {
           expandedUnit={expandedUnit}
           onUnitToggle={handleUnitToggle}
           profilesByDatasheet={profilesByDatasheet}
+          costsByDatasheet={costsByDatasheet}
           chapterKeyword={chapterKeyword}
         />
       )}
