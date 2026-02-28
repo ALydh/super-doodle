@@ -74,12 +74,14 @@ export function Header({ onSearchClick }: HeaderProps) {
           className={styles.menuToggle}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
         >
           {menuOpen ? "×" : "☰"}
         </button>
       </nav>
       {menuOpen && (
-        <div className={styles.mobileMenu}>
+        <nav id="mobile-menu" className={styles.mobileMenu} role="menu">
           <button onClick={() => { toggleCompact(); closeMenu(); }} className={styles.mobileMenuItem}>
             {compact ? "Show flavor text" : "Hide flavor text"}
           </button>
