@@ -3,6 +3,7 @@ import type { WeaponAbility, CoreAbility, Faction } from "../types";
 import { fetchWeaponAbilities, fetchCoreAbilities, fetchFactions } from "../api";
 import { glossarySections } from "../data/glossary";
 import { sanitizeHtml } from "../sanitize";
+import { ErrorMessage } from "../components/ErrorMessage";
 import styles from "./GlossaryPage.module.css";
 
 interface EntryProps {
@@ -83,7 +84,7 @@ export function GlossaryPage() {
     filteredCore.length === 0 &&
     filteredSections.length === 0;
 
-  if (error) return <div className="error-message">{error}</div>;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
     <div className={styles.page}>

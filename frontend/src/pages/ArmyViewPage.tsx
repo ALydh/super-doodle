@@ -24,6 +24,7 @@ import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { UnitsTab } from "./army-view/UnitsTab";
 import { ShoppingTab } from "./army-view/ShoppingTab";
+import { ErrorMessage } from "../components/ErrorMessage";
 import styles from "./ArmyViewPage.module.css";
 
 interface RoleGroup {
@@ -295,7 +296,7 @@ export function ArmyViewPage() {
     navigate("/");
   };
 
-  if (error) return <div className="error-message">{error}</div>;
+  if (error) return <ErrorMessage message={error} />;
   if (!battleData) return <div>Loading...</div>;
 
   const maxPoints = BATTLE_SIZE_POINTS[battleData.battleSize as BattleSize] ?? 0;
