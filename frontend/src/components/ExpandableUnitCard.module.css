@@ -9,7 +9,7 @@
   border-radius: 8px;
   border: 2px solid var(--faction-primary);
   border-left-width: 3px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .card.expanded {
@@ -105,11 +105,10 @@
   color: var(--text-secondary);
   font-style: italic;
   font-size: 0.9rem;
-  margin-top: 12px;
 }
 
 .statsSection {
-  margin-top: 12px;
+  margin-top: 0;
 }
 
 .statsTable {
@@ -342,7 +341,6 @@
 
 .wideColumns .statsSection {
   margin-top: 0;
-  padding-top: 16px;
 }
 
 .wideColumns .weaponsSection {

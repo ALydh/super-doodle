@@ -110,12 +110,7 @@ thead th {
 }
 
 tbody tr {
-  border-bottom: 1px solid var(--surface-border);
   transition: background-color 0.2s ease;
-}
-
-tbody tr:last-child {
-  border-bottom: none;
 }
 
 tbody td {
