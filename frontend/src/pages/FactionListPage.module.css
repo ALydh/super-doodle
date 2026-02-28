@@ -83,16 +83,18 @@
     transform 0.2s ease;
 }
 
-.armyCard:hover .armyCardIcon {
-  opacity: 0.25;
-  transform: scale(1.1);
-}
+@media (hover: hover) {
+  .armyCard:hover .armyCardIcon {
+    opacity: 0.25;
+    transform: scale(1.1);
+  }
 
-.armyCard:hover {
-  transform: translateY(-4px);
-  border-color: var(--faction-primary);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  text-decoration: none;
+  .armyCard:hover {
+    transform: translateY(-4px);
+    border-color: var(--faction-primary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+  }
 }
 
 .armyCardHeader {
@@ -226,16 +228,18 @@
     transform 0.2s ease;
 }
 
-.factionCard:hover .factionCardIcon {
-  opacity: 0.25;
-  transform: scale(1.1);
-}
+@media (hover: hover) {
+  .factionCard:hover .factionCardIcon {
+    opacity: 0.25;
+    transform: scale(1.1);
+  }
 
-.factionCard:hover {
-  transform: translateY(-4px);
-  border-color: var(--faction-primary);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  text-decoration: none;
+  .factionCard:hover {
+    transform: translateY(-4px);
+    border-color: var(--faction-primary);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+  }
 }
 
 .factionCardName {

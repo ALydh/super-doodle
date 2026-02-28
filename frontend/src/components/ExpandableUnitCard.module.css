@@ -30,8 +30,10 @@
   font-size: 1rem;
 }
 
-.header:hover {
-  background-color: var(--surface-panel);
+@media (hover: hover) {
+  .header:hover {
+    background-color: var(--surface-panel);
+  }
 }
 
 .expandIcon {

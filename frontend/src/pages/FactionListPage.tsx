@@ -5,6 +5,7 @@ import { fetchFactions, fetchAllArmies, createArmy } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { isSpaceMarines, SM_CHAPTERS, getChapterTheme } from "../chapters";
 import { useAuth } from "../context/useAuth";
+import { ErrorMessage } from "../components/ErrorMessage";
 import styles from "./FactionListPage.module.css";
 
 type FactionGroup = "Imperium" | "Chaos" | "Xenos";
@@ -80,7 +81,7 @@ export function FactionListPage() {
       .catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <div className="error-message">{error}</div>;
+  if (error) return <ErrorMessage message={error} />;
 
   const factionMap = new Map(factions.map((f) => [f.id, f]));
   const excludedFactions = ["Unbound Adversaries", "Unaligned Forces"];

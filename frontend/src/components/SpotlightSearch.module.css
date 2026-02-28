@@ -24,12 +24,12 @@
 
 @media (max-width: 599px) {
   .backdrop {
-    padding-top: 8vh;
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
   .panel {
-    max-height: 80vh;
-    border-radius: 8px;
+    max-height: 100dvh;
+    border-radius: 8px 8px 0 0;
   }
 
   .entry {

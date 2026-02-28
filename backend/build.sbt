@@ -1,5 +1,5 @@
 scalaVersion := "3.3.4"
-
+// scalafmt disabled
 enablePlugins(NativeImagePlugin, JavaAppPackaging, AssemblyPlugin)
 
 val tapirVersion = "1.11.11"
