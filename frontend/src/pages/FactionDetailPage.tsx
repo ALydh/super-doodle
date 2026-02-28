@@ -17,6 +17,7 @@ import { DetachmentCard } from "../components/DetachmentCard";
 import { sortByRoleOrder } from "../constants";
 import { UnitsTab } from "./faction-detail/UnitsTab";
 import { StrategemsTab } from "./faction-detail/StrategemsTab";
+import { ErrorMessage } from "../components/ErrorMessage";
 import styles from "./FactionDetailPage.module.css";
 
 type TabId = "units" | "stratagems" | "detachments";
@@ -182,7 +183,7 @@ export function FactionDetailPage() {
     [visibleDetachments],
   );
 
-  if (error) return <div className="error-message">{error}</div>;
+  if (error) return <ErrorMessage message={error} />;
 
   const filtered = datasheets.filter((ds) => {
     if (!ds.name.toLowerCase().includes(search.toLowerCase())) return false;
