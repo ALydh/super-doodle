@@ -217,6 +217,27 @@
   color: var(--text-primary);
 }
 
+.exportBtn {
+  background: var(--surface-panel);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.exportBtn:hover:not(:disabled) {
+  border-color: var(--faction-primary);
+  background: var(--surface-card);
+}
+
+.exportBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .noResults {
   color: var(--text-muted);
   font-style: italic;
