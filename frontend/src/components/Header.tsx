@@ -74,11 +74,13 @@ export function Header({ onSearchClick }: HeaderProps) {
           className={styles.menuToggle}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
         >
           {menuOpen ? "×" : "☰"}
         </button>
       </nav>
-      <div className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuOpen : ""}`}>
+      <nav id="mobile-menu" className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuOpen : ""}`} role="menu">
         <button onClick={() => { toggleCompact(); closeMenu(); }} className={styles.mobileMenuItem}>
           {compact ? "Show flavor text" : "Hide flavor text"}
         </button>
@@ -95,7 +97,7 @@ export function Header({ onSearchClick }: HeaderProps) {
             <Link to="/register" className={styles.mobileMenuItem} onClick={closeMenu}>Register</Link>
           </>
         )}
-      </div>
+      </nav>
     </header>
   );
 }

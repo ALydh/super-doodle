@@ -9,6 +9,7 @@ import { useAuth } from "../context/useAuth";
 import { useCompactMode } from "../context/CompactModeContext";
 import { glossarySections } from "../data/glossary";
 import { sanitizeHtml } from "../sanitize";
+import { useFocusTrap } from "../hooks/useFocusTrap";
 import styles from "./SpotlightSearch.module.css";
 
 interface SpotlightSearchProps {
@@ -81,6 +82,7 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toggleCompact } = useCompactMode();
+  const trapRef = useFocusTrap(open);
 
   const [factions, setFactions] = useState<Faction[]>([]);
   const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
@@ -369,8 +371,8 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
   let globalIndex = 0;
 
   return (
-    <div className={styles.backdrop} onClick={onClose}>
-      <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.backdrop} onClick={onClose} ref={trapRef}>
+      <div className={styles.panel} role="dialog" aria-modal="true" aria-label="Search" onClick={(e) => e.stopPropagation()}>
         <input
           ref={inputRef}
           className={styles.search}
