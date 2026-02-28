@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../context/useAuth";
 import { getFactionTheme } from "../factionTheme";
 import { sortByRoleOrder } from "../constants";
+import { Spinner } from "../components/Spinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import styles from "./InventoryPage.module.css";
 
@@ -204,7 +205,7 @@ export function InventoryPage() {
     return total;
   }, [inventory, costsByDatasheet]);
 
-  if (authLoading) return <div>Loading...</div>;
+  if (authLoading) return <Spinner />;
 
   if (!user) {
     return (

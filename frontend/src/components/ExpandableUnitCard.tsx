@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import type { DatasheetDetail, Enhancement, ModelProfile } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { UnitCardDetail } from "./UnitCardDetail";
+import { Spinner } from "./Spinner";
 import styles from "./ExpandableUnitCard.module.css";
-import sharedStyles from "../shared.module.css";
 
 interface Props {
   datasheetId: string;
@@ -70,7 +70,7 @@ export function ExpandableUnitCard({
 
       {isExpanded && (
         <div className={styles.content}>
-          {loading && <div className={sharedStyles.loading}>Loading...</div>}
+          {loading && <Spinner />}
           {detail && <UnitCardDetail detail={detail} />}
         </div>
       )}

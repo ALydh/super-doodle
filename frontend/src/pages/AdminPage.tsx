@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { createInvite, listInvites } from "../api";
+import { Spinner } from "../components/Spinner";
 import type { Invite } from "../types";
 import styles from "./AdminPage.module.css";
 
@@ -40,7 +41,7 @@ export function AdminPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  if (authLoading) return <div>Loading...</div>;
+  if (authLoading) return <Spinner />;
 
   if (!user) {
     return (
