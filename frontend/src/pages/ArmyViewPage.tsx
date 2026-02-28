@@ -380,16 +380,16 @@ export function ArmyViewPage() {
           </p>
         </div>
         <div className={styles.actions}>
-          <button className={styles.exportBtn} onClick={handleExport}>Export</button>
-          <button className={styles.exportTxtBtn} onClick={handleExportTxt}>Text</button>
+          <button className={styles.exportBtn} onClick={handleExport} aria-label="Export as JSON">Export</button>
+          <button className={styles.exportTxtBtn} onClick={handleExportTxt} aria-label="Export as text">Text</button>
           {user && (
-            <button className={styles.copyBtn} onClick={handleCopy}>Copy</button>
+            <button className={styles.copyBtn} onClick={handleCopy} aria-label="Copy army">Copy</button>
           )}
           <Link to={`/armies/${armyId}/edit`} state={{ factionId: battleData.factionId }}>
-            <button className={styles.editBtn}>Edit</button>
+            <button className={styles.editBtn} aria-label="Edit army">Edit</button>
           </Link>
           {user && (
-            <button className={styles.deleteBtn} onClick={handleDelete}>Delete</button>
+            <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Delete army">Delete</button>
           )}
         </div>
       </div>
