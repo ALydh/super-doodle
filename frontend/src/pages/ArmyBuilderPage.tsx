@@ -22,6 +22,7 @@ import { DetachmentAbilitiesSection } from "./DetachmentAbilitiesSection";
 import { StrategemsSection } from "./StrategemsSection";
 import { PointsDisplay } from "./PointsDisplay";
 import { SM_CHAPTERS, CHAPTER_DETACHMENTS, ALL_CHAPTER_DETACHMENT_IDS, getChapterTheme, isSpaceMarines } from "../chapters";
+import { Spinner } from "../components/Spinner";
 import styles from "./ArmyBuilderPage.module.css";
 
 export function ArmyBuilderPage() {
@@ -237,7 +238,7 @@ export function ArmyBuilderPage() {
     }
   };
 
-  if (authLoading) return <div>Loading...</div>;
+  if (authLoading) return <Spinner />;
 
   if (!user) {
     return (
@@ -248,7 +249,7 @@ export function ArmyBuilderPage() {
     );
   }
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Spinner />;
 
   const isSM = isSpaceMarines(effectiveFactionId);
   const chapterTheme = isSM && chapterId ? getChapterTheme(chapterId) : null;

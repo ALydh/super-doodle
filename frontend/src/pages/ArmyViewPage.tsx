@@ -24,6 +24,7 @@ import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { UnitsTab } from "./army-view/UnitsTab";
 import { ShoppingTab } from "./army-view/ShoppingTab";
+import { Spinner } from "../components/Spinner";
 import styles from "./ArmyViewPage.module.css";
 
 interface RoleGroup {
@@ -296,7 +297,7 @@ export function ArmyViewPage() {
   };
 
   if (error) return <div className="error-message">{error}</div>;
-  if (!battleData) return <div>Loading...</div>;
+  if (!battleData) return <Spinner />;
 
   const maxPoints = BATTLE_SIZE_POINTS[battleData.battleSize as BattleSize] ?? 0;
   const baseFactionTheme = getFactionTheme(battleData.factionId);

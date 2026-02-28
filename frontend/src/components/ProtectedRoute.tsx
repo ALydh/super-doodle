@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import { useAuth } from "../context/useAuth";
+import { Spinner } from "./Spinner";
 
 interface Props {
   children: ReactNode;
@@ -11,7 +12,7 @@ export function ProtectedRoute({ children }: Props) {
   const location = useLocation();
 
   if (loading) {
-    return <div className="loading-spinner">Loading...</div>;
+    return <Spinner />;
   }
 
   if (!user) {
