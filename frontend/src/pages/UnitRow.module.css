@@ -187,14 +187,14 @@
 
 .actions {
   display: flex;
-  gap: 4px;
+  gap: 8px;
 }
 
 .actions .btnCopy,
 .actions .btnRemove {
-  width: 28px;
-  height: 28px;
-  min-height: 28px;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
   padding: 0;
   border-radius: 4px;
   font-size: 1rem;
@@ -580,14 +580,14 @@
   }
 
   .actions {
-    gap: 2px;
+    gap: 4px;
   }
 
   .actions .btnCopy,
   .actions .btnRemove {
-    width: 22px;
-    height: 22px;
-    min-height: 22px;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
     font-size: 0.8rem;
   }
 
@@ -630,9 +630,9 @@
 
   .warlordBtn {
     flex: 0 0 auto;
-    width: 24px;
-    height: 24px;
-    min-height: 24px;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
     font-size: 0.85rem;
   }
 
@@ -644,14 +644,14 @@
 
   .actions {
     flex: 0 0 auto;
-    gap: 2px;
+    gap: 4px;
   }
 
   .actions .btnCopy,
   .actions .btnRemove {
-    width: 22px;
-    height: 22px;
-    min-height: 22px;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
     font-size: 0.8rem;
   }
 

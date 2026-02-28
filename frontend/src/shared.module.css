@@ -245,6 +245,7 @@
     margin: 16px -12px 0;
     border-radius: 0;
     padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
     font-size: 1.1rem;
     background-color: var(--surface-card);
     border-top: 2px solid var(--faction-primary);
