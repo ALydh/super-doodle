@@ -98,7 +98,7 @@ export function Header({ onSearchClick }: HeaderProps) {
               <Link to="/register" className={styles.mobileMenuItem} onClick={closeMenu}>Register</Link>
             </>
           )}
-        </div>
+        </nav>
       )}
     </header>
   );
