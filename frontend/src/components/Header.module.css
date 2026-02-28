@@ -116,9 +116,11 @@
   border-bottom: none;
 }
 
-.mobileMenuItem:hover {
-  color: var(--faction-primary);
-  text-decoration: none;
+@media (hover: hover) {
+  .mobileMenuItem:hover {
+    color: var(--faction-primary);
+    text-decoration: none;
+  }
 }
 
 .desktopOnly {
