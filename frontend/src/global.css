@@ -17,6 +17,9 @@ body {
   min-height: 100vh;
   background-color: var(--surface-page);
   padding: 24px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  padding-left: max(24px, env(safe-area-inset-left));
+  padding-right: max(24px, env(safe-area-inset-right));
   max-width: 1200px;
   margin: 0 auto;
 }

@@ -24,6 +24,7 @@ import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { UnitsTab } from "./army-view/UnitsTab";
 import { ShoppingTab } from "./army-view/ShoppingTab";
+import { ErrorMessage } from "../components/ErrorMessage";
 import styles from "./ArmyViewPage.module.css";
 
 interface RoleGroup {
@@ -295,7 +296,7 @@ export function ArmyViewPage() {
     navigate("/");
   };
 
-  if (error) return <div className="error-message">{error}</div>;
+  if (error) return <ErrorMessage message={error} />;
   if (!battleData) return <div>Loading...</div>;
 
   const maxPoints = BATTLE_SIZE_POINTS[battleData.battleSize as BattleSize] ?? 0;
@@ -380,16 +381,16 @@ export function ArmyViewPage() {
           </p>
         </div>
         <div className={styles.actions}>
-          <button className={styles.exportBtn} onClick={handleExport}>Export</button>
-          <button className={styles.exportTxtBtn} onClick={handleExportTxt}>Text</button>
+          <button className={styles.exportBtn} onClick={handleExport} aria-label="Export as JSON">Export</button>
+          <button className={styles.exportTxtBtn} onClick={handleExportTxt} aria-label="Export as text">Text</button>
           {user && (
-            <button className={styles.copyBtn} onClick={handleCopy}>Copy</button>
+            <button className={styles.copyBtn} onClick={handleCopy} aria-label="Copy army">Copy</button>
           )}
           <Link to={`/armies/${armyId}/edit`} state={{ factionId: battleData.factionId }}>
-            <button className={styles.editBtn}>Edit</button>
+            <button className={styles.editBtn} aria-label="Edit army">Edit</button>
           </Link>
           {user && (
-            <button className={styles.deleteBtn} onClick={handleDelete}>Delete</button>
+            <button className={styles.deleteBtn} onClick={handleDelete} aria-label="Delete army">Delete</button>
           )}
         </div>
       </div>

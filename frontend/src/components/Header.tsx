@@ -80,26 +80,24 @@ export function Header({ onSearchClick }: HeaderProps) {
           {menuOpen ? "×" : "☰"}
         </button>
       </nav>
-      {menuOpen && (
-        <nav id="mobile-menu" className={styles.mobileMenu} role="menu">
-          <button onClick={() => { toggleCompact(); closeMenu(); }} className={styles.mobileMenuItem}>
-            {compact ? "Show flavor text" : "Hide flavor text"}
-          </button>
-          <Link to="/glossary" className={styles.mobileMenuItem} onClick={closeMenu}>Glossary</Link>
-          {user ? (
-            <>
-              <Link to="/admin" className={styles.mobileMenuItem} onClick={closeMenu}>Admin</Link>
-              <span className={styles.mobileMenuItem} style={{ opacity: 0.6 }}>{user.username}</span>
-              <button onClick={() => { handleLogout(); closeMenu(); }} className={styles.mobileMenuItem}>Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className={styles.mobileMenuItem} onClick={closeMenu}>Login</Link>
-              <Link to="/register" className={styles.mobileMenuItem} onClick={closeMenu}>Register</Link>
-            </>
-          )}
-        </nav>
-      )}
+      <nav id="mobile-menu" className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuOpen : ""}`} role="menu">
+        <button onClick={() => { toggleCompact(); closeMenu(); }} className={styles.mobileMenuItem}>
+          {compact ? "Show flavor text" : "Hide flavor text"}
+        </button>
+        <Link to="/glossary" className={styles.mobileMenuItem} onClick={closeMenu}>Glossary</Link>
+        {user ? (
+          <>
+            <Link to="/admin" className={styles.mobileMenuItem} onClick={closeMenu}>Admin</Link>
+            <span className={styles.mobileMenuItem} style={{ opacity: 0.6 }}>{user.username}</span>
+            <button onClick={() => { handleLogout(); closeMenu(); }} className={styles.mobileMenuItem}>Logout</button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className={styles.mobileMenuItem} onClick={closeMenu}>Login</Link>
+            <Link to="/register" className={styles.mobileMenuItem} onClick={closeMenu}>Register</Link>
+          </>
+        )}
+      </nav>
     </header>
   );
 }
