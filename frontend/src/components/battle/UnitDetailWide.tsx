@@ -175,7 +175,7 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
 
               {hasAbilities && (() => {
                 const core = filteredAbilities.filter((a) => a.abilityType === "Core");
-                const other = filteredAbilities.filter((a) => a.abilityType !== "Core" && a.abilityType !== "Faction");
+                const other = filteredAbilities.filter((a) => a.abilityType !== "Core" && a.abilityType !== "Faction" && a.abilityType !== "Wargear");
                 return (
                   <div className={styles.abilities}>
                     <h4>Abilities</h4>
