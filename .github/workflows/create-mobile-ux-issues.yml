@@ -1,0 +1,36 @@
+name: Create Mobile UX Issues
+
+on:
+  push:
+    branches:
+      - 'claude/mobile-ux-evaluation-*'
+    paths:
+      - '.github/mobile-ux-issues/*.md'
+
+permissions:
+  issues: write
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub Issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for file in .github/mobile-ux-issues/*.md; do
+            [ -f "$file" ] || continue
+            title=$(head -1 "$file" | sed 's/^# //')
+            body=$(tail -n +2 "$file")
+
+            # Check if issue already exists
+            existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+            if [ -n "$existing" ]; then
+              echo "Issue already exists: #$existing - $title"
+            else
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"
+              echo "Created issue: $title"
+            fi
+          done
