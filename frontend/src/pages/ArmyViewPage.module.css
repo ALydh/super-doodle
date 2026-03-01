@@ -23,7 +23,7 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
   margin-bottom: 24px;
 }
 
@@ -253,6 +253,10 @@
     position: absolute;
     top: 0;
     right: 0;
+  }
+
+  .headerText {
+    padding-right: 220px;
   }
 
   .headerIcon {
