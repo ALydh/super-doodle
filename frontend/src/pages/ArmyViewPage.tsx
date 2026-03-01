@@ -377,9 +377,11 @@ export function ArmyViewPage() {
         )}
         <div className={styles.headerText}>
           <h1 className={styles.armyName}>{battleData.name}</h1>
-          <p className={styles.meta}>
-            {chapterName && <>{chapterName} | </>}{battleData.battleSize} - {totalPoints}/{maxPoints}pts | {detachmentName}
-          </p>
+          <div className={styles.meta}>
+            {chapterName && <span className={styles.metaBadge}>{chapterName}</span>}
+            <span className={styles.metaBadge}>{battleData.battleSize} · {totalPoints}/{maxPoints}pts</span>
+            <span className={styles.metaBadge}>{detachmentName}</span>
+          </div>
         </div>
         <div className={styles.actions}>
           <button className={styles.exportBtn} onClick={handleExport} aria-label="Export as JSON">Export</button>

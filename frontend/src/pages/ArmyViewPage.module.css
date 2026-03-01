@@ -45,9 +45,20 @@
 }
 
 .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0 0;
+}
+
+.metaBadge {
   color: var(--text-muted);
-  margin: 4px 0 0 0;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  white-space: nowrap;
 }
 
 .actions {
