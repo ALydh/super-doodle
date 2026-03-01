@@ -23,7 +23,7 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
   margin-bottom: 24px;
 }
 
@@ -46,9 +46,8 @@
 
 .meta {
   color: var(--text-muted);
-  margin: 8px 0 0 0;
+  margin: 4px 0 0 0;
   font-size: 0.95rem;
-  line-height: 1.5;
 }
 
 .actions {
@@ -254,6 +253,10 @@
     position: absolute;
     top: 0;
     right: 0;
+  }
+
+  .headerText {
+    padding-right: 220px;
   }
 
   .headerIcon {
