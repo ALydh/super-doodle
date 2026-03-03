@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import type { DatasheetDetail, Enhancement, ModelProfile } from "../types";
+import type { DatasheetDetail, Enhancement, ModelProfile, UnitCost } from "../types";
 import { fetchDatasheetDetail } from "../api";
 import { UnitCardDetail } from "./UnitCardDetail";
 import { Spinner } from "./Spinner";
@@ -9,6 +9,7 @@ interface Props {
   datasheetId: string;
   datasheetName: string;
   points?: number;
+  costs?: UnitCost[];
   isExpanded: boolean;
   onToggle: () => void;
   isWarlord?: boolean;
@@ -20,6 +21,7 @@ export function ExpandableUnitCard({
   datasheetId,
   datasheetName,
   points,
+  costs,
   isExpanded,
   onToggle,
   isWarlord,
@@ -63,8 +65,16 @@ export function ExpandableUnitCard({
             <span className={styles.statPill}>OC{profiles[0].objectiveControl}</span>
           </span>
         )}
-        {points !== undefined && points > 0 && (
-          <span className={styles.points}>{points}pts</span>
+        {costs && costs.length > 1 ? (
+          <span className={styles.costOptions}>
+            {costs.map((c) => (
+              <span key={c.line} className={styles.costOption}>{c.description}: {c.cost}pts</span>
+            ))}
+          </span>
+        ) : (
+          points !== undefined && points > 0 && (
+            <span className={styles.points}>{points}pts</span>
+          )
         )}
       </button>
 

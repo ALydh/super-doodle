@@ -1,4 +1,4 @@
-import type { Datasheet, ModelProfile } from "../../types";
+import type { Datasheet, ModelProfile, UnitCost } from "../../types";
 import { ExpandableUnitCard } from "../../components/ExpandableUnitCard";
 import styles from "../FactionDetailPage.module.css";
 
@@ -15,6 +15,7 @@ interface Props {
   onUnitToggle: (datasheetId: string) => void;
   profilesByDatasheet: Map<string, ModelProfile[]>;
   costsByDatasheet: Map<string, number>;
+  allCostsByDatasheet: Map<string, UnitCost[]>;
 }
 
 export function UnitsTab({
@@ -30,6 +31,7 @@ export function UnitsTab({
   onUnitToggle,
   profilesByDatasheet,
   costsByDatasheet,
+  allCostsByDatasheet,
 }: Props) {
   return (
     <div className={styles.unitsTab}>
@@ -60,6 +62,7 @@ export function UnitsTab({
                     onToggle={() => onUnitToggle(ds.id)}
                     profiles={profilesByDatasheet.get(ds.id)}
                     points={costsByDatasheet.get(ds.id)}
+                    costs={allCostsByDatasheet.get(ds.id)}
                   />
                 </div>
               );
