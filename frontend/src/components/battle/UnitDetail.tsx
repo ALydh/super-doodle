@@ -153,24 +153,26 @@ export function UnitDetail({ data, isWarlord }: Props) {
 
       {abilities.filter((a) => a.name).length > 0 && (() => {
         const named = abilities.filter((a) => a.name);
+        const faction = named.filter((a) => a.abilityType === "Faction");
         const core = named.filter((a) => a.abilityType === "Core");
+        const pills = [...faction, ...core];
         const other = named.filter((a) => a.abilityType !== "Core" && a.abilityType !== "Faction" && a.abilityType !== "Wargear");
         return (
           <div className={styles.abilities}>
             <h4>Abilities</h4>
-            {core.length > 0 && (
+            {pills.length > 0 && (
               <>
                 <div className={styles.coreAbilitiesPills}>
-                  {core.map((a, i) => (
+                  {pills.map((a, i) => (
                     <span
                       key={i}
-                      className={`${styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
+                      className={`${a.abilityType === "Faction" ? styles.factionAbilityPill : styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
                       onClick={() => setExpandedCore(expandedCore === i ? null : i)}
                     >{a.name}</span>
                   ))}
                 </div>
-                {expandedCore !== null && core[expandedCore]?.description && (
-                  <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
+                {expandedCore !== null && pills[expandedCore]?.description && (
+                  <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(pills[expandedCore].description!) }} />
                 )}
               </>
             )}
