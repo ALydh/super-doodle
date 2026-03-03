@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import type { Datasheet, DatasheetDetail, Stratagem, DetachmentInfo, DetachmentAbility, Enhancement, ModelProfile, DatasheetKeyword } from "../types";
+import type { Datasheet, DatasheetDetail, Stratagem, DetachmentInfo, DetachmentAbility, Enhancement, ModelProfile, DatasheetKeyword, UnitCost } from "../types";
 import {
   fetchDatasheetDetailsByFaction,
   fetchStratagemsByFaction,
@@ -131,6 +131,14 @@ export function FactionDetailPage() {
         const base = d.costs.reduce((min, c) => c.line < min.line ? c : min, d.costs[0]);
         map.set(d.datasheet.id, base.cost);
       }
+    }
+    return map;
+  }, [datasheetDetails]);
+
+  const allCostsByDatasheet = useMemo(() => {
+    const map = new Map<string, UnitCost[]>();
+    for (const d of datasheetDetails) {
+      if (d.costs.length > 0) map.set(d.datasheet.id, d.costs);
     }
     return map;
   }, [datasheetDetails]);
@@ -324,6 +332,7 @@ export function FactionDetailPage() {
           onUnitToggle={handleUnitToggle}
           profilesByDatasheet={profilesByDatasheet}
           costsByDatasheet={costsByDatasheet}
+          allCostsByDatasheet={allCostsByDatasheet}
           chapterKeyword={chapterKeyword}
         />
       )}
