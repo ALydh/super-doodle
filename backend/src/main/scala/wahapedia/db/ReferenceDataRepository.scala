@@ -67,9 +67,18 @@ object ReferenceDataRepository {
       .query[Datasheet].option.transact(xa)
 
   def datasheetsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[Datasheet]] =
-    sql"""SELECT id, name, faction_id, source_id, legend, role, loadout, transport,
-           virtual, leader_head, leader_footer, damaged_w, damaged_description, link
-           FROM datasheets WHERE faction_id = $factionId"""
+    sql"""SELECT d.id, d.name, d.faction_id, d.source_id, d.legend, d.role, d.loadout, d.transport,
+           d.virtual, d.leader_head, d.leader_footer, d.damaged_w, d.damaged_description, d.link
+           FROM datasheets d
+           WHERE d.faction_id = $factionId
+           AND d.id = (
+             SELECT d2.id
+             FROM datasheets d2
+             LEFT JOIN sources s2 ON d2.source_id = s2.id
+             WHERE d2.faction_id = $factionId AND d2.name = d.name
+             ORDER BY COALESCE(s2.edition, 0) DESC, d2.id ASC
+             LIMIT 1
+           )"""
       .query[Datasheet].to[List].transact(xa)
 
   def allModelProfiles(xa: Transactor[IO]): IO[List[ModelProfile]] =
