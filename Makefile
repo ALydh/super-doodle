@@ -19,7 +19,7 @@ help:
 	@echo "  build-frontend Build frontend for production"
 	@echo "  build-backend  Build backend JAR"
 	@echo "  clean          Remove build artifacts and reset database"
-	@echo "  fetch-data     Download fresh Wahapedia CSV data"
+	@echo "  fetch-data     Download fresh Wp40k CSV data"
 
 install:
 	cd $(FRONTEND_DIR) && npm install
@@ -68,8 +68,8 @@ clean:
 	rm -rf $(FRONTEND_DIR)/node_modules/.vite
 	rm -rf $(BACKEND_DIR)/target
 	rm -rf $(BACKEND_DIR)/project/target
-	rm -f $(BACKEND_DIR)/wahapedia.db
+	rm -f $(BACKEND_DIR)/wp40k.db
 	@echo "Cleaned build artifacts and reset database"
 
 fetch-data:
-	./scripts/fetch-wahapedia.sh
+	./scripts/fetch-wp40k.sh

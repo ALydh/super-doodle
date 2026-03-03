@@ -73,8 +73,8 @@ sbt run
 Starts server at http://localhost:8080.
 
 On first run, the application automatically:
-1. Creates SQLite database (`wahapedia.db`)
-2. Imports data from `../data/wahapedia/*.csv`
+1. Creates SQLite database (`wp40k.db`)
+2. Imports data from `../data/wp40k/*.csv`
 
 ## Commands
 
@@ -120,7 +120,7 @@ On first run, the application automatically:
 ## Project Structure
 
 ```
-src/main/scala/wahapedia/
+src/main/scala/wp40k/
 ├── domain/
 │   ├── models/     # Domain entities
 │   ├── army/       # Army aggregates
@@ -134,9 +134,9 @@ src/main/scala/wahapedia/
 
 ## Database
 
-SQLite database stored at `backend/wahapedia.db`. To reset:
+SQLite database stored at `backend/wp40k.db`. To reset:
 
 ```bash
-rm wahapedia.db
+rm wp40k.db
 sbt run  # Recreates and reimports data
 ```

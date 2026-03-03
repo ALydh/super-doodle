@@ -9,10 +9,10 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  - job_name: wahapedia-api
+  - job_name: wp40k-api
     journal:
       labels:
-        job: wahapedia-api
+        job: wp40k-api
       path: /var/log/journal
     relabel_configs:
       - source_labels: ['__journal__systemd_unit']

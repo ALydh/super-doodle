@@ -10,8 +10,8 @@ Deploy super-doodle to Hetzner VPS using GitHub Actions with GraalVM native bina
                    Build:                     Run:
                    - Frontend (Vite)          - nginx (static + proxy)
                    - Reference DB (SQLite)    - systemd (backend binary)
-                   - Backend (GraalVM)        - wahapedia-ref.db (bundled)
-                                              - wahapedia-user.db (persistent)
+                   - Backend (GraalVM)        - wp40k-ref.db (bundled)
+                                              - wp40k-user.db (persistent)
 ```
 
 ## Prerequisites
@@ -60,7 +60,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - uses: sbt/setup-sbt@v1
-      - run: cd backend && sbt "runMain wahapedia.BuildRefDb ../data/wahapedia wahapedia-ref.db"
+      - run: cd backend && sbt "runMain wp40k.BuildRefDb ../data/wp40k wp40k-ref.db"
 
       # Backend native image build
       - uses: graalvm/setup-graalvm@v1
@@ -85,7 +85,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "frontend/dist/*,backend/target/native-image/backend,backend/wahapedia-ref.db"
+          source: "frontend/dist/*,backend/target/native-image/backend,backend/wp40k-ref.db"
           target: "/opt/super-doodle"
           strip_components: 1
 
@@ -148,8 +148,8 @@ After=network.target
 Type=simple
 User=deploy
 WorkingDirectory=/opt/super-doodle
-Environment="REF_DB_PATH=/opt/super-doodle/wahapedia-ref.db"
-Environment="USER_DB_PATH=/opt/super-doodle/wahapedia-user.db"
+Environment="REF_DB_PATH=/opt/super-doodle/wp40k-ref.db"
+Environment="USER_DB_PATH=/opt/super-doodle/wp40k-user.db"
 ExecStart=/opt/super-doodle/backend
 Restart=on-failure
 RestartSec=5
@@ -208,11 +208,11 @@ certbot --nginx -d YOUR_DOMAIN
 1. Push to `master` triggers workflow
 2. GitHub Actions builds:
    - Frontend: `npm run build` → `frontend/dist/`
-   - Reference DB: `sbt runMain wahapedia.BuildRefDb` → `wahapedia-ref.db`
+   - Reference DB: `sbt runMain wp40k.BuildRefDb` → `wp40k-ref.db`
    - Backend: `sbt nativeImage` → native binary
 3. SCP artifacts to VPS `/opt/super-doodle/`
 4. Restart systemd service
-5. User DB (`wahapedia-user.db`) is NOT touched - persists across deploys
+5. User DB (`wp40k-user.db`) is NOT touched - persists across deploys
 
 ## Directory Structure on VPS
 
@@ -222,8 +222,8 @@ certbot --nginx -d YOUR_DOMAIN
 │   ├── index.html
 │   └── assets/
 ├── backend                # GraalVM native binary
-├── wahapedia-ref.db       # Reference data (replaced on deploy)
-└── wahapedia-user.db      # User data (persists across deploys)
+├── wp40k-ref.db       # Reference data (replaced on deploy)
+└── wp40k-user.db      # User data (persists across deploys)
 ```
 
 ## First-Time Setup

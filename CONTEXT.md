@@ -87,16 +87,16 @@
     2. Key Technical Concepts:
        - Backend: doobie SQL queries with LEFT JOIN and COALESCE(NULLIF(...), ...) to fill empty fields from related table
        - SQLite treats empty strings as non-NULL — requires NULLIF('', '') to convert to NULL before COALESCE
-       - CSS Modules with `:global()` selector for targeting wahapedia HTML classes (`.stratLegend2`)
+       - CSS Modules with `:global()` selector for targeting wp40k HTML classes (`.stratLegend2`)
        - Multiple React components render the same ability data in different layouts (army view, faction detail, army builder)
        - `abilityType` field distinguishes "Core", "Faction", and "Datasheet" abilities
-       - The `abilities` table has `legend` (short flavour text) and `description` (full HTML rules from wahapedia)
-       - DOMPurify sanitization for rendering wahapedia HTML safely
+       - The `abilities` table has `legend` (short flavour text) and `description` (full HTML rules from wp40k)
+       - DOMPurify sanitization for rendering wp40k HTML safely
        - Playwright for browser automation and visual verification
 
     3. Files and Code Sections:
 
-       - `backend/src/main/scala/wahapedia/db/ReferenceDataRepository.scala`
+       - `backend/src/main/scala/wp40k/db/ReferenceDataRepository.scala`
          - Modified 3 SQL query methods to JOIN abilities table and populate core/faction ability names and descriptions
          - Changed from `a.legend` to `a.description` to show full rules
          ```sql
@@ -186,9 +186,9 @@
     BattleUnitCard. Used Playwright to discover the correct component chain: ArmyViewPage → army-view/UnitsTab → BattleUnitCard → UnitDetailWide.
        - **Stale dev server**: User couldn't see changes because old dev server on port 5173 was serving stale code; new server started on 5174. Fixed by killing
     old server (PID 69849) and starting fresh on 5173.
-       - **Legend vs description confusion**: Initially used `a.legend` (flavour text) but user wanted actual rules. Changed to `a.description` (full wahapedia
+       - **Legend vs description confusion**: Initially used `a.legend` (flavour text) but user wanted actual rules. Changed to `a.description` (full wp40k
     HTML with rules).
-       - **CSS module scoping issue**: Wahapedia class `.stratLegend2` needed `:global()` wrapper to be targeted from CSS modules.
+       - **CSS module scoping issue**: Wp40k class `.stratLegend2` needed `:global()` wrapper to be targeted from CSS modules.
 
     5. Problem Solving:
        - Identified the correct component rendering chain for the army view page through multiple debugging attempts and Playwright automation

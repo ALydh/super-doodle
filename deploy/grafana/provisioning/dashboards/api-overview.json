@@ -61,7 +61,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "count_over_time({job=\"wahapedia-api\"} |= \"Request completed\" [$__range])",
+          "expr": "count_over_time({job=\"wp40k-api\"} |= \"Request completed\" [$__range])",
           "refId": "A"
         }
       ],
@@ -124,7 +124,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "count_over_time({job=\"wahapedia-api\", level=\"ERROR\"} [$__range])",
+          "expr": "count_over_time({job=\"wp40k-api\", level=\"ERROR\"} [$__range])",
           "refId": "A"
         }
       ],
@@ -183,7 +183,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "count_over_time({job=\"wahapedia-api\"} |= \"Request not found\" [$__range])",
+          "expr": "count_over_time({job=\"wp40k-api\"} |= \"Request not found\" [$__range])",
           "refId": "A"
         }
       ],
@@ -272,7 +272,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "sum by (method) (count_over_time({job=\"wahapedia-api\"} |= \"Request completed\" [$__interval]))",
+          "expr": "sum by (method) (count_over_time({job=\"wp40k-api\"} |= \"Request completed\" [$__interval]))",
           "legendFormat": "{{method}}",
           "refId": "A"
         }
@@ -309,7 +309,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "{job=\"wahapedia-api\"}",
+          "expr": "{job=\"wp40k-api\"}",
           "refId": "A"
         }
       ],
@@ -320,7 +320,7 @@
   "refresh": "30s",
   "schemaVersion": 38,
   "tags": [
-    "wahapedia"
+    "wp40k"
   ],
   "templating": {
     "list": []
@@ -331,8 +331,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Wahapedia API Overview",
-  "uid": "wahapedia-api-overview",
+  "title": "Wp40k API Overview",
+  "uid": "wp40k-api-overview",
   "version": 1,
   "weekStart": ""
 }

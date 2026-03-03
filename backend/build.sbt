@@ -1,4 +1,4 @@
-scalaVersion := "3.3.4"
+scalaVersion := "3.7.4"
 // scalafmt disabled
 enablePlugins(NativeImagePlugin, JavaAppPackaging, AssemblyPlugin)
 
@@ -9,30 +9,35 @@ libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
   "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
-  "org.typelevel" %% "cats-effect" % "3.5.2",
-  "co.fs2" %% "fs2-core" % "3.9.3",
-  "co.fs2" %% "fs2-io" % "3.9.3",
-  "com.comcast" %% "ip4s-core" % "3.2.0",
-  "org.http4s" %% "http4s-ember-server" % "0.23.24",
-  "org.http4s" %% "http4s-dsl" % "0.23.24",
-  "org.http4s" %% "http4s-circe" % "0.23.24",
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "2.3.0",
-  "io.circe" %% "circe-core" % "0.14.6",
-  "io.circe" %% "circe-generic" % "0.14.6",
+  "org.typelevel" %% "cats-effect" % "3.6.1",
+  "co.fs2" %% "fs2-core" % "3.12.2",
+  "co.fs2" %% "fs2-io" % "3.12.2",
+  "com.comcast" %% "ip4s-core" % "3.7.0",
+  "org.http4s" %% "http4s-ember-server" % "0.23.30",
+  "org.http4s" %% "http4s-dsl" % "0.23.30",
+  "org.http4s" %% "http4s-circe" % "0.23.30",
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",
+  "io.circe" %% "circe-core" % "0.14.10",
+  "io.circe" %% "circe-generic" % "0.14.10",
   "org.jsoup" % "jsoup" % "1.17.2",
-  "org.tpolecat"  %% "doobie-core" % "1.0.0-RC5",
+  "org.tpolecat"  %% "doobie-core" % "1.0.0-RC6",
   "org.xerial"     % "sqlite-jdbc" % "3.44.1.0",
   "org.mindrot"    % "jbcrypt" % "0.4",
-  "org.typelevel" %% "log4cats-slf4j" % "2.6.0",
+  "org.typelevel" %% "log4cats-slf4j" % "2.7.0",
   "ch.qos.logback" % "logback-classic" % "1.4.14",
   "net.logstash.logback" % "logstash-logback-encoder" % "7.4",
-  "org.scalatest" %% "scalatest" % "3.2.17" % Test
+  "ch.linkyard.mcp" %% "mcp-server" % "0.3.3",
+  "ch.linkyard.mcp" %% "mcp-server-http4s" % "0.3.3",
+  "com.melvinlow" %% "scala-json-schema" % "0.2.0",
+  "org.scalatest" %% "scalatest" % "3.2.19" % Test
 )
+
+scalacOptions ++= Seq("-Xmax-inlines", "64")
 
 Compile / run / fork := true
 
 // Native Image Configuration
-Compile / mainClass := Some("wahapedia.Main")
+Compile / mainClass := Some("wp40k.Main")
 nativeImageGraalHome := file(sys.env.getOrElse("GRAALVM_HOME", "/usr/lib/jvm/graalvm")).toPath
 
 nativeImageOptions := Seq(
@@ -41,7 +46,7 @@ nativeImageOptions := Seq(
   "-H:+ReportExceptionStackTraces",
   "-H:+UnlockExperimentalVMOptions",
   "--gc=serial", // smaller footprint for low load
-  "--initialize-at-run-time=wahapedia.db.DatabaseConfig$,wahapedia.Main$",
+  "--initialize-at-run-time=wp40k.db.DatabaseConfig$,wp40k.Main$",
   "-H:IncludeResources=.*\\.csv$",
   "-H:IncludeResources=application\\.conf.*",
   "-H:IncludeResources=META-INF/resources/webjars/swagger-ui/.*",

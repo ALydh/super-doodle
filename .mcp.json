@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "wp40k": {
+      "type": "http",
+      "url": "http://localhost:8080/api/mcp"
+    }
+  }
+}

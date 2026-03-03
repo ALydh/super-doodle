@@ -75,7 +75,7 @@ jobs:
         uses: sbt/setup-sbt@v1
 
       - name: Build reference database
-        run: cd backend && sbt "runMain wahapedia.BuildRefDb ../data/wahapedia wahapedia-ref.db"
+        run: cd backend && sbt "runMain wp40k.BuildRefDb ../data/wp40k wp40k-ref.db"
 
       - name: Build native image
         run: cd backend && sbt nativeImage
@@ -88,7 +88,7 @@ jobs:
           name: backend-dist
           path: |
             backend/target/native-image/backend
-            backend/wahapedia-ref.db
+            backend/wp40k-ref.db
 
   deploy:
     needs: [changes, build-frontend, build-backend]
@@ -140,7 +140,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "backend/target/native-image/backend,backend/wahapedia-ref.db"
+          source: "backend/target/native-image/backend,backend/wp40k-ref.db"
           target: "/opt/wp40k"
           strip_components: 1
 
@@ -167,8 +167,8 @@ jobs:
             if [ -f backend ]; then
               cp backend backend.prev
             fi
-            if [ -f wahapedia-ref.db ]; then
-              cp wahapedia-ref.db wahapedia-ref.db.prev
+            if [ -f wp40k-ref.db ]; then
+              cp wp40k-ref.db wp40k-ref.db.prev
             fi
             # Deploy new artifacts
             if [ -f target/native-image/backend ]; then
