@@ -49,7 +49,6 @@ export function ArmyBuilderPage() {
   const [allOptions, setAllOptions] = useState<DatasheetOption[]>([]);
   const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
   const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
-  const [pickerExpanded, setPickerExpanded] = useState(false);
   const [loadedArmyFactionId, setLoadedArmyFactionId] = useState<string>("");
   const [alliedFactions, setAlliedFactions] = useState<AlliedFactionInfo[]>([]);
   const [alliedCosts, setAlliedCosts] = useState<UnitCost[]>([]);
@@ -389,22 +388,17 @@ export function ArmyBuilderPage() {
           </ReferenceDataProvider>
         </div>
 
-        <div className={`${styles.col} ${styles.colPicker} ${pickerExpanded ? "" : styles.collapsed}`}>
-          <button className={`${styles.colHeader} ${styles.colHeaderToggle}`} onClick={() => setPickerExpanded(!pickerExpanded)}>
-            Add Units {pickerExpanded ? "▼" : "▶"}
-          </button>
-          {pickerExpanded && (
-            <UnitPicker
-              datasheets={datasheets ?? []}
-              costs={allCosts}
-              onAdd={handleAddUnit}
-              alliedFactions={alliedFactions}
-              alliedCosts={alliedCosts}
-              chapterKeyword={selectedChapter?.keyword ?? null}
-              keywordsByDatasheet={keywordsByDatasheet}
-              inventory={inventory}
-            />
-          )}
+        <div className={`${styles.col} ${styles.colPicker}`}>
+          <UnitPicker
+            datasheets={datasheets ?? []}
+            costs={allCosts}
+            onAdd={handleAddUnit}
+            alliedFactions={alliedFactions}
+            alliedCosts={alliedCosts}
+            chapterKeyword={selectedChapter?.keyword ?? null}
+            keywordsByDatasheet={keywordsByDatasheet}
+            inventory={inventory}
+          />
         </div>
       </div>
     </div>

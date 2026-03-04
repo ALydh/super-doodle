@@ -134,40 +134,9 @@
   min-width: 0;
 }
 
-.colPicker .unitPicker {
-  margin: 0;
-  padding: 0;
-  background: none;
-  border: none;
-}
-
-.colPicker .unitPicker h3 {
-  display: none;
-}
-
 .collapsed {
   width: auto;
   min-width: 0;
-}
-
-.colHeaderToggle {
-  cursor: pointer;
-  background: var(--surface-panel);
-  border: 1px solid var(--surface-border);
-  border-radius: 4px;
-  color: var(--text-primary);
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  width: 100%;
-  text-align: left;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.colHeaderToggle:hover {
-  background: var(--surface-card);
 }
 
 .btnSave {
@@ -220,14 +189,6 @@
 
   .colHeader {
     display: none;
-  }
-
-  .colHeaderToggle {
-    display: flex;
-  }
-
-  .colPicker .unitPicker h3 {
-    display: block;
   }
 }
 
