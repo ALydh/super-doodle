@@ -99,7 +99,7 @@ export function UnitRowExpanded({
         </div>
       )}
 
-      {unitOptions.length > 0 && !readOnly && (
+      {unitOptions.some(o => o.description !== "None") && !readOnly && (
         <div className={styles.wargearOptions}>
           <h5 className={styles.sectionHeading}>Wargear Options</h5>
           <WargearSelector
@@ -116,7 +116,7 @@ export function UnitRowExpanded({
         <div className={styles.wargearOptions}>
           <h5 className={styles.sectionHeading}>Selected Wargear</h5>
           {unitOptions
-            .filter(option => getWargearSelection(option.line)?.selected)
+            .filter(option => option.description !== "None" && getWargearSelection(option.line)?.selected)
             .map((option) => {
               const selection = getWargearSelection(option.line);
               return (
