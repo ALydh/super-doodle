@@ -82,6 +82,33 @@ class ReferenceDataRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     result.map(_.name).toSet shouldBe Set("Warboss", "Boyz")
   }
 
+  it should "deduplicate units with the same name in a faction" in {
+    insertFactions()
+    val source1 = SourceId("000000001")
+    val source2 = SourceId("000000002")
+    sql"""INSERT INTO sources (id, name, source_type, edition) VALUES ('000000001', 'Main Book', 'Faction Pack', 10)"""
+      .update.run.transact(xa).unsafeRunSync()
+    sql"""INSERT INTO sources (id, name, source_type, edition) VALUES ('000000002', 'Legends', 'Faction Pack', 0)"""
+      .update.run.transact(xa).unsafeRunSync()
+    val canonical = Datasheet(
+      DatasheetId("000000010"), "Warboss", Some(orkFaction), Some(source1), None,
+      Some(Role.Characters), None, None, false, None, None, None, None, "/warboss"
+    )
+    val legend = Datasheet(
+      DatasheetId("000000011"), "Warboss", Some(orkFaction), Some(source2), None,
+      Some(Role.Characters), None, None, false, None, None, None, None, "/warboss-legends"
+    )
+    List(canonical, legend).foreach { d =>
+      sql"""INSERT INTO datasheets (id, name, faction_id, source_id, legend, role, loadout, transport, virtual, leader_head, leader_footer, damaged_w, damaged_description, link)
+            VALUES (${d.id}, ${d.name}, ${d.factionId}, ${d.sourceId}, ${d.legend}, ${d.role.map(Role.asString)}, ${d.loadout}, ${d.transport}, ${if (d.virtual) 1 else 0}, ${d.leaderHead}, ${d.leaderFooter}, ${d.damagedW}, ${d.damagedDescription}, ${d.link})"""
+        .update.run.transact(xa).unsafeRunSync()
+    }
+    val result = ReferenceDataRepository.datasheetsByFaction(orkFaction)(xa).unsafeRunSync()
+    val warbosse = result.filter(_.name == "Warboss")
+    warbosse.size shouldBe 1
+    warbosse.head.id shouldBe canonical.id
+  }
+
   "allUnitCosts" should "return inserted unit costs" in {
     insertDatasheets()
     val cost = UnitCost(DatasheetId("000000001"), 1, "1 model", 65)
