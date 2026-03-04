@@ -69,14 +69,19 @@ export function UnitPicker({
   );
 
   const availableKeywords = useMemo(() => {
-    const set = new Set<string>();
+    const counts = new Map<string, number>();
     for (const ds of datasheets) {
       if (ds.virtual) continue;
       for (const kw of keywordsByDatasheet.get(ds.id) ?? []) {
-        if (!kw.isFactionKeyword && kw.keyword && !kw.model) set.add(kw.keyword);
+        if (!kw.isFactionKeyword && kw.keyword && !kw.model) {
+          counts.set(kw.keyword, (counts.get(kw.keyword) ?? 0) + 1);
+        }
       }
     }
-    return [...set].sort();
+    return [...counts.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([kw]) => kw)
+      .sort();
   }, [datasheets, keywordsByDatasheet]);
 
   const hasKeyword = (datasheetId: string) =>
