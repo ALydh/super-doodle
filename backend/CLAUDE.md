@@ -25,7 +25,7 @@
 
 ## Build
 - sbt. Run from `backend/` directory.
-- Data files live at `../data/wahapedia/` (relative to `backend/`).
+- Data files live at `../data/wp40k/` (relative to `backend/`).
 
 ## Git
 - Use `gh` CLI for all git operations.

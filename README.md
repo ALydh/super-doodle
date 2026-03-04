@@ -17,7 +17,7 @@ A full-stack web application for building and managing Warhammer 40,000 army lis
 | Frontend | React 19, TypeScript, Vite |
 | Backend | Scala 3, HTTP4S, Cats Effect |
 | Database | SQLite with Doobie |
-| Data Source | Wahapedia CSV exports |
+| Data Source | Wp40k CSV exports |
 
 ## Project Structure
 
@@ -25,7 +25,7 @@ A full-stack web application for building and managing Warhammer 40,000 army lis
 .
 ├── frontend/       # React/TypeScript UI
 ├── backend/        # Scala/HTTP4S API server
-├── data/           # Wahapedia CSV data files
+├── data/           # Wp40k CSV data files
 └── scripts/        # Utility scripts
 ```
 
@@ -60,10 +60,10 @@ See `frontend/README.md` and `backend/README.md` for detailed setup instructions
 
 ## Data
 
-Game data is sourced from Wahapedia CSV exports stored in `data/wahapedia/`. To refresh:
+Game data is sourced from Wp40k CSV exports stored in `data/wp40k/`. To refresh:
 
 ```bash
-./scripts/fetch-wahapedia.sh
+./scripts/fetch-wp40k.sh
 ```
 
 ## License

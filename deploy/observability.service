@@ -1,12 +1,12 @@
 [Unit]
-Description=Wahapedia Observability Stack (Loki + Grafana + Promtail)
+Description=Wp40k Observability Stack (Loki + Grafana + Promtail)
 Requires=docker.service
 After=docker.service
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/opt/wahapedia/deploy
+WorkingDirectory=/opt/wp40k/deploy
 ExecStart=/usr/bin/docker compose -f docker-compose.observability.yml up -d
 ExecStop=/usr/bin/docker compose -f docker-compose.observability.yml down
 TimeoutStartSec=0
