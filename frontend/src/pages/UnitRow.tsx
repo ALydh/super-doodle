@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import type { ArmyUnit, Datasheet, WargearSelection, DatasheetDetail, WargearWithQuantity } from "../types";
+import type { ArmyUnit, Datasheet, ModelProfile, WargearSelection, DatasheetDetail, WargearWithQuantity } from "../types";
 import { fetchDatasheetDetail, filterWargear } from "../api";
 import { useReferenceData } from "../context/ReferenceDataContext";
 import { LeaderSlotsSection } from "../components/LeaderSlotsSection";
@@ -22,6 +22,7 @@ interface Props {
   onSetWarlord: (index: number) => void;
   allUnits?: ArmyUnit[];
   readOnly?: boolean;
+  profiles?: ModelProfile[];
 }
 
 export function UnitRow({
@@ -29,6 +30,7 @@ export function UnitRow({
   isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
   allUnits = [],
   readOnly = false,
+  profiles = [],
 }: Props) {
   const { costs, enhancements, leaders, datasheets, options } = useReferenceData();
   const [expanded, setExpanded] = useState(false);
@@ -40,16 +42,6 @@ export function UnitRow({
   const isCharacter = datasheet?.role === "Characters";
   const unitOptions = options.filter((o) => o.datasheetId === unit.datasheetId);
 
-  const getUnitNumber = (unitIndex: number, datasheetId: string): { num: number; total: number } => {
-    const sameTypeUnits = allUnits
-      .map((u, i) => ({ datasheetId: u.datasheetId, index: i }))
-      .filter(u => u.datasheetId === datasheetId);
-    const num = sameTypeUnits.findIndex(u => u.index === unitIndex) + 1;
-    return { num, total: sameTypeUnits.length };
-  };
-
-  const thisUnitNumber = getUnitNumber(index, unit.datasheetId);
-
   const attachedLeaderName = !isCharacter
     ? allUnits
         .filter(u => u.attachedToUnitIndex === index)
@@ -58,9 +50,8 @@ export function UnitRow({
     : null;
 
   const selectedCost = unitCosts.find((c) => c.line === unit.sizeOptionLine);
-  const enhancementCost = unit.enhancementId
-    ? enhancements.find((e) => e.id === unit.enhancementId)?.cost ?? 0
-    : 0;
+  const enhancementObj = unit.enhancementId ? enhancements.find((e) => e.id === unit.enhancementId) : null;
+  const enhancementCost = enhancementObj?.cost ?? 0;
   const totalCost = (selectedCost?.cost ?? 0) + enhancementCost;
 
   useEffect(() => {
@@ -77,6 +68,10 @@ export function UnitRow({
   const wargearCount = useMemo(() =>
     unit.wargearSelections.filter(s => s.selected).length
   , [unit.wargearSelections]);
+
+  const realWargearOptions = useMemo(() =>
+    unitOptions.filter(o => o.description !== "None")
+  , [unitOptions]);
 
   const unitSize = selectedCost ? parseUnitSize(selectedCost.description) : 1;
 
@@ -119,113 +114,105 @@ export function UnitRow({
     if (!lowerDesc.includes('one of the following') && !lowerDesc.includes('can be replaced with one of the following')) {
       return null;
     }
-
     const ulMatch = description.match(/<ul[^>]*>([\s\S]*?)<\/ul>/);
     if (!ulMatch) return null;
-
     const liMatches = ulMatch[1].match(/<li[^>]*>([\s\S]*?)<\/li>/g);
     if (!liMatches) return [];
-
-    return liMatches.map(li => {
-      const content = li.replace(/<[^>]*>/g, '').trim();
-      return content;
-    }).filter(choice => choice.length > 0);
+    return liMatches.map(li => li.replace(/<[^>]*>/g, '').trim()).filter(choice => choice.length > 0);
   };
 
   const isAllied = unit.isAllied === true;
-
-  const rowClassName = [
-    styles.row,
-    isAllied ? styles.allied : "",
-  ].filter(Boolean).join(" ");
+  const displayProfile = (detail?.profiles[0]) ?? profiles[0] ?? null;
 
   return (
-    <tr className={rowClassName}>
-      <td colSpan={8}>
-        <div className={styles.card}>
-          <div
-            className={styles.header}
-            role="button"
-            tabIndex={0}
-            onClick={() => setExpanded(!expanded)}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(!expanded); }}}
-            aria-expanded={expanded}
-            aria-label={`${datasheet?.name ?? unit.datasheetId}, ${expanded ? "collapse" : "expand"} details`}
-          >
-            <span className={styles.expandBtn} aria-hidden="true">
-              {expanded ? "▼" : "▶"}
+    <div className={`${styles.card} ${isAllied ? styles.allied : ""}`}>
+      <button
+        className={styles.header}
+        onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
+        aria-label={`${datasheet?.name ?? unit.datasheetId}, ${expanded ? "collapse" : "expand"} details`}
+      >
+        <span className={styles.expandIcon} aria-hidden="true">
+          {expanded ? "▼" : "▶"}
+        </span>
+
+        <span className={styles.name}>
+          {datasheet?.name ?? unit.datasheetId}
+          {isWarlord && !readOnly && (
+            <span
+              className={styles.warlordBadge}
+              onClick={(e) => { e.stopPropagation(); onSetWarlord(index); }}
+              role="button"
+              title="Warlord"
+            >★</span>
+          )}
+          {isWarlord && readOnly && <span className={styles.warlordBadge}>★</span>}
+          {!isWarlord && !readOnly && isCharacter && !isAllied && (
+            <span
+              className={styles.warlordBtnInline}
+              onClick={(e) => { e.stopPropagation(); onSetWarlord(index); }}
+              role="button"
+              title="Set as Warlord"
+            >★</span>
+          )}
+          {enhancementObj && (
+            <>
+              <span className={styles.enhancementDot}>●</span>
+              <span className={styles.enhancementLabel}>{enhancementObj.name}</span>
+            </>
+          )}
+          {isAllied && <span className={styles.alliedBadge}>Allied</span>}
+          {attachedLeaderName && <span className={styles.leaderAttachedPill}>{attachedLeaderName}</span>}
+          {isCharacter && unit.attachedLeaderId && (
+            <span className={styles.leaderAttachedPill}>
+              {datasheets.find(d => d.id === unit.attachedLeaderId)?.name ?? "Unit"}
             </span>
+          )}
+        </span>
 
-            <div className={styles.title}>
-              <span className={styles.nameText}>{datasheet?.name ?? unit.datasheetId}</span>
-              {thisUnitNumber.total > 1 && <span className={styles.unitNumber}>#{thisUnitNumber.num}</span>}
-              {isAllied && <span className={styles.alliedBadge}>Allied</span>}
-              {attachedLeaderName && <span className={styles.leaderAttachedPill}>{attachedLeaderName}</span>}
-            </div>
+        <span className={styles.stats}>
+          {displayProfile && (
+            <>
+              <span className={styles.statPill}>M{displayProfile.movement}</span>
+              <span className={styles.statPill}>T{displayProfile.toughness}</span>
+              <span className={styles.statPill}>W{displayProfile.wounds}</span>
+              <span className={styles.statPill}>SV{displayProfile.save}</span>
+              {displayProfile.invulnerableSave && (
+                <span className={styles.statPill}>Inv{displayProfile.invulnerableSave}</span>
+              )}
+              <span className={styles.statPill}>LD{displayProfile.leadership}</span>
+              <span className={styles.statPill}>OC{displayProfile.objectiveControl}</span>
+            </>
+          )}
+        </span>
 
-            {isCharacter && !readOnly && !isAllied && (
-              <button
-                type="button"
-                className={`${styles.warlordBtn} ${isWarlord ? styles.active : ""}`}
-                onClick={(e) => { e.stopPropagation(); onSetWarlord(index); }}
-                title={isWarlord ? "Warlord" : "Set as Warlord"}
-                aria-label={isWarlord ? "Warlord" : "Set as Warlord"}
-              >
-                ♛
-              </button>
-            )}
-            {isWarlord && readOnly && <span className={styles.warlordBadge}>♛ Warlord</span>}
+        <span className={styles.cost}>{totalCost}pts</span>
 
-            {unit.enhancementId && (
-              <span className={styles.enhancementPill}>
-                {enhancements.find(e => e.id === unit.enhancementId)?.name}
-              </span>
-            )}
-
-            <span className={styles.costBadge}>{totalCost}pts</span>
-
-            {!readOnly && (
-              <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
-                <button type="button" className={styles.btnCopy} onClick={() => onCopy(index)} title="Copy unit" aria-label="Copy unit">⧉</button>
-                <button type="button" className={styles.btnRemove} onClick={() => onRemove(index)} title="Remove unit" aria-label="Remove unit">×</button>
-              </div>
-            )}
+        {!readOnly && (
+          <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+            <button type="button" className={styles.btnCopy} onClick={() => onCopy(index)} title="Copy unit" aria-label="Copy unit">⧉</button>
+            <button type="button" className={styles.btnRemove} onClick={() => onRemove(index)} title="Remove unit" aria-label="Remove unit">×</button>
           </div>
+        )}
+      </button>
 
-          <div className={styles.controls}>
-            {isCharacter && unit.attachedLeaderId && (
-              <div className={styles.controlGroup}>
-                <label>Leading</label>
-                <span className={styles.leadingPill}>
-                  {datasheets.find(d => d.id === unit.attachedLeaderId)?.name ?? "Unit"}
-                </span>
-              </div>
-            )}
-
-            {!isCharacter && !readOnly && (
-              <LeaderSlotsSection
-                unitDatasheetId={unit.datasheetId}
-                unitIndex={index}
-                allUnits={allUnits}
-                datasheets={datasheets}
-                leaders={leaders}
-                onUpdate={onUpdate}
-              />
-            )}
-
-            {unitOptions.length > 0 && !readOnly && (
-              <div className={styles.controlGroup}>
-                <label>Wargear</label>
-                <span className={styles.wargearCount}>{wargearCount}/{unitOptions.length}</span>
-              </div>
-            )}
-
-            {unitCosts.length > 1 && (
-              <div className={styles.controlGroup}>
-                <label>Size</label>
-                {readOnly ? (
-                  <span className={styles.controlValue}>{selectedCost?.description}</span>
-                ) : (
+      {expanded && (
+        <div>
+          {!readOnly && (
+            <div className={styles.controls}>
+              {!isCharacter && (
+                <LeaderSlotsSection
+                  unitDatasheetId={unit.datasheetId}
+                  unitIndex={index}
+                  allUnits={allUnits}
+                  datasheets={datasheets}
+                  leaders={leaders}
+                  onUpdate={onUpdate}
+                />
+              )}
+              {unitCosts.length > 1 && (
+                <div className={styles.controlGroup}>
+                  <label>Size</label>
                   <select
                     className={styles.unitSelect}
                     value={unit.sizeOptionLine}
@@ -235,33 +222,44 @@ export function UnitRow({
                       <option key={c.line} value={c.line}>{c.description} ({c.cost}pts)</option>
                     ))}
                   </select>
-                )}
-              </div>
-            )}
-          </div>
-
-          {expanded && (
-            <UnitRowExpanded
-              detail={detail}
-              loadingDetail={loadingDetail}
-              filteredWargear={filteredWargear}
-              unit={unit}
-              index={index}
-              enhancements={enhancements}
-              unitOptions={unitOptions}
-              isCharacter={isCharacter ?? false}
-              isAllied={isAllied}
-              readOnly={readOnly}
-              wargearCount={wargearCount}
-              onUpdate={onUpdate}
-              onSelectionChange={handleWargearSelectionChange}
-              onNotesChange={handleWargearNotesChange}
-              extractWargearChoices={extractWargearChoices}
-              getWargearSelection={getWargearSelection}
-            />
+                </div>
+              )}
+              {realWargearOptions.length > 0 && (
+                <div className={styles.controlGroup}>
+                  <label>Wargear</label>
+                  <span className={styles.wargearCount}>{wargearCount}/{realWargearOptions.length}</span>
+                </div>
+              )}
+            </div>
           )}
+          {readOnly && unitCosts.length > 1 && (
+            <div className={styles.controls}>
+              <div className={styles.controlGroup}>
+                <label>Size</label>
+                <span className={styles.controlValue}>{selectedCost?.description}</span>
+              </div>
+            </div>
+          )}
+          <UnitRowExpanded
+            detail={detail}
+            loadingDetail={loadingDetail}
+            filteredWargear={filteredWargear}
+            unit={unit}
+            index={index}
+            enhancements={enhancements}
+            unitOptions={unitOptions}
+            isCharacter={isCharacter ?? false}
+            isAllied={isAllied}
+            readOnly={readOnly}
+            wargearCount={wargearCount}
+            onUpdate={onUpdate}
+            onSelectionChange={handleWargearSelectionChange}
+            onNotesChange={handleWargearNotesChange}
+            extractWargearChoices={extractWargearChoices}
+            getWargearSelection={getWargearSelection}
+          />
         </div>
-      </td>
-    </tr>
+      )}
+    </div>
   );
 }

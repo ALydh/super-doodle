@@ -60,7 +60,7 @@ function AppShell() {
         <Route path="/factions/:factionId/armies/new" element={<ProtectedRoute><ArmyBuilderPage /></ProtectedRoute>} />
         <Route path="/factions/:factionId/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
         <Route path="/armies/:armyId" element={<ArmyViewPage />} />
-        <Route path="/armies/:armyId/edit" element={<ProtectedRoute><ArmyBuilderPage /></ProtectedRoute>} />
+        <Route path="/armies/:armyId/edit" element={<ProtectedRoute><ArmyViewPage /></ProtectedRoute>} />
       </Routes>
     </div>
   );

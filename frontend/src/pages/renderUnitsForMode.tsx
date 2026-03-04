@@ -1,10 +1,10 @@
 import type { ReactElement } from "react";
 import type {
-  ArmyUnit, Datasheet,
+  ArmyUnit, Datasheet, ModelProfile,
 } from "../types";
 import { UnitRow } from "./UnitRow";
 import { sortByRoleOrder } from "../constants";
-import styles from "./UnitRow.module.css";
+import styles from "./ArmyViewPage.module.css";
 
 interface RenderContext {
   units: ArmyUnit[];
@@ -15,6 +15,7 @@ interface RenderContext {
   onCopy: (index: number) => void;
   onSetWarlord: (index: number) => void;
   readOnly: boolean;
+  profilesByDatasheet: Map<string, ModelProfile[]>;
 }
 
 export function renderUnitsForMode(
@@ -25,11 +26,12 @@ export function renderUnitsForMode(
   onRemove: (index: number) => void,
   onCopy: (index: number) => void,
   onSetWarlord: (index: number) => void,
-  readOnly = false
+  readOnly = false,
+  profilesByDatasheet: Map<string, ModelProfile[]> = new Map(),
 ): ReactElement[] {
   const ctx: RenderContext = {
     units, datasheets,
-    warlordId, onUpdate, onRemove, onCopy, onSetWarlord, readOnly,
+    warlordId, onUpdate, onRemove, onCopy, onSetWarlord, readOnly, profilesByDatasheet,
   };
 
   const warlordIndex = ctx.units.findIndex(u => u.datasheetId === ctx.warlordId);
@@ -51,11 +53,7 @@ export function renderUnitsForMode(
     const roleUnits = unitsByRole[role];
 
     rendered.push(
-      <tr key={`role-header-${role}`} className={styles.roleHeaderRow}>
-        <td colSpan={8}>
-          <div className={styles.roleHeader}>{role}</div>
-        </td>
-      </tr>
+      <div key={`role-header-${role}`} className={styles.roleHeader}>{role}</div>
     );
 
     const sorted = [...roleUnits].sort((a, b) => {
@@ -83,6 +81,7 @@ export function renderUnitsForMode(
           onSetWarlord={ctx.onSetWarlord}
           allUnits={ctx.units}
           readOnly={ctx.readOnly}
+          profiles={ctx.profilesByDatasheet.get(unit.datasheetId) ?? []}
         />
       );
     }

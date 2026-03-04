@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
@@ -9,7 +9,7 @@ import type {
 import {
   fetchDetachmentsByFaction,
   fetchEnhancementsByFaction, fetchLeadersByFaction,
-  fetchArmy, createArmy, updateArmy, validateArmy, fetchDetachmentAbilities,
+  createArmy, validateArmy, fetchDetachmentAbilities,
   fetchStratagemsByFaction, fetchDatasheetDetailsByFaction, fetchAvailableAllies,
   fetchInventory,
 } from "../api";
@@ -27,12 +27,9 @@ import { BATTLE_SIZE_POINTS } from "../types";
 import styles from "./ArmyBuilderPage.module.css";
 
 export function ArmyBuilderPage() {
-  const { factionId, armyId } = useParams<{ factionId?: string; armyId?: string }>();
+  const { factionId } = useParams<{ factionId?: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
-  const routerFactionId: string = (location.state as { factionId?: string } | null)?.factionId ?? "";
   const { user, loading: authLoading } = useAuth();
-  const isEdit = !!armyId;
 
   const [name, setName] = useState("");
   const [battleSize, setBattleSize] = useState<BattleSize>("StrikeForce");
@@ -50,7 +47,6 @@ export function ArmyBuilderPage() {
   const [allOptions, setAllOptions] = useState<DatasheetOption[]>([]);
   const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
   const [allStratagems, setAllStratagems] = useState<Stratagem[]>([]);
-  const [loadedArmyFactionId, setLoadedArmyFactionId] = useState<string>("");
   const [alliedFactions, setAlliedFactions] = useState<AlliedFactionInfo[]>([]);
   const [alliedCosts, setAlliedCosts] = useState<UnitCost[]>([]);
   const [keywordsByDatasheet, setKeywordsByDatasheet] = useState<Map<string, DatasheetKeyword[]>>(new Map());
@@ -61,41 +57,9 @@ export function ArmyBuilderPage() {
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const detachmentInitializedRef = useRef(false);
 
-  const effectiveFactionId = useMemo(() => {
-    if (isEdit) return loadedArmyFactionId || routerFactionId;
-    return factionId ?? "";
-  }, [isEdit, loadedArmyFactionId, routerFactionId, factionId]);
+  const effectiveFactionId = factionId ?? "";
 
   const loading = effectiveFactionId !== "" && datasheets === null;
-
-  useEffect(() => {
-    if (isEdit && armyId) {
-      fetchArmy(armyId).then((persisted) => {
-        setName(persisted.name);
-        setBattleSize(persisted.army.battleSize);
-        setDetachmentId(persisted.army.detachmentId);
-        detachmentInitializedRef.current = true;
-        const rawUnits = persisted.army.units.map(unit => ({
-          ...unit,
-          wargearSelections: unit.wargearSelections ?? [],
-          attachedToUnitIndex: unit.attachedToUnitIndex ?? null,
-        }));
-        const claimedIndices = new Set<number>();
-        const migratedUnits = rawUnits.map(unit => {
-          if (!unit.attachedLeaderId || unit.attachedToUnitIndex != null) return unit;
-          const bodyguardIndex = rawUnits.findIndex((u, i) =>
-            u.datasheetId === unit.attachedLeaderId && !claimedIndices.has(i)
-          );
-          if (bodyguardIndex >= 0) claimedIndices.add(bodyguardIndex);
-          return { ...unit, attachedToUnitIndex: bodyguardIndex >= 0 ? bodyguardIndex : null };
-        });
-        setUnits(migratedUnits);
-        setWarlordId(persisted.army.warlordId);
-        setChapterId(persisted.army.chapterId ?? null);
-        setLoadedArmyFactionId(persisted.army.factionId);
-      });
-    }
-  }, [isEdit, armyId]);
 
   useEffect(() => {
     if (!effectiveFactionId) return;
@@ -189,13 +153,8 @@ export function ArmyBuilderPage() {
   const handleSave = async () => {
     const army = buildArmy();
     if (!army) return;
-    if (isEdit && armyId) {
-      await updateArmy(armyId, name, army);
-      navigate(`/armies/${armyId}`);
-    } else {
-      const persisted = await createArmy(name, army);
-      navigate(`/armies/${persisted.id}`);
-    }
+    const persisted = await createArmy(name, army);
+    navigate(`/armies/${persisted.id}`);
   };
 
   if (authLoading) return <Spinner />;
@@ -281,7 +240,7 @@ export function ArmyBuilderPage() {
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnSave} onClick={handleSave} disabled={!name.trim()}>
-            {isEdit ? "Update" : "Save"}
+            Save
           </button>
         </div>
       </div>
