@@ -146,6 +146,15 @@ export function ArmyViewPage() {
       .then((data) => {
         if (cancelled) return;
         setBattleData(migrateBattleData(data));
+        if (isEditRoute) {
+          editInitRef.current = true;
+          setEditName(data.name);
+          setEditBattleSize(data.battleSize as BattleSize);
+          setEditDetachmentId(data.detachmentId);
+          setEditWarlordId(data.warlordId);
+          setEditChapterId(data.chapterId);
+          setEditUnits(data.units.map(bu => bu.unit));
+        }
         return Promise.all([
           fetchStratagemsByFaction(data.factionId),
           fetchEnhancementsByFaction(data.factionId),
@@ -188,19 +197,7 @@ export function ArmyViewPage() {
       });
 
     return () => { cancelled = true; };
-  }, [armyId]);
-
-  useEffect(() => {
-    if (isEditing && battleData && !editInitRef.current) {
-      editInitRef.current = true;
-      setEditName(battleData.name);
-      setEditBattleSize(battleData.battleSize as BattleSize);
-      setEditDetachmentId(battleData.detachmentId);
-      setEditWarlordId(battleData.warlordId);
-      setEditChapterId(battleData.chapterId);
-      setEditUnits(battleData.units.map(bu => bu.unit));
-    }
-  }, [isEditing, battleData]);
+  }, [armyId, isEditRoute]);
 
   useEffect(() => {
     if (!isEditing || !editDetachmentId) return;
