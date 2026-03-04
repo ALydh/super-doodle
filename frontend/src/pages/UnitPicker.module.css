@@ -1,19 +1,19 @@
 .picker {
-  background-color: var(--surface-panel);
-  padding: 20px;
-  border-radius: 8px;
-  margin-top: 24px;
-  border: 1px solid var(--surface-border);
+  margin-top: 0;
 }
 
-.picker h3 {
-  margin-top: 0;
+.toggle {
+  background: none;
+  border: none;
   color: var(--faction-primary);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 12px;
 }
 
 .list {
-  max-height: 400px;
-  overflow-y: auto;
   margin-top: 16px;
 }
 
@@ -51,6 +51,9 @@
 .name {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .costPill {
@@ -88,24 +91,21 @@
   margin-bottom: 8px;
 }
 
-.filterPill {
-  background: var(--surface-panel);
+.filterSelect {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--surface-card);
   border: 1px solid var(--surface-border);
-  color: var(--text-muted);
-  padding: 4px 12px;
-  border-radius: 12px;
+  color: var(--text-secondary);
+  padding: 4px 6px;
+  border-radius: 6px;
   font-size: 0.8rem;
   cursor: pointer;
 }
 
-.filterPill:hover {
-  border-color: var(--faction-primary-dark);
-}
-
-.filterPillActive {
-  background: var(--surface-card);
-  border-color: var(--faction-trim);
-  color: var(--text-primary);
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--faction-primary);
 }
 
 .chapterBadge {
@@ -132,34 +132,9 @@
   font-weight: 600;
 }
 
-.filterSeparator {
-  color: var(--text-muted);
-  padding: 0 4px;
-  align-self: center;
-}
 
 .deprioritized {
   opacity: 0.5;
-}
-
-.alliedSection {
-  margin-top: 16px;
-  border-top: 1px solid var(--surface-border);
-  padding-top: 12px;
-}
-
-.alliedToggle {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 8px 0;
-}
-
-.alliedToggle:hover {
-  color: var(--text-primary);
 }
 
 .allyTypeBadge {
@@ -170,16 +145,14 @@
   letter-spacing: 0;
 }
 
-@media (max-width: 599px) {
+@media (max-width: 1199px) {
   .picker {
-    padding: 12px;
-    margin-top: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
   }
+}
 
-  .list {
-    max-height: 300px;
-  }
-
+@media (max-width: 599px) {
   .item {
     padding: 8px 10px;
   }

@@ -11,6 +11,7 @@ import styles from "./UnitPicker.module.css";
 
 type ChapterFilter = "all" | "chapter";
 type InventoryFilter = "all" | "owned" | "missing";
+type RoleFilter = "all" | string;
 
 interface Props {
   datasheets: Datasheet[];
@@ -38,9 +39,12 @@ export function UnitPicker({
   inventory = null,
 }: Props) {
   const [search, setSearch] = useState("");
-  const [alliesExpanded, setAlliesExpanded] = useState(false);
   const [chapterFilter, setChapterFilter] = useState<ChapterFilter>("all");
   const [inventoryFilter, setInventoryFilter] = useState<InventoryFilter>("all");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [keywordFilter, setKeywordFilter] = useState("all");
+  const [unitsExpanded, setUnitsExpanded] = useState(true);
+  const [alliedExpanded, setAlliedExpanded] = useState<Record<string, boolean>>({});
 
   const classifyUnit = useMemo(() => {
     if (!chapterKeyword) return () => "generic" as const;
@@ -57,9 +61,37 @@ export function UnitPicker({
     };
   }, [chapterKeyword, keywordsByDatasheet]);
 
+  const matchesSearch = (name: string) =>
+    name.toLowerCase().includes(search.toLowerCase());
+
+  const availableRoles = sortByRoleOrder(
+    [...new Set(datasheets.filter((ds) => !ds.virtual).map((ds) => ds.role ?? "Other"))]
+  );
+
+  const availableKeywords = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const ds of datasheets) {
+      if (ds.virtual) continue;
+      for (const kw of keywordsByDatasheet.get(ds.id) ?? []) {
+        if (!kw.isFactionKeyword && kw.keyword && !kw.model) {
+          counts.set(kw.keyword, (counts.get(kw.keyword) ?? 0) + 1);
+        }
+      }
+    }
+    return [...counts.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([kw]) => kw)
+      .sort();
+  }, [datasheets, keywordsByDatasheet]);
+
+  const hasKeyword = (datasheetId: string) =>
+    keywordsByDatasheet.get(datasheetId)?.some((k) => k.keyword === keywordFilter) ?? false;
+
   const filtered = datasheets.filter((ds) => {
     if (ds.virtual) return false;
-    if (!ds.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (!matchesSearch(ds.name)) return false;
+    if (roleFilter !== "all" && (ds.role ?? "Other") !== roleFilter) return false;
+    if (keywordFilter !== "all" && !hasKeyword(ds.id)) return false;
     if (chapterKeyword && chapterFilter === "chapter") {
       const cls = classifyUnit(ds.id);
       if (cls !== "chapter" && cls !== "generic") return false;
@@ -98,13 +130,22 @@ export function UnitPicker({
   const filteredAlliedFactions = alliedFactions
     .map((ally) => ({
       ...ally,
-      datasheets: ally.datasheets.filter((ds) =>
-        ds.name.toLowerCase().includes(search.toLowerCase()),
-      ),
+      datasheets: ally.datasheets
+        .filter((ds) => {
+          if (!matchesSearch(ds.name)) return false;
+          if (keywordFilter !== "all" && !hasKeyword(ds.id)) return false;
+          if (inventory && inventoryFilter !== "all") {
+            const qty = inventory.get(ds.id) ?? 0;
+            if (inventoryFilter === "owned" && qty === 0) return false;
+            if (inventoryFilter === "missing" && qty > 0) return false;
+          }
+          return true;
+        })
+        .sort((a, b) => a.name.localeCompare(b.name)),
     }))
     .filter((ally) => ally.datasheets.length > 0);
 
-  const getCostForDatasheet = (datasheetId: string, costsArray: UnitCost[]) => {
+  const getCost = (datasheetId: string, costsArray: UnitCost[]) => {
     const dsCosts = costsArray.filter((c) => c.datasheetId === datasheetId);
     const firstLine = dsCosts[0]?.line ?? 1;
     const minCost =
@@ -114,7 +155,6 @@ export function UnitPicker({
 
   return (
     <div className={styles.picker}>
-      <h3>Add Units</h3>
       <input
         type="text"
         placeholder="Search units..."
@@ -122,57 +162,58 @@ export function UnitPicker({
         onChange={(e) => setSearch(e.target.value)}
       />
       <div className={styles.filters}>
+        <select
+          className={styles.filterSelect}
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+        >
+          <option value="all">All roles</option>
+          {availableRoles.map((role) => (
+            <option key={role} value={role}>{role}</option>
+          ))}
+        </select>
+        <select
+          className={styles.filterSelect}
+          value={keywordFilter}
+          onChange={(e) => setKeywordFilter(e.target.value)}
+        >
+          <option value="all">All keywords</option>
+          {availableKeywords.map((kw) => (
+            <option key={kw} value={kw}>{kw}</option>
+          ))}
+        </select>
         {chapterKeyword && (
-          <>
-            <button
-              type="button"
-              className={`${styles.filterPill} ${chapterFilter === "all" ? styles.filterPillActive : ""}`}
-              onClick={() => setChapterFilter("all")}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              className={`${styles.filterPill} ${chapterFilter === "chapter" ? styles.filterPillActive : ""}`}
-              onClick={() => setChapterFilter("chapter")}
-            >
-              Chapter Only
-            </button>
-          </>
+          <select
+            className={styles.filterSelect}
+            value={chapterFilter}
+            onChange={(e) => setChapterFilter(e.target.value as ChapterFilter)}
+          >
+            <option value="all">All chapters</option>
+            <option value="chapter">Chapter only</option>
+          </select>
         )}
         {inventory && (
-          <>
-            {chapterKeyword && <span className={styles.filterSeparator}>|</span>}
-            <button
-              type="button"
-              className={`${styles.filterPill} ${inventoryFilter === "all" ? styles.filterPillActive : ""}`}
-              onClick={() => setInventoryFilter("all")}
-            >
-              All Units
-            </button>
-            <button
-              type="button"
-              className={`${styles.filterPill} ${inventoryFilter === "owned" ? styles.filterPillActive : ""}`}
-              onClick={() => setInventoryFilter("owned")}
-            >
-              Owned
-            </button>
-            <button
-              type="button"
-              className={`${styles.filterPill} ${inventoryFilter === "missing" ? styles.filterPillActive : ""}`}
-              onClick={() => setInventoryFilter("missing")}
-            >
-              Missing
-            </button>
-          </>
+          <select
+            className={styles.filterSelect}
+            value={inventoryFilter}
+            onChange={(e) => setInventoryFilter(e.target.value as InventoryFilter)}
+          >
+            <option value="all">All inventory</option>
+            <option value="owned">Owned</option>
+            <option value="missing">Missing</option>
+          </select>
         )}
       </div>
-      {sortedRoles.map((role) => (
+
+      <button type="button" className={styles.toggle} onClick={() => setUnitsExpanded(!unitsExpanded)}>
+        Units {unitsExpanded ? "▼" : "▶"}
+      </button>
+      {unitsExpanded && sortedRoles.map((role) => (
         <div key={role} className={styles.roleGroup}>
           <h4 className={styles.roleHeading}>{role}</h4>
           <ul className={styles.list}>
             {filteredByRole[role].sort(sortUnit).map((ds) => {
-              const { firstLine, minCost } = getCostForDatasheet(ds.id, costs);
+              const { firstLine, minCost } = getCost(ds.id, costs);
               const unitClass = chapterKeyword ? classifyUnit(ds.id) : null;
               const ownedQty = inventory?.get(ds.id) ?? 0;
               return (
@@ -198,43 +239,32 @@ export function UnitPicker({
         </div>
       ))}
 
-      {filteredAlliedFactions.length > 0 && (
-        <div className={styles.alliedSection}>
+      {filteredAlliedFactions.map((ally) => (
+        <div key={ally.factionId}>
           <button
             type="button"
-            className={styles.alliedToggle}
-            onClick={() => setAlliesExpanded(!alliesExpanded)}
+            className={styles.toggle}
+            onClick={() => setAlliedExpanded((prev) => ({ ...prev, [ally.factionId]: !prev[ally.factionId] }))}
           >
-            {alliesExpanded ? "▼" : "▶"} Allied Units
+            {ally.factionName} <span className={styles.allyTypeBadge}>({ally.allyType})</span>{" "}
+            {alliedExpanded[ally.factionId] ? "▼" : "▶"}
           </button>
-          {alliesExpanded &&
-            filteredAlliedFactions.map((ally) => (
-              <div key={ally.factionId} className={styles.roleGroup}>
-                <h4 className={styles.roleHeading}>
-                  {ally.factionName}
-                  <span className={styles.allyTypeBadge}> - {ally.allyType}</span>
-                </h4>
-                <ul className={styles.list}>
-                  {ally.datasheets
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((ds) => {
-                      const { firstLine, minCost } = getCostForDatasheet(
-                        ds.id,
-                        alliedCosts,
-                      );
-                      return (
-                        <li key={ds.id} className={styles.item}>
-                          <span className={styles.name}>{ds.name}</span>
-                          <span className={styles.costPill}>{minCost}</span>
-                          <button className={styles.addBtn} onClick={() => onAdd(ds.id, firstLine, true)}>+</button>
-                        </li>
-                      );
-                    })}
-                </ul>
-              </div>
-            ))}
+          {alliedExpanded[ally.factionId] && (
+            <ul className={styles.list}>
+              {ally.datasheets.map((ds) => {
+                const { firstLine, minCost } = getCost(ds.id, alliedCosts);
+                return (
+                  <li key={ds.id} className={styles.item}>
+                    <span className={styles.name}>{ds.name}</span>
+                    <span className={styles.costPill}>{minCost}</span>
+                    <button className={styles.addBtn} onClick={() => onAdd(ds.id, firstLine, true)}>+</button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
-      )}
+      ))}
     </div>
   );
 }
