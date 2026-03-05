@@ -2,10 +2,8 @@ package wp40k.mcp
 
 import org.jsoup.Jsoup
 import wp40k.domain.types.*
-import wp40k.domain.models.*
-import wp40k.domain.army.*
-import wp40k.db.{PersistedArmy, ArmySummary}
-import wp40k.http.dto.ValidationErrorDto
+import wp40k.domain.models.*
+import wp40k.db.{PersistedArmy, ArmySummary}
 
 def stripHtml(s: String): String = Jsoup.parse(s).text()
 def stripHtmlOpt(s: Option[String]): Option[String] = s.map(stripHtml)

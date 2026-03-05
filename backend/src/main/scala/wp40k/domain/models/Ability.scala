@@ -4,7 +4,6 @@ import wp40k.domain.types.{AbilityId, FactionId}
 import wp40k.errors.{ParseError, ParseException}
 import wp40k.csv.{StreamingCsvParser, CsvParsing}
 import cats.effect.IO
-import cats.syntax.either.*
 
 case class Ability(
   id: AbilityId,

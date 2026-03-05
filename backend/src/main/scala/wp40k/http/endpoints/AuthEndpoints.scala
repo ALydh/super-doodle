@@ -5,8 +5,7 @@ import io.circe.generic.auto.*
 import sttp.model.StatusCode
 import sttp.tapir.*
 import sttp.tapir.json.circe.*
-import sttp.tapir.generic.auto.*
-import wp40k.domain.auth.AuthenticatedUser
+import sttp.tapir.generic.auto.*
 import wp40k.http.TapirSecurity
 import wp40k.http.dto.*
 

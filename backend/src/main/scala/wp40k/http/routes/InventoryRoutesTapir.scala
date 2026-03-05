@@ -2,15 +2,13 @@ package wp40k.http.routes
 
 import cats.effect.IO
 import cats.implicits.*
-import io.circe.{Json, Encoder}
-import io.circe.generic.auto.*
+import io.circe.{Json, Encoder}
 import org.http4s.HttpRoutes
 import sttp.model.StatusCode
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import wp40k.db.{InventoryRepository, InventoryEntry}
 import wp40k.domain.types.*
-import wp40k.http.TapirSecurity
-import wp40k.http.dto.{UpsertInventoryRequest, BulkUpsertInventoryRequest}
+import wp40k.http.TapirSecurity
 import wp40k.http.endpoints.InventoryEndpoints
 import doobie.*
 
