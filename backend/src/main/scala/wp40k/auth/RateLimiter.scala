@@ -2,7 +2,6 @@ package wp40k.auth
 
 import cats.effect.{IO, Ref}
 import java.time.Instant
-import scala.concurrent.duration._
 
 case class RateLimitConfig(
   maxAttempts: Int,

@@ -1,11 +1,4 @@
-export interface Chapter {
-  id: string;
-  name: string;
-  keyword: string;
-  themeKey: string;
-}
-
-export const SM_CHAPTERS: Chapter[] = [
+export const SM_CHAPTERS = [
   { id: "ultramarines", name: "Ultramarines", keyword: "Ultramarines", themeKey: "sm-ultramarines" },
   { id: "blood-angels", name: "Blood Angels", keyword: "Blood Angels", themeKey: "sm-blood-angels" },
   { id: "dark-angels", name: "Dark Angels", keyword: "Dark Angels", themeKey: "sm-dark-angels" },

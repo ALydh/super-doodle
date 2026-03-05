@@ -1,8 +1,7 @@
 package wp40k.domain.types
 
 import io.circe.{Encoder, Decoder}
-import java.util.UUID
-import scala.util.Random
+import java.util.UUID
 
 opaque type UserId = String
 opaque type SessionToken = String

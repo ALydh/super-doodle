@@ -3,8 +3,7 @@ package wp40k.http.routes
 import cats.data.Kleisli
 import cats.effect.IO
 import cats.implicits.*
-import io.circe.Json
-import io.circe.generic.auto.*
+import io.circe.Json
 import org.http4s.HttpRoutes
 import org.http4s.headers.`Cache-Control`
 import org.http4s.CacheDirective
@@ -12,9 +11,8 @@ import sttp.tapir.server.http4s.Http4sServerInterpreter
 import wp40k.db.ReferenceDataRepository
 import wp40k.domain.types.*
 import wp40k.domain.army.{WargearFilter, WargearDefault}
-import wp40k.http.dto.{DatasheetDetail, FilterWargearRequest, WargearWithQuantity}
-import wp40k.http.endpoints.DatasheetEndpoints
-import wp40k.http.CirceCodecs.given
+import wp40k.http.dto.{DatasheetDetail, WargearWithQuantity}
+import wp40k.http.endpoints.DatasheetEndpoints
 import doobie.*
 
 import scala.concurrent.duration.*

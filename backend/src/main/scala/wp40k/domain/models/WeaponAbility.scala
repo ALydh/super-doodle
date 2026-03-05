@@ -2,8 +2,7 @@ package wp40k.domain.models
 
 import wp40k.errors.{ParseError, ParseException}
 import wp40k.csv.{StreamingCsvParser, CsvParsing}
-import cats.effect.IO
-import cats.syntax.either.*
+import cats.effect.IO
 
 case class WeaponAbility(
   id: String,

@@ -1,7 +1,6 @@
 package wp40k.csv
 
 import wp40k.errors.{ParseError, InvalidFormat, MissingField}
-import scala.util.Try
 
 class SafeColumns(cols: Array[String]) {
   def apply(index: Int): String =

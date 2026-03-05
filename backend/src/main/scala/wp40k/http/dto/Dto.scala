@@ -1,7 +1,6 @@
 package wp40k.http.dto
 
-import io.circe.{Encoder, Decoder}
-import io.circe.generic.auto.*
+import io.circe.Encoder
 import io.circe.syntax.*
 import wp40k.domain.types.*
 import wp40k.domain.models.*

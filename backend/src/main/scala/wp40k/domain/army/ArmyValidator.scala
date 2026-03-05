@@ -3,7 +3,6 @@ package wp40k.domain.army
 import wp40k.domain.types.{DatasheetId, FactionId, DetachmentId, Role}
 import wp40k.domain.models.*
 import wp40k.domain.Constants.{Validation, Keywords, Defaults, Chapters, Leaders}
-import wp40k.domain.army.AllyRules.{ImperialKnightsFaction, ChaosKnightsFaction, ChaosDaemonsFaction, ImperialAgentsFaction}
 
 case class ReferenceData(
   datasheets: List[Datasheet],

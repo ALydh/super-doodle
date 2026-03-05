@@ -3,8 +3,7 @@ package wp40k.domain.models
 import wp40k.domain.types.DatasheetId
 import wp40k.errors.{ParseError, ParseException, InvalidFormat}
 import wp40k.csv.{StreamingCsvParser, CsvParsing}
-import cats.effect.IO
-import cats.syntax.either.*
+import cats.effect.IO
 import io.circe.{Encoder, Decoder}
 import sttp.tapir.Schema
 

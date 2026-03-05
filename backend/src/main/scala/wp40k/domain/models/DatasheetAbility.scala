@@ -4,7 +4,6 @@ import wp40k.domain.types.{DatasheetId, AbilityId}
 import wp40k.errors.{ParseError, ParseException}
 import wp40k.csv.{StreamingCsvParser, CsvParsing}
 import cats.effect.IO
-import cats.syntax.either.*
 
 case class DatasheetAbility(
   datasheetId: DatasheetId,

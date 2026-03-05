@@ -3,7 +3,6 @@ package wp40k.domain.models
 import wp40k.errors.{ParseError, ParseException}
 import wp40k.csv.{StreamingCsvParser, CsvParsing}
 import cats.effect.IO
-import cats.syntax.either.*
 
 case class LastUpdate(
   timestamp: String
