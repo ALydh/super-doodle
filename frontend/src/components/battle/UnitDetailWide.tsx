@@ -3,7 +3,7 @@ import type { BattleUnitData } from "../../types";
 import { WeaponAbilityText } from "../../pages/WeaponAbilityText";
 import { sanitizeHtml } from "../../sanitize";
 import { useCompactMode } from "../../context/CompactModeContext";
-import styles from "./UnitDetail.module.css";
+import styles from "./UnitDetailWide.module.css";
 
 interface Props {
   data: BattleUnitData;
