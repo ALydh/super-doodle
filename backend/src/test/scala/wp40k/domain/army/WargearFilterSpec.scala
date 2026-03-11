@@ -161,4 +161,41 @@ class WargearFilterSpec extends AnyFlatSpec with Matchers {
       (Some("Guardian spear"), 1)
     )
   }
+
+  "filterWargearWithDefaults" should "limit quantity to sergeant count when modelTarget is set" in {
+    val allWargear = List(wargear("Heavy bolt pistol"), wargear("Plasma pistol"), wargear("Master-crafted power weapon"))
+    val defaults = List(
+      WargearDefault("heavy bolt pistol", 3, None),
+      WargearDefault("master-crafted power weapon", 3, None)
+    )
+    val parsed = List(
+      parsedOptionWithTarget(1, WargearAction.Remove, "heavy bolt pistol", modelTarget = Some("Bladeguard Veteran Sergeant"), maxCount = 0),
+      parsedOptionWithTarget(1, WargearAction.Add, "plasma pistol", modelTarget = Some("Bladeguard Veteran Sergeant"), maxCount = 0)
+    )
+    val selections = List(WargearSelection(1, true, None))
+    val modelCountsByType = Map("bladeguard veteran sergeant" -> 1, "bladeguard veteran" -> 2)
+    val result = WargearFilter.filterWargearWithDefaults(allWargear, parsed, selections, defaults, 3, modelCountsByType)
+
+    result.find(_.wargear.name.contains("Plasma pistol")).map(_.quantity) shouldBe Some(1)
+    result.find(_.wargear.name.contains("Heavy bolt pistol")).map(_.quantity) shouldBe Some(2)
+    result.find(_.wargear.name.contains("Master-crafted power weapon")).map(_.quantity) shouldBe Some(3)
+  }
+
+  it should "limit quantity to correct sergeant count for larger sergeant groups" in {
+    val allWargear = List(wargear("Bolt pistol"), wargear("Power fist"), wargear("Astartes chainsword"))
+    val defaults = List(
+      WargearDefault("bolt pistol", 6, None),
+      WargearDefault("astartes chainsword", 6, None)
+    )
+    val parsed = List(
+      parsedOptionWithTarget(1, WargearAction.Remove, "bolt pistol", modelTarget = Some("Assault Intercessor Sergeant"), maxCount = 0),
+      parsedOptionWithTarget(1, WargearAction.Add, "power fist", modelTarget = Some("Assault Intercessor Sergeant"), maxCount = 0)
+    )
+    val selections = List(WargearSelection(1, true, None))
+    val modelCountsByType = Map("assault intercessor sergeant" -> 2, "assault intercessor" -> 4)
+    val result = WargearFilter.filterWargearWithDefaults(allWargear, parsed, selections, defaults, 6, modelCountsByType)
+
+    result.find(_.wargear.name.contains("Power fist")).map(_.quantity) shouldBe Some(2)
+    result.find(_.wargear.name.contains("Bolt pistol")).map(_.quantity) shouldBe Some(4)
+  }
 }

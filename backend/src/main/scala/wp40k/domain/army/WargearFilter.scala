@@ -99,7 +99,8 @@ object WargearFilter {
     parsedOptions: List[ParsedWargearOption],
     selections: List[WargearSelection],
     defaults: List[WargearDefault],
-    unitSize: Int
+    unitSize: Int,
+    modelCountsByType: Map[String, Int] = Map.empty
   ): List[WargearWithQuantity] = {
     if (defaults.isEmpty || unitSize <= 0) {
       val filteredWargear = filterWargear(allWargear, parsedOptions, selections)
@@ -108,7 +109,7 @@ object WargearFilter {
 
     val baseWeaponCounts = defaults.map(d => d.weapon -> d.count).toMap
     val modelTypes = defaults.flatMap(d => d.modelType.map(d.weapon -> _)).toMap
-    val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections, baseWeaponCounts)
+    val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections, baseWeaponCounts, modelCountsByType)
 
     allWargear.filter(_.name.isDefined).flatMap { wargear =>
       val weaponName = wargear.name.map(_.toLowerCase).getOrElse("")
@@ -165,7 +166,8 @@ object WargearFilter {
   private def calculateSelectionChanges(
     parsedOptions: List[ParsedWargearOption],
     selections: List[WargearSelection],
-    baseWeaponCounts: Map[String, Int] = Map.empty
+    baseWeaponCounts: Map[String, Int] = Map.empty,
+    modelCountsByType: Map[String, Int] = Map.empty
   ): (Map[String, Int], Map[String, Int]) = {
     val activeSelections = selections.filter(_.selected)
 
@@ -179,7 +181,18 @@ object WargearFilter {
 
       val removeAllCount = parsed
         .find(p => p.action == WargearAction.Remove && p.maxCount == 0)
-        .map(p => findCountByWeaponMatch(p.weaponName.toLowerCase, baseWeaponCounts))
+        .map { removeOpt =>
+          removeOpt.modelTarget match {
+            case Some(target) =>
+              val targetLower = target.toLowerCase
+              modelCountsByType
+                .find { case (k, _) => k.contains(targetLower) || targetLower.contains(k) }
+                .map(_._2)
+                .getOrElse(findCountByWeaponMatch(removeOpt.weaponName.toLowerCase, baseWeaponCounts))
+            case None =>
+              findCountByWeaponMatch(removeOpt.weaponName.toLowerCase, baseWeaponCounts)
+          }
+        }
         .filter(_ > 0)
 
       parsed.foldLeft((removals, additions)) { case ((rem, add), p) =>
