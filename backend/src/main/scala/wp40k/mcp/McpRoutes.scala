@@ -18,5 +18,5 @@ object McpRoutes:
       given SessionStore[IO] <- SessionStore.inMemory[IO](30.minutes)
     yield
       val server = Wp40kMcpServer(refXa, userXa, refPrefix)
-      val handler = server.jsonRpcConnectionHandler(e => Logger[IO].warn(e)("MCP error"))
+      val handler = server.jsonRpcConnectionHandler(e => Logger[IO].error(e)("MCP connection error"))
       McpServerRoute.route(handler, root = org.http4s.Uri.Path.Root / "api")
