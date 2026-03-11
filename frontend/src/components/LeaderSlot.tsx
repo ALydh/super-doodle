@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { ArmyUnit, Datasheet } from "../types";
 import styles from "../pages/UnitRow.module.css";
 
@@ -19,11 +20,15 @@ export function LeaderSlot({ attachedLeader, availableLeaders, onAttach, onDetac
   const [isExpanded, setIsExpanded] = useState(false);
   const [pickerPos, setPickerPos] = useState({ top: 0, left: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isExpanded) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const inContainer = containerRef.current?.contains(target) ?? false;
+      const inPicker = pickerRef.current?.contains(target) ?? false;
+      if (!inContainer && !inPicker) {
         setIsExpanded(false);
       }
     };
@@ -33,10 +38,8 @@ export function LeaderSlot({ attachedLeader, availableLeaders, onAttach, onDetac
 
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setPickerPos({ top: rect.bottom + 4, left: rect.left });
-    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPickerPos({ top: rect.bottom + 4, left: rect.left });
     setIsExpanded(!isExpanded);
   };
 
@@ -78,8 +81,8 @@ export function LeaderSlot({ attachedLeader, availableLeaders, onAttach, onDetac
       >
         + Add Leader
       </button>
-      {isExpanded && (
-        <div className={styles.leaderPicker} style={{ top: pickerPos.top, left: pickerPos.left }}>
+      {isExpanded && createPortal(
+        <div ref={pickerRef} className={styles.leaderPicker} style={{ top: pickerPos.top, left: pickerPos.left }}>
           {availableLeaders.length > 0 ? (
             availableLeaders.map((leader) => (
               <div
@@ -93,7 +96,8 @@ export function LeaderSlot({ attachedLeader, availableLeaders, onAttach, onDetac
           ) : (
             <div className={styles.leaderPickerEmpty}>No available leaders</div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
