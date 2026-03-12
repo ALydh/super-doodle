@@ -201,6 +201,24 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
 
     if (!hasSearch) return result;
 
+    // Weapon Abilities
+    const filteredWeapon = filterSorted(weaponAbilities, (a) => a.name);
+    if (filteredWeapon.length > 0) {
+      result.push({
+        title: "Weapon Abilities",
+        items: filteredWeapon.map((a) => ({ type: "expand", name: a.name, description: a.description })),
+      });
+    }
+
+    // Core Abilities
+    const filteredCore = filterSorted(coreAbilities, (a) => a.name);
+    if (filteredCore.length > 0) {
+      result.push({
+        title: "Core Abilities",
+        items: filteredCore.map((a) => ({ type: "expand", name: a.name, description: a.description })),
+      });
+    }
+
     // Factions
     const filteredFactions = filterSorted(factions, (f) => f.name);
     if (filteredFactions.length > 0) {
@@ -276,24 +294,6 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
             description: e.description,
           };
         }),
-      });
-    }
-
-    // Weapon Abilities
-    const filteredWeapon = filterSorted(weaponAbilities, (a) => a.name);
-    if (filteredWeapon.length > 0) {
-      result.push({
-        title: "Weapon Abilities",
-        items: filteredWeapon.map((a) => ({ type: "expand", name: a.name, description: a.description })),
-      });
-    }
-
-    // Core Abilities
-    const filteredCore = filterSorted(coreAbilities, (a) => a.name);
-    if (filteredCore.length > 0) {
-      result.push({
-        title: "Core Abilities",
-        items: filteredCore.map((a) => ({ type: "expand", name: a.name, description: a.description })),
       });
     }
 
