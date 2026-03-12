@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { BattleUnitData } from "../../types";
 import { UnitDetailWide } from "./UnitDetailWide";
 import styles from "./BattleUnitCard.module.css";
@@ -6,13 +5,13 @@ import styles from "./BattleUnitCard.module.css";
 interface Props {
   data: BattleUnitData;
   isWarlord: boolean;
-  defaultExpanded?: boolean;
+  isExpanded: boolean;
+  onToggle: () => void;
   leadingUnit?: string;
   attachedLeader?: string;
 }
 
-export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, leadingUnit, attachedLeader }: Props) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+export function BattleUnitCard({ data, isWarlord, isExpanded: expanded, onToggle, leadingUnit, attachedLeader }: Props) {
   const { datasheet, profiles, cost, enhancement } = data;
 
   const mainProfile = profiles[0];
@@ -22,7 +21,7 @@ export function BattleUnitCard({ data, isWarlord, defaultExpanded = false, leadi
     <div className={`${styles.card} ${expanded ? styles.expanded : ""}`}>
       <button
         className={styles.header}
-        onClick={() => setExpanded(!expanded)}
+        onClick={onToggle}
       >
         <span className={styles.name}>
           {datasheet.name}

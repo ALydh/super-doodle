@@ -106,10 +106,18 @@ export function ArmyViewPage() {
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>("units");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState("all");
-  const [stratagemTurnFilter, setStratagemTurnFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<TabId>(() =>
+    (sessionStorage.getItem(`avp:${armyId}:activeTab`) as TabId | null) ?? "units"
+  );
+  const [searchQuery, setSearchQuery] = useState(() =>
+    sessionStorage.getItem(`avp:${armyId}:searchQuery`) ?? ""
+  );
+  const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState(() =>
+    sessionStorage.getItem(`avp:${armyId}:stratPhaseFilter`) ?? "all"
+  );
+  const [stratagemTurnFilter, setStratagemTurnFilter] = useState(() =>
+    sessionStorage.getItem(`avp:${armyId}:stratTurnFilter`) ?? "all"
+  );
   const [inventory, setInventory] = useState<Map<string, number> | null>(null);
 
   // Edit data state (loaded alongside view data)
@@ -134,6 +142,12 @@ export function ArmyViewPage() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editDetachmentAbilities, setEditDetachmentAbilities] = useState<DetachmentAbility[]>([]);
+  const [expandedViewIds, setExpandedViewIds] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:view`) ?? "[]")); } catch { return new Set(); }
+  });
+  const [expandedEditIndices, setExpandedEditIndices] = useState<Set<number>>(() => {
+    try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:edit`) ?? "[]")); } catch { return new Set(); }
+  });
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const editInitRef = useRef(false);
@@ -236,6 +250,11 @@ export function ArmyViewPage() {
     }).catch(() => {});
   }, [user]);
 
+  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:activeTab`, activeTab); }, [armyId, activeTab]);
+  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:searchQuery`, searchQuery); }, [armyId, searchQuery]);
+  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:stratPhaseFilter`, stratagemPhaseFilter); }, [armyId, stratagemPhaseFilter]);
+  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:stratTurnFilter`, stratagemTurnFilter); }, [armyId, stratagemTurnFilter]);
+
   const shoppingList = useMemo(() => {
     if (!battleData || !inventory) return [];
 
@@ -301,6 +320,24 @@ export function ArmyViewPage() {
       return sum + unitCost + enhancementCost;
     }, 0);
   }, [battleData]);
+
+  const handleToggleViewExpanded = (id: string) => {
+    setExpandedViewIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      sessionStorage.setItem(`avp:${armyId}:view`, JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const handleToggleEditExpanded = (index: number) => {
+    setExpandedEditIndices((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index); else next.add(index);
+      sessionStorage.setItem(`avp:${armyId}:edit`, JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   const enterEdit = () => {
     if (!battleData) return;
@@ -627,7 +664,7 @@ export function ArmyViewPage() {
               options={allOptions}
             >
               <div className={styles.grid}>
-                {renderUnitsForMode(editUnits, editLoadedDatasheets, editWarlordId, handleUpdateUnit, handleRemoveUnit, handleCopyUnit, handleSetWarlord, false, profilesByDatasheet)}
+                {renderUnitsForMode(editUnits, editLoadedDatasheets, editWarlordId, handleUpdateUnit, handleRemoveUnit, handleCopyUnit, handleSetWarlord, false, profilesByDatasheet, expandedEditIndices, handleToggleEditExpanded)}
               </div>
             </ReferenceDataProvider>
           </div>
@@ -637,6 +674,8 @@ export function ArmyViewPage() {
             battleData={battleData}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
+            expandedIds={expandedViewIds}
+            onToggleExpanded={handleToggleViewExpanded}
           />
         )
       )}
