@@ -226,10 +226,11 @@ export function FactionDetailPage() {
   const sortedRoles = sortByRoleOrder(Object.keys(datasheetsByRole));
   const noResults = filtered.length === 0 && datasheets.length > 0;
 
-  const phases = [...new Set(stratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
-  const turns = [...new Set(stratagems.filter((s) => s.turn).map((s) => s.turn!))].sort();
+  const phases = [...new Set(stratagems.filter((s) => s.phase && !s.stratagemType?.startsWith("Challenger")).map((s) => s.phase!))].sort();
+  const turns = [...new Set(stratagems.filter((s) => s.turn && !s.stratagemType?.startsWith("Challenger")).map((s) => s.turn!))].sort();
 
   const filteredStratagems = stratagems.filter((s) => {
+    if (s.stratagemType?.startsWith("Challenger")) return false;
     if (s.detachmentId && !visibleDetachmentIds.has(s.detachmentId)) return false;
     if (stratagemDetachmentFilter !== "all" && s.detachmentId !== stratagemDetachmentFilter) {
       return false;
