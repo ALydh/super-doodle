@@ -72,6 +72,7 @@ export function UnitRowExpanded({
                 {filteredWargear.map((wq, i) => (
                   <div key={i} className={styles.weaponLine}>
                     <span className={styles.weaponName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
+                    <span className={styles.weaponStat}>{wq.wargear.range ? `Range:${wq.wargear.range}` : ''}</span>
                     <span className={styles.weaponStat}>{wq.wargear.attacks ? `A:${wq.wargear.attacks}` : ''}</span>
                     <span className={styles.weaponStat}>{wq.wargear.ballisticSkill ? `BS:${wq.wargear.ballisticSkill}` : ''}</span>
                     <span className={styles.weaponStat}>{wq.wargear.strength ? `S:${wq.wargear.strength}` : ''}</span>
