@@ -4,7 +4,7 @@ import { useAuth } from "../context/useAuth";
 import type {
   ArmyUnit, BattleSize, Datasheet, UnitCost, Enhancement,
   DetachmentInfo, DatasheetLeader, ValidationError, Army, DetachmentAbility, Stratagem, DatasheetOption,
-  AlliedFactionInfo, DatasheetKeyword,
+  AlliedFactionInfo, DatasheetKeyword, ModelProfile,
 } from "../types";
 import {
   fetchDetachmentsByFaction,
@@ -50,6 +50,7 @@ export function ArmyBuilderPage() {
   const [alliedFactions, setAlliedFactions] = useState<AlliedFactionInfo[]>([]);
   const [alliedCosts, setAlliedCosts] = useState<UnitCost[]>([]);
   const [keywordsByDatasheet, setKeywordsByDatasheet] = useState<Map<string, DatasheetKeyword[]>>(new Map());
+  const [profilesByDatasheet, setProfilesByDatasheet] = useState<Map<string, ModelProfile[]>>(new Map());
   const [inventory, setInventory] = useState<Map<string, number> | null>(null);
 
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -90,6 +91,7 @@ export function ArmyBuilderPage() {
       const kwMap = new Map<string, DatasheetKeyword[]>();
       for (const d of details) kwMap.set(d.datasheet.id, d.keywords);
       setKeywordsByDatasheet(kwMap);
+      setProfilesByDatasheet(new Map<string, ModelProfile[]>(details.map((d) => [d.datasheet.id, d.profiles])));
       const alliedDatasheetIds = allies.flatMap((a) => a.datasheets.map((d) => d.id));
       if (alliedDatasheetIds.length > 0) {
         Promise.all(allies.map((a) => fetchDatasheetDetailsByFaction(a.factionId)))
@@ -196,7 +198,7 @@ export function ArmyBuilderPage() {
           <table className={styles.unitsTable}>
             <thead><tr><th>Unit</th><th>Size</th><th>Enhancement</th><th>Leader</th><th>Wargear</th><th>Cost</th><th>Warlord</th><th></th></tr></thead>
             <tbody>
-              {renderUnitsForMode(units, loadedDatasheets, warlordId, handleUpdateUnit, handleRemoveUnit, handleCopyUnit, handleSetWarlord)}
+              {renderUnitsForMode(units, loadedDatasheets, warlordId, handleUpdateUnit, handleRemoveUnit, handleCopyUnit, handleSetWarlord, false, profilesByDatasheet)}
             </tbody>
           </table>
         </div>

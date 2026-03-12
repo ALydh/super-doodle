@@ -11,8 +11,10 @@ import sttp.tapir.server.http4s.Http4sServerInterpreter
 import wp40k.db.ReferenceDataRepository
 import wp40k.domain.types.*
 import wp40k.domain.army.{WargearFilter, WargearDefault}
+import wp40k.domain.models.CompositionLineParser
 import wp40k.http.dto.{DatasheetDetail, WargearWithQuantity}
-import wp40k.http.endpoints.DatasheetEndpoints
+import wp40k.http.endpoints.DatasheetEndpoints
+import wp40k.http.CirceCodecs.given
 import doobie.*
 
 import scala.concurrent.duration.*
@@ -56,8 +58,11 @@ object DatasheetRoutesTapir {
               wargear <- ReferenceDataRepository.wargearForDatasheet(datasheetId)(xa)
               parsedOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheet(datasheetId)(xa)
               defaults <- ReferenceDataRepository.wargearDefaultsForDatasheet(datasheetId, filterReq.sizeOptionLine)(xa)
+              composition <- ReferenceDataRepository.parsedCompositionForDatasheet(datasheetId)(xa)
               domainDefaults = defaults.map(d => WargearDefault(d.weapon, d.count, d.modelType))
-              filtered = WargearFilter.filterWargearWithDefaults(wargear, parsedOptions, filterReq.selections, domainDefaults, filterReq.unitSize)
+              selectedComposition = CompositionLineParser.selectGroupForSize(composition, filterReq.unitSize)
+              modelCountsByType = CompositionLineParser.calculateModelCounts(selectedComposition, filterReq.unitSize)
+              filtered = WargearFilter.filterWargearWithDefaults(wargear, parsedOptions, filterReq.selections, domainDefaults, filterReq.unitSize, modelCountsByType)
               dtoFiltered = filtered.map(w => WargearWithQuantity(w.wargear, w.quantity, w.modelType))
             } yield Right(dtoFiltered)
         }
