@@ -1,7 +1,6 @@
 package wp40k.http
 
-import cats.effect.IO
-import cats.data.OptionT
+import cats.effect.IO
 import org.http4s.*
 import org.http4s.headers.Authorization
 import doobie.Transactor

@@ -1,4 +1,10 @@
-scalaVersion := "3.7.4"
+inThisBuild(
+  List(
+    scalaVersion := "3.7.4",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
+  )
+)
 // scalafmt disabled
 enablePlugins(NativeImagePlugin, JavaAppPackaging, AssemblyPlugin)
 
@@ -32,7 +38,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.19" % Test
 )
 
-scalacOptions ++= Seq("-Xmax-inlines", "64")
+scalacOptions ++= Seq("-Xmax-inlines", "64", "-Wunused:all")
 
 Compile / run / fork := true
 

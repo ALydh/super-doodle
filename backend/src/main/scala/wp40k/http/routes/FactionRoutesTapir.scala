@@ -3,8 +3,7 @@ package wp40k.http.routes
 import cats.data.{Kleisli, NonEmptyList}
 import cats.effect.IO
 import cats.implicits.*
-import io.circe.Json
-import io.circe.generic.auto.*
+import io.circe.Json
 import org.http4s.HttpRoutes
 import org.http4s.headers.`Cache-Control`
 import org.http4s.CacheDirective
@@ -13,8 +12,7 @@ import wp40k.db.{ArmyRepository, ReferenceDataRepository}
 import wp40k.domain.types.*
 import wp40k.domain.army.AllyRules
 import wp40k.http.dto.{DatasheetDetail, AlliedFactionInfo}
-import wp40k.http.endpoints.FactionEndpoints
-import wp40k.http.CirceCodecs.given
+import wp40k.http.endpoints.FactionEndpoints
 import doobie.*
 
 import scala.concurrent.duration.*

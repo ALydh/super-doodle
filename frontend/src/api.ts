@@ -28,26 +28,10 @@ function cachedFetch<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
   return promise;
 }
 
-export function invalidateCache(keyPattern?: string): void {
-  if (!keyPattern) {
-    referenceCache.clear();
-    return;
-  }
-  for (const key of referenceCache.keys()) {
-    if (key.includes(keyPattern)) {
-      referenceCache.delete(key);
-    }
-  }
-}
-
 let authToken: string | null = null;
 
 export function setAuthToken(token: string | null): void {
   authToken = token;
-}
-
-export function getAuthToken(): string | null {
-  return authToken;
 }
 
 function authHeaders(): Record<string, string> {
@@ -122,12 +106,6 @@ export async function fetchFactions(): Promise<Faction[]> {
   return res.json();
 }
 
-export async function fetchDatasheetsByFaction(factionId: string): Promise<Datasheet[]> {
-  const res = await fetch(`/api/factions/${factionId}/datasheets`);
-  if (!res.ok) throw new Error(`Failed to fetch datasheets: ${res.status}`);
-  return res.json();
-}
-
 export async function fetchDatasheetDetail(datasheetId: string): Promise<DatasheetDetail> {
   return cachedFetch(`datasheet:${datasheetId}`, async () => {
     const res = await fetch(`/api/datasheets/${datasheetId}`);
@@ -184,21 +162,9 @@ export async function fetchDetachmentAbilities(detachmentId: string): Promise<De
   });
 }
 
-export async function fetchArmiesByFaction(factionId: string): Promise<ArmySummary[]> {
-  const res = await fetch(`/api/factions/${factionId}/armies`);
-  if (!res.ok) throw new Error(`Failed to fetch armies: ${res.status}`);
-  return res.json();
-}
-
 export async function fetchAllArmies(): Promise<ArmySummary[]> {
   const res = await fetch("/api/armies");
   if (!res.ok) throw new Error(`Failed to fetch armies: ${res.status}`);
-  return res.json();
-}
-
-export async function fetchArmy(armyId: string): Promise<PersistedArmy> {
-  const res = await fetch(`/api/armies/${armyId}`);
-  if (!res.ok) throw new Error(`Failed to fetch army: ${res.status}`);
   return res.json();
 }
 
@@ -334,22 +300,4 @@ export async function upsertInventoryEntry(datasheetId: string, quantity: number
   });
   if (!res.ok) throw new Error(`Failed to update inventory: ${res.status}`);
   return res.json();
-}
-
-export async function bulkUpsertInventory(entries: { datasheetId: string; quantity: number }[]): Promise<InventoryEntry[]> {
-  const res = await fetch("/api/inventory/bulk", {
-    method: "PUT",
-    headers: { ...authHeaders(), "Content-Type": "application/json" },
-    body: JSON.stringify({ entries }),
-  });
-  if (!res.ok) throw new Error(`Failed to bulk update inventory: ${res.status}`);
-  return res.json();
-}
-
-export async function deleteInventoryEntry(datasheetId: string): Promise<void> {
-  const res = await fetch(`/api/inventory/${datasheetId}`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-  if (!res.ok) throw new Error(`Failed to delete inventory entry: ${res.status}`);
 }

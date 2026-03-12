@@ -1,9 +1,7 @@
 package wp40k
 
 import cats.effect.{IO, IOApp}
-import cats.implicits.*
 import doobie.*
-import doobie.implicits.*
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import wp40k.db.{Schema, DataLoader, ReferenceDataRepository, Database, DatabaseConfig}

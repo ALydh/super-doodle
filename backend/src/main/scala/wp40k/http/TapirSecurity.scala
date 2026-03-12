@@ -3,8 +3,7 @@ package wp40k.http
 import cats.effect.IO
 import io.circe.Json
 import sttp.model.StatusCode
-import sttp.tapir.*
-import sttp.tapir.model.UsernamePassword
+import sttp.tapir.*
 import doobie.Transactor
 import wp40k.domain.auth.AuthenticatedUser
 

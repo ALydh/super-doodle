@@ -4,7 +4,6 @@ import wp40k.domain.types.FactionId
 import wp40k.errors.{ParseError, ParseException}
 import wp40k.csv.{StreamingCsvParser, CsvParsing}
 import cats.effect.IO
-import cats.syntax.either.*
 import io.circe.{Encoder, Decoder}
 import sttp.tapir.Schema
 

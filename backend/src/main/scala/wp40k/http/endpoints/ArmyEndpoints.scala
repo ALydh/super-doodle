@@ -6,8 +6,7 @@ import sttp.model.StatusCode
 import sttp.tapir.*
 import sttp.tapir.json.circe.*
 import sttp.tapir.generic.auto.*
-import wp40k.domain.army.{Army, ArmyUnit, WargearSelection}
-import wp40k.domain.auth.AuthenticatedUser
+import wp40k.domain.army.{Army, ArmyUnit, WargearSelection}
 import wp40k.domain.types.*
 import wp40k.db.{ArmySummary, PersistedArmy}
 import wp40k.http.TapirSecurity
