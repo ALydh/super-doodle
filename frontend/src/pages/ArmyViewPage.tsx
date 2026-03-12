@@ -466,7 +466,10 @@ export function ArmyViewPage() {
   const detachmentName = detachmentInfo?.name ?? battleData.detachmentId;
 
   const detachmentStratagems = stratagems.filter(
-    (s) => (s.detachmentId === battleData.detachmentId || !s.detachmentId) && !s.stratagemType?.startsWith("Challenger")
+    (s) =>
+      (s.detachmentId === battleData.detachmentId || !s.detachmentId) &&
+      !s.stratagemType?.startsWith("Challenger") &&
+      !s.stratagemType?.startsWith("Boarding Actions")
   );
 
   const stratagemPhases = [...new Set(detachmentStratagems.filter((s) => s.phase).map((s) => s.phase!))].sort();
