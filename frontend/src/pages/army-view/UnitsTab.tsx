@@ -12,9 +12,11 @@ interface Props {
   battleData: ArmyBattleData;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  expandedIds: Set<string>;
+  onToggleExpanded: (id: string) => void;
 }
 
-export function UnitsTab({ filteredRoleGroups, battleData, searchQuery, onSearchChange }: Props) {
+export function UnitsTab({ filteredRoleGroups, battleData, searchQuery, onSearchChange, expandedIds, onToggleExpanded }: Props) {
   return (
     <div>
       <div className={styles.search}>
@@ -36,11 +38,14 @@ export function UnitsTab({ filteredRoleGroups, battleData, searchQuery, onSearch
               const unitIndex = battleData.units.indexOf(unit);
               const attachedLeader = battleData.units
                 .find(u => u.unit.attachedToUnitIndex === unitIndex)?.datasheet.name;
+              const cardId = `${unit.unit.datasheetId}_${unitIndex}`;
               return (
                 <BattleUnitCard
                   key={`${unit.unit.datasheetId}-${index}`}
                   data={unit}
                   isWarlord={battleData.warlordId === unit.unit.datasheetId}
+                  isExpanded={expandedIds.has(cardId)}
+                  onToggle={() => onToggleExpanded(cardId)}
                   leadingUnit={leadingName}
                   attachedLeader={attachedLeader}
                 />

@@ -39,14 +39,31 @@ export function FactionDetailPage() {
   const [detachmentAbilities, setDetachmentAbilities] = useState<Map<string, DetachmentAbility[]>>(new Map());
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>("units");
-  const [expandedUnit, setExpandedUnit] = useState<string | null>(() => searchParams.get("unit"));
-  const [stratagemDetachmentFilter, setStratagemDetachmentFilter] = useState<string>("all");
-  const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState<string>("all");
-  const [stratagemTurnFilter, setStratagemTurnFilter] = useState<string>("all");
-  const [search, setSearch] = useState("");
-  const [chapterId, setChapterId] = useState<string | null>(null);
-  const [chapterFilter, setChapterFilter] = useState<"all" | "chapter">("all");
+  const [activeTab, setActiveTab] = useState<TabId>(() =>
+    (sessionStorage.getItem(`fdp:${factionId}:activeTab`) as TabId | null) ?? "units"
+  );
+  const [expandedUnit, setExpandedUnit] = useState<string | null>(() => {
+    const stored = sessionStorage.getItem(`fdp:${factionId}:expandedUnit`);
+    return stored ?? searchParams.get("unit");
+  });
+  const [stratagemDetachmentFilter, setStratagemDetachmentFilter] = useState<string>(() =>
+    sessionStorage.getItem(`fdp:${factionId}:stratDetachmentFilter`) ?? "all"
+  );
+  const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState<string>(() =>
+    sessionStorage.getItem(`fdp:${factionId}:stratPhaseFilter`) ?? "all"
+  );
+  const [stratagemTurnFilter, setStratagemTurnFilter] = useState<string>(() =>
+    sessionStorage.getItem(`fdp:${factionId}:stratTurnFilter`) ?? "all"
+  );
+  const [search, setSearch] = useState<string>(() =>
+    sessionStorage.getItem(`fdp:${factionId}:search`) ?? ""
+  );
+  const [chapterId, setChapterId] = useState<string | null>(() =>
+    sessionStorage.getItem(`fdp:${factionId}:chapterId`) ?? null
+  );
+  const [chapterFilter, setChapterFilter] = useState<"all" | "chapter">(() =>
+    (sessionStorage.getItem(`fdp:${factionId}:chapterFilter`) as "all" | "chapter" | null) ?? "all"
+  );
 
   useEffect(() => {
     if (!factionId) return;
@@ -110,6 +127,17 @@ export function FactionDetailPage() {
       });
     });
   }, [searchParams, detachments, setSearchParams]);
+
+  useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:activeTab`, activeTab); }, [factionId, activeTab]);
+  useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:search`, search); }, [factionId, search]);
+  useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:stratDetachmentFilter`, stratagemDetachmentFilter); }, [factionId, stratagemDetachmentFilter]);
+  useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:stratPhaseFilter`, stratagemPhaseFilter); }, [factionId, stratagemPhaseFilter]);
+  useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:stratTurnFilter`, stratagemTurnFilter); }, [factionId, stratagemTurnFilter]);
+  useEffect(() => {
+    if (chapterId) sessionStorage.setItem(`fdp:${factionId}:chapterId`, chapterId);
+    else sessionStorage.removeItem(`fdp:${factionId}:chapterId`);
+  }, [factionId, chapterId]);
+  useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:chapterFilter`, chapterFilter); }, [factionId, chapterFilter]);
 
   const datasheets = useMemo(
     () => datasheetDetails.map((d) => d.datasheet).filter((ds) => !ds.virtual),
@@ -246,7 +274,11 @@ export function FactionDetailPage() {
   });
 
   const handleUnitToggle = (datasheetId: string) => {
-    setExpandedUnit(expandedUnit === datasheetId ? null : datasheetId);
+    const next = expandedUnit === datasheetId ? null : datasheetId;
+    setExpandedUnit(next);
+    const key = `fdp:${factionId}:expandedUnit`;
+    if (next) sessionStorage.setItem(key, next);
+    else sessionStorage.removeItem(key);
   };
 
   return (

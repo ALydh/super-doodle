@@ -16,6 +16,8 @@ interface Props {
   index: number;
   datasheet: Datasheet | undefined;
   isWarlord: boolean;
+  isExpanded: boolean;
+  onToggle: () => void;
   onUpdate: (index: number, unit: ArmyUnit) => void;
   onRemove: (index: number) => void;
   onCopy: (index: number) => void;
@@ -27,13 +29,13 @@ interface Props {
 
 export function UnitRow({
   unit, index, datasheet,
-  isWarlord, onUpdate, onRemove, onCopy, onSetWarlord,
+  isWarlord, isExpanded: expanded, onToggle,
+  onUpdate, onRemove, onCopy, onSetWarlord,
   allUnits = [],
   readOnly = false,
   profiles = [],
 }: Props) {
   const { costs, enhancements, leaders, datasheets, options } = useReferenceData();
-  const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<DatasheetDetail | null>(null);
   const [filteredWargear, setFilteredWargear] = useState<WargearWithQuantity[]>([]);
   const fetchingRef = useRef(false);
@@ -128,7 +130,7 @@ export function UnitRow({
     <div className={`${styles.card} ${isAllied ? styles.allied : ""}`}>
       <button
         className={styles.header}
-        onClick={() => setExpanded(!expanded)}
+        onClick={onToggle}
         aria-expanded={expanded}
         aria-label={`${datasheet?.name ?? unit.datasheetId}, ${expanded ? "collapse" : "expand"} details`}
       >

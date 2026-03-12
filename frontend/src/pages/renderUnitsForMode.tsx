@@ -16,6 +16,8 @@ interface RenderContext {
   onSetWarlord: (index: number) => void;
   readOnly: boolean;
   profilesByDatasheet: Map<string, ModelProfile[]>;
+  expandedIndices: Set<number>;
+  onToggleExpanded: (index: number) => void;
 }
 
 export function renderUnitsForMode(
@@ -28,10 +30,13 @@ export function renderUnitsForMode(
   onSetWarlord: (index: number) => void,
   readOnly = false,
   profilesByDatasheet: Map<string, ModelProfile[]> = new Map(),
+  expandedIndices: Set<number> = new Set(),
+  onToggleExpanded: (index: number) => void = () => {},
 ): ReactElement[] {
   const ctx: RenderContext = {
     units, datasheets,
     warlordId, onUpdate, onRemove, onCopy, onSetWarlord, readOnly, profilesByDatasheet,
+    expandedIndices, onToggleExpanded,
   };
 
   const warlordIndex = ctx.units.findIndex(u => u.datasheetId === ctx.warlordId);
@@ -75,6 +80,8 @@ export function renderUnitsForMode(
           index={index}
           datasheet={datasheet}
           isWarlord={isWarlord}
+          isExpanded={ctx.expandedIndices.has(index)}
+          onToggle={() => ctx.onToggleExpanded(index)}
           onUpdate={ctx.onUpdate}
           onRemove={ctx.onRemove}
           onCopy={ctx.onCopy}
