@@ -17,7 +17,7 @@ import wp40k.http.{InputValidation, TapirSecurity}
 import wp40k.http.CirceCodecs.given
 import wp40k.http.dto.*
 import wp40k.http.endpoints.ArmyEndpoints
-import wp40k.domain.models.EnhancementId
+import wp40k.domain.models.{CompositionLineParser, EnhancementId}
 import doobie.*
 import java.util.UUID
 
@@ -145,6 +145,7 @@ object ArmyRoutesTapir {
                   parsedOptions <- ReferenceDataRepository.parsedWargearOptionsForDatasheets(datasheetIds)(refXa)
                   enhancements <- ReferenceDataRepository.enhancementsByFaction(army.factionId)(refXa)
                   wargearDefaults <- ReferenceDataRepository.wargearDefaultsForDatasheets(datasheetIds)(refXa)
+                  compositions <- ReferenceDataRepository.parsedCompositionForDatasheets(datasheetIds)(refXa)
                 } yield {
                   val datasheetMap = datasheets.map(d => DatasheetId.value(d.id) -> d).toMap
                   val profilesMap = profiles.groupBy(p => DatasheetId.value(p.datasheetId))
@@ -165,8 +166,11 @@ object ArmyRoutesTapir {
                       val parsedOpts = parsedOptionsMap.getOrElse(dsId, List.empty)
                       val defaults = wargearDefaults.getOrElse((dsId, unit.sizeOptionLine), List.empty)
                         .map(d => WargearDefault(d.weapon, d.count, d.modelType))
+                      val allCompositionLines = compositions.getOrElse(dsId, List.empty)
+                      val selectedComposition = CompositionLineParser.selectGroupForSize(allCompositionLines, unitSize)
+                      val modelCountsByType = CompositionLineParser.calculateModelCounts(selectedComposition, unitSize)
                       val filteredWargear = WargearFilter.filterWargearWithDefaults(
-                        allWargear, parsedOpts, unit.wargearSelections, defaults, unitSize
+                        allWargear, parsedOpts, unit.wargearSelections, defaults, unitSize, modelCountsByType
                       )
                       val wargearDtos = filteredWargear.map(w => wp40k.http.dto.WargearWithQuantity(w.wargear, w.quantity, w.modelType))
                       val filteredAbilities = WargearFilter.filterAbilities(
