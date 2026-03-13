@@ -426,12 +426,128 @@
 }
 
 .abilityLine {
+  padding: 8px 12px;
+  margin-bottom: 4px;
   font-size: 0.9rem;
-  color: var(--text-body);
+  background-color: var(--surface-card);
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
 }
 
 .abilityLine strong {
   color: var(--faction-primary);
+}
+
+.abilityLine p {
+  margin: 4px 0 0 0;
+  color: var(--text-body);
+}
+
+.statsMobile {
+  display: none;
+}
+
+.statsCard {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--surface-border);
+  border-left: 3px solid var(--faction-primary);
+}
+
+.statsCardName {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.statsCardValues {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--surface-panel);
+  border-radius: 4px;
+  padding: 6px 4px;
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.weaponsMobile {
+  display: none;
+}
+
+.weaponCard {
+  background-color: var(--surface-card);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--surface-border);
+  border-left: 3px solid var(--faction-secondary);
+}
+
+.weaponCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.weaponCardName {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.weaponCardRange {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: var(--text-body);
+  background-color: var(--surface-panel);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.weaponCardValues {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.weaponCard .statItem {
+  padding: 6px 4px;
+}
+
+.weaponCard .statLabel {
+  font-size: 0.65rem;
+}
+
+.weaponCard .statValue {
+  font-size: 0.95rem;
+}
+
+.weaponCardAbilities {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-border);
 }
 
 .attachedLeaderBadge {
@@ -644,6 +760,26 @@
 
   .expanded {
     padding: 12px;
+  }
+
+  .statsRow {
+    display: none;
+  }
+
+  .statsMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .weaponsTable {
+    display: none;
+  }
+
+  .weaponsMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .statLine {
