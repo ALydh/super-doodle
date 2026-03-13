@@ -12,7 +12,7 @@ import doobie.Transactor
 import cats.data.NonEmptyList
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import wp40k.db.{ArmyRepository, ReferenceDataRepository}
+import wp40k.db.{ArmyRepository, InventoryRepository, ReferenceDataRepository}
 import wp40k.domain.models.*
 import wp40k.domain.types.*
 import wp40k.domain.army.*
@@ -43,6 +43,7 @@ object McpTools:
     searchDatasheets(refXa),
     getCoreAbilities(refXa),
     getWeaponAbilities(refXa),
+    getInventory(userXa),
     listArmies(userXa, refPrefix),
     getArmy(userXa),
     createArmy(userXa),
@@ -194,6 +195,16 @@ object McpTools:
       case Some(user) => IO.pure(user)
       case None => IO.raiseError(new RuntimeException("Authentication failed: invalid or expired token"))
     }
+
+  private def getInventory(xa: Transactor[IO]): ToolFunction[IO] = ToolFunction.text(
+    ToolFunction.Info("get_inventory", "Get Inventory".some, "Get all inventory entries for the authenticated user. Returns a list of datasheetId and quantity pairs.".some, ToolFunction.Effect.ReadOnly, isOpenWorld = false),
+    logErrors("get_inventory") { (in: ListInventoryInput, _: CallContext[IO]) =>
+      for
+        user <- requireAuth(in.token, xa)
+        entries <- InventoryRepository.getByUser(user.id)(xa)
+      yield entries.map(InventoryEntryOut.from).asJson.noSpaces
+    },
+  )
 
   private def listArmies(xa: Transactor[IO], refPrefix: String): ToolFunction[IO] = ToolFunction.text(
     ToolFunction.Info("list_armies", "List Armies".some, "List all saved army lists. Requires authentication token.".some, ToolFunction.Effect.ReadOnly, isOpenWorld = false),
