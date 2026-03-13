@@ -14,6 +14,7 @@ case class ArmyUnit(
   sizeOptionLine: Int,
   enhancementId: Option[EnhancementId],
   attachedLeaderId: Option[DatasheetId],
+  attachedToUnitIndex: Option[Int] = None,
   wargearSelections: List[WargearSelection] = List.empty,
   isAllied: Boolean = false
 )

@@ -52,6 +52,7 @@ object Schema {
       size_option_line INTEGER NOT NULL,
       enhancement_id TEXT,
       attached_leader_id TEXT,
+      attached_to_unit_index INTEGER,
       FOREIGN KEY (army_id) REFERENCES armies(id) ON DELETE CASCADE
     )""",
 
@@ -334,6 +335,11 @@ object Schema {
     _ <- if (!hasCol) sql"ALTER TABLE armies ADD COLUMN chapter_id TEXT".update.run else FC.unit
   } yield ()
 
+  private val migrateAttachedToUnitIndex: ConnectionIO[Unit] = for {
+    hasCol <- sql"PRAGMA table_info(army_units)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.exists(_._2 == "attached_to_unit_index"))
+    _ <- if (!hasCol) sql"ALTER TABLE army_units ADD COLUMN attached_to_unit_index INTEGER".update.run else FC.unit
+  } yield ()
+
   private val populateFactionGroups: ConnectionIO[Unit] = {
     val imperium = List("AS", "AC", "AdM", "TL", "AM", "GK", "AoI", "QI", "SM")
     val chaos = List("CD", "QT", "CSM", "DG", "EC", "TS", "WE")
@@ -350,7 +356,7 @@ object Schema {
     (refTables.traverse_(_.update.run) *> migrateFactionGroup *> populateFactionGroups).transact(xa)
 
   def initializeUserSchema(xa: Transactor[IO]): IO[Unit] =
-    (userTables.traverse_(_.update.run) *> migrateArmies *> migrateIsAdmin *> migrateChapterId).transact(xa)
+    (userTables.traverse_(_.update.run) *> migrateArmies *> migrateIsAdmin *> migrateChapterId *> migrateAttachedToUnitIndex).transact(xa)
 
   def initialize(xa: Transactor[IO]): IO[Unit] =
     initializeRefSchema(xa) *> initializeUserSchema(xa)

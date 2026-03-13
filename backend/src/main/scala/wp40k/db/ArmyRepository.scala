@@ -51,7 +51,8 @@ private case class ArmyUnitRow(
   datasheetId: DatasheetId,
   sizeOptionLine: Int,
   enhancementId: Option[EnhancementId],
-  attachedLeaderId: Option[DatasheetId]
+  attachedLeaderId: Option[DatasheetId],
+  attachedToUnitIndex: Option[Int]
 )
 
 private case class WargearSelectionRow(
@@ -76,7 +77,7 @@ object ArmyRepository {
           IO.println(s"[$now] [ArmyRepository.findById] Army not found").as(None)
         case Some(row) =>
           (for {
-            unitRows <- sql"SELECT id, datasheet_id, size_option_line, enhancement_id, attached_leader_id FROM army_units WHERE army_id = $id"
+            unitRows <- sql"SELECT id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, attached_to_unit_index FROM army_units WHERE army_id = $id"
               .query[ArmyUnitRow].to[List]
             selectionRows <- sql"""SELECT army_unit_id, option_line, selected, notes FROM army_unit_wargear_selections
                                    WHERE army_unit_id IN (SELECT id FROM army_units WHERE army_id = $id)"""
@@ -87,7 +88,7 @@ object ArmyRepository {
               val wargear = selectionsByUnit.getOrElse(u.id, List.empty).map { s =>
                 WargearSelection(s.optionLine, s.selected, s.notes)
               }
-              ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, wargear)
+              ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, u.attachedToUnitIndex, wargear)
             }
             val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units, row.chapterId)
             val persisted = PersistedArmy(row.id, row.name, army, row.ownerId.map(UserId.value), row.createdAt, row.updatedAt)
@@ -105,8 +106,8 @@ object ArmyRepository {
                    VALUES ($id, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $ownerId, $now, $now, ${army.chapterId})""".update.run
         _ <- army.units.traverse_ { unit =>
           for {
-            _ <- sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id)
-                  VALUES ($id, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId})""".update.run
+            _ <- sql"""INSERT INTO army_units (army_id, datasheet_id, size_option_line, enhancement_id, attached_leader_id, attached_to_unit_index)
+                  VALUES ($id, ${unit.datasheetId}, ${unit.sizeOptionLine}, ${unit.enhancementId}, ${unit.attachedLeaderId}, ${unit.attachedToUnitIndex})""".update.run
             unitId <- sql"SELECT last_insert_rowid()".query[Long].unique
             _ <- unit.wargearSelections.traverse_ { sel =>
               sql"""INSERT INTO army_unit_wargear_selections (army_unit_id, option_line, selected, notes)
