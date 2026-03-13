@@ -36,11 +36,11 @@ object WargearFilter {
 
     val activeSelections = selections.filter(_.selected)
     val finalWeaponMap = activeSelections.foldLeft(initialWeaponMap) { (weaponMap, selection) =>
-      val selectedChoiceIndex = getSelectedChoiceIndex(selection.notes, selection.optionLine, parsedOptions)
+      val selectedChoiceIndexes = getSelectedChoiceIndex(selection.notes, selection.optionLine, parsedOptions)
 
       val parsed = parsedOptions.filter { p =>
         p.optionLine == selection.optionLine &&
-          (p.choiceIndex == 0 || selectedChoiceIndex.contains(p.choiceIndex))
+          (p.choiceIndex == 0 || selectedChoiceIndexes.contains(p.choiceIndex))
       }
 
       parsed.foldLeft(weaponMap) { (wm, p) =>
@@ -172,11 +172,11 @@ object WargearFilter {
     val activeSelections = selections.filter(_.selected)
 
     activeSelections.foldLeft((Map.empty[String, Int], Map.empty[String, Int])) { case ((removals, additions), selection) =>
-      val selectedChoiceIndex = getSelectedChoiceIndex(selection.notes, selection.optionLine, parsedOptions)
+      val selectedChoiceIndexes = getSelectedChoiceIndex(selection.notes, selection.optionLine, parsedOptions)
 
       val parsed = parsedOptions.filter { p =>
         p.optionLine == selection.optionLine &&
-          (p.choiceIndex == 0 || selectedChoiceIndex.contains(p.choiceIndex))
+          (p.choiceIndex == 0 || selectedChoiceIndexes.contains(p.choiceIndex))
       }
 
       val removeAllCount = parsed
@@ -270,13 +270,13 @@ object WargearFilter {
     notes: Option[String],
     optionLine: Int,
     parsedOptions: List[ParsedWargearOption]
-  ): Option[Int] = {
-    notes.flatMap { n =>
-      val normalizedNotes = n.toLowerCase.trim
+  ): List[Int] = {
+    notes.fold(List.empty[Int]) { n =>
+      val weapons = n.split('|').map(_.toLowerCase.trim).toList
       val addOptions = parsedOptions.filter { p =>
         p.optionLine == optionLine && p.action == WargearAction.Add && p.choiceIndex > 0
       }
-      addOptions.find(opt => normalizedNotes.contains(opt.weaponName.toLowerCase)).map(_.choiceIndex)
+      weapons.flatMap(w => addOptions.find(opt => opt.weaponName.toLowerCase == w || opt.weaponName.toLowerCase.startsWith(w + " ")).map(_.choiceIndex)).distinct
     }
   }
 }

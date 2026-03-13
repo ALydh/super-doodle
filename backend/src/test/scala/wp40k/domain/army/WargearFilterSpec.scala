@@ -65,6 +65,21 @@ class WargearFilterSpec extends AnyFlatSpec with Matchers {
     result.map(_.name) should contain only Some("Melta Gun")
   }
 
+  it should "handle two-weapon selections via pipe-separated notes" in {
+    val allWargear = List(wargear("Storm Bolter"), wargear("Power Fist"), wargear("Thunder Hammer"), wargear("Master-crafted power weapon"))
+    val parsed = List(
+      parsedOption(1, WargearAction.Remove, "Storm Bolter", 1),
+      parsedOption(1, WargearAction.Remove, "Master-crafted power weapon", 1),
+      parsedOption(1, WargearAction.Add, "Power Fist", 1),
+      parsedOption(1, WargearAction.Remove, "Storm Bolter", 2),
+      parsedOption(1, WargearAction.Remove, "Master-crafted power weapon", 2),
+      parsedOption(1, WargearAction.Add, "Thunder Hammer", 2)
+    )
+    val selections = List(WargearSelection(1, true, Some("Power Fist|Thunder Hammer")))
+    val result = WargearFilter.filterWargear(allWargear, parsed, selections)
+    result.map(_.name) should contain theSameElementsAs List(Some("Power Fist"), Some("Thunder Hammer"))
+  }
+
   it should "not include inactive selections" in {
     val allWargear = List(wargear("Bolt Rifle"), wargear("Power Fist"))
     val parsed = List(parsedOption(1, WargearAction.Add, "Power Fist"))
