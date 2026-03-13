@@ -121,7 +121,7 @@ export function UnitRow({
     const ulMatch = description.match(/<ul[^>]*>([\s\S]*?)<\/ul>/);
     if (!ulMatch) return null;
     const liMatches = ulMatch[1].match(/<li[^>]*>([\s\S]*?)<\/li>/g) ?? [];
-    const choices = liMatches.map(li => li.replace(/<[^>]*>/g, '').trim()).filter(c => c.length > 0);
+    const choices = liMatches.map(li => li.replace(/<[^>]*>/g, '').trim().replace(/^\d+\s+/, '')).filter(c => c.length > 0);
 
     if (hasOneOf) return { kind: 'single', choices };
 

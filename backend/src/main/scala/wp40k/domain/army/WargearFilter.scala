@@ -272,7 +272,7 @@ object WargearFilter {
     parsedOptions: List[ParsedWargearOption]
   ): List[Int] = {
     notes.fold(List.empty[Int]) { n =>
-      val weapons = n.split('|').map(_.toLowerCase.trim).toList
+      val weapons = n.split('|').map(_.toLowerCase.trim.replaceAll("^\\d+\\s+", "")).toList
       val addOptions = parsedOptions.filter { p =>
         p.optionLine == optionLine && p.action == WargearAction.Add && p.choiceIndex > 0
       }

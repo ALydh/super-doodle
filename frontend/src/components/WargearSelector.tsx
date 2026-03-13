@@ -30,7 +30,7 @@ export function WargearSelector({
     .filter(s => s.selected)
     .map(s => {
       const option = options.find(o => o.line === s.optionLine);
-      if (s.notes) return s.notes;
+      if (s.notes) return s.notes.includes('|') ? s.notes.split('|').filter(Boolean).join(' + ') : s.notes;
       if (!option) return null;
       const desc = option.description.replace(/<[^>]*>/g, '');
       const match = desc.match(/replaced with (?:\d+ )?(.+?)(?:\.|$)/i);
