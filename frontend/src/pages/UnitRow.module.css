@@ -94,16 +94,17 @@
   color: var(--text-muted);
   font-size: 0.85rem;
   cursor: pointer;
-  opacity: 0;
+  display: none;
   transition: opacity 0.15s;
 }
 
 .card:hover .warlordBtnInline {
+  display: inline;
   opacity: 0.5;
 }
 
 .warlordBtnInline:hover {
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 .leaderAttachedPill {
@@ -361,7 +362,7 @@
 
 .weaponLine {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) 40px 45px 35px 45px 50px 1fr;
+  grid-template-columns: minmax(180px, 1fr) 65px 40px 45px 35px 45px 50px 1fr;
   gap: 8px;
   align-items: baseline;
   padding: 8px;
