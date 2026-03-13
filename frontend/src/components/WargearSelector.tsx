@@ -82,7 +82,13 @@ export function WargearSelector({
           <div
             key={option.line}
             className={`${styles.cardOption} ${isSelected ? styles.selected : ""}`}
-            onClick={() => onSelectionChange(option.line, !isSelected)}
+            onClick={() => {
+              const newSelected = !isSelected;
+              onSelectionChange(option.line, newSelected);
+              if (newSelected && !notes && opt?.kind === 'either-or-two') {
+                onNotesChange(option.line, opt.singleton);
+              }
+            }}
           >
             <div className={styles.indicator}>
               {isSelected ? "✓" : ""}
