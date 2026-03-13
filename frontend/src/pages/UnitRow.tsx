@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import type { ArmyUnit, Datasheet, ModelProfile, WargearSelection, DatasheetDetail, WargearWithQuantity } from "../types";
+import type { WargearOptionType } from "../components/WargearSelector";
 import { fetchDatasheetDetail, filterWargear } from "../api";
 import { useReferenceData } from "../context/ReferenceDataContext";
 import { LeaderSlotsSection } from "../components/LeaderSlotsSection";
@@ -111,16 +112,31 @@ export function UnitRow({
     return unit.wargearSelections.find(s => s.optionLine === optionLine);
   };
 
-  const extractWargearChoices = (description: string): string[] | null => {
-    const lowerDesc = description.toLowerCase();
-    if (!lowerDesc.includes('one of the following') && !lowerDesc.includes('can be replaced with one of the following')) {
-      return null;
-    }
+  const extractWargearOption = (description: string): WargearOptionType | null => {
+    const lower = description.toLowerCase();
+    const hasFromList = lower.includes('from the following list');
+    const hasOneOf = lower.includes('one of the following');
+    if (!hasFromList && !hasOneOf) return null;
+
     const ulMatch = description.match(/<ul[^>]*>([\s\S]*?)<\/ul>/);
     if (!ulMatch) return null;
-    const liMatches = ulMatch[1].match(/<li[^>]*>([\s\S]*?)<\/li>/g);
-    if (!liMatches) return [];
-    return liMatches.map(li => li.replace(/<[^>]*>/g, '').trim()).filter(choice => choice.length > 0);
+    const liMatches = ulMatch[1].match(/<li[^>]*>([\s\S]*?)<\/li>/g) ?? [];
+    const choices = liMatches.map(li => li.replace(/<[^>]*>/g, '').trim()).filter(c => c.length > 0);
+
+    if (hasOneOf) return { kind: 'single', choices };
+
+    const orTwoDiffMatch = description.match(/,?\s+or\s+two different/i);
+    if (orTwoDiffMatch) {
+      const beforeOrTwo = description.slice(0, orTwoDiffMatch.index!);
+      const lastWithIdx = beforeOrTwo.toLowerCase().lastIndexOf('with ');
+      if (lastWithIdx !== -1) {
+        const afterWith = beforeOrTwo.slice(lastWithIdx + 5);
+        const singleton = afterWith.replace(/^either\s+/i, '').replace(/^\d+\s+/, '').trim();
+        return { kind: 'either-or-two', singleton, choices };
+      }
+    }
+
+    return { kind: 'two', choices };
   };
 
   const isAllied = unit.isAllied === true;
@@ -257,7 +273,7 @@ export function UnitRow({
             onUpdate={onUpdate}
             onSelectionChange={handleWargearSelectionChange}
             onNotesChange={handleWargearNotesChange}
-            extractWargearChoices={extractWargearChoices}
+            extractWargearOption={extractWargearOption}
             getWargearSelection={getWargearSelection}
           />
         </div>
