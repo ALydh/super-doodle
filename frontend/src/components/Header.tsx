@@ -13,6 +13,16 @@ export function Header({ onSearchClick }: HeaderProps) {
   const { compact, toggleCompact } = useCompactMode();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyToken = () => {
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      navigator.clipboard.writeText(token);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -60,6 +70,8 @@ export function Header({ onSearchClick }: HeaderProps) {
               <span className={styles.separator}>·</span>
               <span className={styles.user}>{user.username}</span>
               <span className={styles.separator}>·</span>
+              <button onClick={copyToken} className={styles.logout}>{copied ? "Copied!" : "Copy token"}</button>
+              <span className={styles.separator}>·</span>
               <button onClick={handleLogout} className={styles.logout}>Logout</button>
             </>
           ) : (
@@ -89,6 +101,7 @@ export function Header({ onSearchClick }: HeaderProps) {
           <>
             <Link to="/admin" className={styles.mobileMenuItem} onClick={closeMenu}>Admin</Link>
             <span className={styles.mobileMenuItem} style={{ opacity: 0.6 }}>{user.username}</span>
+            <button onClick={copyToken} className={styles.mobileMenuItem}>{copied ? "Copied!" : "Copy token"}</button>
             <button onClick={() => { handleLogout(); closeMenu(); }} className={styles.mobileMenuItem}>Logout</button>
           </>
         ) : (
