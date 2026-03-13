@@ -55,18 +55,32 @@ export function UnitRowExpanded({
           {detail.profiles.length > 0 && (
             <>
               <h5 className={styles.sectionHeading}>Stats</h5>
-              <div className={styles.statsRow}>
-                {detail.profiles.map((p, i) => (
-                  <div key={i} className={styles.statLine}>
-                    <span className={styles.stat}><b>M</b>{p.movement}</span>
-                    <span className={styles.stat}><b>T</b>{p.toughness}</span>
-                    <span className={styles.stat}><b>SV</b>{p.save}{p.invulnerableSave && `/${p.invulnerableSave}`}</span>
-                    <span className={styles.stat}><b>W</b>{p.wounds}</span>
-                    <span className={styles.stat}><b>LD</b>{p.leadership}</span>
-                    <span className={styles.stat}><b>OC</b>{p.objectiveControl}</span>
-                  </div>
-                ))}
-              </div>
+              <table className={`${sharedStyles.statsTable} ${styles.statsTable}`}>
+                <thead>
+                  <tr>
+                    <th>M</th>
+                    <th>T</th>
+                    <th>SV</th>
+                    {detail.profiles.some(p => p.invulnerableSave) && <th>Inv</th>}
+                    <th>W</th>
+                    <th>LD</th>
+                    <th>OC</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detail.profiles.map((p, i) => (
+                    <tr key={i}>
+                      <td>{p.movement}</td>
+                      <td>{p.toughness}</td>
+                      <td>{p.save}</td>
+                      {detail.profiles.some(pr => pr.invulnerableSave) && <td>{p.invulnerableSave ?? "-"}</td>}
+                      <td>{p.wounds}</td>
+                      <td>{p.leadership}</td>
+                      <td>{p.objectiveControl}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
               <div className={styles.statsMobile}>
                 {detail.profiles.map((p, i) => (
                   <div key={i} className={styles.statsCard}>
