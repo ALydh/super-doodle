@@ -201,7 +201,10 @@ object WargearFilter {
 
         p.action match {
           case WargearAction.Remove =>
-            (rem + (weaponName -> (rem.getOrElse(weaponName, 0) + count)), add)
+            val current = rem.getOrElse(weaponName, 0)
+            val base = findCountByWeaponMatch(weaponName, baseWeaponCounts)
+            val newCount = if (base > 0) (current + count).min(base) else current + count
+            (rem + (weaponName -> newCount), add)
           case WargearAction.Add =>
             (rem, add + (weaponName -> (add.getOrElse(weaponName, 0) + count)))
         }
