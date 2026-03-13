@@ -354,36 +354,14 @@
   letter-spacing: 0.05em;
 }
 
-.weaponsList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.weaponLine {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) 65px 40px 45px 35px 45px 50px 1fr;
-  gap: 8px;
-  align-items: baseline;
-  padding: 8px;
-  background: var(--surface-card);
-  border-radius: 4px;
+.weaponsTable {
   font-size: 0.85rem;
+  margin-bottom: 0;
 }
 
-.weaponName {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.weaponStat {
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.weaponAbilities {
-  color: var(--text-muted);
-  font-size: 0.8rem;
+.weaponsTable th,
+.weaponsTable td {
+  padding: 6px 8px;
 }
 
 .wargearOptions {
@@ -675,16 +653,6 @@
   .stat {
     padding: 3px 6px;
     font-size: 0.8rem;
-  }
-
-  .weaponLine {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 8px;
-  }
-
-  .weaponName {
-    flex-basis: 100%;
   }
 
   .wargearOptions {

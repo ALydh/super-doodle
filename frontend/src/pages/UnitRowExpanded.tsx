@@ -6,6 +6,7 @@ import { sanitizeHtml } from "../sanitize";
 import { EnhancementSelector } from "../components/EnhancementSelector";
 import { WargearSelector } from "../components/WargearSelector";
 import styles from "./UnitRow.module.css";
+import sharedStyles from "../shared.module.css";
 
 interface Props {
   detail: DatasheetDetail | null;
@@ -69,22 +70,34 @@ export function UnitRowExpanded({
           {filteredWargear.length > 0 && (
             <div>
               <h5 className={styles.sectionHeading}>Weapons</h5>
-              <div className={styles.weaponsList}>
-                {filteredWargear.map((wq, i) => (
-                  <div key={i} className={styles.weaponLine}>
-                    <span className={styles.weaponName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
-                    <span className={styles.weaponStat}>{wq.wargear.range ? `Range:${wq.wargear.range}` : ''}</span>
-                    <span className={styles.weaponStat}>{wq.wargear.attacks ? `A:${wq.wargear.attacks}` : ''}</span>
-                    <span className={styles.weaponStat}>{wq.wargear.ballisticSkill ? `BS:${wq.wargear.ballisticSkill}` : ''}</span>
-                    <span className={styles.weaponStat}>{wq.wargear.strength ? `S:${wq.wargear.strength}` : ''}</span>
-                    <span className={styles.weaponStat}>{wq.wargear.armorPenetration ? `AP:${wq.wargear.armorPenetration}` : ''}</span>
-                    <span className={styles.weaponStat}>{wq.wargear.damage ? `D:${wq.wargear.damage}` : ''}</span>
-                    <span className={styles.weaponAbilities}>
-                      {wq.wargear.description && <WeaponAbilityText text={wq.wargear.description} />}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <table className={`${sharedStyles.weaponsTable} ${styles.weaponsTable}`}>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Range</th>
+                    <th>A</th>
+                    <th>BS/WS</th>
+                    <th>S</th>
+                    <th>AP</th>
+                    <th>D</th>
+                    <th>Abilities</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredWargear.map((wq, i) => (
+                    <tr key={i}>
+                      <td>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</td>
+                      <td>{wq.wargear.range ?? "-"}</td>
+                      <td>{wq.wargear.attacks ?? "-"}</td>
+                      <td>{wq.wargear.ballisticSkill ?? "-"}</td>
+                      <td>{wq.wargear.strength ?? "-"}</td>
+                      <td>{wq.wargear.armorPenetration ?? "-"}</td>
+                      <td>{wq.wargear.damage ?? "-"}</td>
+                      <td><WeaponAbilityText text={wq.wargear.description} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
