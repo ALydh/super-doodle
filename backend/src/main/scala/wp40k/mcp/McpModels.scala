@@ -117,15 +117,22 @@ object ArmySummaryOut:
   def from(s: ArmySummary): ArmySummaryOut =
     ArmySummaryOut(s.id, s.name, s.factionId, s.battleSize, s.updatedAt, s.warlordName, s.totalPoints)
 
-case class ArmyOut(id: String, name: String, factionId: String, battleSize: String, detachmentId: String, warlordId: String, chapterId: Option[String], unitCount: Int, createdAt: String, updatedAt: String)
+case class ArmyUnitOut(datasheetId: String, sizeOptionLine: Int, enhancementId: Option[String], attachedLeaderId: Option[String])
+
+case class ArmyOut(id: String, name: String, factionId: String, battleSize: String, detachmentId: String, warlordId: String, chapterId: Option[String], units: List[ArmyUnitOut], createdAt: String, updatedAt: String)
 object ArmyOut:
   def from(p: PersistedArmy): ArmyOut =
     ArmyOut(p.id, p.name, FactionId.value(p.army.factionId), p.army.battleSize.toString,
       DetachmentId.value(p.army.detachmentId), DatasheetId.value(p.army.warlordId),
-      p.army.chapterId, p.army.units.size, p.createdAt, p.updatedAt)
+      p.army.chapterId,
+      p.army.units.map(u => ArmyUnitOut(DatasheetId.value(u.datasheetId), u.sizeOptionLine, u.enhancementId.map(EnhancementId.value), u.attachedLeaderId.map(DatasheetId.value))),
+      p.createdAt, p.updatedAt)
 
 case class InventoryEntryOut(datasheetId: String, quantity: Int)
 object InventoryEntryOut:
   def from(e: wp40k.db.InventoryEntry): InventoryEntryOut = InventoryEntryOut(e.datasheetId, e.quantity)
 
 case class ValidationResultOut(valid: Boolean, errors: List[String])
+
+case class GetInventoryInput(token: String)
+case class InventoryEntryOut(datasheetId: String, name: String, factionId: Option[String], quantity: Int)
