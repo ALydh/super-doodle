@@ -23,6 +23,13 @@ function getAbilityPhases(ability: DetachmentAbility): string[] {
   return PHASES.filter((p) => desc.includes(p.toLowerCase()));
 }
 
+function stratagemMatchesPhase(stratagemPhase: string | null, phase: string): boolean {
+  if (!stratagemPhase) return false;
+  if (stratagemPhase === "Any phase") return true;
+  const baseName = phase.replace(" phase", "");
+  return stratagemPhase.includes(baseName);
+}
+
 export function ChecklistTab({ stratagems, detachmentAbilities, notes, onNoteChange }: Props) {
   const alwaysActive = detachmentAbilities.filter(
     (a) => getAbilityPhases(a).length === 0
@@ -56,7 +63,7 @@ export function ChecklistTab({ stratagems, detachmentAbilities, notes, onNoteCha
       )}
 
       {PHASES.map((phase) => {
-        const phaseStratagems = stratagems.filter((s) => s.phase === phase);
+        const phaseStratagems = stratagems.filter((s) => stratagemMatchesPhase(s.phase, phase));
         const phaseAbilities = detachmentAbilities.filter((a) =>
           getAbilityPhases(a).includes(phase)
         );
