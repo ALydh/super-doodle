@@ -150,10 +150,6 @@ export function UnitRow({
         aria-expanded={expanded}
         aria-label={`${datasheet?.name ?? unit.datasheetId}, ${expanded ? "collapse" : "expand"} details`}
       >
-        <span className={styles.expandIcon} aria-hidden="true">
-          {expanded ? "▼" : "▶"}
-        </span>
-
         <span className={styles.name}>
           {datasheet?.name ?? unit.datasheetId}
           {isWarlord && !readOnly && (
