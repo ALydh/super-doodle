@@ -6,6 +6,8 @@ import styles from "./ChecklistTab.module.css";
 interface Props {
   stratagems: Stratagem[];
   detachmentAbilities: DetachmentAbility[];
+  notes: Record<string, string>;
+  onNoteChange: (phase: string, note: string) => void;
 }
 
 const PHASES = [
@@ -21,7 +23,7 @@ function getAbilityPhases(ability: DetachmentAbility): string[] {
   return PHASES.filter((p) => desc.includes(p.toLowerCase()));
 }
 
-export function ChecklistTab({ stratagems, detachmentAbilities }: Props) {
+export function ChecklistTab({ stratagems, detachmentAbilities, notes, onNoteChange }: Props) {
   const alwaysActive = detachmentAbilities.filter(
     (a) => getAbilityPhases(a).length === 0
   );
@@ -41,6 +43,14 @@ export function ChecklistTab({ stratagems, detachmentAbilities }: Props) {
                 />
               </div>
             ))}
+          </div>
+          <div className={styles.noteArea}>
+            <textarea
+              className={styles.noteInput}
+              placeholder="Add notes..."
+              value={notes["always-active"] ?? ""}
+              onChange={(e) => onNoteChange("always-active", e.target.value)}
+            />
           </div>
         </section>
       )}
@@ -101,6 +111,15 @@ export function ChecklistTab({ stratagems, detachmentAbilities }: Props) {
                 </div>
               </div>
             )}
+
+            <div className={styles.noteArea}>
+              <textarea
+                className={styles.noteInput}
+                placeholder="Add notes..."
+                value={notes[phase] ?? ""}
+                onChange={(e) => onNoteChange(phase, e.target.value)}
+              />
+            </div>
           </section>
         );
       })}
@@ -115,6 +134,14 @@ export function ChecklistTab({ stratagems, detachmentAbilities }: Props) {
               {general.map((s) => (
                 <StratagemCard key={s.id} stratagem={s} />
               ))}
+            </div>
+            <div className={styles.noteArea}>
+              <textarea
+                className={styles.noteInput}
+                placeholder="Add notes..."
+                value={notes["general"] ?? ""}
+                onChange={(e) => onNoteChange("general", e.target.value)}
+              />
             </div>
           </section>
         );

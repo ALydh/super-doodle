@@ -69,3 +69,31 @@
   font-size: 0.85rem;
   line-height: 1.5;
 }
+
+.noteArea {
+  padding: 8px 16px 12px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.noteInput {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-body);
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  min-height: 60px;
+  padding: 8px;
+  resize: vertical;
+  width: 100%;
+}
+
+.noteInput:focus {
+  outline: 1px solid var(--text-muted);
+}
+
+.noteInput::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}

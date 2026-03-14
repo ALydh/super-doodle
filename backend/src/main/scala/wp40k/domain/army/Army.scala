@@ -24,5 +24,6 @@ case class Army(
   detachmentId: DetachmentId,
   warlordId: DatasheetId,
   units: List[ArmyUnit],
-  chapterId: Option[String] = None
+  chapterId: Option[String] = None,
+  checklistNotes: Map[String, String] = Map.empty
 )

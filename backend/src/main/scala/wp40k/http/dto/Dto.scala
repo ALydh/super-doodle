@@ -158,6 +158,7 @@ case class ArmyBattleData(
   detachmentId: String,
   warlordId: String,
   chapterId: Option[String],
+  checklistNotes: Map[String, String],
   units: List[BattleUnitData]
 )
 

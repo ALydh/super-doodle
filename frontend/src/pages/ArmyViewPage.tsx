@@ -103,6 +103,7 @@ export function ArmyViewPage() {
 
   // View state
   const [battleData, setBattleData] = useState<ArmyBattleData | null>(null);
+  const [checklistNotes, setChecklistNotes] = useState<Record<string, string>>({});
   const [stratagems, setStratagems] = useState<Stratagem[]>([]);
   const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
@@ -152,6 +153,7 @@ export function ArmyViewPage() {
   });
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const notesTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const editInitRef = useRef(false);
 
   useEffect(() => {
@@ -161,7 +163,9 @@ export function ArmyViewPage() {
     fetchArmyForBattle(armyId)
       .then((data) => {
         if (cancelled) return;
-        setBattleData(migrateBattleData(data));
+        const migratedData = migrateBattleData(data);
+        setBattleData(migratedData);
+        setChecklistNotes(migratedData.checklistNotes ?? {});
         if (isEditRoute) {
           editInitRef.current = true;
           setEditName(data.name);
@@ -251,6 +255,24 @@ export function ArmyViewPage() {
       setInventory(map);
     }).catch(() => {});
   }, [user]);
+
+  useEffect(() => {
+    if (!armyId || !battleData) return;
+    clearTimeout(notesTimerRef.current);
+    notesTimerRef.current = setTimeout(() => {
+      const army: Army = {
+        factionId: battleData.factionId,
+        battleSize: battleData.battleSize as BattleSize,
+        detachmentId: battleData.detachmentId,
+        warlordId: battleData.warlordId,
+        units: battleData.units.map((bu) => bu.unit),
+        chapterId: battleData.chapterId,
+        checklistNotes,
+      };
+      updateArmy(armyId, battleData.name, army).catch(() => {});
+    }, 1000);
+    return () => clearTimeout(notesTimerRef.current);
+  }, [checklistNotes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { sessionStorage.setItem(`avp:${armyId}:activeTab`, activeTab); }, [armyId, activeTab]);
   useEffect(() => { sessionStorage.setItem(`avp:${armyId}:searchQuery`, searchQuery); }, [armyId, searchQuery]);
@@ -735,6 +757,8 @@ export function ArmyViewPage() {
         <ChecklistTab
           stratagems={detachmentStratagems}
           detachmentAbilities={detachmentAbilities}
+          notes={checklistNotes}
+          onNoteChange={(phase, note) => setChecklistNotes((prev) => ({ ...prev, [phase]: note }))}
         />
       )}
 
