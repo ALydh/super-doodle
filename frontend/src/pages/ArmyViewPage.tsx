@@ -30,6 +30,7 @@ import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { UnitsTab } from "./army-view/UnitsTab";
 import { ShoppingTab } from "./army-view/ShoppingTab";
+import { ChecklistTab } from "./army-view/ChecklistTab";
 import { Spinner } from "../components/Spinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { UnitPicker } from "./UnitPicker";
@@ -67,12 +68,13 @@ function unitsByRole(units: BattleUnitData[], warlordId: string): RoleGroup[] {
   }));
 }
 
-type TabId = "units" | "stratagems" | "detachment" | "shopping";
+type TabId = "units" | "stratagems" | "detachment" | "shopping" | "checklist";
 
 const TABS = [
   { id: "units" as const, label: "Units" },
   { id: "stratagems" as const, label: "Stratagems" },
   { id: "detachment" as const, label: "Detachment" },
+  { id: "checklist" as const, label: "Checklist" },
 ];
 
 const TABS_WITH_SHOPPING = [
@@ -727,6 +729,13 @@ export function ArmyViewPage() {
             enhancements={detachmentEnhancements}
           />
         </div>
+      )}
+
+      {activeTab === "checklist" && (
+        <ChecklistTab
+          stratagems={detachmentStratagems}
+          detachmentAbilities={detachmentAbilities}
+        />
       )}
 
       {!isEditing && activeTab === "shopping" && inventory && (
