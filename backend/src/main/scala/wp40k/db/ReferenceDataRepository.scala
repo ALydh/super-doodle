@@ -66,6 +66,12 @@ object ReferenceDataRepository {
            FROM datasheets WHERE id = $datasheetId"""
       .query[Datasheet].option.transact(xa)
 
+  def datasheetsForIds(datasheetIds: NonEmptyList[DatasheetId])(xa: Transactor[IO]): IO[List[Datasheet]] =
+    (fr"""SELECT id, name, faction_id, source_id, legend, role, loadout, transport,
+           virtual, leader_head, leader_footer, damaged_w, damaged_description, link
+           FROM datasheets WHERE """ ++ Fragments.in(fr"id", datasheetIds))
+      .query[Datasheet].to[List].transact(xa)
+
   def datasheetsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[Datasheet]] =
     sql"""SELECT d.id, d.name, d.faction_id, d.source_id, d.legend, d.role, d.loadout, d.transport,
            d.virtual, d.leader_head, d.leader_footer, d.damaged_w, d.damaged_description, d.link
