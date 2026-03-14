@@ -46,6 +46,7 @@ object McpTools:
     getInventory(userXa, refXa),
     listArmies(userXa, refPrefix),
     getArmy(userXa),
+    getInventory(userXa, refXa),
     createArmy(userXa),
     updateArmy(userXa),
     deleteArmy(userXa),
