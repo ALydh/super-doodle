@@ -64,10 +64,10 @@ export function ChecklistTab({ stratagems, detachmentAbilities, notes, onNoteCha
         if (phaseStratagems.length === 0 && phaseAbilities.length === 0) return null;
 
         const yourTurn = phaseStratagems.filter(
-          (s) => !s.turn || s.turn === "Your turn"
+          (s) => !s.turn || s.turn === "Your turn" || s.turn === "Either player's turn"
         );
         const opponentTurn = phaseStratagems.filter(
-          (s) => s.turn === "Opponent's turn"
+          (s) => s.turn === "Opponent's turn" || s.turn === "Either player's turn"
         );
 
         return (
