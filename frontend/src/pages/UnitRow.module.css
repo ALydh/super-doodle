@@ -726,6 +726,11 @@
     flex: 1;
   }
 
+  .stats {
+    flex: 1 1 100%;
+    order: 10;
+  }
+
   .statPill {
     font-size: 0.75rem;
     padding: 2px 6px;
