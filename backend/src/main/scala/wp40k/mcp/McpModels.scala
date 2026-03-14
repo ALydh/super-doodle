@@ -15,7 +15,6 @@ case class DatasheetInput(datasheetId: String)
 case class SearchInput(query: String, factionId: Option[String] = None)
 case class ArmyIdInput(token: String, armyId: String)
 case class ListArmiesInput(token: String)
-case class ListInventoryInput(token: String)
 case class CreateArmyInput(token: String, name: String, factionId: String, battleSize: String, detachmentId: String, warlordId: String, chapterId: Option[String] = None)
 case class UpdateArmyInput(token: String, armyId: String, name: String, factionId: String, battleSize: String, detachmentId: String, warlordId: String, chapterId: Option[String] = None)
 case class DeleteArmyInput(token: String, armyId: String)
@@ -127,10 +126,6 @@ object ArmyOut:
       p.army.chapterId,
       p.army.units.map(u => ArmyUnitOut(DatasheetId.value(u.datasheetId), u.sizeOptionLine, u.enhancementId.map(EnhancementId.value), u.attachedLeaderId.map(DatasheetId.value))),
       p.createdAt, p.updatedAt)
-
-case class InventoryEntryOut(datasheetId: String, quantity: Int)
-object InventoryEntryOut:
-  def from(e: wp40k.db.InventoryEntry): InventoryEntryOut = InventoryEntryOut(e.datasheetId, e.quantity)
 
 case class ValidationResultOut(valid: Boolean, errors: List[String])
 
