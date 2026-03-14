@@ -132,7 +132,7 @@ object ArmyRoutesTapir {
                   persisted.id, persisted.name,
                   FactionId.value(army.factionId), army.battleSize.toString,
                   DetachmentId.value(army.detachmentId), DatasheetId.value(army.warlordId),
-                  army.chapterId, List.empty
+                  army.chapterId, army.checklistNotes, List.empty
                 ).asJson))
               case Some(datasheetIds) =>
                 for {
@@ -191,7 +191,7 @@ object ArmyRoutesTapir {
                     persisted.id, persisted.name,
                     FactionId.value(army.factionId), army.battleSize.toString,
                     DetachmentId.value(army.detachmentId), DatasheetId.value(army.warlordId),
-                    army.chapterId, battleUnits
+                    army.chapterId, army.checklistNotes, battleUnits
                   ).asJson)
                 }
             }

@@ -111,6 +111,7 @@ export interface Army {
   warlordId: string;
   units: ArmyUnit[];
   chapterId: string | null;
+  checklistNotes?: Record<string, string>;
 }
 
 export interface PersistedArmy {
@@ -278,6 +279,7 @@ export interface ArmyBattleData {
   detachmentId: string;
   warlordId: string;
   chapterId: string | null;
+  checklistNotes: Record<string, string>;
   units: BattleUnitData[];
 }
 

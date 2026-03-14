@@ -1,0 +1,99 @@
+.checklist {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.phaseHeader {
+  background-color: var(--surface-card);
+  border-bottom: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 10px 16px;
+}
+
+.turnGroup {
+  padding: 0 16px 12px;
+}
+
+.turnHeader {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin: 12px 0 8px;
+  text-transform: uppercase;
+}
+
+.stratagemList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.abilities {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.abilities:last-child {
+  border-bottom: none;
+}
+
+.abilityItem {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.abilityItem:last-child {
+  border-bottom: none;
+}
+
+.abilityName {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.abilityDesc {
+  color: var(--text-body);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.noteArea {
+  padding: 8px 16px 12px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.noteInput {
+  background-color: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-body);
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  min-height: 60px;
+  padding: 8px;
+  resize: vertical;
+  width: 100%;
+}
+
+.noteInput:focus {
+  outline: 1px solid var(--text-muted);
+}
+
+.noteInput::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
