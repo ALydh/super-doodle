@@ -21,7 +21,7 @@ interface Props {
   readOnly: boolean;
   wargearCount: number;
   onUpdate: (index: number, unit: ArmyUnit) => void;
-  onSelectionChange: (optionLine: number, selected: boolean) => void;
+  onSelectionChange: (optionLine: number, selected: boolean, initialNotes?: string) => void;
   onNotesChange: (optionLine: number, notes: string) => void;
   extractWargearOption: (description: string) => WargearOptionType | null;
   getWargearSelection: (optionLine: number) => WargearSelection | undefined;
