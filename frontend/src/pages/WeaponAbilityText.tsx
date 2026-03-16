@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { WeaponAbility } from "../types";
 import { fetchWeaponAbilities } from "../api";
 import { sanitizeHtml } from "../sanitize";
@@ -88,6 +89,33 @@ function findAbilityMatches(text: string, abilities: WeaponAbility[]): AbilityMa
   return matches.sort((a, b) => a.start - b.start);
 }
 
+interface TooltipPos { x: number; y: number }
+
+function AbilitySpan({ text, description }: { text: string; description: string }) {
+  const [pos, setPos] = useState<TooltipPos | null>(null);
+
+  return (
+    <>
+      <span
+        className={styles.tooltip}
+        onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY - 12 })}
+        onMouseLeave={() => setPos(null)}
+      >
+        {text}
+      </span>
+      {pos && createPortal(
+        <div
+          className={styles.tooltipBox}
+          style={{ left: pos.x, top: pos.y, transform: 'translate(-50%, -100%)' }}
+        >
+          {description}
+        </div>,
+        document.body
+      )}
+    </>
+  );
+}
+
 interface Props {
   text: string | null;
 }
@@ -109,9 +137,7 @@ function renderAbilitySegment(segment: string, abilities: WeaponAbility[], keyPr
       );
     }
     parts.push(
-      <span key={`${keyPrefix}-ability-${match.start}`} className={styles.tooltip} data-tooltip={match.ability.description}>
-        {match.text}
-      </span>
+      <AbilitySpan key={`${keyPrefix}-ability-${match.start}`} text={match.text} description={match.ability.description} />
     );
     lastEnd = match.end;
   }

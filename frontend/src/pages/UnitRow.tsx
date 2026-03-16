@@ -86,7 +86,7 @@ export function UnitRow({
     }
   }, [expanded, unit.datasheetId, unit.wargearSelections, unitSize, unit.sizeOptionLine]);
 
-  const handleWargearSelectionChange = (optionLine: number, selected: boolean) => {
+  const handleWargearSelectionChange = (optionLine: number, selected: boolean, initialNotes?: string) => {
     const existingSelection = unit.wargearSelections.find(s => s.optionLine === optionLine);
     let updatedSelections: WargearSelection[];
 
@@ -95,7 +95,7 @@ export function UnitRow({
         s.optionLine === optionLine ? { ...s, selected } : s
       );
     } else {
-      updatedSelections = [...unit.wargearSelections, { optionLine, selected, notes: null }];
+      updatedSelections = [...unit.wargearSelections, { optionLine, selected, notes: initialNotes ?? null }];
     }
 
     onUpdate(index, { ...unit, wargearSelections: updatedSelections });

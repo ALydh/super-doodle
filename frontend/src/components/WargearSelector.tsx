@@ -11,7 +11,7 @@ export type WargearOptionType =
 interface Props {
   options: DatasheetOption[];
   selections: WargearSelection[];
-  onSelectionChange: (optionLine: number, selected: boolean) => void;
+  onSelectionChange: (optionLine: number, selected: boolean, initialNotes?: string) => void;
   onNotesChange: (optionLine: number, notes: string) => void;
   extractOption: (description: string) => WargearOptionType | null;
 }
@@ -84,10 +84,8 @@ export function WargearSelector({
             className={`${styles.cardOption} ${isSelected ? styles.selected : ""}`}
             onClick={() => {
               const newSelected = !isSelected;
-              onSelectionChange(option.line, newSelected);
-              if (newSelected && !notes && opt?.kind === 'either-or-two') {
-                onNotesChange(option.line, opt.singleton);
-              }
+              const initialNotes = newSelected && !notes && opt?.kind === 'either-or-two' ? opt.singleton : undefined;
+              onSelectionChange(option.line, newSelected, initialNotes);
             }}
           >
             <div className={styles.indicator}>
