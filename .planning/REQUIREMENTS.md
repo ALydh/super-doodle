@@ -126,13 +126,67 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated during roadmap creation) | | |
+| FOUN-01 | Phase 1 | Pending |
+| FOUN-02 | Phase 1 | Pending |
+| FOUN-03 | Phase 1 | Pending |
+| FOUN-04 | Phase 1 | Pending |
+| FOUN-05 | Phase 1 | Pending |
+| FOUN-06 | Phase 1 | Pending |
+| WEAP-01 | Phase 1 | Pending |
+| WEAP-02 | Phase 1 | Pending |
+| WEAP-03 | Phase 1 | Pending |
+| WEAP-04 | Phase 1 | Pending |
+| WEAP-05 | Phase 1 | Pending |
+| WEAP-06 | Phase 1 | Pending |
+| WEAP-07 | Phase 1 | Pending |
+| WEAP-08 | Phase 1 | Pending |
+| WEAP-09 | Phase 1 | Pending |
+| WEAP-10 | Phase 1 | Pending |
+| WEAP-11 | Phase 1 | Pending |
+| WEAP-12 | Phase 1 | Pending |
+| WEAP-13 | Phase 1 | Pending |
+| WEAP-14 | Phase 1 | Pending |
+| WEAP-15 | Phase 1 | Pending |
+| WEAP-16 | Phase 1 | Pending |
+| WEAP-17 | Phase 1 | Pending |
+| PHSE-07 | Phase 1 | Pending |
+| PHSE-08 | Phase 1 | Pending |
+| PHSE-09 | Phase 1 | Pending |
+| PHSE-04 | Phase 2 | Pending |
+| PHSE-01 | Phase 3 | Pending |
+| PHSE-02 | Phase 3 | Pending |
+| PHSE-03 | Phase 3 | Pending |
+| PHSE-05 | Phase 3 | Pending |
+| PHSE-06 | Phase 3 | Pending |
+| LEAD-01 | Phase 4 | Pending |
+| LEAD-02 | Phase 4 | Pending |
+| LEAD-03 | Phase 4 | Pending |
+| LEAD-04 | Phase 4 | Pending |
+| STRT-01 | Phase 5 | Pending |
+| STRT-02 | Phase 5 | Pending |
+| STRT-03 | Phase 5 | Pending |
+| STRT-04 | Phase 5 | Pending |
+| STRT-05 | Phase 5 | Pending |
+| PHSE-10 | Phase 5 | Pending |
+| PHSE-11 | Phase 5 | Pending |
+| MISS-01 | Phase 6 | Pending |
+| MISS-02 | Phase 6 | Pending |
+| MISS-03 | Phase 6 | Pending |
+| MISS-04 | Phase 6 | Pending |
+| RSRV-01 | Phase 7 | Pending |
+| RSRV-02 | Phase 7 | Pending |
+| RSRV-03 | Phase 7 | Pending |
+| RSRV-04 | Phase 7 | Pending |
+| SIMU-01 | Phase 8 | Pending |
+| SIMU-02 | Phase 8 | Pending |
+| SIMU-03 | Phase 8 | Pending |
+| SIMU-04 | Phase 8 | Pending |
 
 **Coverage:**
-- v1 requirements: 48 total
-- Mapped to phases: 0
-- Unmapped: 48
+- v1 requirements: 55 total (header stated 48; actual count from listed requirements is 55)
+- Mapped to phases: 55
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 after roadmap creation*
