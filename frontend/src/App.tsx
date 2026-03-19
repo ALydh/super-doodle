@@ -66,26 +66,6 @@ function AppShell() {
   );
 }
 
-function AppShell() {
-  const { compact } = useCompactMode();
-  return (
-    <div data-compact={compact || undefined}>
-      <Header />
-      <Routes>
-        <Route path="/" element={<FactionListPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
-        <Route path="/factions/:factionId" element={<FactionDetailPage />} />
-        <Route path="/factions/:factionId/armies/new" element={<ProtectedRoute><ArmyBuilderPage /></ProtectedRoute>} />
-        <Route path="/factions/:factionId/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
-        <Route path="/armies/:armyId" element={<ArmyViewPage />} />
-        <Route path="/armies/:armyId/edit" element={<ProtectedRoute><ArmyBuilderPage /></ProtectedRoute>} />
-      </Routes>
-    </div>
-  );
-}
-
 export function App() {
   return (
     <ErrorBoundary>

@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import wahapedia.engine.state.*
 import wahapedia.engine.spatial.Vec3
 import wahapedia.engine.effect.*
-import wahapedia.domain.types.DatasheetId
+import wp40k.domain.types.DatasheetId
 
 class AttackPipelineSpec extends AnyFlatSpec with Matchers {
 

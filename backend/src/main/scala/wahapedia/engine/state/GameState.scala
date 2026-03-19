@@ -1,6 +1,6 @@
 package wahapedia.engine.state
 
-import wahapedia.domain.models.StratagemId
+import wp40k.domain.models.StratagemId
 import wahapedia.engine.event.GameEvent
 
 case class GameState(

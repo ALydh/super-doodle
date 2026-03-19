@@ -6,7 +6,7 @@ import wahapedia.engine.combat.*
 import wahapedia.engine.event.*
 import wahapedia.engine.phase.*
 import wahapedia.engine.spatial.Vec3
-import wahapedia.domain.types.{DatasheetId, FactionId, DetachmentId}
+import wp40k.domain.types.{DatasheetId, FactionId, DetachmentId}
 
 case class GameResult(winner: Option[PlayerId])
 

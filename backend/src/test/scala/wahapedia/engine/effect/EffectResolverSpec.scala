@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import wahapedia.engine.state.*
 import wahapedia.engine.spatial.Vec3
 import wahapedia.engine.combat.WeaponProfile
-import wahapedia.domain.types.{DatasheetId, FactionId, DetachmentId}
+import wp40k.domain.types.{DatasheetId, FactionId, DetachmentId}
 
 class EffectResolverSpec extends AnyFlatSpec with Matchers {
 

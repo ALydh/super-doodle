@@ -2,7 +2,7 @@ package wahapedia.engine.command
 
 import wahapedia.engine.state.{UnitId, ModelId, PlayerId}
 import wahapedia.engine.spatial.Vec3
-import wahapedia.domain.models.StratagemId
+import wp40k.domain.models.StratagemId
 
 case class WeaponSelection(wargearLine: Int, lineInWargear: Int)
 

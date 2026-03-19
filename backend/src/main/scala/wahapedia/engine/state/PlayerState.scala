@@ -1,6 +1,6 @@
 package wahapedia.engine.state
 
-import wahapedia.domain.types.{FactionId, DetachmentId}
+import wp40k.domain.types.{FactionId, DetachmentId}
 
 opaque type PlayerId = String
 object PlayerId:

@@ -1,7 +1,7 @@
 package wahapedia.engine.state
 
-import wahapedia.domain.types.DatasheetId
-import wahapedia.domain.army.WargearSelection
+import wp40k.domain.types.DatasheetId
+import wp40k.domain.army.WargearSelection
 import wahapedia.engine.effect.ActiveEffect
 
 opaque type UnitId = String

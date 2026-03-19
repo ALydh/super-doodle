@@ -7,7 +7,7 @@ import wahapedia.engine.state.*
 import wahapedia.engine.spatial.Vec3
 import wahapedia.engine.command.*
 import wahapedia.engine.combat.FixedDiceRoller
-import wahapedia.domain.types.{DatasheetId, FactionId, DetachmentId}
+import wp40k.domain.types.{DatasheetId, FactionId, DetachmentId}
 
 class ChargePhaseSpec extends AnyFlatSpec with Matchers with EitherValues {
 

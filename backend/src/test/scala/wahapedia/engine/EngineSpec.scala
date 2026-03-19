@@ -9,7 +9,7 @@ import wahapedia.engine.command.*
 import wahapedia.engine.combat.*
 import wahapedia.engine.event.*
 import wahapedia.engine.phase.PhaseRunner
-import wahapedia.domain.types.{DatasheetId, FactionId, DetachmentId}
+import wp40k.domain.types.{DatasheetId, FactionId, DetachmentId}
 
 class EngineSpec extends AnyFlatSpec with Matchers with EitherValues {
 
