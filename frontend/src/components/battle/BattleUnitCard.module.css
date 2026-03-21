@@ -102,6 +102,12 @@
   font-family: monospace;
 }
 
+.modelCount {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
 .cost {
   color: var(--text-muted);
   font-size: 0.9rem;

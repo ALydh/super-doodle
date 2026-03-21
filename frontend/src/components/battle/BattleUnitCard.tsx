@@ -16,6 +16,7 @@ export function BattleUnitCard({ data, isWarlord, isExpanded: expanded, onToggle
 
   const mainProfile = profiles[0];
   const totalCost = (cost?.cost ?? 0) + (enhancement?.cost ?? 0);
+  const modelCount = cost?.description.match(/(\d+)\s*model/i)?.[1];
 
   return (
     <div className={`${styles.card} ${expanded ? styles.expanded : ""}`}>
@@ -54,6 +55,7 @@ export function BattleUnitCard({ data, isWarlord, isExpanded: expanded, onToggle
             </>
           )}
         </span>
+        {modelCount && <span className={styles.modelCount}>{modelCount} models</span>}
         <span className={styles.cost}>{totalCost}pts</span>
       </button>
       {expanded && (
