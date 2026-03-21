@@ -2,6 +2,7 @@ package wp40k.mcp
 
 import cats.effect.IO
 import cats.implicits.*
+import ch.linkyard.mcp.protocol.Content
 import ch.linkyard.mcp.server.{CallContext, ToolFunction}
 import com.melvinlow.json.schema.JsonSchemaEncoder
 import com.melvinlow.json.schema.generic.auto.given
@@ -23,10 +24,32 @@ object McpTools:
 
   private given Logger[IO] = Slf4jLogger.getLogger[IO]
 
-  private def logErrors[I, O](toolName: String)(f: (I, CallContext[IO]) => IO[O])(using log: Logger[IO]): (I, CallContext[IO]) => IO[O] =
+  private def redactToken(json: Json): Json =
+    json.mapObject(obj =>
+      if obj.contains("token") then obj.add("token", Json.fromString("[REDACTED]"))
+      else obj
+    )
+
+  private def toolError(msg: String): ToolFunction.ToolError =
+    ToolFunction.ToolError(List(Content.Text(msg)))
+
+  private def logErrors[I: io.circe.Encoder, O](toolName: String)(f: (I, CallContext[IO]) => IO[O])(using log: Logger[IO]): (I, CallContext[IO]) => IO[O] =
     (in, ctx) =>
-      log.info(s"MCP tool: $toolName") *>
-        f(in, ctx).onError(e => log.error(e)(s"MCP tool failed [$toolName]: ${e.getMessage}"))
+      val inputJson = redactToken(io.circe.Encoder[I].apply(in)).dropNullValues.noSpaces
+      log.info(s"MCP tool called: $toolName | input: $inputJson") *>
+        IO.realTime.map(_.toMillis).flatMap { start =>
+          f(in, ctx)
+            .flatTap(_ => IO.realTime.map(_.toMillis).flatMap(end =>
+              log.info(s"MCP tool completed: $toolName | ${end - start}ms")))
+            .onError {
+              case _: ToolFunction.ToolError => IO.unit
+              case e => log.error(e)(s"MCP tool failed [$toolName]: ${e.getMessage}")
+            }
+            .adaptError {
+              case e: ToolFunction.ToolError => e
+              case e => toolError(e.getMessage)
+            }
+        }
 
 
   given optionSchema[A](using inner: JsonSchemaEncoder[A]): JsonSchemaEncoder[Option[A]] =
@@ -137,13 +160,17 @@ object McpTools:
   )
 
   private def getFactionEnhancements(xa: Transactor[IO]): ToolFunction[IO] = ToolFunction.text(
-    ToolFunction.Info("get_faction_enhancements", "Get Faction Enhancements".some, "Get all enhancements available to a faction.".some, ToolFunction.Effect.ReadOnly, isOpenWorld = false),
-    logErrors("get_faction_enhancements") { (in: FactionInput, _: CallContext[IO]) =>
+    ToolFunction.Info("get_faction_enhancements", "Get Faction Enhancements".some, "Get enhancements for a faction. Optional filters: detachmentId (filter by detachment), search (name substring match).".some, ToolFunction.Effect.ReadOnly, isOpenWorld = false),
+    logErrors("get_faction_enhancements") { (in: EnhancementInput, _: CallContext[IO]) =>
       val fid = FactionId(in.factionId)
       for
         enhancements <- ReferenceDataRepository.enhancementsByFaction(fid)(xa)
         eligible     <- ReferenceDataRepository.enhancementEligibleDatasheets(fid)(xa)
-      yield enhancements.map(e => EnhancementOut.from(e, eligible.getOrElse(e.id, Nil))).asJson.noSpaces
+      yield
+        val filtered = enhancements
+          .filter(e => in.detachmentId.forall(d => e.detachmentId.contains(d)))
+          .filter(e => in.search.forall(s => e.name.toLowerCase.contains(s.toLowerCase)))
+        filtered.map(e => EnhancementOut.from(e, eligible.getOrElse(e.id, Nil))).asJson.noSpaces
     },
   )
 
@@ -237,7 +264,12 @@ object McpTools:
   )
 
   private def createArmy(xa: Transactor[IO]): ToolFunction[IO] = ToolFunction.structured(
-    ToolFunction.Info("create_army", "Create Army".some, "Create a new army list. Requires authentication token. Creates an empty army with the given faction, battle size, and detachment.".some, ToolFunction.Effect.Additive(idempotent = false), isOpenWorld = false),
+    ToolFunction.Info("create_army", "Create Army".some,
+      ("Create a new army list. Requires authentication token. " +
+        "battleSize values: Incursion (1000pts), StrikeForce (2000pts), Onslaught (3000pts) — case-insensitive. " +
+        "chapterId is optional, for Space Marines chapters: dark-angels, blood-angels, space-wolves, ultramarines, black-templars, deathwatch, imperial-fists, raven-guard, iron-hands, salamanders, white-scars. " +
+        "Creates an empty army — use update_army to add units.").some,
+      ToolFunction.Effect.Additive(idempotent = false), isOpenWorld = false),
     logErrors("create_army") { (in: CreateArmyInput, _: CallContext[IO]) =>
       for
         user <- requireAuth(in.token, xa)
@@ -250,7 +282,14 @@ object McpTools:
   )
 
   private def updateArmy(xa: Transactor[IO]): ToolFunction[IO] = ToolFunction.structured(
-    ToolFunction.Info("update_army", "Update Army".some, "Update an existing army's metadata (name, faction, battle size, detachment, warlord). Requires authentication token.".some, ToolFunction.Effect.Additive(idempotent = true), isOpenWorld = false),
+    ToolFunction.Info("update_army", "Update Army".some,
+      ("Update an existing army. Requires authentication token. " +
+        "Updates metadata (name, faction, battleSize, detachment, warlord) and optionally sets the full unit list. " +
+        "battleSize values: Incursion, StrikeForce, Onslaught (case-insensitive). " +
+        "Units list replaces all existing units. Each unit needs datasheetId, optional sizeOptionLine (default 1), " +
+        "optional enhancementId, optional attachedLeaderId (the bodyguard's datasheetId this leader is attached to), " +
+        "optional isAllied (default false).").some,
+      ToolFunction.Effect.Additive(idempotent = true), isOpenWorld = false),
     logErrors("update_army") { (in: UpdateArmyInput, _: CallContext[IO]) =>
       for
         _ <- requireAuth(in.token, xa)
@@ -259,9 +298,18 @@ object McpTools:
           case None => IO.raiseError(new RuntimeException(s"Army not found: ${in.armyId}"))
         }
         battleSize <- IO.fromEither(BattleSize.parse(in.battleSize).leftMap(e => new RuntimeException(e)))
+        units = in.units match
+          case Some(unitInputs) => unitInputs.map(u => ArmyUnit(
+            DatasheetId(u.datasheetId), u.sizeOptionLine.getOrElse(1),
+            u.enhancementId.map(EnhancementId(_)),
+            u.attachedLeaderId.map(DatasheetId(_)),
+            isAllied = u.isAllied.getOrElse(false)
+          ))
+          case None => existing.army.units
         army = existing.army.copy(
           factionId = FactionId(in.factionId), battleSize = battleSize,
-          detachmentId = DetachmentId(in.detachmentId), warlordId = DatasheetId(in.warlordId), chapterId = in.chapterId)
+          detachmentId = DetachmentId(in.detachmentId), warlordId = DatasheetId(in.warlordId),
+          chapterId = in.chapterId, units = units)
         result <- ArmyRepository.update(in.armyId, in.name, army)(xa).flatMap {
           case Some(p) => IO.pure(ArmyOut.from(p))
           case None => IO.raiseError(new RuntimeException("Update failed"))
@@ -282,7 +330,13 @@ object McpTools:
   )
 
   private def validateArmy(refXa: Transactor[IO]): ToolFunction[IO] = ToolFunction.structured(
-    ToolFunction.Info("validate_army", "Validate Army".some, "Validate an army configuration against the rules. Accepts optional units list with datasheet IDs, size options, enhancements, and leader attachments. Returns validation errors if any.".some, ToolFunction.Effect.ReadOnly, isOpenWorld = false),
+    ToolFunction.Info("validate_army", "Validate Army".some,
+      ("Validate an army composition against the rules. No auth required. " +
+        "battleSize values: Incursion, StrikeForce, Onslaught (case-insensitive). " +
+        "units: list of {datasheetId, sizeOptionLine (default 1), enhancementId, attachedLeaderId, isAllied (default false)}. " +
+        "attachedLeaderId goes on the leader unit pointing to the bodyguard's datasheetId. " +
+        "Example: {datasheetId: '000000218', sizeOptionLine: 1, attachedLeaderId: '000003698'} means Azrael leading Inner Circle Companions.").some,
+      ToolFunction.Effect.ReadOnly, isOpenWorld = false),
     logErrors("validate_army") { (in: ValidateArmyInput, _: CallContext[IO]) =>
       for
         battleSize <- IO.fromEither(BattleSize.parse(in.battleSize).leftMap(e => new RuntimeException(e)))
@@ -296,7 +350,7 @@ object McpTools:
           .orElse(units.headOption.map(_.datasheetId))
           .getOrElse(DatasheetId("000000000"))
         army = Army(FactionId(in.factionId), battleSize, DetachmentId(in.detachmentId), warlordId, units, in.chapterId)
-        ref <- ReferenceDataRepository.loadReferenceData(refXa)
+        ref <- ReferenceDataRepository.loadReferenceDataCached(refXa)
         errors = ArmyValidator.validate(army, ref)
       yield ValidationResultOut(errors.isEmpty, errors.map(_.toString))
     },
