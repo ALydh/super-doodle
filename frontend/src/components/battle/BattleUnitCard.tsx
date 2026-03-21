@@ -55,7 +55,7 @@ export function BattleUnitCard({ data, isWarlord, isExpanded: expanded, onToggle
             </>
           )}
         </span>
-        {modelCount && <span className={styles.modelCount}>{modelCount} models</span>}
+        {modelCount && Number(modelCount) > 1 && <span className={styles.modelCount}>{modelCount} models</span>}
         <span className={styles.cost}>{totalCost}pts</span>
       </button>
       {expanded && (
