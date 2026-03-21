@@ -9,11 +9,11 @@ enum BattleSize(val maxPoints: Int):
   case Onslaught extends BattleSize(3000)
 
 object BattleSize {
-  def parse(s: String): Either[String, BattleSize] = s match {
-    case "Incursion" => Right(BattleSize.Incursion)
-    case "StrikeForce" => Right(BattleSize.StrikeForce)
-    case "Onslaught" => Right(BattleSize.Onslaught)
-    case _ => Left(s"Invalid battle size: $s")
+  def parse(s: String): Either[String, BattleSize] = s.toLowerCase match {
+    case "incursion" => Right(BattleSize.Incursion)
+    case "strikeforce" | "strike force" => Right(BattleSize.StrikeForce)
+    case "onslaught" => Right(BattleSize.Onslaught)
+    case _ => Left(s"Invalid battleSize '$s'. Valid values: Incursion, StrikeForce, Onslaught")
   }
 
   given Encoder[BattleSize] = Encoder.encodeString.contramap(_.toString)
