@@ -76,6 +76,14 @@ object McpTools:
     validateArmy(refXa),
   )
 
+  private def toArmyUnit(u: ArmyUnitInput): ArmyUnit = ArmyUnit(
+    DatasheetId(u.datasheetId), u.sizeOptionLine.getOrElse(1),
+    u.enhancementId.map(EnhancementId(_)),
+    u.attachedLeaderId.map(DatasheetId(_)),
+    u.wargearSelections.getOrElse(Nil).map(ws => WargearSelection(ws.optionLine, ws.selected, None)),
+    isAllied = u.isAllied.getOrElse(false)
+  )
+
   private case class EmptyInput()
 
   private def listFactions(xa: Transactor[IO]): ToolFunction[IO] = ToolFunction.text(
@@ -138,11 +146,13 @@ object McpTools:
         abilities <- ReferenceDataRepository.abilitiesForDatasheet(dsId)(xa)
         costs <- ReferenceDataRepository.unitCostsForDatasheet(dsId)(xa)
         keywords <- ReferenceDataRepository.keywordsForDatasheet(dsId)(xa)
+        options <- ReferenceDataRepository.optionsForDatasheet(dsId)(xa)
       yield DatasheetDetailOut(
         DatasheetId.value(ds.id), ds.name, ds.factionId.map(FactionId.value), ds.role.map(_.toString), stripHtmlOpt(ds.legend),
         stripHtmlOpt(ds.loadout), stripHtmlOpt(ds.transport),
         profiles.map(ModelProfileOut.from), wargear.map(WargearOut.from),
-        abilities.map(AbilityOut.from), costs.map(UnitCostOut.from), keywords.map(KeywordOut.from)
+        abilities.map(AbilityOut.from), costs.map(UnitCostOut.from), keywords.map(KeywordOut.from),
+        options.map(DatasheetOptionOut.from)
       )
     },
   )
@@ -268,13 +278,14 @@ object McpTools:
       ("Create a new army list. Requires authentication token. " +
         "battleSize values: Incursion (1000pts), StrikeForce (2000pts), Onslaught (3000pts) — case-insensitive. " +
         "chapterId is optional, for Space Marines chapters: dark-angels, blood-angels, space-wolves, ultramarines, black-templars, deathwatch, imperial-fists, raven-guard, iron-hands, salamanders, white-scars. " +
-        "Creates an empty army — use update_army to add units.").some,
+        "Optionally include units with wargear selections. Use get_datasheet_detail to see available wargear options.").some,
       ToolFunction.Effect.Additive(idempotent = false), isOpenWorld = false),
     logErrors("create_army") { (in: CreateArmyInput, _: CallContext[IO]) =>
       for
         user <- requireAuth(in.token, xa)
         battleSize <- IO.fromEither(BattleSize.parse(in.battleSize).leftMap(e => new RuntimeException(e)))
-        army = Army(FactionId(in.factionId), battleSize, DetachmentId(in.detachmentId), DatasheetId(in.warlordId), List.empty, in.chapterId)
+        units = in.units.getOrElse(Nil).map(toArmyUnit)
+        army = Army(FactionId(in.factionId), battleSize, DetachmentId(in.detachmentId), DatasheetId(in.warlordId), units, in.chapterId)
         id = UUID.randomUUID().toString
         persisted <- ArmyRepository.create(id, in.name, army, Some(user.id))(xa)
       yield ArmyOut.from(persisted)
@@ -299,12 +310,7 @@ object McpTools:
         }
         battleSize <- IO.fromEither(BattleSize.parse(in.battleSize).leftMap(e => new RuntimeException(e)))
         units = in.units match
-          case Some(unitInputs) => unitInputs.map(u => ArmyUnit(
-            DatasheetId(u.datasheetId), u.sizeOptionLine.getOrElse(1),
-            u.enhancementId.map(EnhancementId(_)),
-            u.attachedLeaderId.map(DatasheetId(_)),
-            isAllied = u.isAllied.getOrElse(false)
-          ))
+          case Some(unitInputs) => unitInputs.map(toArmyUnit)
           case None => existing.army.units
         army = existing.army.copy(
           factionId = FactionId(in.factionId), battleSize = battleSize,
@@ -340,12 +346,7 @@ object McpTools:
     logErrors("validate_army") { (in: ValidateArmyInput, _: CallContext[IO]) =>
       for
         battleSize <- IO.fromEither(BattleSize.parse(in.battleSize).leftMap(e => new RuntimeException(e)))
-        units = in.units.getOrElse(Nil).map(u => ArmyUnit(
-          DatasheetId(u.datasheetId), u.sizeOptionLine.getOrElse(1),
-          u.enhancementId.map(EnhancementId(_)),
-          u.attachedLeaderId.map(DatasheetId(_)),
-          isAllied = u.isAllied.getOrElse(false)
-        ))
+        units = in.units.getOrElse(Nil).map(toArmyUnit)
         warlordId = in.warlordId.map(DatasheetId(_))
           .orElse(units.headOption.map(_.datasheetId))
           .getOrElse(DatasheetId("000000000"))

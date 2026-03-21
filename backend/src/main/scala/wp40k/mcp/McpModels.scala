@@ -16,10 +16,11 @@ case class DatasheetInput(datasheetId: String)
 case class SearchInput(query: String, factionId: Option[String] = None)
 case class ArmyIdInput(token: String, armyId: String)
 case class ListArmiesInput(token: String)
-case class CreateArmyInput(token: String, name: String, factionId: String, battleSize: String, detachmentId: String, warlordId: String, chapterId: Option[String] = None)
+case class CreateArmyInput(token: String, name: String, factionId: String, battleSize: String, detachmentId: String, warlordId: String, chapterId: Option[String] = None, units: Option[List[ArmyUnitInput]] = None)
 case class UpdateArmyInput(token: String, armyId: String, name: String, factionId: String, battleSize: String, detachmentId: String, warlordId: String, chapterId: Option[String] = None, units: Option[List[ArmyUnitInput]] = None)
 case class DeleteArmyInput(token: String, armyId: String)
-case class ArmyUnitInput(datasheetId: String, sizeOptionLine: Option[Int] = None, enhancementId: Option[String] = None, attachedLeaderId: Option[String] = None, isAllied: Option[Boolean] = None)
+case class WargearSelectionInput(optionLine: Int, selected: Boolean)
+case class ArmyUnitInput(datasheetId: String, sizeOptionLine: Option[Int] = None, enhancementId: Option[String] = None, attachedLeaderId: Option[String] = None, isAllied: Option[Boolean] = None, wargearSelections: Option[List[WargearSelectionInput]] = None)
 case class ValidateArmyInput(factionId: String, battleSize: String, detachmentId: String, warlordId: Option[String] = None, chapterId: Option[String] = None, units: Option[List[ArmyUnitInput]] = None)
 
 case class FactionOut(id: String, name: String, group: Option[String])
@@ -79,11 +80,16 @@ case class KeywordOut(keyword: Option[String], isFactionKeyword: Boolean)
 object KeywordOut:
   def from(k: DatasheetKeyword): KeywordOut = KeywordOut(k.keyword, k.isFactionKeyword)
 
+case class DatasheetOptionOut(line: Int, button: Option[String], description: String)
+object DatasheetOptionOut:
+  def from(o: DatasheetOption): DatasheetOptionOut = DatasheetOptionOut(o.line, o.button, stripHtml(o.description))
+
 case class DatasheetDetailOut(
   id: String, name: String, factionId: Option[String], role: Option[String], legend: Option[String],
   loadout: Option[String], transport: Option[String],
   profiles: List[ModelProfileOut], wargear: List[WargearOut],
-  abilities: List[AbilityOut], costs: List[UnitCostOut], keywords: List[KeywordOut]
+  abilities: List[AbilityOut], costs: List[UnitCostOut], keywords: List[KeywordOut],
+  options: List[DatasheetOptionOut]
 )
 
 case class StratagemOut(id: String, name: String, stratagemType: Option[String], cpCost: Option[Int], legend: Option[String], turn: Option[String], phase: Option[String], detachment: Option[String], description: String)
@@ -117,7 +123,8 @@ object ArmySummaryOut:
   def from(s: ArmySummary): ArmySummaryOut =
     ArmySummaryOut(s.id, s.name, s.factionId, s.battleSize, s.updatedAt, s.warlordName, s.totalPoints)
 
-case class ArmyUnitOut(datasheetId: String, sizeOptionLine: Int, enhancementId: Option[String], attachedLeaderId: Option[String])
+case class WargearSelectionOut(optionLine: Int, selected: Boolean)
+case class ArmyUnitOut(datasheetId: String, sizeOptionLine: Int, enhancementId: Option[String], attachedLeaderId: Option[String], wargearSelections: List[WargearSelectionOut])
 
 case class ArmyOut(id: String, name: String, factionId: String, battleSize: String, detachmentId: String, warlordId: String, chapterId: Option[String], units: List[ArmyUnitOut], createdAt: String, updatedAt: String)
 object ArmyOut:
@@ -125,7 +132,8 @@ object ArmyOut:
     ArmyOut(p.id, p.name, FactionId.value(p.army.factionId), p.army.battleSize.toString,
       DetachmentId.value(p.army.detachmentId), DatasheetId.value(p.army.warlordId),
       p.army.chapterId,
-      p.army.units.map(u => ArmyUnitOut(DatasheetId.value(u.datasheetId), u.sizeOptionLine, u.enhancementId.map(EnhancementId.value), u.attachedLeaderId.map(DatasheetId.value))),
+      p.army.units.map(u => ArmyUnitOut(DatasheetId.value(u.datasheetId), u.sizeOptionLine, u.enhancementId.map(EnhancementId.value), u.attachedLeaderId.map(DatasheetId.value),
+        u.wargearSelections.map(ws => WargearSelectionOut(ws.optionLine, ws.selected)))),
       p.createdAt, p.updatedAt)
 
 case class ValidationResultOut(valid: Boolean, errors: List[String])
