@@ -175,8 +175,8 @@ export async function createArmy(name: string, army: Army): Promise<PersistedArm
     body: JSON.stringify({ name, army }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Failed to create army: ${res.status}`);
+    const err = await res.json().catch((parseErr) => { console.error("Failed to parse error response:", parseErr); return { error: null }; });
+    throw new Error(err.error || res.statusText || `Failed to create army: ${res.status}`);
   }
   return res.json();
 }
@@ -188,8 +188,8 @@ export async function updateArmy(armyId: string, name: string, army: Army): Prom
     body: JSON.stringify({ name, army }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Failed to update army: ${res.status}`);
+    const err = await res.json().catch((parseErr) => { console.error("Failed to parse error response:", parseErr); return { error: null }; });
+    throw new Error(err.error || res.statusText || `Failed to update army: ${res.status}`);
   }
   return res.json();
 }
@@ -200,8 +200,8 @@ export async function deleteArmy(armyId: string): Promise<void> {
     headers: authHeaders(),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Failed to delete army: ${res.status}`);
+    const err = await res.json().catch((parseErr) => { console.error("Failed to parse error response:", parseErr); return { error: null }; });
+    throw new Error(err.error || res.statusText || `Failed to delete army: ${res.status}`);
   }
 }
 
