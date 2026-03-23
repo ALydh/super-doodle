@@ -175,7 +175,7 @@ export function ArmyViewPage() {
           setEditChapterId(data.chapterId);
           setEditUnits(data.units.map(bu => bu.unit));
         }
-        return Promise.all([
+        return Promise.allSettled([
           fetchStratagemsByFaction(data.factionId),
           fetchEnhancementsByFaction(data.factionId),
           fetchDetachmentsByFaction(data.factionId),
@@ -187,7 +187,20 @@ export function ArmyViewPage() {
       })
       .then((results) => {
         if (cancelled || !results) return;
-        const [strat, enh, det, abilities, details, ldr, allies] = results;
+        const extract = <T,>(r: PromiseSettledResult<T>, fallback: T): T => {
+          if (r.status === "fulfilled") return r.value;
+          console.error("Failed to load data:", r.reason);
+          return fallback;
+        };
+        const [strat, enh, det, abilities, details, ldr, allies] = [
+          extract(results[0], []),
+          extract(results[1], []),
+          extract(results[2], []),
+          extract(results[3], []),
+          extract(results[4], []),
+          extract(results[5], []),
+          extract(results[6], []),
+        ];
         setStratagems(strat);
         setEnhancements(enh);
         setDetachments(det);
