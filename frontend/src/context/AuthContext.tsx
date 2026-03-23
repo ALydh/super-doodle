@@ -29,6 +29,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key !== TOKEN_KEY) return;
+      if (!e.newValue) {
+        setAuthToken(null);
+        setUser(null);
+      } else {
+        setAuthToken(e.newValue);
+        getCurrentUser().then(setUser);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   const login = async (username: string, password: string) => {
     const response = await apiLogin(username, password);
     localStorage.setItem(TOKEN_KEY, response.token);
