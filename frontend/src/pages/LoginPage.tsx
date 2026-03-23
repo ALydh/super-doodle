@@ -3,6 +3,23 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import styles from "./AuthPage.module.css";
 
+const USERNAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
+
+function validateUsername(username: string): string | null {
+  const trimmed = username.trim();
+  if (!trimmed) return "Username is required";
+  if (trimmed.length < 3) return "Username must be at least 3 characters";
+  if (trimmed.length > 50) return "Username cannot exceed 50 characters";
+  if (!USERNAME_PATTERN.test(trimmed)) return "Username can only contain letters, numbers, underscores, and hyphens";
+  return null;
+}
+
+function validatePassword(password: string): string | null {
+  if (!password) return "Password is required";
+  if (password.length < 6) return "Password must be at least 6 characters";
+  return null;
+}
+
 export function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,9 +33,9 @@ export function LoginPage() {
     e.preventDefault();
     setError(null);
 
-    const usernameError = !username.trim() ? "Username is required" : undefined;
-    const passwordError = !password ? "Password is required" : undefined;
-    setFieldErrors({ username: usernameError, password: passwordError });
+    const usernameError = validateUsername(username);
+    const passwordError = validatePassword(password);
+    setFieldErrors({ username: usernameError ?? undefined, password: passwordError ?? undefined });
 
     if (usernameError || passwordError) return;
 
