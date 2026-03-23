@@ -4,9 +4,10 @@ import cats.effect.{IO, IOApp}
 import doobie.*
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import wp40k.db.{Schema, DataLoader, ReferenceDataRepository, Database, DatabaseConfig}
+import wp40k.db.{Schema, DataLoader, ReferenceDataRepository, Database, DatabaseConfig, SessionRepository}
 import wp40k.http.HttpServer
 import wp40k.errors.ParseException
+import scala.concurrent.duration.*
 
 object Main extends IOApp.Simple {
 
@@ -30,6 +31,11 @@ object Main extends IOApp.Simple {
     }
   }
 
+  private def startSessionCleanup(xa: Transactor[IO]): IO[Unit] =
+    fs2.Stream.fixedRate[IO](1.hour)
+      .evalMap(_ => SessionRepository.deleteExpired(xa).flatMap(n => logger.info(s"Cleaned up $n expired sessions")))
+      .compile.drain.start.void
+
   private def runSingleMode: IO[Unit] = {
     val xa = Database.singleTransactor("wp40k.db")
     for {
@@ -39,6 +45,7 @@ object Main extends IOApp.Simple {
       tableCounts <- ReferenceDataRepository.counts(xa)
       _ <- DataLoader.loadMissing(xa, tableCounts)
       _ <- printSummary(tableCounts, xa)
+      _ <- startSessionCleanup(xa)
       _ <- logger.info("Starting HTTP server on port 8080")
       _ <- HttpServer.createServer(8080, xa, xa, "").useForever
     } yield ()
@@ -54,6 +61,7 @@ object Main extends IOApp.Simple {
       _ <- Schema.initializeUserSchema(dbs.userXa)
       tableCounts <- ReferenceDataRepository.counts(dbs.refXa)
       _ <- printSummary(tableCounts, dbs.refXa)
+      _ <- startSessionCleanup(dbs.userXa)
       _ <- logger.info("Starting HTTP server on port 8080")
       _ <- HttpServer.createServer(8080, dbs.refXa, dbs.userXa, "ref.").useForever
     } yield ()

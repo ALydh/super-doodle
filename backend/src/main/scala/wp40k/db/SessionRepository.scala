@@ -22,7 +22,7 @@ object SessionRepository {
   }
 
   def findByToken(token: SessionToken)(xa: Transactor[IO]): IO[Option[Session]] =
-    sql"SELECT token, user_id, created_at, expires_at FROM sessions WHERE token = $token"
+    sql"SELECT token, user_id, created_at, expires_at FROM sessions WHERE token = $token AND expires_at >= ${Instant.now().toString}"
       .query[(SessionToken, UserId, Instant, Instant)]
       .option
       .transact(xa)
