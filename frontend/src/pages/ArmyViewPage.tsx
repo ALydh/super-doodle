@@ -123,7 +123,7 @@ export function ArmyViewPage() {
   );
   const [inventory, setInventory] = useState<Map<string, number> | null>(null);
 
-  // Edit data state (loaded alongside view data)
+  // Edit data state (lazy-loaded when entering edit mode)
   const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
   const [allCosts, setAllCosts] = useState<UnitCost[]>([]);
   const [allOptions, setAllOptions] = useState<DatasheetOption[]>([]);
@@ -180,9 +180,6 @@ export function ArmyViewPage() {
           fetchEnhancementsByFaction(data.factionId),
           fetchDetachmentsByFaction(data.factionId),
           data.detachmentId ? fetchDetachmentAbilities(data.detachmentId) : Promise.resolve([]),
-          fetchDatasheetDetailsByFaction(data.factionId),
-          fetchLeadersByFaction(data.factionId),
-          fetchAvailableAllies(data.factionId),
         ]);
       })
       .then((results) => {
@@ -192,38 +189,16 @@ export function ArmyViewPage() {
           console.error("Failed to load data:", r.reason);
           return fallback;
         };
-        const [strat, enh, det, abilities, details, ldr, allies] = [
+        const [strat, enh, det, abilities] = [
           extract(results[0], []),
           extract(results[1], []),
           extract(results[2], []),
           extract(results[3], []),
-          extract(results[4], []),
-          extract(results[5], []),
-          extract(results[6], []),
         ];
         setStratagems(strat);
         setEnhancements(enh);
         setDetachments(det);
         setDetachmentAbilities(abilities as DetachmentAbility[]);
-        setAllCosts(details.flatMap((d) => d.costs));
-        setAllOptions(details.flatMap((d) => d.options));
-        setDatasheets(details.map((d) => d.datasheet));
-        const kwMap = new Map<string, DatasheetKeyword[]>();
-        const profMap = new Map<string, ModelProfile[]>();
-        for (const d of details) {
-          kwMap.set(d.datasheet.id, d.keywords);
-          profMap.set(d.datasheet.id, d.profiles);
-        }
-        setKeywordsByDatasheet(kwMap);
-        setProfilesByDatasheet(profMap);
-        setLeaders(ldr);
-        setAlliedFactions(allies);
-        if (allies.length > 0) {
-          Promise.all(allies.map((a) => fetchDatasheetDetailsByFaction(a.factionId)))
-            .then((alliedDetails) => {
-              if (!cancelled) setAlliedCosts(alliedDetails.flatMap((d) => d.flatMap((dd) => dd.costs)));
-            });
-        }
       })
       .catch((e) => {
         if (!cancelled) setError(e.message);
@@ -231,6 +206,40 @@ export function ArmyViewPage() {
 
     return () => { cancelled = true; };
   }, [armyId, isEditRoute]);
+
+  useEffect(() => {
+    if (!isEditing || !battleData) return;
+    let cancelled = false;
+
+    Promise.all([
+      fetchDatasheetDetailsByFaction(battleData.factionId),
+      fetchLeadersByFaction(battleData.factionId),
+      fetchAvailableAllies(battleData.factionId),
+    ]).then(([details, ldr, allies]) => {
+      if (cancelled) return;
+      setAllCosts(details.flatMap((d) => d.costs));
+      setAllOptions(details.flatMap((d) => d.options));
+      setDatasheets(details.map((d) => d.datasheet));
+      const kwMap = new Map<string, DatasheetKeyword[]>();
+      const profMap = new Map<string, ModelProfile[]>();
+      for (const d of details) {
+        kwMap.set(d.datasheet.id, d.keywords);
+        profMap.set(d.datasheet.id, d.profiles);
+      }
+      setKeywordsByDatasheet(kwMap);
+      setProfilesByDatasheet(profMap);
+      setLeaders(ldr);
+      setAlliedFactions(allies);
+      if (allies.length > 0) {
+        Promise.all(allies.map((a) => fetchDatasheetDetailsByFaction(a.factionId)))
+          .then((alliedDetails) => {
+            if (!cancelled) setAlliedCosts(alliedDetails.flatMap((d) => d.flatMap((dd) => dd.costs)));
+          });
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [isEditing, battleData?.factionId]);
 
   useEffect(() => {
     if (!isEditing || !editDetachmentId) return;
