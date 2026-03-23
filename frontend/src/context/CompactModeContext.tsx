@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, type ReactNode } from "react";
+import { createContext, useState, useEffect, useContext, type ReactNode } from "react";
 
 interface CompactModeContextType {
   compact: boolean;
@@ -11,6 +11,15 @@ const STORAGE_KEY = "compact_mode";
 
 export function CompactModeProvider({ children }: { children: ReactNode }) {
   const [compact, setCompact] = useState(() => localStorage.getItem(STORAGE_KEY) === "true");
+
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY) return;
+      setCompact(e.newValue === "true");
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   const toggleCompact = () => {
     setCompact((prev) => {
