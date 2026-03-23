@@ -146,10 +146,10 @@ export function ArmyViewPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editDetachmentAbilities, setEditDetachmentAbilities] = useState<DetachmentAbility[]>([]);
   const [expandedViewIds, setExpandedViewIds] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:view`) ?? "[]")); } catch { return new Set(); }
+    try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:view`) ?? "[]")); } catch (e) { console.error("Failed to parse session storage (view):", e); return new Set(); }
   });
   const [expandedEditIndices, setExpandedEditIndices] = useState<Set<number>>(() => {
-    try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:edit`) ?? "[]")); } catch { return new Set(); }
+    try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:edit`) ?? "[]")); } catch (e) { console.error("Failed to parse session storage (edit):", e); return new Set(); }
   });
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
