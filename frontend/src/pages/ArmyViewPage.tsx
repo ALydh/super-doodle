@@ -1,27 +1,8 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { useParams, useNavigate, useMatch } from "react-router-dom";
-import type {
-  Stratagem, DetachmentAbility, Enhancement, DetachmentInfo, ArmyBattleData, BattleUnitData,
-  Army, ArmyUnit, Datasheet, UnitCost, DatasheetOption, ValidationError, DatasheetKeyword,
-  AlliedFactionInfo, DatasheetLeader, ModelProfile,
-} from "../types";
-import { sortByRoleOrder } from "../constants";
+import type { Stratagem } from "../types";
 import { BATTLE_SIZE_POINTS, BattleSize } from "../types";
-import {
-  fetchArmyForBattle,
-  deleteArmy,
-  createArmy,
-  fetchStratagemsByFaction,
-  fetchDetachmentAbilities,
-  fetchEnhancementsByFaction,
-  fetchDetachmentsByFaction,
-  fetchInventory,
-  fetchDatasheetDetailsByFaction,
-  fetchLeadersByFaction,
-  fetchAvailableAllies,
-  updateArmy,
-  validateArmy,
-} from "../api";
+import { deleteArmy } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { getChapterTheme, isSpaceMarines, SM_CHAPTERS, CHAPTER_DETACHMENTS, ALL_CHAPTER_DETACHMENT_IDS } from "../chapters";
 import { useAuth } from "../context/useAuth";
@@ -40,33 +21,13 @@ import { ReferenceDataProvider } from "../context/ReferenceDataContext";
 import { PointsDisplay } from "./PointsDisplay";
 import { DetachmentAbilitiesSection } from "./DetachmentAbilitiesSection";
 import { StrategemsSection } from "./StrategemsSection";
+import { useArmyData } from "./army-view/useArmyData";
+import { useSessionStorage } from "./army-view/useSessionStorage";
+import { useEditMode } from "./army-view/useEditMode";
+import { useChecklistNotes } from "./army-view/useChecklistNotes";
+import { handleCopy, handleExportJson, handleExportTxt } from "./army-view/exportHandlers";
 import styles from "./ArmyViewPage.module.css";
 import builderStyles from "./ArmyBuilderPage.module.css";
-
-interface RoleGroup {
-  role: string;
-  units: BattleUnitData[];
-}
-
-function unitsByRole(units: BattleUnitData[], warlordId: string): RoleGroup[] {
-  const byRole: Record<string, BattleUnitData[]> = {};
-  for (const u of units) {
-    const role = u.datasheet.role ?? "Other";
-    if (!byRole[role]) byRole[role] = [];
-    byRole[role].push(u);
-  }
-
-  return sortByRoleOrder(Object.keys(byRole)).map((role) => ({
-    role,
-    units: byRole[role].sort((a, b) => {
-      const aIsWarlord = a.unit.datasheetId === warlordId;
-      const bIsWarlord = b.unit.datasheetId === warlordId;
-      if (aIsWarlord && !bIsWarlord) return -1;
-      if (!aIsWarlord && bIsWarlord) return 1;
-      return 0;
-    }),
-  }));
-}
 
 type TabId = "units" | "stratagems" | "detachment" | "shopping" | "checklist";
 
@@ -82,224 +43,62 @@ const TABS_WITH_SHOPPING = [
   { id: "shopping" as const, label: "Shopping List" },
 ];
 
-function migrateBattleData(data: ArmyBattleData): ArmyBattleData {
-  const claimedIndices = new Set<number>();
-  data.units = data.units.map(bu => {
-    if (!bu.unit.attachedLeaderId || bu.unit.attachedToUnitIndex != null) return bu;
-    const bodyguardIndex = data.units.findIndex((other, i) =>
-      other.unit.datasheetId === bu.unit.attachedLeaderId && !claimedIndices.has(i)
-    );
-    if (bodyguardIndex >= 0) claimedIndices.add(bodyguardIndex);
-    return { ...bu, unit: { ...bu.unit, attachedToUnitIndex: bodyguardIndex >= 0 ? bodyguardIndex : null } };
-  });
-  return data;
-}
-
 export function ArmyViewPage() {
   const { armyId } = useParams<{ armyId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isEditRoute = useMatch("/armies/:armyId/edit");
+  const isEditRoute = !!useMatch("/armies/:armyId/edit");
 
-  // View state
-  const [battleData, setBattleData] = useState<ArmyBattleData | null>(null);
-  const [checklistNotes, setChecklistNotes] = useState<Record<string, string>>({});
-  const [stratagems, setStratagems] = useState<Stratagem[]>([]);
-  const [detachmentAbilities, setDetachmentAbilities] = useState<DetachmentAbility[]>([]);
-  const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
-  const [detachments, setDetachments] = useState<DetachmentInfo[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>(() =>
-    (sessionStorage.getItem(`avp:${armyId}:activeTab`) as TabId | null) ?? "units"
-  );
-  const [searchQuery, setSearchQuery] = useState(() =>
-    sessionStorage.getItem(`avp:${armyId}:searchQuery`) ?? ""
-  );
-  const [stratagemPhaseFilter, setStratagemPhaseFilter] = useState(() =>
-    sessionStorage.getItem(`avp:${armyId}:stratPhaseFilter`) ?? "all"
-  );
-  const [stratagemTurnFilter, setStratagemTurnFilter] = useState(() =>
-    sessionStorage.getItem(`avp:${armyId}:stratTurnFilter`) ?? "all"
-  );
-  const [inventory, setInventory] = useState<Map<string, number> | null>(null);
+  const armyData = useArmyData(armyId, isEditRoute);
+  const {
+    battleData, setBattleData,
+    stratagems, detachmentAbilities, enhancements, detachments,
+    error, inventory,
+    datasheets, allCosts, allOptions, keywordsByDatasheet,
+    alliedCosts, alliedFactions, leaders, profilesByDatasheet,
+    isEditing, setIsEditing,
+    roleGroups, totalPoints, maxPoints,
+  } = armyData;
 
-  // Edit data state (lazy-loaded when entering edit mode)
-  const [datasheets, setDatasheets] = useState<Datasheet[]>([]);
-  const [allCosts, setAllCosts] = useState<UnitCost[]>([]);
-  const [allOptions, setAllOptions] = useState<DatasheetOption[]>([]);
-  const [keywordsByDatasheet, setKeywordsByDatasheet] = useState<Map<string, DatasheetKeyword[]>>(new Map());
-  const [alliedCosts, setAlliedCosts] = useState<UnitCost[]>([]);
-  const [alliedFactions, setAlliedFactions] = useState<AlliedFactionInfo[]>([]);
-  const [leaders, setLeaders] = useState<DatasheetLeader[]>([]);
-  const [profilesByDatasheet, setProfilesByDatasheet] = useState<Map<string, ModelProfile[]>>(new Map());
+  const session = useSessionStorage(armyId);
+  const {
+    activeTab, setActiveTab,
+    searchQuery, setSearchQuery,
+    stratagemPhaseFilter, setStratagemPhaseFilter,
+    stratagemTurnFilter, setStratagemTurnFilter,
+    expandedViewIds, handleToggleViewExpanded,
+    expandedEditIndices, handleToggleEditExpanded,
+  } = session;
 
-  // Edit mode state
-  const [isEditing, setIsEditing] = useState(!!isEditRoute);
-  const [editName, setEditName] = useState("");
-  const [editBattleSize, setEditBattleSize] = useState<BattleSize>("StrikeForce");
-  const [editDetachmentId, setEditDetachmentId] = useState("");
-  const [editWarlordId, setEditWarlordId] = useState("");
-  const [editChapterId, setEditChapterId] = useState<string | null>(null);
-  const [editUnits, setEditUnits] = useState<ArmyUnit[]>([]);
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [editDetachmentAbilities, setEditDetachmentAbilities] = useState<DetachmentAbility[]>([]);
-  const [expandedViewIds, setExpandedViewIds] = useState<Set<string>>(() => {
-    try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:view`) ?? "[]")); } catch (e) { console.error("Failed to parse session storage (view):", e); return new Set(); }
-  });
-  const [expandedEditIndices, setExpandedEditIndices] = useState<Set<number>>(() => {
-    try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:edit`) ?? "[]")); } catch (e) { console.error("Failed to parse session storage (edit):", e); return new Set(); }
-  });
+  const edit = useEditMode(armyId, battleData, setBattleData, isEditing, setIsEditing, isEditRoute, navigate);
+  const {
+    editName, setEditName,
+    editBattleSize, setEditBattleSize,
+    editDetachmentId, setEditDetachmentId,
+    editWarlordId, editChapterId, setEditChapterId,
+    editUnits,
+    validationErrors,
+    pickerOpen, setPickerOpen,
+    settingsOpen, setSettingsOpen,
+    editDetachmentAbilities,
+    enterEdit, handleCancel, handleSave,
+    handleAddUnit, handleUpdateUnit, handleRemoveUnit, handleCopyUnit, handleSetWarlord,
+  } = edit;
 
-  const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const notesTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const editInitRef = useRef(false);
+  const { checklistNotes, setChecklistNotes } = useChecklistNotes(armyId, battleData);
 
-  useEffect(() => {
-    if (!armyId) return;
-    let cancelled = false;
-
-    fetchArmyForBattle(armyId)
-      .then((data) => {
-        if (cancelled) return;
-        const migratedData = migrateBattleData(data);
-        setBattleData(migratedData);
-        setChecklistNotes(migratedData.checklistNotes ?? {});
-        if (isEditRoute) {
-          editInitRef.current = true;
-          setEditName(data.name);
-          setEditBattleSize(data.battleSize as BattleSize);
-          setEditDetachmentId(data.detachmentId);
-          setEditWarlordId(data.warlordId);
-          setEditChapterId(data.chapterId);
-          setEditUnits(data.units.map(bu => bu.unit));
-        }
-        return Promise.allSettled([
-          fetchStratagemsByFaction(data.factionId),
-          fetchEnhancementsByFaction(data.factionId),
-          fetchDetachmentsByFaction(data.factionId),
-          data.detachmentId ? fetchDetachmentAbilities(data.detachmentId) : Promise.resolve([]),
-        ]);
-      })
-      .then((results) => {
-        if (cancelled || !results) return;
-        const extract = <T,>(r: PromiseSettledResult<T>, fallback: T): T => {
-          if (r.status === "fulfilled") return r.value;
-          console.error("Failed to load data:", r.reason);
-          return fallback;
-        };
-        const [strat, enh, det, abilities] = [
-          extract(results[0], []),
-          extract(results[1], []),
-          extract(results[2], []),
-          extract(results[3], []),
-        ];
-        setStratagems(strat);
-        setEnhancements(enh);
-        setDetachments(det);
-        setDetachmentAbilities(abilities as DetachmentAbility[]);
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e.message);
-      });
-
-    return () => { cancelled = true; };
-  }, [armyId, isEditRoute]);
-
-  useEffect(() => {
-    if (!isEditing || !battleData) return;
-    let cancelled = false;
-
-    Promise.all([
-      fetchDatasheetDetailsByFaction(battleData.factionId),
-      fetchLeadersByFaction(battleData.factionId),
-      fetchAvailableAllies(battleData.factionId),
-    ]).then(([details, ldr, allies]) => {
-      if (cancelled) return;
-      setAllCosts(details.flatMap((d) => d.costs));
-      setAllOptions(details.flatMap((d) => d.options));
-      setDatasheets(details.map((d) => d.datasheet));
-      const kwMap = new Map<string, DatasheetKeyword[]>();
-      const profMap = new Map<string, ModelProfile[]>();
-      for (const d of details) {
-        kwMap.set(d.datasheet.id, d.keywords);
-        profMap.set(d.datasheet.id, d.profiles);
-      }
-      setKeywordsByDatasheet(kwMap);
-      setProfilesByDatasheet(profMap);
-      setLeaders(ldr);
-      setAlliedFactions(allies);
-      if (allies.length > 0) {
-        Promise.all(allies.map((a) => fetchDatasheetDetailsByFaction(a.factionId)))
-          .then((alliedDetails) => {
-            if (!cancelled) setAlliedCosts(alliedDetails.flatMap((d) => d.flatMap((dd) => dd.costs)));
-          });
-      }
-    });
-
-    return () => { cancelled = true; };
-  }, [isEditing, battleData?.factionId]);
-
-  useEffect(() => {
-    if (!isEditing || !editDetachmentId) return;
-    fetchDetachmentAbilities(editDetachmentId).then(setEditDetachmentAbilities);
-  }, [isEditing, editDetachmentId]);
-
-  useEffect(() => {
-    if (!isEditing || !editDetachmentId || !battleData) return;
-    clearTimeout(validateTimerRef.current);
-    validateTimerRef.current = setTimeout(() => {
-      if (editUnits.length > 0) {
-        const army: Army = {
-          factionId: battleData.factionId,
-          battleSize: editBattleSize,
-          detachmentId: editDetachmentId,
-          warlordId: editWarlordId || (editUnits[0]?.datasheetId ?? ""),
-          units: editUnits,
-          chapterId: editChapterId,
-        };
-        validateArmy(army).then((res) => setValidationErrors(res.errors));
-      } else {
-        setValidationErrors([]);
-      }
-    }, 500);
-    return () => clearTimeout(validateTimerRef.current);
-  }, [isEditing, editUnits, editBattleSize, editDetachmentId, editWarlordId, editChapterId, battleData]);
-
-  useEffect(() => {
-    if (!user) return;
-    fetchInventory().then((entries) => {
-      const map = new Map<string, number>();
-      for (const e of entries) {
-        map.set(e.datasheetId, e.quantity);
-      }
-      setInventory(map);
-    }).catch(() => {});
-  }, [user]);
-
-  useEffect(() => {
-    if (!armyId || !battleData) return;
-    clearTimeout(notesTimerRef.current);
-    notesTimerRef.current = setTimeout(() => {
-      const army: Army = {
-        factionId: battleData.factionId,
-        battleSize: battleData.battleSize as BattleSize,
-        detachmentId: battleData.detachmentId,
-        warlordId: battleData.warlordId,
-        units: battleData.units.map((bu) => bu.unit),
-        chapterId: battleData.chapterId,
-        checklistNotes,
-      };
-      updateArmy(armyId, battleData.name, army).catch(() => {});
-    }, 1000);
-    return () => clearTimeout(notesTimerRef.current);
-  }, [checklistNotes]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:activeTab`, activeTab); }, [armyId, activeTab]);
-  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:searchQuery`, searchQuery); }, [armyId, searchQuery]);
-  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:stratPhaseFilter`, stratagemPhaseFilter); }, [armyId, stratagemPhaseFilter]);
-  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:stratTurnFilter`, stratagemTurnFilter); }, [armyId, stratagemTurnFilter]);
+  const filteredRoleGroups = useMemo(() => {
+    if (!searchQuery.trim()) return roleGroups;
+    const query = searchQuery.toLowerCase();
+    return roleGroups
+      .map((rg) => ({
+        role: rg.role,
+        units: rg.units.filter((u) =>
+          u.datasheet.name.toLowerCase().includes(query)
+        ),
+      }))
+      .filter((rg) => rg.units.length > 0);
+  }, [roleGroups, searchQuery]);
 
   const shoppingList = useMemo(() => {
     if (!battleData || !inventory) return [];
@@ -324,13 +123,7 @@ export function ArmyViewPage() {
     const list: { datasheetId: string; name: string; needed: number; owned: number; missing: number }[] = [];
     for (const [dsId, { name, models }] of needed) {
       const owned = inventory.get(dsId) ?? 0;
-      list.push({
-        datasheetId: dsId,
-        name,
-        needed: models,
-        owned,
-        missing: Math.max(0, models - owned),
-      });
+      list.push({ datasheetId: dsId, name, needed: models, owned, missing: Math.max(0, models - owned) });
     }
 
     return list.sort((a, b) => {
@@ -340,194 +133,9 @@ export function ArmyViewPage() {
     });
   }, [battleData, inventory]);
 
-  const roleGroups = useMemo(() => {
-    if (!battleData) return [];
-    return unitsByRole(battleData.units, battleData.warlordId);
-  }, [battleData]);
-
-  const filteredRoleGroups = useMemo(() => {
-    if (!searchQuery.trim()) return roleGroups;
-    const query = searchQuery.toLowerCase();
-    return roleGroups
-      .map((rg) => ({
-        role: rg.role,
-        units: rg.units.filter((u) =>
-          u.datasheet.name.toLowerCase().includes(query)
-        ),
-      }))
-      .filter((rg) => rg.units.length > 0);
-  }, [roleGroups, searchQuery]);
-
-  const totalPoints = useMemo(() => {
-    if (!battleData) return 0;
-    return battleData.units.reduce((sum, u) => {
-      const unitCost = u.cost?.cost ?? 0;
-      const enhancementCost = u.enhancement?.cost ?? 0;
-      return sum + unitCost + enhancementCost;
-    }, 0);
-  }, [battleData]);
-
-  const handleToggleViewExpanded = (id: string) => {
-    setExpandedViewIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      sessionStorage.setItem(`avp:${armyId}:view`, JSON.stringify([...next]));
-      return next;
-    });
-  };
-
-  const handleToggleEditExpanded = (index: number) => {
-    setExpandedEditIndices((prev) => {
-      const next = new Set(prev);
-      if (next.has(index)) next.delete(index); else next.add(index);
-      sessionStorage.setItem(`avp:${armyId}:edit`, JSON.stringify([...next]));
-      return next;
-    });
-  };
-
-  const enterEdit = () => {
-    if (!battleData) return;
-    editInitRef.current = true;
-    setEditName(battleData.name);
-    setEditBattleSize(battleData.battleSize as BattleSize);
-    setEditDetachmentId(battleData.detachmentId);
-    setEditWarlordId(battleData.warlordId);
-    setEditChapterId(battleData.chapterId);
-    setEditUnits(battleData.units.map(bu => bu.unit));
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    editInitRef.current = false;
-    if (isEditRoute) navigate(`/armies/${armyId}`);
-  };
-
-  const handleSave = async () => {
-    if (!armyId || !battleData) return;
-    const army: Army = {
-      factionId: battleData.factionId,
-      battleSize: editBattleSize,
-      detachmentId: editDetachmentId,
-      warlordId: editWarlordId || (editUnits[0]?.datasheetId ?? ""),
-      units: editUnits,
-      chapterId: editChapterId,
-    };
-    await updateArmy(armyId, editName, army);
-    const data = await fetchArmyForBattle(armyId);
-    setBattleData(migrateBattleData(data));
-    setIsEditing(false);
-    editInitRef.current = false;
-    navigate(`/armies/${armyId}`);
-  };
-
-  const handleAddUnit = (datasheetId: string, sizeOptionLine: number, isAllied?: boolean) => {
-    setEditUnits(prev => [...prev, { datasheetId, sizeOptionLine, enhancementId: null, attachedLeaderId: null, attachedToUnitIndex: null, wargearSelections: [], isAllied }]);
-  };
-  const handleUpdateUnit = (index: number, unit: ArmyUnit) => {
-    setEditUnits(prev => { const next = [...prev]; next[index] = unit; return next; });
-  };
-  const handleRemoveUnit = (index: number) => {
-    setEditUnits(prev => prev.filter((_, i) => i !== index));
-  };
-  const handleCopyUnit = (index: number) => {
-    setEditUnits(prev => { const u = prev[index]; return [...prev, { ...u, enhancementId: null, attachedLeaderId: null, attachedToUnitIndex: null }]; });
-  };
-  const handleSetWarlord = (index: number) => {
-    setEditWarlordId(editUnits[index].datasheetId);
-  };
-
-  const buildViewArmy = (): Army => ({
-    factionId: battleData!.factionId,
-    battleSize: battleData!.battleSize as BattleSize,
-    detachmentId: battleData!.detachmentId,
-    warlordId: battleData!.warlordId,
-    units: battleData!.units.map((bu) => bu.unit),
-    chapterId: battleData!.chapterId,
-  });
-
-  const handleCopy = async () => {
-    if (!battleData) return;
-    const persisted = await createArmy(`${battleData.name} (Copy)`, buildViewArmy());
-    navigate(`/armies/${persisted.id}`);
-  };
-
-  const handleExport = () => {
-    if (!battleData) return;
-    const army = buildViewArmy();
-    const readableUnits = army.units.map((u, i) => {
-      const bu = battleData.units[i];
-      const models = bu.cost?.description.match(/(\d+)\s*model/i)?.[1];
-      return {
-        _name: bu.datasheet.name,
-        ...(models ? { _models: parseInt(models, 10) } : {}),
-        ...u,
-      };
-    });
-    const payload = JSON.stringify({ name: battleData.name, army: { ...army, units: readableUnits } }, null, 2);
-    const blob = new Blob([payload], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${battleData.name}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleExportTxt = () => {
-    if (!battleData) return;
-    const lines: string[] = [];
-    lines.push(battleData.name);
-    lines.push(`${battleData.battleSize} — ${totalPoints}pts`);
-    lines.push("");
-
-    const attached = new Map<number, BattleUnitData[]>();
-    battleData.units.forEach((bu) => {
-      if (bu.unit.attachedToUnitIndex != null) {
-        const list = attached.get(bu.unit.attachedToUnitIndex) ?? [];
-        list.push(bu);
-        attached.set(bu.unit.attachedToUnitIndex, list);
-      }
-    });
-
-    const printed = new Set<number>();
-    battleData.units.forEach((bu, i) => {
-      if (printed.has(i)) return;
-      printed.add(i);
-      const models = bu.cost?.description.match(/(\d+)\s*model/i)?.[1];
-      const pts = (bu.cost?.cost ?? 0) + (bu.enhancement?.cost ?? 0);
-      let line = `${bu.datasheet.name}`;
-      if (models) line += ` (${models})`;
-      line += ` — ${pts}pts`;
-      if (bu.enhancement) line += ` [${bu.enhancement.name}]`;
-      lines.push(line);
-
-      const leaders = attached.get(i);
-      if (leaders) {
-        for (const leader of leaders) {
-          printed.add(battleData.units.indexOf(leader));
-          const lPts = (leader.cost?.cost ?? 0) + (leader.enhancement?.cost ?? 0);
-          let lLine = `  ↳ ${leader.datasheet.name} — ${lPts}pts`;
-          if (leader.enhancement) lLine += ` [${leader.enhancement.name}]`;
-          lines.push(lLine);
-        }
-      }
-    });
-
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${battleData.name}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const handleDelete = async () => {
     if (!armyId) return;
-    if (!window.confirm("Are you sure you want to delete this army? This cannot be undone.")) {
-      return;
-    }
+    if (!window.confirm("Are you sure you want to delete this army? This cannot be undone.")) return;
     await deleteArmy(armyId);
     navigate("/");
   };
@@ -535,7 +143,6 @@ export function ArmyViewPage() {
   if (error) return <ErrorMessage message={error} />;
   if (!battleData) return <Spinner />;
 
-  const maxPoints = BATTLE_SIZE_POINTS[battleData.battleSize as BattleSize] ?? 0;
   const baseFactionTheme = getFactionTheme(battleData.factionId);
   const isSM = isSpaceMarines(battleData.factionId);
   const viewChapterTheme = isSM && battleData.chapterId ? getChapterTheme(battleData.chapterId) : null;
@@ -666,10 +273,10 @@ export function ArmyViewPage() {
             </p>
           </div>
           <div className={styles.actions}>
-            <button className={styles.exportBtn} onClick={handleExport} aria-label="Export as JSON">Export</button>
-            <button className={styles.exportTxtBtn} onClick={handleExportTxt} aria-label="Export as text">Text</button>
+            <button className={styles.exportBtn} onClick={() => handleExportJson(battleData)} aria-label="Export as JSON">Export</button>
+            <button className={styles.exportTxtBtn} onClick={() => handleExportTxt(battleData, totalPoints)} aria-label="Export as text">Text</button>
             {user && (
-              <button className={styles.copyBtn} onClick={handleCopy} aria-label="Copy army">Copy</button>
+              <button className={styles.copyBtn} onClick={() => handleCopy(battleData, navigate)} aria-label="Copy army">Copy</button>
             )}
             {user && (
               <button className={styles.editBtn} onClick={enterEdit} aria-label="Edit army">Edit</button>
