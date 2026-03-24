@@ -136,4 +136,66 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
       .query[Int].unique.transact(xa).unsafeRunSync()
     unitCount shouldBe 0
   }
+
+  // Concurrent update tests
+
+  private val updatedArmy = testArmy.copy(
+    battleSize = BattleSize.Onslaught,
+    units = List(ArmyUnit(warbossId, 1, None, None))
+  )
+
+  "concurrent updates" should "produce a consistent final state" in {
+    val id = UUID.randomUUID().toString
+    ArmyRepository.create(id, "Original", testArmy, None)(xa).unsafeRunSync()
+
+    val update1 = ArmyRepository.update(id, "Update A", updatedArmy)(xa)
+    val update2 = ArmyRepository.update(id, "Update B", testArmy)(xa)
+
+    IO.both(update1, update2).unsafeRunSync()
+
+    val result = ArmyRepository.findById(id)(xa).unsafeRunSync().get
+    Set("Update A", "Update B") should contain(result.name)
+    result.army.units should not be empty
+  }
+
+  "concurrent deletes" should "return true for one and false for the other" in {
+    val id = UUID.randomUUID().toString
+    ArmyRepository.create(id, "To Delete", testArmy, None)(xa).unsafeRunSync()
+
+    val (r1, r2) = IO.both(
+      ArmyRepository.delete(id)(xa),
+      ArmyRepository.delete(id)(xa)
+    ).unsafeRunSync()
+
+    Seq(r1, r2).count(_ == true) shouldBe 1
+    Seq(r1, r2).count(_ == false) shouldBe 1
+  }
+
+  "rapid sequential updates" should "leave final state matching last update" in {
+    val id = UUID.randomUUID().toString
+    ArmyRepository.create(id, "Original", testArmy, None)(xa).unsafeRunSync()
+
+    (1 to 10).foreach { i =>
+      val army = testArmy.copy(units = List(ArmyUnit(warbossId, 1, None, None)))
+      ArmyRepository.update(id, s"Update $i", army)(xa).unsafeRunSync()
+    }
+
+    val result = ArmyRepository.findById(id)(xa).unsafeRunSync().get
+    result.name shouldBe "Update 10"
+    result.army.units.size shouldBe 1
+  }
+
+  "read during write" should "return a complete army state, never partial" in {
+    val id = UUID.randomUUID().toString
+    ArmyRepository.create(id, "Original", testArmy, None)(xa).unsafeRunSync()
+
+    val write = ArmyRepository.update(id, "Updated", updatedArmy)(xa)
+    val read = ArmyRepository.findById(id)(xa)
+
+    val (_, readResult) = IO.both(write, read).unsafeRunSync()
+
+    readResult shouldBe defined
+    val army = readResult.get.army
+    Set(testArmy.units.size, updatedArmy.units.size) should contain(army.units.size)
+  }
 }
