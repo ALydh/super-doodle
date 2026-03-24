@@ -595,16 +595,16 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
   }
 
   // Edge case: simultaneous warlord + enhancement errors
-  "cross-validation edge cases" should "report both warlord and enhancement errors simultaneously" in {
+  "cross-validation edge cases" should "report both invalid warlord and enhancement detachment mismatch simultaneously" in {
     val army = validArmy.copy(
-      warlordId = painboyId,
+      warlordId = boyzId,
       units = List(
-        ArmyUnit(painboyId, 1, Some(wrongDetEnhId), None),
-        ArmyUnit(boyzId, 1, None, None)
+        ArmyUnit(boyzId, 1, None, None),
+        ArmyUnit(painboyId, 1, Some(wrongDetEnhId), None)
       )
     )
     val errors = ArmyValidator.validate(army, baseRef)
-    errors should contain(WarlordNotInArmy(painboyId))
+    errors should contain(InvalidWarlord(boyzId))
     errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, detId))
   }
 
