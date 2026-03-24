@@ -23,7 +23,24 @@ function cachedFetch<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
     return existing.promise as Promise<T>;
   }
 
-  const promise = fetcher();
+  try {
+    const stored = sessionStorage.getItem(`cache:${key}`);
+    if (stored) {
+      const parsed = JSON.parse(stored) as { data: T; timestamp: number };
+      if ((now - parsed.timestamp) < CACHE_TTL_MS) {
+        const promise = Promise.resolve(parsed.data);
+        referenceCache.set(key, { promise, timestamp: parsed.timestamp });
+        return promise;
+      }
+    }
+  } catch { /* ignore parse errors */ }
+
+  const promise = fetcher().then((data) => {
+    try {
+      sessionStorage.setItem(`cache:${key}`, JSON.stringify({ data, timestamp: now }));
+    } catch { /* ignore storage quota errors */ }
+    return data;
+  });
   referenceCache.set(key, { promise, timestamp: now });
   return promise;
 }
