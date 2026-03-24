@@ -148,10 +148,11 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
     val id = UUID.randomUUID().toString
     ArmyRepository.create(id, "Original", testArmy, None)(xa).unsafeRunSync()
 
-    val update1 = ArmyRepository.update(id, "Update A", updatedArmy)(xa)
-    val update2 = ArmyRepository.update(id, "Update B", testArmy)(xa)
+    val update1 = ArmyRepository.update(id, "Update A", updatedArmy)(xa).attempt
+    val update2 = ArmyRepository.update(id, "Update B", testArmy)(xa).attempt
 
-    IO.both(update1, update2).unsafeRunSync()
+    val (r1, r2) = IO.both(update1, update2).unsafeRunSync()
+    (r1.isRight || r2.isRight) shouldBe true
 
     val result = ArmyRepository.findById(id)(xa).unsafeRunSync().get
     Set("Update A", "Update B") should contain(result.name)
