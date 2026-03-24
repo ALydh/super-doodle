@@ -46,6 +46,7 @@ export async function register(username: string, password: string, inviteCode?: 
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password, inviteCode }),
+    credentials: "same-origin",
   });
   if (!res.ok) {
     const err = await res.json();
@@ -59,6 +60,7 @@ export async function login(username: string, password: string): Promise<AuthRes
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
+    credentials: "same-origin",
   });
   if (!res.ok) {
     const err = await res.json();
@@ -71,6 +73,7 @@ export async function logout(): Promise<void> {
   await fetch("/api/auth/logout", {
     method: "POST",
     headers: authHeaders(),
+    credentials: "same-origin",
   });
 }
 
@@ -78,6 +81,7 @@ export async function getCurrentUser(): Promise<User | null> {
   if (!authToken) return null;
   const res = await fetch("/api/auth/me", {
     headers: authHeaders(),
+    credentials: "same-origin",
   });
   if (!res.ok) return null;
   return res.json();
