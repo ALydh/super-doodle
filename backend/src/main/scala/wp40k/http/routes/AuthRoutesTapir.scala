@@ -5,6 +5,7 @@ import cats.implicits.*
 import io.circe.Json
 import org.http4s.HttpRoutes
 import sttp.model.StatusCode
+import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import wp40k.db.{UserRepository, SessionRepository, InviteRepository}
 import wp40k.domain.types.*
@@ -15,6 +16,12 @@ import wp40k.auth.{PasswordHasher, RateLimiter}
 import doobie.*
 
 object AuthRoutesTapir {
+
+  private def sessionCookie(token: String): CookieValueWithMeta =
+    CookieValueWithMeta.unsafeApply(token, httpOnly = true, path = Some("/"))
+
+  private val clearSessionCookie: CookieValueWithMeta =
+    CookieValueWithMeta.unsafeApply("", httpOnly = true, path = Some("/"), maxAge = Some(0))
 
   def routes(xa: Transactor[IO], loginRateLimiter: RateLimiter): HttpRoutes[IO] = {
     val registerRoute = Http4sServerInterpreter[IO]().toRoutes(
@@ -44,10 +51,8 @@ object AuthRoutesTapir {
                         case Some(user) =>
                           InviteRepository.markUsed(code, user.id)(xa) *>
                             SessionRepository.create(user.id)(xa).map { session =>
-                              Right(AuthResponse(
-                                SessionToken.value(session.token),
-                                UserResponse(UserId.value(user.id), user.username, user.isAdmin)
-                              ))
+                              val tokenStr = SessionToken.value(session.token)
+                              Right((AuthResponse(tokenStr, UserResponse(UserId.value(user.id), user.username, user.isAdmin)), sessionCookie(tokenStr)))
                             }
                       }
                   }
@@ -57,10 +62,8 @@ object AuthRoutesTapir {
                       IO.pure(Left((StatusCode.Conflict, Json.obj("error" -> Json.fromString("Username already taken")))))
                     case Some(user) =>
                       SessionRepository.create(user.id)(xa).map { session =>
-                        Right(AuthResponse(
-                          SessionToken.value(session.token),
-                          UserResponse(UserId.value(user.id), user.username, user.isAdmin)
-                        ))
+                        val tokenStr = SessionToken.value(session.token)
+                        Right((AuthResponse(tokenStr, UserResponse(UserId.value(user.id), user.username, user.isAdmin)), sessionCookie(tokenStr)))
                       }
                   }
                 }
@@ -85,10 +88,8 @@ object AuthRoutesTapir {
                     IO.pure(Left((StatusCode.Unauthorized, Json.obj("error" -> Json.fromString("Invalid credentials")))))
                   case true =>
                     SessionRepository.create(user.id)(xa).map { session =>
-                      Right(AuthResponse(
-                        SessionToken.value(session.token),
-                        UserResponse(UserId.value(user.id), user.username, user.isAdmin)
-                      ))
+                      val tokenStr = SessionToken.value(session.token)
+                      Right((AuthResponse(tokenStr, UserResponse(UserId.value(user.id), user.username, user.isAdmin)), sessionCookie(tokenStr)))
                     }
                 }
             }
@@ -110,11 +111,12 @@ object AuthRoutesTapir {
           }
         }
         .serverLogic { tokenOpt => _ =>
+          val msg = Json.obj("message" -> Json.fromString("Logged out"))
           tokenOpt match {
             case Some(tokenStr) =>
-              SessionRepository.delete(SessionToken(tokenStr))(xa).as(Right(Json.obj("message" -> Json.fromString("Logged out"))))
+              SessionRepository.delete(SessionToken(tokenStr))(xa).as(Right((msg, clearSessionCookie)))
             case None =>
-              IO.pure(Right(Json.obj("message" -> Json.fromString("Logged out"))))
+              IO.pure(Right((msg, clearSessionCookie)))
           }
         }
     )
