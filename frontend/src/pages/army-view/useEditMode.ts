@@ -20,31 +20,20 @@ export function useEditMode(
   isEditRoute: boolean,
   navigate: (path: string) => void,
 ) {
-  const [editName, setEditName] = useState("");
-  const [editBattleSize, setEditBattleSize] = useState<BattleSize>("StrikeForce");
-  const [editDetachmentId, setEditDetachmentId] = useState("");
-  const [editWarlordId, setEditWarlordId] = useState("");
-  const [editChapterId, setEditChapterId] = useState<string | null>(null);
-  const [editUnits, setEditUnits] = useState<ArmyUnit[]>([]);
+  const init = isEditRoute && battleData;
+  const [editName, setEditName] = useState(init ? battleData.name : "");
+  const [editBattleSize, setEditBattleSize] = useState<BattleSize>(init ? battleData.battleSize as BattleSize : "StrikeForce");
+  const [editDetachmentId, setEditDetachmentId] = useState(init ? battleData.detachmentId : "");
+  const [editWarlordId, setEditWarlordId] = useState(init ? battleData.warlordId : "");
+  const [editChapterId, setEditChapterId] = useState<string | null>(init ? battleData.chapterId : null);
+  const [editUnits, setEditUnits] = useState<ArmyUnit[]>(init ? battleData.units.map(bu => bu.unit) : []);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editDetachmentAbilities, setEditDetachmentAbilities] = useState<DetachmentAbility[]>([]);
 
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const editInitRef = useRef(false);
-
-  useEffect(() => {
-    if (isEditRoute && battleData && !editInitRef.current) {
-      editInitRef.current = true;
-      setEditName(battleData.name);
-      setEditBattleSize(battleData.battleSize as BattleSize);
-      setEditDetachmentId(battleData.detachmentId);
-      setEditWarlordId(battleData.warlordId);
-      setEditChapterId(battleData.chapterId);
-      setEditUnits(battleData.units.map(bu => bu.unit));
-    }
-  }, [isEditRoute, battleData]);
+  const editInitRef = useRef(!!init);
 
   useEffect(() => {
     if (!isEditing || !editDetachmentId) return;

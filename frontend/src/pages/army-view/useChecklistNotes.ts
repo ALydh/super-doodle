@@ -10,14 +10,12 @@ export function useChecklistNotes(
   const initialNotes = useMemo(() => battleData?.checklistNotes ?? {}, [battleData]);
   const [checklistNotes, setChecklistNotes] = useState<Record<string, string>>(initialNotes);
   const notesTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const prevBattleDataRef = useRef(battleData);
 
-  if (battleData !== prevBattleDataRef.current) {
-    prevBattleDataRef.current = battleData;
+  useEffect(() => {
     if (battleData) {
       setChecklistNotes(battleData.checklistNotes ?? {});
     }
-  }
+  }, [battleData]);
 
   useEffect(() => {
     if (!armyId || !battleData) return;
