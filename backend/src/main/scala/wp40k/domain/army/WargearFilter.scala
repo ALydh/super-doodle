@@ -80,17 +80,8 @@ object WargearFilter {
     val baseWeaponCounts = calculateBaseWeaponCounts(loadouts, unitSize, hasUniversal, hasSpecific)
     val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections, baseWeaponCounts)
 
-    allWargear.filter(_.name.isDefined).flatMap { wargear =>
-      val weaponName = wargear.name.map(_.toLowerCase).getOrElse("")
-      val baseCount = findCountByWeaponMatch(weaponName, baseWeaponCounts)
-      val removedCount = findCountByWeaponMatch(weaponName, weaponRemovals)
-      val addedCount = findCountByWeaponMatch(weaponName, weaponAdditions)
-      val finalCount = calculateFinalCount(baseCount, removedCount, addedCount)
-
-      Option.when(finalCount > 0) {
-        val modelType = determineModelType(weaponName, loadouts, weaponAdditions)
-        WargearWithQuantity(wargear, finalCount, modelType)
-      }
+    applyQuantities(allWargear, baseWeaponCounts, weaponRemovals, weaponAdditions) { weaponName =>
+      determineModelType(weaponName, loadouts, weaponAdditions)
     }
   }
 
@@ -111,6 +102,17 @@ object WargearFilter {
     val modelTypes = defaults.flatMap(d => d.modelType.map(d.weapon -> _)).toMap
     val (weaponRemovals, weaponAdditions) = calculateSelectionChanges(parsedOptions, selections, baseWeaponCounts, modelCountsByType)
 
+    applyQuantities(allWargear, baseWeaponCounts, weaponRemovals, weaponAdditions) { weaponName =>
+      modelTypes.find { case (pattern, _) => matchesWeaponPrefix(weaponName, pattern) }.map(_._2)
+    }
+  }
+
+  private def applyQuantities(
+    allWargear: List[Wargear],
+    baseWeaponCounts: Map[String, Int],
+    weaponRemovals: Map[String, Int],
+    weaponAdditions: Map[String, Int]
+  )(resolveModelType: String => Option[String]): List[WargearWithQuantity] =
     allWargear.filter(_.name.isDefined).flatMap { wargear =>
       val weaponName = wargear.name.map(_.toLowerCase).getOrElse("")
       val baseCount = findCountByWeaponMatch(weaponName, baseWeaponCounts)
@@ -119,13 +121,9 @@ object WargearFilter {
       val finalCount = calculateFinalCount(baseCount, removedCount, addedCount)
 
       Option.when(finalCount > 0) {
-        val modelType = modelTypes.find { case (pattern, _) =>
-          matchesWeaponPrefix(weaponName, pattern)
-        }.map(_._2)
-        WargearWithQuantity(wargear, finalCount, modelType)
+        WargearWithQuantity(wargear, finalCount, resolveModelType(weaponName))
       }
     }
-  }
 
   private def calculateBaseWeaponCounts(
     loadouts: List[ModelLoadout],
@@ -135,7 +133,7 @@ object WargearFilter {
   ): Map[String, Int] = {
     if (hasUniversal && !hasSpecific) {
       loadouts.find(_.modelPattern == "*")
-        .map(l => l.weapons.map(_ -> unitSize).toMap)
+        .map(l => weaponsToCountMap(l.weapons, unitSize))
         .getOrElse(Map.empty)
     } else if (hasSpecific) {
       val compositionLines = loadouts.filter(_.modelPattern != "*").map { l =>
@@ -163,6 +161,9 @@ object WargearFilter {
     }
   }
 
+  private def weaponsToCountMap(weapons: List[String], count: Int): Map[String, Int] =
+    weapons.map(_ -> count).toMap
+
   private def calculateSelectionChanges(
     parsedOptions: List[ParsedWargearOption],
     selections: List[WargearSelection],
@@ -179,38 +180,53 @@ object WargearFilter {
           (p.choiceIndex == 0 || selectedChoiceIndexes.contains(p.choiceIndex))
       }
 
-      val removeAllCount = parsed
-        .find(p => p.action == WargearAction.Remove && p.maxCount == 0)
-        .map { removeOpt =>
-          removeOpt.modelTarget match {
-            case Some(target) =>
-              val targetLower = target.toLowerCase
-              modelCountsByType
-                .find { case (k, _) => k.contains(targetLower) || targetLower.contains(k) }
-                .map(_._2)
-                .getOrElse(findCountByWeaponMatch(removeOpt.weaponName.toLowerCase, baseWeaponCounts))
-            case None =>
-              findCountByWeaponMatch(removeOpt.weaponName.toLowerCase, baseWeaponCounts)
-          }
-        }
-        .filter(_ > 0)
-
-      parsed.foldLeft((removals, additions)) { case ((rem, add), p) =>
-        val weaponName = p.weaponName.toLowerCase
-        val count = if (p.maxCount > 0) p.maxCount else removeAllCount.getOrElse(1)
-
-        p.action match {
-          case WargearAction.Remove =>
-            val current = rem.getOrElse(weaponName, 0)
-            val base = findCountByWeaponMatch(weaponName, baseWeaponCounts)
-            val newCount = if (base > 0) (current + count).min(base) else current + count
-            (rem + (weaponName -> newCount), add)
-          case WargearAction.Add =>
-            (rem, add + (weaponName -> (add.getOrElse(weaponName, 0) + count)))
-        }
-      }
+      val removeAllCount = resolveRemoveAllCount(parsed, baseWeaponCounts, modelCountsByType)
+      applyParsedActions(parsed, removals, additions, removeAllCount, baseWeaponCounts)
     }
   }
+
+  private def resolveRemoveAllCount(
+    parsed: List[ParsedWargearOption],
+    baseWeaponCounts: Map[String, Int],
+    modelCountsByType: Map[String, Int]
+  ): Option[Int] =
+    parsed
+      .find(p => p.action == WargearAction.Remove && p.maxCount == 0)
+      .map { removeOpt =>
+        removeOpt.modelTarget match {
+          case Some(target) =>
+            val targetLower = target.toLowerCase
+            modelCountsByType
+              .find { case (k, _) => k.contains(targetLower) || targetLower.contains(k) }
+              .map(_._2)
+              .getOrElse(findCountByWeaponMatch(removeOpt.weaponName.toLowerCase, baseWeaponCounts))
+          case None =>
+            findCountByWeaponMatch(removeOpt.weaponName.toLowerCase, baseWeaponCounts)
+        }
+      }
+      .filter(_ > 0)
+
+  private def applyParsedActions(
+    parsed: List[ParsedWargearOption],
+    removals: Map[String, Int],
+    additions: Map[String, Int],
+    removeAllCount: Option[Int],
+    baseWeaponCounts: Map[String, Int]
+  ): (Map[String, Int], Map[String, Int]) =
+    parsed.foldLeft((removals, additions)) { case ((rem, add), p) =>
+      val weaponName = p.weaponName.toLowerCase
+      val count = if (p.maxCount > 0) p.maxCount else removeAllCount.getOrElse(1)
+
+      p.action match {
+        case WargearAction.Remove =>
+          val current = rem.getOrElse(weaponName, 0)
+          val base = findCountByWeaponMatch(weaponName, baseWeaponCounts)
+          val newCount = if (base > 0) (current + count).min(base) else current + count
+          (rem + (weaponName -> newCount), add)
+        case WargearAction.Add =>
+          (rem, add + (weaponName -> (add.getOrElse(weaponName, 0) + count)))
+      }
+    }
 
   private def determineModelType(
     weaponName: String,
