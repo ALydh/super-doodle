@@ -14,6 +14,8 @@ case class DatasheetOption(
 
 object DatasheetOptionParser extends StreamingCsvParser[DatasheetOption] {
 
+  override protected def expectedColumns: Seq[String] = Seq("datasheet_id", "line", "button", "description")
+
   protected[wp40k] def parseLineWithContext(
     line: String,
     lineNumber: Int,

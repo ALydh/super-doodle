@@ -24,6 +24,11 @@ case class Datasheet(
 
 object DatasheetParser extends StreamingCsvParser[Datasheet] {
 
+  override protected def expectedColumns: Seq[String] = Seq(
+    "id", "name", "faction_id", "source_id", "legend", "role", "loadout",
+    "transport", "virtual", "leader_head", "leader_footer", "damaged_w", "damaged_description", "link"
+  )
+
   protected[wp40k] def parseLineWithContext(
     line: String,
     lineNumber: Int,

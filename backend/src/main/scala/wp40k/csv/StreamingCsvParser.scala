@@ -6,13 +6,33 @@ import fs2.io.file.{Files, Path}
 import wp40k.errors.*
 
 trait StreamingCsvParser[T] {
+
+  protected def expectedColumns: Seq[String] = Seq.empty
+
   def parseStream(path: String): Stream[IO, T] = {
     val filePath = Path(path)
-    Files[IO]
+    val lines = Files[IO]
       .readAll(filePath)
       .through(fs2.text.utf8.decode)
       .through(fs2.text.lines)
-      .drop(1)
+
+    val validated = if (expectedColumns.nonEmpty) {
+      lines.pull.uncons1.flatMap {
+        case Some((headerLine, rest)) =>
+          val headers = CsvHeaders.fromLine(headerLine)
+          headers.validate(expectedColumns*) match {
+            case Left(error) =>
+              fs2.Pull.raiseError[IO](ParseException(addContext(error, 1, path)))
+            case Right(()) =>
+              fs2.Pull.output1(headerLine) >> rest.pull.echo
+          }
+        case None => fs2.Pull.done
+      }.stream.drop(1)
+    } else {
+      lines.drop(1)
+    }
+
+    validated
       .filter(_.trim.nonEmpty)
       .zipWithIndex
       .evalMap { case (line, index) =>
