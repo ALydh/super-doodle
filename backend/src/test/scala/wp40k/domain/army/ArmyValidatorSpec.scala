@@ -593,4 +593,98 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     val errors = ArmyValidator.validate(army, baseRef)
     errors should contain(TooManyLeaders(boyzId, 3, 2))
   }
+
+  // Edge case: simultaneous warlord + enhancement errors
+  "cross-validation edge cases" should "report both invalid warlord and enhancement detachment mismatch simultaneously" in {
+    val army = validArmy.copy(
+      warlordId = boyzId,
+      units = List(
+        ArmyUnit(boyzId, 1, None, None),
+        ArmyUnit(painboyId, 1, Some(wrongDetEnhId), None)
+      )
+    )
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(InvalidWarlord(boyzId))
+    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, detId))
+  }
+
+  it should "report TooManyLeaders for two normal leaders on same bodyguard" in {
+    val army = validArmy.copy(units = List(
+      ArmyUnit(warbossId, 1, None, Some(boyzId)),
+      ArmyUnit(painboyId, 1, None, Some(boyzId)),
+      ArmyUnit(boyzId, 1, None, None)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(TooManyLeaders(boyzId, 2, 1))
+  }
+
+  it should "accept co-leader + normal leader on one bodyguard and separate leader on different bodyguard" in {
+    val army = validArmy.copy(units = List(
+      ArmyUnit(warbossId, 1, None, Some(boyzId)),
+      ArmyUnit(coLeaderId, 1, None, Some(boyzId)),
+      ArmyUnit(painboyId, 1, None, Some(meganobzId)),
+      ArmyUnit(boyzId, 1, None, None),
+      ArmyUnit(meganobzId, 1, None, None)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: TooManyLeaders => e } shouldBe empty
+    errors.collect { case e: InvalidLeaderAttachment => e } shouldBe empty
+  }
+
+  it should "validate enhancement on non-warlord character correctly" in {
+    val army = validArmy.copy(units = List(
+      ArmyUnit(warbossId, 1, None, None),
+      ArmyUnit(painboyId, 1, Some(enhId1), None),
+      ArmyUnit(boyzId, 1, None, None)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: EnhancementOnNonCharacter => e } shouldBe empty
+    errors.collect { case e: EnhancementDetachmentMismatch => e } shouldBe empty
+  }
+
+  it should "report only EnhancementDetachmentMismatch for 3 enhancements with one from wrong detachment" in {
+    val army = validArmy.copy(units = List(
+      ArmyUnit(warbossId, 1, Some(enhId1), None),
+      ArmyUnit(painboyId, 1, Some(enhId2), None),
+      ArmyUnit(ghazId, 1, Some(wrongDetEnhId), None),
+      ArmyUnit(boyzId, 1, None, None)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, detId))
+    errors.collect { case e: TooManyEnhancements => e } shouldBe empty
+  }
+
+  it should "report AlliedEnhancement for allied unit with enhancement" in {
+    val army = imperiumArmy.copy(units = List(
+      ArmyUnit(smCaptainId, 1, None, None),
+      ArmyUnit(knightErrantId, 1, Some(enhId1), None, List.empty, isAllied = true)
+    ))
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(AlliedEnhancement(knightErrantId, enhId1))
+  }
+
+  it should "report WarlordNotInArmy for empty army with warlord set" in {
+    val army = Army(
+      factionId = orkFaction,
+      battleSize = BattleSize.StrikeForce,
+      detachmentId = detId,
+      warlordId = warbossId,
+      units = List.empty
+    )
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors should contain(WarlordNotInArmy(warbossId))
+  }
+
+  it should "accept epic hero as warlord" in {
+    val army = validArmy.copy(
+      warlordId = ghazId,
+      units = List(
+        ArmyUnit(ghazId, 1, None, None),
+        ArmyUnit(boyzId, 1, None, None)
+      )
+    )
+    val errors = ArmyValidator.validate(army, baseRef)
+    errors.collect { case e: InvalidWarlord => e } shouldBe empty
+    errors.collect { case e: WarlordNotInArmy => e } shouldBe empty
+  }
 }
