@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import type { ArmyBattleData, Army } from "../../types";
 import { BattleSize } from "../../types";
 import { updateArmy } from "../../api";
@@ -7,19 +7,20 @@ export function useChecklistNotes(
   armyId: string | undefined,
   battleData: ArmyBattleData | null,
 ) {
-  const [checklistNotes, setChecklistNotes] = useState<Record<string, string>>({});
+  const initialNotes = useMemo(() => battleData?.checklistNotes ?? {}, [battleData]);
+  const [checklistNotes, setChecklistNotes] = useState<Record<string, string>>(initialNotes);
   const notesTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const initializedRef = useRef(false);
+  const prevBattleDataRef = useRef(battleData);
 
-  useEffect(() => {
-    if (battleData && !initializedRef.current) {
-      initializedRef.current = true;
+  if (battleData !== prevBattleDataRef.current) {
+    prevBattleDataRef.current = battleData;
+    if (battleData) {
       setChecklistNotes(battleData.checklistNotes ?? {});
     }
-  }, [battleData]);
+  }
 
   useEffect(() => {
-    if (!armyId || !battleData || !initializedRef.current) return;
+    if (!armyId || !battleData) return;
     clearTimeout(notesTimerRef.current);
     notesTimerRef.current = setTimeout(() => {
       const army: Army = {

@@ -34,17 +34,15 @@ export function useEditMode(
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const editInitRef = useRef(false);
 
-  useEffect(() => {
-    if (isEditRoute && battleData && !editInitRef.current) {
-      editInitRef.current = true;
-      setEditName(battleData.name);
-      setEditBattleSize(battleData.battleSize as BattleSize);
-      setEditDetachmentId(battleData.detachmentId);
-      setEditWarlordId(battleData.warlordId);
-      setEditChapterId(battleData.chapterId);
-      setEditUnits(battleData.units.map(bu => bu.unit));
-    }
-  }, [isEditRoute, battleData]);
+  if (isEditRoute && battleData && !editInitRef.current) {
+    editInitRef.current = true;
+    setEditName(battleData.name);
+    setEditBattleSize(battleData.battleSize as BattleSize);
+    setEditDetachmentId(battleData.detachmentId);
+    setEditWarlordId(battleData.warlordId);
+    setEditChapterId(battleData.chapterId);
+    setEditUnits(battleData.units.map(bu => bu.unit));
+  }
 
   useEffect(() => {
     if (!isEditing || !editDetachmentId) return;
