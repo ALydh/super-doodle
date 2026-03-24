@@ -13,6 +13,8 @@ case class UnitComposition(
 
 object UnitCompositionParser extends StreamingCsvParser[UnitComposition] {
 
+  override protected def expectedColumns: Seq[String] = Seq("datasheet_id", "line", "description")
+
   protected[wp40k] def parseLineWithContext(
     line: String,
     lineNumber: Int,

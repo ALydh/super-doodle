@@ -14,6 +14,8 @@ case class UnitCost(
 
 object UnitCostParser extends StreamingCsvParser[UnitCost] {
 
+  override protected def expectedColumns: Seq[String] = Seq("datasheet_id", "line", "description", "cost")
+
   protected[wp40k] def parseLineWithContext(
     line: String,
     lineNumber: Int,

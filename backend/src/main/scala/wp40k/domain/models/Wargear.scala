@@ -23,6 +23,10 @@ case class Wargear(
 
 object WargearParser extends StreamingCsvParser[Wargear] {
 
+  override protected def expectedColumns: Seq[String] = Seq(
+    "datasheet_id", "line", "line_in_wargear", "dice", "name", "description", "range", "type", "A", "BS_WS", "S", "AP", "D"
+  )
+
   protected[wp40k] def parseLineWithContext(
     line: String,
     lineNumber: Int,
