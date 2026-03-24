@@ -1,0 +1,40 @@
+import { useEffect, useState, useRef } from "react";
+import type { ArmyBattleData, Army } from "../../types";
+import { BattleSize } from "../../types";
+import { updateArmy } from "../../api";
+
+export function useChecklistNotes(
+  armyId: string | undefined,
+  battleData: ArmyBattleData | null,
+) {
+  const [checklistNotes, setChecklistNotes] = useState<Record<string, string>>({});
+  const notesTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (battleData && !initializedRef.current) {
+      initializedRef.current = true;
+      setChecklistNotes(battleData.checklistNotes ?? {});
+    }
+  }, [battleData]);
+
+  useEffect(() => {
+    if (!armyId || !battleData || !initializedRef.current) return;
+    clearTimeout(notesTimerRef.current);
+    notesTimerRef.current = setTimeout(() => {
+      const army: Army = {
+        factionId: battleData.factionId,
+        battleSize: battleData.battleSize as BattleSize,
+        detachmentId: battleData.detachmentId,
+        warlordId: battleData.warlordId,
+        units: battleData.units.map((bu) => bu.unit),
+        chapterId: battleData.chapterId,
+        checklistNotes,
+      };
+      updateArmy(armyId, battleData.name, army).catch(() => {});
+    }, 1000);
+    return () => clearTimeout(notesTimerRef.current);
+  }, [checklistNotes]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { checklistNotes, setChecklistNotes };
+}
