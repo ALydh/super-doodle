@@ -345,7 +345,7 @@
 000000564|1|Tesseract Ark|9"|9|3+|4||10|6+|3|60mm||
 000000567|1|Gauss Pylon|-|12|3+|5||22|7+|0|Use model||
 000000568|1|Eldrad Ulthran|7"|4|6+|4||5|6+|1|32mm||
-000000569|1|Prince Yriel|7"|3|3+|4||4|6+|1|32mm||
+000000569|1|Prince Yriel|7"|3|3+|4||4|6+|1|40mm||
 000000570|1|Illic Nightspear|7"|3|5+|5|*  This model has a 5+ invulnerable save against ranged attacks.|3|6+|1|25mm||
 000000571|1|Asurmen|7"|3|2+|4||5|6+|1|40mm||
 000000572|1|Jain Zar|8"|3|2+|4||5|6+|1|40mm||
@@ -386,7 +386,7 @@
 000000602|1|SHINING SPEAR|14"|4|3+|5||2|6+|2|60mm flying base||
 000000602|2|SHINING SPEAR EXARCH|14"|4|3+|5||3|6+|2|60mm flying base||
 000000603|1|Crimson Hunter|20+"|8|3+|5||12|6+|0|120 x 92mm flying base||
-000000605|1|Vypers|14"|6|3+|-||6|7+|2|60mm flying base||
+000000605|1|Vypers|14"|6|3+|-||6|7+|2|105 x 70mm||
 000000606|1|Hemlock Wraithfighter|20+"|8|3+|-||12|6+|0|120 x 92mm flying base||
 000000607|1|DARK REAPER|6"|3|3+|5||1|6+|1|28.5mm||
 000000607|2|DARK REAPER EXARCH|6"|3|3+|5||2|6+|1|28.5mm||
@@ -599,7 +599,7 @@
 000000922|1|Void Shield Generator|-|12|3+|4||16|7+|0|Use model||
 000000923|1|Skyshield Landing Pad|-|12|3+|5||16|7+|0|Use model||
 000000924|1|Abaddon The Despoiler|5"|5|2+|4||9|5+|4|60mm||
-000000925|1|Huron Blackheart|6"|4|3+|4||5|6+|1|25mm||
+000000925|1|Huron Blackheart|6"|5|3+|4||5|6+|1|50mm||
 000000926|1|Cypher|6"|4|3+|4||5|6+|1|32mm||
 000000928|1|FABIUS BILE|6"|4|3+|-||5|6+|1|40mm||
 000000928|2|SURGEON ACOLYTE|6"|4|6+|-||1|7+|1|32mm||
@@ -1783,3 +1783,19 @@
 000004188|1|Ancient Gadriel, Veteran Sergeant Metaurus|6"|4|3+|-||4|6+|1|40mm||
 000004188|2|Gaius Silva, Aemelia Minervas, Dainal Kornelius, Lucia Vestha|6"|3|4+|-||3|6+|1|28.5mm||
 000004189|1|Celestian Insidiants|6"|3|3+|5||1|7+|1|32mm||
+000004190|1|GARLON SOULEATER, GARREON THE CORPSEMASTER, KATAR GARRIX|6"|4|3+|-||4|6+|1|40mm||
+000004190|2|CAPTAIN SARGOTTA, THE ENFORCER|6"|3|4+|-||3|6+|1|40mm|The Enforcer 32mm|
+000004191|1||6"|4|3+|-||3|6+|2|40mm||
+000004192|1||6"|4|3+|4||5|6+|1|32mm||
+000004193|1|Prince Yriel|7"|3|3+|4||5|6+|1|40mm||
+000004194|1|Prince Yriel|7"|3|6+|4||4|6+|1|32mm||
+000004195|1|Starfangs|14"|6|3+|-||6|7+|2|105 x 70mm||
+000004196|1|Corsair Skyreavers|12"|3|5+|-||1|7+|1|28.5mm||
+000004197|1|Prince Yriel|7"|3|6+|4||4|6+|1|32mm||
+000004198|1|Prince Yriel|7"|3|3+|4||5|6+|1|40mm||
+000004199|1|Corsair Skyreavers|12"|3|5+|-||1|7+|1|28.5mm||
+000004200|1|Starfangs|14"|6|3+|-||6|7+|2|105 x 70mm||
+000004201|1||6"|6|5+|5||5|7+|1|40mm||
+000004202|1||10"|5|3+|-||6|7+|1|50mm||
+000004203|1||10"|6|2+|4||8|6+|2|60mm||
+000004204|1|Ferren Areios|6"|4|2+|4||5|6+|1|40mm||

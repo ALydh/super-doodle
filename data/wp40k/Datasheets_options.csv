@@ -487,7 +487,8 @@
 000000602|2|•|The Shining Spear Exarch’s twin shuriken catapult can be replaced with 1 shuriken cannon.|
 000000602|3|•|The Shining Spear Exarch can be equipped with 1 shimmershield.|
 000000603|1|•|This model’s 2 starcannons can be replaced with 2 bright lances.|
-000000605|1|•|Any number of models can each have their shuriken cannon replaced with one of the following:<ul style="list-style-type:circle"><li>1 missile launcher</li><li>1 bright lance</li><li>1 scatter laser</li><li>1 starcannon</li></ul>|
+000000605|1|•|Any number of models can each have their bright lance replaced with one of the following:<ul style="list-style-type:circle"><li>1 scatter laser</li><li>1 starcannon</li></ul>|
+000000605|2|•|Any number of models can each have their shuriken cannon replaced with 1 missile launcher.|
 000000607|1|•|The Dark Reaper Exarch’s Reaper launcher can be replaced with 1 of the following:<ul style="list-style-type:circle"><li>1 missile launcher</li><li>1 shuriken cannon</li><li>1 tempest launcher</li></ul>|
 000000607|2|•|For every 5 models in this unit, it can have 1 Aspect Shrine token.|
 000000609|1|•|This model’s scatter laser can be replaced with one of the following:<ul style="list-style-type:circle"><li>1 missile launcher</li><li>1 bright lance</li><li>1 shuriken cannon</li><li>1 starcannon</li></ul>|
@@ -841,6 +842,7 @@
 000000921|1|•|This model can be equipped with up to 4 heavy bolters.|
 000000922|1|•|None|
 000000923|1|•|None|
+000000925|1|•|None|
 000000929|1|•|This model’s daemon hammer can be replaced with one of the following:<ul style="list-style-type:circle"><li>1 accursed weapon</li><li>1 Astartes chainsword</li></ul>|
 000000929|2|•|This model’s plasma pistol can be replaced with 1 power fist.|
 000000930|1|•|This model’s combi-bolter can be replaced with 1 combi-weapon.|
@@ -1608,9 +1610,10 @@
 000002702|4|*|* Maximum one per model.|
 000002703|1|•|Any number of models can each have their twin flamer replaced with 1 twin meltagun.|
 000002703|2|•|Any number of models can each have their Centurion bolters replaced with 1 Centurion assault launcher.|
-000002704|1|•|This model’s 2 quad lascannons can be replaced with 2 laser destroyers.|
-000002704|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer|
-000002704|3|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
+000002704|1|•|This model’s 2 quad lascannons can be replaced with one of the following:<ul style="list-style-type:circle"><li> 2 laser destroyers</li><li>2 quad heavy bolters</li></ul>|
+000002704|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer.|
+000002704|3|•|This model can be equipped with 1 havoc launcher.|
+000002704|4|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 combi-weapon</li><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
 000002705|1|•|This model’s 2 storm bolters can be replaced with 2 fragstorm grenade launchers.|
 000002705|2|•|This model can be equipped with 1 ironhail heavy stubber.|
 000002705|3|•|This model can be equipped with 1 Icarus rocket pod.|
@@ -1722,8 +1725,8 @@
 000002768|1|•|This model can be equipped with 1 hunter-killer missile.|
 000002768|2|•|This model can be equipped with 1 storm bolter.|
 000002768|3|•|This model’s twin heavy bolter can be replaced with one of the following:<ul style="list-style-type:circle"><li>1 multi-melta</li><li>1 twin assault cannon</li><li>1 twin lascannon</li><li>1 twin psycannon</li></ul>|
-000002769|1|•|This model’s graviton pulsar can be replaced with one of the following;<ul style="list-style-type:circle"><li>1 siege claw and 1 rad cleanser</li><li>1 lightning lock</li><li>1 conversion beam cannon</li><li>1 volkite veuglaire</li></ul>|
-000002769|2|•|This model’s volkite veuglaire can be replaced with one of the following:<ul style="list-style-type:circle"><li>1 siege claw and 1 rad cleanser</li><li>1 graviton pulsar</li><li>1 lightning lock</li><li>1 conversion beam cannon</li></ul>|
+000002769|1|•|This model’s volkite veuglaire can be replaced with one of the following:<ul style="list-style-type:circle"><li>1 siege claw and 1 rad cleanser</li><li>1 graviton pulsar</li><li>1 lightning lock</li><li>1 conversion beam cannon</li></ul>|
+000002769|2|•|This model’s graviton pulsar can be replaced with one of the following;<ul style="list-style-type:circle"><li>1 siege claw and 1 rad cleanser</li><li>1 lightning lock</li><li>1 conversion beam cannon</li><li>1 volkite veuglaire</li></ul>|
 000002775|1|•|This model’s bolt rifle and close combat weapon can be replaced with 1 power weapon.|
 000002776|1|•|For every 5 models in this unit, 1 Assault Intercessor with Jump Pack’s heavy bolt pistol can be replaced with 1 plasma pistol. |
 000002776|2|•|The Assault Intercessor Sergeant with Jump Pack’s Astartes chainsword can be replaced with one of the following: <br><ul style="list-style-type:circle"><li>1 power weapon </li><li>1 power fist </li></ul>|
@@ -1969,18 +1972,22 @@
 000003650|1|•|Each of this model’s grav-flux bombards can be replaced with one of the following<ul style="list-style-type:circle"><li>1 cyclonic melta lance</li><li>1 storm cannon</li><li>1 meltagun and 1 Leviathan siege claw</li><li>1 meltagun and 1 Leviathan siege drill</li></ul>|
 000003650|2|•|This model’s 2 heavy flamers can be replaced with 2 twin volkite calivers.|
 000003650|3|•|This model can be equipped with 3 hunter-killer missiles.|
-000003651|1|•|This model’s 2 quad lascannons can be replaced with 2 laser destroyers.|
-000003651|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer|
-000003651|3|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
-000003652|1|•|This model’s 2 quad lascannons can be replaced with 2 laser destroyers.|
-000003652|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer|
-000003652|3|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
-000003653|1|•|This model’s 2 quad lascannons can be replaced with 2 laser destroyers.|
-000003653|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer|
-000003653|3|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
-000003654|1|•|This model’s 2 quad lascannons can be replaced with 2 laser destroyers.|
-000003654|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer|
-000003654|3|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
+000003651|1|•|This model’s 2 quad lascannons can be replaced with one of the following:<ul style="list-style-type:circle"><li> 2 laser destroyers</li><li>2 quad heavy bolters</li></ul>|
+000003651|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer.|
+000003651|3|•|This model can be equipped with 1 havoc launcher.|
+000003651|4|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 combi-weapon</li><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
+000003652|1|•|This model’s 2 quad lascannons can be replaced with one of the following:<ul style="list-style-type:circle"><li> 2 laser destroyers</li><li>2 quad heavy bolters</li></ul>|
+000003652|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer.|
+000003652|3|•|This model can be equipped with 1 havoc launcher.|
+000003652|4|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 combi-weapon</li><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
+000003653|1|•|This model’s 2 quad lascannons can be replaced with one of the following:<ul style="list-style-type:circle"><li> 2 laser destroyers</li><li>2 quad heavy bolters</li></ul>|
+000003653|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer.|
+000003653|3|•|This model can be equipped with 1 havoc launcher.|
+000003653|4|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 combi-weapon</li><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
+000003654|1|•|This model’s 2 quad lascannons can be replaced with one of the following:<ul style="list-style-type:circle"><li> 2 laser destroyers</li><li>2 quad heavy bolters</li></ul>|
+000003654|2|•|This model’s twin heavy bolter can be replaced with 1 twin heavy flamer.|
+000003654|3|•|This model can be equipped with 1 havoc launcher.|
+000003654|4|•|This model can be equipped with one of the following:<ul style="list-style-type:circle"><li>1 combi-weapon</li><li>1 heavy bolter</li><li>1 heavy flamer</li><li>1 multi-melta</li><li>1 storm bolter</li></ul>|
 000003655|1|•|Each of this model’s heavy plasma cannons can be replaced with one of the following:<ul style="list-style-type:circle"><li>1 conversion beam cannon</li><li>1 kheres-pattern assault cannon</li><li>1 multi-melta</li><li>1 twin autocannon</li><li>1 twin heavy bolter</li><li>1 twin lascannon</li><li>1 twin volkite culverin</li><li>1 Dreadnought chainfist and 1 combi-bolter</li><li>1 Dreadnought combat weapon and 1 combi-bolter</li></ul>|
 000003655|2|•|Each of this model’s combi-bolters can be replaced with one of the following:<ul style="list-style-type:circle"><li>1 graviton blaster</li><li>1 heavy flamer</li><li>1 plasma blaster</li></ul>|
 000003655|3|•|This model can be equipped with 1 cyclone missile launcher. |
@@ -2772,3 +2779,22 @@
 000004189|4|•|One Celestian Insidiant’s condemnor bolt pistol and null mace can be replaced with 1 virge of admonition.|
 000004189|5|•|One Celestian Insidiant’s condemnor bolt pistol can be replaced with 1 denuncia oratory.|
 000004189|6|•|One Celestian Insidiant equipped with 1 condemnor bolt pistol can be equipped with 1 simulacrum imperialis (that model’s condemnor bolt pistol cannot be replaced).|
+000004191|1|•|The Red Corsairs Raider Champion’s bolt pistol can be replaced with 1 hand flamer.|
+000004191|2|•|For every 5 models in this unit:<ul style="list-style-type:circle"><li>1 Red Corsairs Raider’s boltgun can be replaced with 1 meltagun</li><li>1 Red Corsairs Raider’s reaver’s blade can be replaced with 1 power fist</li></ul>|
+000004192|1|•|This model’s power sword can be replaced with 1 power maul.|
+000004192|2|•|This model can be equipped with 1 plasma pistol.|
+000004193|1|•|None|
+000004194|1|•|None|
+000004195|1|•|None|
+000004196|1|•|The Skyreaver Felarch can replace its shuriken pistol with one of the following:<ul style="list-style-type:circle"><li>1  blast pistol</li><li>1 neuro disruptor</li></ul>|
+000004196|2|•|For every 5 models in the unit, up to 2 Skyreaver models can each have their shuriken pistol and Corsair blade replaced with one of the following*:<ul style="list-style-type:circle"><li>1 blaster and 1 close combat weapon</li><li>1 flamer and 1 close combat weapon</li><li>1 fusion gun and 1 close combat weapon</li><li>1 shredder and 1 close combat weapon</li></ul>|
+000004196|3|*|* You cannot select the same option more than once per unit unless it contains 10 models, in which case you cannot select the same weapon more than twice per unit.|
+000004197|1|•|None|
+000004198|1|•|None|
+000004199|1|•|The Skyreaver Felarch can replace its shuriken pistol with one of the following:<ul style="list-style-type:circle"><li>1  blast pistol</li><li>1 neuro disruptor</li></ul>|
+000004199|2|•|For every 5 models in the unit, up to 2 Skyreaver models can each have their shuriken pistol and Corsair blade replaced with one of the following*:<ul style="list-style-type:circle"><li>1 blaster and 1 close combat weapon</li><li>1 flamer and 1 close combat weapon</li><li>1 fusion gun and 1 close combat weapon</li><li>1 shredder and 1 close combat weapon</li></ul>|
+000004199|3|*|* You cannot select the same option more than once per unit unless it contains 10 models, in which case you cannot select the same weapon more than twice per unit.|
+000004200|1|•|None|
+000004201|1|•|None|
+000004202|1|•|None.|
+000004203|1|•|None.|
