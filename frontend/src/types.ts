@@ -295,3 +295,62 @@ export interface InventoryEntry {
   datasheetId: string;
   quantity: number;
 }
+
+export interface Revision {
+  id: string;
+  wahapediaTimestamp: string;
+  fetchedAt: string;
+  isActive: boolean;
+}
+
+export interface PointChange {
+  datasheetId: string;
+  datasheetName: string;
+  line: number;
+  description: string;
+  oldCost: number | null;
+  newCost: number | null;
+}
+
+export interface UnitChange {
+  datasheetId: string;
+  name: string;
+  factionId: string;
+  changeType: string;
+}
+
+export interface StatChange {
+  datasheetId: string;
+  datasheetName: string;
+  field: string;
+  oldValue: string;
+  newValue: string;
+}
+
+export interface EnhancementChange {
+  id: string;
+  name: string;
+  factionId: string;
+  oldCost: number | null;
+  newCost: number | null;
+  changeType: string;
+}
+
+export interface StratagemChange {
+  id: string;
+  name: string;
+  factionId: string;
+  changeType: string;
+  oldCpCost: number | null;
+  newCpCost: number | null;
+}
+
+export interface RevisionDiff {
+  oldRevisionId: string;
+  newRevisionId: string;
+  pointChanges: PointChange[];
+  unitChanges: UnitChange[];
+  statChanges: StatChange[];
+  enhancementChanges: EnhancementChange[];
+  stratagemChanges: StratagemChange[];
+}

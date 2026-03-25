@@ -70,6 +70,14 @@ object Schema {
       quantity INTEGER NOT NULL DEFAULT 1,
       PRIMARY KEY (user_id, datasheet_id),
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )""",
+
+    sql"""CREATE TABLE IF NOT EXISTS revisions (
+      id TEXT PRIMARY KEY,
+      wahapedia_timestamp TEXT NOT NULL,
+      db_path TEXT NOT NULL,
+      fetched_at TEXT NOT NULL,
+      is_active INTEGER NOT NULL DEFAULT 0
     )"""
   )
 

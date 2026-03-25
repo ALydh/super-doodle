@@ -14,7 +14,8 @@ object SwaggerRoutes {
       FactionEndpoints.all ++
       ArmyEndpoints.all ++
       AuthEndpoints.all ++
-      InventoryEndpoints.all
+      InventoryEndpoints.all ++
+      RevisionEndpoints.all
 
     val swaggerEndpoints = SwaggerInterpreter()
       .fromEndpoints[IO](allEndpoints, "Wp40k API", "1.0.0")

@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
   "co.fs2" %% "fs2-io" % "3.12.2",
   "com.comcast" %% "ip4s-core" % "3.7.0",
   "org.http4s" %% "http4s-ember-server" % "0.23.30",
+  "org.http4s" %% "http4s-ember-client" % "0.23.30",
   "org.http4s" %% "http4s-dsl" % "0.23.30",
   "org.http4s" %% "http4s-circe" % "0.23.30",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",

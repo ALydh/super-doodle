@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_URL="https://wp40k.ru/wh40k10ed"
+BASE_URL="https://wahapedia.ru/wh40k10ed"
 OUT_DIR="data/wp40k"
 
 FILES=(
