@@ -41,7 +41,7 @@ class SchemaSpec extends AnyFlatSpec with Matchers {
       "datasheet_detachment_abilities", "armies", "army_units",
       "weapon_abilities", "users", "sessions", "invites", "parsed_wargear_options",
       "parsed_loadouts", "parsed_unit_composition", "unit_wargear_defaults",
-      "army_unit_wargear_selections", "user_inventory"
+      "army_unit_wargear_selections", "user_inventory", "revisions"
     )
     tableNames.toSet shouldBe expected
   }
@@ -54,6 +54,6 @@ class SchemaSpec extends AnyFlatSpec with Matchers {
         .query[String].to[List].transact(xa)
     } yield names).unsafeRunSync()
 
-    result.size shouldBe 31
+    result.size shouldBe 32
   }
 }
