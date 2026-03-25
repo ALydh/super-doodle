@@ -24,7 +24,7 @@ class DatabaseSpec extends AnyFlatSpec with Matchers {
     val refPath = Files.createTempFile("wp40k-test-ref-", ".db")
     val userPath = Files.createTempFile("wp40k-test-user-", ".db")
     try {
-      val config = DatabaseConfig(refPath.toAbsolutePath.toString, userPath.toAbsolutePath.toString)
+      val config = DatabaseConfig(refPath.toAbsolutePath.toString, userPath.toAbsolutePath.toString, "data/revisions")
       val dbs = Database.transactors(config)
       sql"SELECT 1".query[Int].unique.transact(dbs.refXa).unsafeRunSync() shouldBe 1
       sql"SELECT 1".query[Int].unique.transact(dbs.userXa).unsafeRunSync() shouldBe 1
