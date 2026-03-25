@@ -12,3 +12,10 @@
 .added { color: #51cf66; }
 .removed { color: #ff6b6b; }
 .empty { color: var(--color-text-muted, #999); text-align: center; padding: 1rem; }
+.expandableRow { cursor: pointer; }
+.expandableRow:hover { background: rgba(255, 255, 255, 0.03); }
+.expandHint { color: var(--color-text-muted, #666); font-size: 0.75rem; margin-left: 4px; }
+.detailCell { padding: 8px 12px !important; background: rgba(0, 0, 0, 0.15); }
+.diffBlock { display: flex; flex-direction: column; gap: 6px; }
+.diffOld { padding: 6px 8px; border-left: 3px solid #ff6b6b; background: rgba(255, 107, 107, 0.08); font-size: 0.82rem; line-height: 1.4; white-space: pre-wrap; }
+.diffNew { padding: 6px 8px; border-left: 3px solid #51cf66; background: rgba(81, 207, 102, 0.08); font-size: 0.82rem; line-height: 1.4; white-space: pre-wrap; }

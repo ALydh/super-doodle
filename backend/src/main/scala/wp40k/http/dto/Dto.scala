@@ -182,8 +182,9 @@ case class RevisionDto(
 case class PointChangeDto(datasheetId: String, datasheetName: String, line: Int, description: String, oldCost: Option[Int], newCost: Option[Int])
 case class UnitChangeDto(datasheetId: String, name: String, factionId: String, changeType: String)
 case class StatChangeDto(datasheetId: String, datasheetName: String, field: String, oldValue: String, newValue: String)
-case class EnhancementChangeDto(id: String, name: String, factionId: String, oldCost: Option[Int], newCost: Option[Int], changeType: String)
-case class StratagemChangeDto(id: String, name: String, factionId: String, changeType: String, oldCpCost: Option[Int], newCpCost: Option[Int])
+case class EnhancementChangeDto(id: String, name: String, factionId: String, oldCost: Option[Int], newCost: Option[Int], changeType: String, oldDescription: Option[String], newDescription: Option[String])
+case class StratagemChangeDto(id: String, name: String, factionId: String, changeType: String, oldCpCost: Option[Int], newCpCost: Option[Int], oldDescription: Option[String], newDescription: Option[String])
+case class AbilityChangeDto(id: String, name: String, factionId: String, changeType: String, oldDescription: Option[String], newDescription: Option[String])
 
 case class RevisionDiffDto(
   oldRevisionId: String,
@@ -192,5 +193,6 @@ case class RevisionDiffDto(
   unitChanges: List[UnitChangeDto],
   statChanges: List[StatChangeDto],
   enhancementChanges: List[EnhancementChangeDto],
-  stratagemChanges: List[StratagemChangeDto]
+  stratagemChanges: List[StratagemChangeDto],
+  abilityChanges: List[AbilityChangeDto]
 )

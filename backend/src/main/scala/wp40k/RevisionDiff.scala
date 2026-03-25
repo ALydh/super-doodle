@@ -9,8 +9,9 @@ import java.sql.DriverManager
 case class PointChange(datasheetId: String, datasheetName: String, line: Int, description: String, oldCost: Option[Int], newCost: Option[Int])
 case class UnitChange(datasheetId: String, name: String, factionId: String, changeType: String)
 case class StatChange(datasheetId: String, datasheetName: String, field: String, oldValue: String, newValue: String)
-case class EnhancementChange(id: String, name: String, factionId: String, oldCost: Option[Int], newCost: Option[Int], changeType: String)
-case class StratagemChange(id: String, name: String, factionId: String, changeType: String, oldCpCost: Option[Int], newCpCost: Option[Int])
+case class EnhancementChange(id: String, name: String, factionId: String, oldCost: Option[Int], newCost: Option[Int], changeType: String, oldDescription: Option[String], newDescription: Option[String])
+case class StratagemChange(id: String, name: String, factionId: String, changeType: String, oldCpCost: Option[Int], newCpCost: Option[Int], oldDescription: Option[String], newDescription: Option[String])
+case class AbilityChange(id: String, name: String, factionId: String, changeType: String, oldDescription: Option[String], newDescription: Option[String])
 
 case class RevisionDiffResult(
   oldRevisionId: String,
@@ -19,7 +20,8 @@ case class RevisionDiffResult(
   unitChanges: List[UnitChange],
   statChanges: List[StatChange],
   enhancementChanges: List[EnhancementChange],
-  stratagemChanges: List[StratagemChange]
+  stratagemChanges: List[StratagemChange],
+  abilityChanges: List[AbilityChange]
 )
 
 object RevisionDiff {
@@ -32,7 +34,8 @@ object RevisionDiff {
       stats <- statChanges.transact(xa)
       enhancements <- enhancementChanges.transact(xa)
       stratagems <- stratagemChanges.transact(xa)
-    } yield RevisionDiffResult(oldId, newId, points, units, stats, enhancements, stratagems)
+      abilities <- abilityChanges.transact(xa)
+    } yield RevisionDiffResult(oldId, newId, points, units, stats, enhancements, stratagems, abilities)
   }
 
   private def buildDiffTransactor(oldDbPath: String, newDbPath: String): Transactor[IO] = {
@@ -142,7 +145,7 @@ object RevisionDiff {
   private val enhancementChanges: ConnectionIO[List[EnhancementChange]] = {
     val modified =
       sql"""
-        SELECT n.id, n.name, n.faction_id, o.cost, n.cost, 'modified'
+        SELECT n.id, n.name, n.faction_id, o.cost, n.cost, 'modified', o.description, n.description
         FROM new_rev.enhancements n
         JOIN old_rev.enhancements o ON n.id = o.id
         WHERE n.cost != o.cost OR n.name != o.name OR n.description != o.description
@@ -150,7 +153,7 @@ object RevisionDiff {
 
     val added =
       sql"""
-        SELECT n.id, n.name, n.faction_id, NULL, n.cost, 'added'
+        SELECT n.id, n.name, n.faction_id, NULL, n.cost, 'added', NULL, n.description
         FROM new_rev.enhancements n
         LEFT JOIN old_rev.enhancements o ON n.id = o.id
         WHERE o.id IS NULL
@@ -158,7 +161,7 @@ object RevisionDiff {
 
     val removed =
       sql"""
-        SELECT o.id, o.name, o.faction_id, o.cost, NULL, 'removed'
+        SELECT o.id, o.name, o.faction_id, o.cost, NULL, 'removed', o.description, NULL
         FROM old_rev.enhancements o
         LEFT JOIN new_rev.enhancements n ON o.id = n.id
         WHERE n.id IS NULL
@@ -170,7 +173,7 @@ object RevisionDiff {
   private val stratagemChanges: ConnectionIO[List[StratagemChange]] = {
     val modified =
       sql"""
-        SELECT n.id, n.name, COALESCE(n.faction_id, ''), 'modified', o.cp_cost, n.cp_cost
+        SELECT n.id, n.name, COALESCE(n.faction_id, ''), 'modified', o.cp_cost, n.cp_cost, o.description, n.description
         FROM new_rev.stratagems n
         JOIN old_rev.stratagems o ON n.id = o.id
         WHERE n.cp_cost != o.cp_cost OR n.name != o.name OR n.description != o.description
@@ -178,7 +181,7 @@ object RevisionDiff {
 
     val added =
       sql"""
-        SELECT n.id, n.name, COALESCE(n.faction_id, ''), 'added', NULL, n.cp_cost
+        SELECT n.id, n.name, COALESCE(n.faction_id, ''), 'added', NULL, n.cp_cost, NULL, n.description
         FROM new_rev.stratagems n
         LEFT JOIN old_rev.stratagems o ON n.id = o.id
         WHERE o.id IS NULL
@@ -186,11 +189,39 @@ object RevisionDiff {
 
     val removed =
       sql"""
-        SELECT o.id, o.name, COALESCE(o.faction_id, ''), 'removed', o.cp_cost, NULL
+        SELECT o.id, o.name, COALESCE(o.faction_id, ''), 'removed', o.cp_cost, NULL, o.description, NULL
         FROM old_rev.stratagems o
         LEFT JOIN new_rev.stratagems n ON o.id = n.id
         WHERE n.id IS NULL
       """.query[StratagemChange].to[List]
+
+    (modified, added, removed).mapN(_ ++ _ ++ _)
+  }
+
+  private val abilityChanges: ConnectionIO[List[AbilityChange]] = {
+    val modified =
+      sql"""
+        SELECT n.id, n.name, COALESCE(n.faction_id, ''), 'modified', o.description, n.description
+        FROM new_rev.abilities n
+        JOIN old_rev.abilities o ON n.id = o.id
+        WHERE n.description != o.description OR n.name != o.name
+      """.query[AbilityChange].to[List]
+
+    val added =
+      sql"""
+        SELECT n.id, n.name, COALESCE(n.faction_id, ''), 'added', NULL, n.description
+        FROM new_rev.abilities n
+        LEFT JOIN old_rev.abilities o ON n.id = o.id
+        WHERE o.id IS NULL
+      """.query[AbilityChange].to[List]
+
+    val removed =
+      sql"""
+        SELECT o.id, o.name, COALESCE(o.faction_id, ''), 'removed', o.description, NULL
+        FROM old_rev.abilities o
+        LEFT JOIN new_rev.abilities n ON o.id = n.id
+        WHERE n.id IS NULL
+      """.query[AbilityChange].to[List]
 
     (modified, added, removed).mapN(_ ++ _ ++ _)
   }

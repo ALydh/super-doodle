@@ -8,7 +8,36 @@ interface RevisionDiffViewProps {
   newId: string;
 }
 
-type Tab = "points" | "units" | "stats" | "enhancements" | "stratagems";
+type Tab = "points" | "units" | "stats" | "enhancements" | "stratagems" | "abilities";
+
+function TextDiff({ oldText, newText }: { oldText: string | null; newText: string | null }) {
+  if (!oldText && !newText) return null;
+  if (!oldText) return <div className={styles.diffNew}>{newText}</div>;
+  if (!newText) return <div className={styles.diffOld}>{oldText}</div>;
+  if (oldText === newText) return null;
+  return (
+    <div className={styles.diffBlock}>
+      <div className={styles.diffOld}>{oldText}</div>
+      <div className={styles.diffNew}>{newText}</div>
+    </div>
+  );
+}
+
+function ExpandableRow({ children, detail }: { children: React.ReactNode; detail: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <tr onClick={() => setOpen(!open)} className={styles.expandableRow}>
+        {children}
+      </tr>
+      {open && (
+        <tr>
+          <td colSpan={99} className={styles.detailCell}>{detail}</td>
+        </tr>
+      )}
+    </>
+  );
+}
 
 export function RevisionDiffView({ oldId, newId }: RevisionDiffViewProps) {
   const [diff, setDiff] = useState<RevisionDiff | null>(null);
@@ -31,6 +60,7 @@ export function RevisionDiffView({ oldId, newId }: RevisionDiffViewProps) {
     { key: "stats", label: "Stats", count: diff.statChanges.length },
     { key: "enhancements", label: "Enhancements", count: diff.enhancementChanges.length },
     { key: "stratagems", label: "Stratagems", count: diff.stratagemChanges.length },
+    { key: "abilities", label: "Abilities", count: diff.abilityChanges.length },
   ];
 
   return (
@@ -106,14 +136,27 @@ export function RevisionDiffView({ oldId, newId }: RevisionDiffViewProps) {
           <table className={styles.table}>
             <thead><tr><th>Enhancement</th><th>Old Cost</th><th>New Cost</th><th>Change</th></tr></thead>
             <tbody>
-              {diff.enhancementChanges.map((e, i) => (
-                <tr key={i}>
-                  <td>{e.name}</td>
-                  <td className={styles.mono}>{e.oldCost ?? "—"}</td>
-                  <td className={styles.mono}>{e.newCost ?? "—"}</td>
-                  <td className={e.changeType === "added" ? styles.added : e.changeType === "removed" ? styles.removed : ""}>{e.changeType}</td>
-                </tr>
-              ))}
+              {diff.enhancementChanges.map((e, i) => {
+                const hasText = e.oldDescription !== e.newDescription;
+                if (hasText) {
+                  return (
+                    <ExpandableRow key={i} detail={<TextDiff oldText={e.oldDescription} newText={e.newDescription} />}>
+                      <td>{e.name} <span className={styles.expandHint}>▸</span></td>
+                      <td className={styles.mono}>{e.oldCost ?? "—"}</td>
+                      <td className={styles.mono}>{e.newCost ?? "—"}</td>
+                      <td className={e.changeType === "added" ? styles.added : e.changeType === "removed" ? styles.removed : ""}>{e.changeType}</td>
+                    </ExpandableRow>
+                  );
+                }
+                return (
+                  <tr key={i}>
+                    <td>{e.name}</td>
+                    <td className={styles.mono}>{e.oldCost ?? "—"}</td>
+                    <td className={styles.mono}>{e.newCost ?? "—"}</td>
+                    <td className={e.changeType === "added" ? styles.added : e.changeType === "removed" ? styles.removed : ""}>{e.changeType}</td>
+                  </tr>
+                );
+              })}
               {diff.enhancementChanges.length === 0 && <tr><td colSpan={4} className={styles.empty}>No enhancement changes</td></tr>}
             </tbody>
           </table>
@@ -122,15 +165,55 @@ export function RevisionDiffView({ oldId, newId }: RevisionDiffViewProps) {
           <table className={styles.table}>
             <thead><tr><th>Stratagem</th><th>Old CP</th><th>New CP</th><th>Change</th></tr></thead>
             <tbody>
-              {diff.stratagemChanges.map((s, i) => (
-                <tr key={i}>
-                  <td>{s.name}</td>
-                  <td className={styles.mono}>{s.oldCpCost ?? "—"}</td>
-                  <td className={styles.mono}>{s.newCpCost ?? "—"}</td>
-                  <td className={s.changeType === "added" ? styles.added : s.changeType === "removed" ? styles.removed : ""}>{s.changeType}</td>
-                </tr>
-              ))}
+              {diff.stratagemChanges.map((s, i) => {
+                const hasText = s.oldDescription !== s.newDescription;
+                if (hasText) {
+                  return (
+                    <ExpandableRow key={i} detail={<TextDiff oldText={s.oldDescription} newText={s.newDescription} />}>
+                      <td>{s.name} <span className={styles.expandHint}>▸</span></td>
+                      <td className={styles.mono}>{s.oldCpCost ?? "—"}</td>
+                      <td className={styles.mono}>{s.newCpCost ?? "—"}</td>
+                      <td className={s.changeType === "added" ? styles.added : s.changeType === "removed" ? styles.removed : ""}>{s.changeType}</td>
+                    </ExpandableRow>
+                  );
+                }
+                return (
+                  <tr key={i}>
+                    <td>{s.name}</td>
+                    <td className={styles.mono}>{s.oldCpCost ?? "—"}</td>
+                    <td className={styles.mono}>{s.newCpCost ?? "—"}</td>
+                    <td className={s.changeType === "added" ? styles.added : s.changeType === "removed" ? styles.removed : ""}>{s.changeType}</td>
+                  </tr>
+                );
+              })}
               {diff.stratagemChanges.length === 0 && <tr><td colSpan={4} className={styles.empty}>No stratagem changes</td></tr>}
+            </tbody>
+          </table>
+        )}
+        {tab === "abilities" && (
+          <table className={styles.table}>
+            <thead><tr><th>Ability</th><th>Faction</th><th>Change</th></tr></thead>
+            <tbody>
+              {diff.abilityChanges.map((a, i) => {
+                const hasText = a.changeType === "modified" || a.changeType === "added" || a.changeType === "removed";
+                if (hasText && (a.oldDescription || a.newDescription)) {
+                  return (
+                    <ExpandableRow key={i} detail={<TextDiff oldText={a.oldDescription} newText={a.newDescription} />}>
+                      <td>{a.name} <span className={styles.expandHint}>▸</span></td>
+                      <td>{a.factionId}</td>
+                      <td className={a.changeType === "added" ? styles.added : a.changeType === "removed" ? styles.removed : ""}>{a.changeType}</td>
+                    </ExpandableRow>
+                  );
+                }
+                return (
+                  <tr key={i}>
+                    <td>{a.name}</td>
+                    <td>{a.factionId}</td>
+                    <td className={a.changeType === "added" ? styles.added : a.changeType === "removed" ? styles.removed : ""}>{a.changeType}</td>
+                  </tr>
+                );
+              })}
+              {diff.abilityChanges.length === 0 && <tr><td colSpan={3} className={styles.empty}>No ability changes</td></tr>}
             </tbody>
           </table>
         )}

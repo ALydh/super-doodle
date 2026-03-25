@@ -18,8 +18,7 @@ object Main extends IOApp.Simple {
     val program = for {
       _ <- logger.info("Starting wp40k-api")
       config <- DatabaseConfig.fromEnv
-      splitMode = config.refDbPath != DatabaseConfig.default.refDbPath ||
-                  config.userDbPath != DatabaseConfig.default.userDbPath
+      splitMode = java.io.File(config.refDbPath).exists()
       _ <- if (splitMode) runSplitMode(config) else runSingleMode
     } yield ()
 

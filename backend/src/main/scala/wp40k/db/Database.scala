@@ -17,7 +17,7 @@ object DatabaseConfig {
   val default: DatabaseConfig = DatabaseConfig(
     refDbPath = "wp40k-ref.db",
     userDbPath = "wp40k-user.db",
-    revisionsDir = "../data/revisions"
+    revisionsDir = "data/revisions"
   )
 
   def fromEnv: IO[DatabaseConfig] = IO {

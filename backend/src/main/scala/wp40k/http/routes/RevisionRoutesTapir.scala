@@ -61,8 +61,9 @@ object RevisionRoutesTapir {
                   diff.pointChanges.map(p => PointChangeDto(p.datasheetId, p.datasheetName, p.line, p.description, p.oldCost, p.newCost)),
                   diff.unitChanges.map(u => UnitChangeDto(u.datasheetId, u.name, u.factionId, u.changeType)),
                   diff.statChanges.map(s => StatChangeDto(s.datasheetId, s.datasheetName, s.field, s.oldValue, s.newValue)),
-                  diff.enhancementChanges.map(e => EnhancementChangeDto(e.id, e.name, e.factionId, e.oldCost, e.newCost, e.changeType)),
-                  diff.stratagemChanges.map(s => StratagemChangeDto(s.id, s.name, s.factionId, s.changeType, s.oldCpCost, s.newCpCost))
+                  diff.enhancementChanges.map(e => EnhancementChangeDto(e.id, e.name, e.factionId, e.oldCost, e.newCost, e.changeType, e.oldDescription, e.newDescription)),
+                  diff.stratagemChanges.map(s => StratagemChangeDto(s.id, s.name, s.factionId, s.changeType, s.oldCpCost, s.newCpCost, s.oldDescription, s.newDescription)),
+                  diff.abilityChanges.map(a => AbilityChangeDto(a.id, a.name, a.factionId, a.changeType, a.oldDescription, a.newDescription))
                 ))
               }
             case _ =>

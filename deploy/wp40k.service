@@ -1,0 +1,17 @@
+[Unit]
+Description=Wp40k API Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/wp40k
+ExecStart=/opt/wp40k/backend
+Restart=on-failure
+RestartSec=5
+
+Environment=REF_DB_PATH=wp40k-ref.db
+Environment=USER_DB_PATH=wp40k-user.db
+Environment=REVISIONS_DIR=data/revisions
+
+[Install]
+WantedBy=multi-user.target

@@ -334,6 +334,8 @@ export interface EnhancementChange {
   oldCost: number | null;
   newCost: number | null;
   changeType: string;
+  oldDescription: string | null;
+  newDescription: string | null;
 }
 
 export interface StratagemChange {
@@ -343,6 +345,17 @@ export interface StratagemChange {
   changeType: string;
   oldCpCost: number | null;
   newCpCost: number | null;
+  oldDescription: string | null;
+  newDescription: string | null;
+}
+
+export interface AbilityChange {
+  id: string;
+  name: string;
+  factionId: string;
+  changeType: string;
+  oldDescription: string | null;
+  newDescription: string | null;
 }
 
 export interface RevisionDiff {
@@ -353,4 +366,5 @@ export interface RevisionDiff {
   statChanges: StatChange[];
   enhancementChanges: EnhancementChange[];
   stratagemChanges: StratagemChange[];
+  abilityChanges: AbilityChange[];
 }
