@@ -3,7 +3,7 @@ import type {
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
   Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
   CoreAbility, User, AuthResponse, Invite, ArmyBattleData, WargearWithQuantity,
-  AlliedFactionInfo, InventoryEntry,
+  AlliedFactionInfo, InventoryEntry, Revision, RevisionDiff,
 } from "./types";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -320,5 +320,40 @@ export async function upsertInventoryEntry(datasheetId: string, quantity: number
     body: JSON.stringify({ datasheetId, quantity }),
   });
   if (!res.ok) throw new Error(`Failed to update inventory: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchRevisions(): Promise<Revision[]> {
+  const res = await fetch("/api/revisions");
+  if (!res.ok) throw new Error(`Failed to fetch revisions: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchActiveRevision(): Promise<Revision> {
+  const res = await fetch("/api/revisions/active");
+  if (!res.ok) throw new Error(`Failed to fetch active revision: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchRevisionDiff(oldId: string, newId: string): Promise<RevisionDiff> {
+  const res = await fetch(`/api/revisions/${oldId}/diff/${newId}`);
+  if (!res.ok) throw new Error(`Failed to fetch revision diff: ${res.status}`);
+  return res.json();
+}
+
+export async function activateRevision(revisionId: string): Promise<void> {
+  const res = await fetch(`/api/revisions/${revisionId}/activate`, {
+    method: "PUT",
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Failed to activate revision: ${res.status}`);
+}
+
+export async function triggerRevisionCheck(): Promise<{ status: string; error?: string }> {
+  const res = await fetch("/api/revisions/check", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`Failed to trigger revision check: ${res.status}`);
   return res.json();
 }

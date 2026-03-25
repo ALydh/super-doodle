@@ -171,3 +171,28 @@ case class AlliedFactionInfo(
 
 case class UpsertInventoryRequest(datasheetId: String, quantity: Int)
 case class BulkUpsertInventoryRequest(entries: List[UpsertInventoryRequest])
+
+case class RevisionDto(
+  id: String,
+  wahapediaTimestamp: String,
+  fetchedAt: String,
+  isActive: Boolean
+)
+
+case class PointChangeDto(datasheetId: String, datasheetName: String, line: Int, description: String, oldCost: Option[Int], newCost: Option[Int])
+case class UnitChangeDto(datasheetId: String, name: String, factionId: String, changeType: String)
+case class StatChangeDto(datasheetId: String, datasheetName: String, field: String, oldValue: String, newValue: String)
+case class EnhancementChangeDto(id: String, name: String, factionId: String, oldCost: Option[Int], newCost: Option[Int], changeType: String, oldDescription: Option[String], newDescription: Option[String])
+case class StratagemChangeDto(id: String, name: String, factionId: String, changeType: String, oldCpCost: Option[Int], newCpCost: Option[Int], oldDescription: Option[String], newDescription: Option[String])
+case class AbilityChangeDto(id: String, name: String, factionId: String, changeType: String, oldDescription: Option[String], newDescription: Option[String])
+
+case class RevisionDiffDto(
+  oldRevisionId: String,
+  newRevisionId: String,
+  pointChanges: List[PointChangeDto],
+  unitChanges: List[UnitChangeDto],
+  statChanges: List[StatChangeDto],
+  enhancementChanges: List[EnhancementChangeDto],
+  stratagemChanges: List[StratagemChangeDto],
+  abilityChanges: List[AbilityChangeDto]
+)

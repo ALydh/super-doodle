@@ -1,0 +1,21 @@
+.loading { color: var(--color-text-muted, #999); padding: 2rem; text-align: center; }
+.tabs { display: flex; gap: 4px; margin-bottom: 1rem; flex-wrap: wrap; }
+.tab { background: none; border: 1px solid var(--color-border, #444); color: var(--color-text-muted, #bbb); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+.tabActive { background: var(--color-accent, #4a6fa5); color: white; border-color: var(--color-accent, #4a6fa5); }
+.content { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.table th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--color-border, #444); color: var(--color-text-muted, #999); font-weight: 600; }
+.table td { padding: 5px 8px; border-bottom: 1px solid var(--color-border, #333); }
+.mono { font-family: monospace; }
+.increase { color: #ff6b6b; }
+.decrease { color: #51cf66; }
+.added { color: #51cf66; }
+.removed { color: #ff6b6b; }
+.empty { color: var(--color-text-muted, #999); text-align: center; padding: 1rem; }
+.expandableRow { cursor: pointer; }
+.expandableRow:hover { background: rgba(255, 255, 255, 0.03); }
+.expandHint { color: var(--color-text-muted, #666); font-size: 0.75rem; margin-left: 4px; }
+.detailCell { padding: 8px 12px !important; background: rgba(0, 0, 0, 0.15); }
+.diffBlock { display: flex; flex-direction: column; gap: 6px; }
+.diffOld { padding: 6px 8px; border-left: 3px solid #ff6b6b; background: rgba(255, 107, 107, 0.08); font-size: 0.82rem; line-height: 1.4; white-space: pre-wrap; }
+.diffNew { padding: 6px 8px; border-left: 3px solid #51cf66; background: rgba(81, 207, 102, 0.08); font-size: 0.82rem; line-height: 1.4; white-space: pre-wrap; }

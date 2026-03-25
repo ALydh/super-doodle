@@ -6,6 +6,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Header } from "./components/Header";
 import { SpotlightSearch } from "./components/SpotlightSearch";
+import { RevisionPanel } from "./components/RevisionPanel";
 import {
   fetchFactions, fetchAllDatasheets, fetchAllStratagems, fetchAllEnhancements,
   fetchWeaponAbilities, fetchCoreAbilities, fetchAllArmies,
@@ -23,7 +24,9 @@ import { GlossaryPage } from "./pages/GlossaryPage";
 function AppShell() {
   const { compact } = useCompactMode();
   const [spotlightOpen, setSpotlightOpen] = useState(false);
+  const [revisionOpen, setRevisionOpen] = useState(false);
   const closeSpotlight = useCallback(() => setSpotlightOpen(false), []);
+  const closeRevision = useCallback(() => setRevisionOpen(false), []);
 
   useEffect(() => {
     fetchFactions();
@@ -48,8 +51,9 @@ function AppShell() {
 
   return (
     <div data-compact={compact || undefined}>
-      <Header onSearchClick={() => setSpotlightOpen(true)} />
+      <Header onSearchClick={() => setSpotlightOpen(true)} onRevisionClick={() => setRevisionOpen(true)} />
       <SpotlightSearch open={spotlightOpen} onClose={closeSpotlight} />
+      <RevisionPanel open={revisionOpen} onClose={closeRevision} />
       <Routes>
         <Route path="/" element={<FactionListPage />} />
         <Route path="/login" element={<LoginPage />} />

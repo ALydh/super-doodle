@@ -155,6 +155,17 @@ jobs:
           target: "/opt/wp40k/deploy"
           strip_components: 1
 
+      - name: Install service file
+        if: needs.changes.outputs.deploy == 'true' || github.event_name == 'workflow_dispatch'
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sudo cp /opt/wp40k/deploy/wp40k.service /etc/systemd/system/wp40k.service
+            sudo systemctl daemon-reload
+
       - name: Finalize deployment
         uses: appleboy/ssh-action@v1
         with:

@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useCompactMode } from "../context/CompactModeContext";
+import { RevisionBadge } from "./RevisionBadge";
 import styles from "./Header.module.css";
 
 interface HeaderProps {
   onSearchClick?: () => void;
+  onRevisionClick?: () => void;
 }
 
-export function Header({ onSearchClick }: HeaderProps) {
+export function Header({ onSearchClick, onRevisionClick }: HeaderProps) {
   const { user, logout } = useAuth();
   const { compact, toggleCompact } = useCompactMode();
   const navigate = useNavigate();
@@ -34,6 +36,7 @@ export function Header({ onSearchClick }: HeaderProps) {
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.brand}>Home</Link>
+      {onRevisionClick && <RevisionBadge onClick={onRevisionClick} />}
       <nav className={styles.nav}>
         {onSearchClick && (
           <>

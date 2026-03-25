@@ -1,0 +1,15 @@
+.badge {
+  background: none;
+  border: 1px solid var(--color-border, #444);
+  color: var(--color-text-muted, #999);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.badge:hover {
+  color: var(--color-text, #ddd);
+  border-color: var(--color-text-muted, #999);
+}

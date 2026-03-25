@@ -1,6 +1,6 @@
 package wp40k.http
 
-import cats.effect.{IO, Resource}
+import cats.effect.{IO, Ref, Resource}
 import cats.implicits.*
 import com.comcast.ip4s.*
 import io.circe.Json
@@ -10,14 +10,23 @@ import org.http4s.dsl.io.*
 import org.http4s.implicits.*
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.CORS
+import org.http4s.client.Client
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import org.slf4j.MDC
+import wp40k.db.RevisionState
 import wp40k.http.routes.*
 import wp40k.auth.{RateLimiter, RateLimitConfig}
 import wp40k.mcp.McpRoutes
 import doobie.*
 import java.util.UUID
+
+case class RevisionContext(
+  activeRef: Ref[IO, RevisionState],
+  client: Client[IO],
+  revisionUserXa: Transactor[IO],
+  revisionsDir: String
+)
 
 object HttpServer {
   private val corsConfig = CORS.policy.withAllowOriginAll
@@ -25,11 +34,20 @@ object HttpServer {
 
   given logger: Logger[IO] = Slf4jLogger.getLogger[IO]
 
-  def createServer(port: Int, refXa: Transactor[IO], userXa: Transactor[IO], refPrefix: String): Resource[IO, org.http4s.server.Server] =
+  def createServer(
+    port: Int,
+    refXa: Transactor[IO],
+    userXa: Transactor[IO],
+    refPrefix: String,
+    revisionCtx: Option[RevisionContext] = None
+  ): Resource[IO, org.http4s.server.Server] =
     for
       loginRateLimiter <- Resource.eval(RateLimiter.create(loginRateLimitConfig))
       mcpRoutes <- McpRoutes.create(refXa, userXa, refPrefix)
-      allRoutes = routes(refXa, userXa, refPrefix, loginRateLimiter) <+> mcpRoutes
+      revisionRoutes = revisionCtx.map(ctx =>
+        RevisionRoutesTapir.routes(ctx.revisionUserXa, ctx.activeRef, ctx.client, ctx.revisionsDir)
+      ).getOrElse(HttpRoutes.empty[IO])
+      allRoutes = routes(refXa, userXa, refPrefix, loginRateLimiter) <+> revisionRoutes <+> mcpRoutes
       server <- EmberServerBuilder.default[IO]
         .withHost(ip"0.0.0.0")
         .withPort(Port.fromInt(port).get)
