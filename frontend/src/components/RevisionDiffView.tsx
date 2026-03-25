@@ -45,10 +45,11 @@ export function RevisionDiffView({ oldId, newId }: RevisionDiffViewProps) {
   const [tab, setTab] = useState<Tab>("points");
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     fetchRevisionDiff(oldId, newId)
-      .then(setDiff)
-      .finally(() => setLoading(false));
+      .then((data) => { if (!cancelled) { setDiff(data); } })
+      .finally(() => { if (!cancelled) { setLoading(false); } });
+    return () => { cancelled = true; };
   }, [oldId, newId]);
 
   if (loading) return <div className={styles.loading}>Loading diff...</div>;
