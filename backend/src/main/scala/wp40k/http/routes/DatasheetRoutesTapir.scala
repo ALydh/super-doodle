@@ -106,7 +106,13 @@ object DatasheetRoutesTapir {
       }
     )
 
-    val tapirRoutes = getDatasheetRoute <+> filterWargearRoute <+> getDetachmentAbilitiesRoute <+> getWeaponAbilitiesRoute <+> getCoreAbilitiesRoute <+> listAllDatasheetsRoute <+> listAllStratagemsRoute <+> listAllEnhancementsRoute
+    val listAllDetachmentsRoute = Http4sServerInterpreter[IO]().toRoutes(
+      DatasheetEndpoints.listAllDetachments.serverLogic { _ =>
+        ReferenceDataRepository.allDetachments(xa).map(Right(_))
+      }
+    )
+
+    val tapirRoutes = getDatasheetRoute <+> filterWargearRoute <+> getDetachmentAbilitiesRoute <+> getWeaponAbilitiesRoute <+> getCoreAbilitiesRoute <+> listAllDatasheetsRoute <+> listAllStratagemsRoute <+> listAllEnhancementsRoute <+> listAllDetachmentsRoute
 
     Kleisli { req =>
       tapirRoutes(req).map(_.putHeaders(cacheHeaders))

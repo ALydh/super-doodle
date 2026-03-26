@@ -7,6 +7,7 @@ import sttp.tapir.json.circe.*
 import sttp.tapir.generic.auto.*
 import wp40k.domain.models.*
 import wp40k.domain.types.*
+import wp40k.db.ReferenceDataRepository
 import wp40k.http.dto.{DatasheetDetail, FilterWargearRequest, WargearWithQuantity}
 import wp40k.http.CirceCodecs.given
 
@@ -56,5 +57,10 @@ object DatasheetEndpoints {
       .in("api" / "enhancements")
       .out(jsonBody[List[Enhancement]])
 
-  val all = List(getDatasheet, filterWargear, getDetachmentAbilities, getWeaponAbilities, getCoreAbilities, listAllDatasheets, listAllStratagems, listAllEnhancements)
+  val listAllDetachments: PublicEndpoint[Unit, Unit, List[ReferenceDataRepository.DetachmentSummary], Any] =
+    endpoint.get
+      .in("api" / "detachments")
+      .out(jsonBody[List[ReferenceDataRepository.DetachmentSummary]])
+
+  val all = List(getDatasheet, filterWargear, getDetachmentAbilities, getWeaponAbilities, getCoreAbilities, listAllDatasheets, listAllStratagems, listAllEnhancements, listAllDetachments)
 }

@@ -325,10 +325,15 @@ object ReferenceDataRepository {
       }
 
   case class DetachmentInfo(name: String, detachmentId: String)
+  case class DetachmentSummary(name: String, detachmentId: String, factionId: String)
 
   def detachmentsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DetachmentInfo]] =
     sql"SELECT DISTINCT detachment, detachment_id FROM detachment_abilities WHERE faction_id = $factionId"
       .query[DetachmentInfo].to[List].transact(xa)
+
+  def allDetachments(xa: Transactor[IO]): IO[List[DetachmentSummary]] =
+    sql"SELECT DISTINCT detachment, detachment_id, faction_id FROM detachment_abilities ORDER BY detachment"
+      .query[DetachmentSummary].to[List].transact(xa)
 
   def leadersByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DatasheetLeader]] =
     sql"""SELECT dl.leader_id, dl.attached_id

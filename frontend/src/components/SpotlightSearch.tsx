@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Faction, Datasheet, Stratagem, Enhancement, WeaponAbility, CoreAbility, ArmySummary } from "../types";
+import type { Faction, Datasheet, Stratagem, Enhancement, WeaponAbility, CoreAbility, ArmySummary, DetachmentSummary } from "../types";
 import {
   fetchFactions, fetchAllDatasheets, fetchAllStratagems, fetchAllEnhancements,
-  fetchWeaponAbilities, fetchCoreAbilities, fetchAllArmies,
+  fetchWeaponAbilities, fetchCoreAbilities, fetchAllArmies, fetchAllDetachments,
 } from "../api";
 import { useAuth } from "../context/useAuth";
 import { useCompactMode } from "../context/CompactModeContext";
@@ -91,6 +91,7 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
   const [weaponAbilities, setWeaponAbilities] = useState<WeaponAbility[]>([]);
   const [coreAbilities, setCoreAbilities] = useState<CoreAbility[]>([]);
   const [armies, setArmies] = useState<ArmySummary[]>([]);
+  const [detachments, setDetachments] = useState<DetachmentSummary[]>([]);
 
   const [search, setSearch] = useState("");
   const [loaded, setLoaded] = useState(false);
@@ -115,7 +116,8 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
       fetchWeaponAbilities(),
       fetchCoreAbilities(),
       fetchAllArmies(),
-    ]).then(([f, d, s, e, wa, ca, a]) => {
+      fetchAllDetachments(),
+    ]).then(([f, d, s, e, wa, ca, a, det]) => {
       if (f.status === "fulfilled") setFactions(f.value);
       if (d.status === "fulfilled") setDatasheets(d.value);
       if (s.status === "fulfilled") setStratagems(s.value);
@@ -123,6 +125,7 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
       if (wa.status === "fulfilled") setWeaponAbilities(wa.value);
       if (ca.status === "fulfilled") setCoreAbilities(ca.value);
       if (a.status === "fulfilled") setArmies(a.value);
+      if (det.status === "fulfilled") setDetachments(det.value);
       setLoaded(true);
     });
   }, [loaded]);
@@ -297,6 +300,20 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
       });
     }
 
+    // Detachments
+    const filteredDetachments = filterSorted(detachments, (d) => d.name);
+    if (filteredDetachments.length > 0) {
+      result.push({
+        title: "Detachments",
+        items: filteredDetachments.map((d) => ({
+          type: "navigate" as const,
+          name: d.name,
+          subtitle: factionNameMap.get(d.factionId),
+          action: () => go(`/factions/${d.factionId}?detachment=${d.detachmentId}`),
+        })),
+      });
+    }
+
     // Static glossary sections
     for (const section of glossarySections) {
       const filtered = filterSorted(section.entries, (e) => e.name);
@@ -309,7 +326,7 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
     }
 
     return result;
-  }, [search, factions, datasheets, stratagems, enhancements, weaponAbilities, coreAbilities, armies, factionNameMap, user, go, onClose, toggleCompact]);
+  }, [search, factions, datasheets, stratagems, enhancements, weaponAbilities, coreAbilities, armies, detachments, factionNameMap, user, go, onClose, toggleCompact]);
 
   const flatItems = useMemo(() => sections.flatMap((s) => s.items), [sections]);
 

@@ -169,6 +169,12 @@ export interface DetachmentInfo {
   detachmentId: string;
 }
 
+export interface DetachmentSummary {
+  name: string;
+  detachmentId: string;
+  factionId: string;
+}
+
 export interface DatasheetLeader {
   leaderId: string;
   attachedId: string;

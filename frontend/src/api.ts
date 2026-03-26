@@ -1,5 +1,5 @@
 import type {
-  Faction, Datasheet, DatasheetDetail, DetachmentInfo,
+  Faction, Datasheet, DatasheetDetail, DetachmentInfo, DetachmentSummary,
   Enhancement, DatasheetLeader, ArmySummary, PersistedArmy,
   Army, ValidationResponse, Stratagem, DetachmentAbility, WeaponAbility,
   CoreAbility, User, AuthResponse, Invite, ArmyBattleData, WargearWithQuantity,
@@ -272,6 +272,14 @@ export async function fetchAllEnhancements(): Promise<Enhancement[]> {
   return cachedFetch("allEnhancements", async () => {
     const res = await fetch("/api/enhancements");
     if (!res.ok) throw new Error(`Failed to fetch enhancements: ${res.status}`);
+    return res.json();
+  });
+}
+
+export async function fetchAllDetachments(): Promise<DetachmentSummary[]> {
+  return cachedFetch("allDetachments", async () => {
+    const res = await fetch("/api/detachments");
+    if (!res.ok) throw new Error(`Failed to fetch detachments: ${res.status}`);
     return res.json();
   });
 }
