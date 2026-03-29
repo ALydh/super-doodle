@@ -1421,7 +1421,7 @@
 000000569|1|000008346||||Core||
 000000569|2|000009894||||Faction||
 000000569|3|||Hero of Iyanden|While this model is leading a unit, add 1 to the Objective Control characteristic of models in that unit.|Datasheet||
-000000569|4|||Prince of Corsairs|If your army includes this model, after both players have deployed their armies, select up to three <span class="kwb">AELDARI</span> units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves if you wish, regardless of how many units are already in Strategic Reserves.|Datasheet||
+000000569|4|||Prince of Corsairs|If your army includes this model, after both players have deployed their armies, select up to three <span class="kwb">AELDARI</span> units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves if you wish, regardless of how many units are already in Strategic Reserves. |Datasheet||
 000000570|1|000008345||||Core||
 000000570|2|000008346||||Core||
 000000570|3|000008337||||Core||
@@ -2366,11 +2366,12 @@
 000000924|7|||Paragon of Hatred (Aura)|While a friendly <span class="kwb">HERETIC</span> <span class="kwb">ASTARTES</span> unit is within 6" (excluding DAMNED units) of this model, each time a model in that unit makes an attack, you can re-roll the Hit roll.|Primarch||
 000000924|8|||Mark of Chaos Ascendant (Aura)|While a friendly Heretic Astartes Infantry or Heretic Astartes Mounted unit (excluding DAMNED units) is within 6" of this model, models in that unit have a 4+ invulnerable save.|Primarch||
 000000924|9|||Lord of the Traitor Legions (Aura)|While a friendly <span class="kwb">HERETIC</span> <span class="kwb">ASTARTES</span> unit (excluding DAMNED units) is within 6" of this model, you can re-roll Leadership and Battle-shock tests taken for that unit.|Primarch||
-000000925|1|000008346||||Core||
-000000925|2|000008359||||Faction||
-000000925|3|||The Tyrant of Badab|While this model is leading a unit, add 1 to the Objective Control characteristic of models in that unit.|Datasheet||
-000000925|4|||Red Corsairs|After both players have deployed their armies, you can select up to three Heretic Astartes Infantry units from your army and redeploy them. When doing so, those units can be placed into Strategic Reserves, regardless of how many units are already in Strategic Reserves.|Datasheet||
-000000925|5|||Hamadrya’s Knowledge (Psychic)|Once per battle, when an enemy unit ends a Normal, Advance or Fall Back move within 9" of this model’s unit, if this model’s unit is not within Engagement Range of one or more enemy units, it can make a Normal move of up to D6".|Datasheet||
+000000925|1|000008343||||Core||
+000000925|2|000008338||||Core|5+|
+000000925|3|000008346||||Core||
+000000925|4|000008359||||Faction||
+000000925|5|||Lord of Badab (Aura)|While a friendly Heretic Astartes Infantry unit (excluding Battle-shocked units and Damned units) is within 6" of this model, add 1 to the Objective Control characteristic of models in that unit.|Datasheet||
+000000925|6|||Hamadrya’s Knowledge (Psychic)|Once per battle round, when an enemy unit ends a Normal, Advance or Fall Back move within 9" of this model’s unit, if this model’s unit is not within Engagement Range of one or more enemy units, it can make a Normal move of up to D3+3".|Datasheet||
 000000926|1|000008336||||Core||
 000000926|2|000008359||||Faction||
 000000926|3|||Agent of Discord (Aura)|Each time your opponent targets a unit from their army with a Stratagem, if that unit is within 12" of this model, increase the cost of that use of that Stratagem by 1CP (this is not cumulative with any other rules that would increase the CP cost of that Stratagem).|Datasheet||
@@ -4032,9 +4033,9 @@
 000002360|4|||The Silent King|While a friendly <span class="kwb">NECRONS</span> unit is within 6" of this unit’s Szarekh model, improve that unit’s Leadership characteristic by 1.|Datasheet||
 000002360|5|||SUPREME COMMANDER|If this unit is in your army, it must be your Warlord.|Special (правая колонка)||
 000002360|6|||TRIARCHAL MENHIRS|If this unit’s Szarekh model is destroyed, all of this unit’s remaining Triarchal Menhir models are also destroyed.|Special (правая колонка)||
-000002360|7|||Phaeron of the Stars (Aura)|While a friendly <span class="kwb">NECRONS</span> unit is within 6" of this unit’s Szarekh model, each time a model in that unit makes an attack, re-roll a Hit roll of 1 and re-roll a Wound roll of 1.|Primarch||
-000002360|8|||Phaeron of the Blades (Aura)|While a friendly <span class="kwb">NECRONS</span> unit is within 6" of this unit’s Szarekh model, you can re-roll Charge rolls made for that unit and each time a model in that unit makes a melee attack, add 1 to the Strength characteristic of that attack.|Primarch||
-000002360|9|||Relentless March (Aura)|While a friendly <span class="kwb">NECRONS</span> unit is within 6" of this unit’s Szarekh model, add 2" to the Move characteristic of models in that unit.|Primarch||
+000002360|7|||Phaeron of the Stars (Aura)|While a friendly <span class="kwb">NECRONS</span> unit (excluding Monster units) is within 6" of this unit’s Szarekh model, each time a model in that unit makes an attack, re-roll a Hit roll of 1 and re-roll a Wound roll of 1.|Primarch||
+000002360|8|||Phaeron of the Blades (Aura)|While a friendly <span class="kwb">NECRONS</span> unit (excluding Monster units) is within 6" of this unit’s Szarekh model, you can re-roll Charge rolls made for that unit and each time a model in that unit makes a melee attack, add 1 to the Strength characteristic of that attack.|Primarch||
+000002360|9|||Relentless March (Aura)|While a friendly <span class="kwb">NECRONS</span> unit (excluding Monster units) is within 6" of this unit’s Szarekh model, add 2" to the Move characteristic of models in that unit.|Primarch||
 000002361|1|000008369||||Faction||
 000002361|2|||Reanimation Nodes (Aura)|While a friendly Necrons Infantry unit is within 6" of this Fortification, models in that unit have Feel No Pain 6+ ability.|Datasheet||
 000002361|3|||Ancient Cover|Each time a ranged attack is allocated to a model, if that model is not fully visible to every model in the attacking unit because of this <span class="kwb">FORTIFICATION</span>, that model has the Benefit of Cover against that attack.|Datasheet||
@@ -4349,7 +4350,7 @@
 000002544|4|000009896||||Faction||
 000002544|5|||Inevitable Death|Once in each of your opponent’s turns, if this model is on the battlefield when another friendly <span class="kwb">AELDARI</span> unit is destroyed, just after removing the last model in that unit, you can remove this model from the battlefield and set it up as close as possible to where that destroyed model was destroyed and not within Engagement Range of one or more enemy units.|Datasheet||
 000002544|6|||Ethereal Form|Each time this model destroys an enemy unit, it regains up to D3 lost wounds.|Datasheet||
-000002544|7|||AVATAR OFTHE WHISPERING GOD|If your army includes <span class="kwb">THE</span> <span class="kwb">YNCARNE</span>, it cannot include any Epic Hero units (excluding Ynnari units). If your army includes any <span class="kwb">EPIC</span> <span class="kwb">HERO</span> units (excluding <span class="kwb">YNNARI</span> units), it cannot include <span class="kwb">THE</span> <span class="kwb">YNCARNE</span>.|Fortification (левая колонка)||
+000002544|7|||AVATAR OF THE WHISPERING GOD|If your army includes <span class="kwb">THE</span> <span class="kwb">YNCARNE</span>, it cannot include any Epic Hero units (excluding Ynnari units). If your army includes any <span class="kwb">EPIC</span> <span class="kwb">HERO</span> units (excluding <span class="kwb">YNNARI</span> units), it cannot include <span class="kwb">THE</span> <span class="kwb">YNCARNE</span>.|Fortification (левая колонка)||
 000002562|1|000008339||||Core|D3|
 000002562|2|000008512||||Faction||
 000002562|3|||Executioner|Each time this model makes an attack that targets a unit Below Half-strength, add 1 to the Hit roll. Each time an enemy unit is destroyed as the result of this model’s attacks, before removing the last model in that unit from the battlefield, each unit from your opponent’s army that is within 3" of it must take a Battle-shock test.|Datasheet||
@@ -4535,7 +4536,7 @@
 000002619|2|||Reinforced Cover|Each time a ranged attack is allocated to a model, if that model is not fully visible to every model in the attacking unit because of this <span class="kwb">FORTIFICATION</span>, that model has the Benefit of Cover against that attack.|Datasheet||
 000002619|3|||Defence Line|While an ASTRA MILITARUM INFANTRY model has the Benefit of Cover as a result of this terrain feature (see above), that model has a 4+ invulnerable save.|Datasheet||
 000002619|4|||Fortification|While an enemy unit is only within Engagement Range of one or more FORTIFICATIONS from your army: <br><ul><li>That unit can still be selected as the target of ranged attacks, but each time such an attack is made, unless it is made with a Pistol, subtract 1 from the Hit roll. </li><li>Models in that unit do not need to take Desperate Escape tests due to Falling Back while Battle-shocked, except for those that will move over enemy models when doing so.</li></ul>|Datasheet||
-000002619|5|||DEPLOYMENT|When this model is set up, it will consist of 1 platform section, up to 5 shield sections, up to 2 broken shield sections, and up to 2 end sections. All sections must be connected to each other to form a continuous defence line; the two broken shield sections can be placed either at the end of the defence line, or in the middle of it such that both are within l/2" of each other (in this case, these two sections count as being connected to each other). All the sections that have been set up are then treated as a single model for all rules purposes.|Special (правая колонка)||
+000002619|5|||DEPLOYMENT|When this model is set up, it will consist of 1 platform section, up to 5 shield sections, up to 2 broken shield sections, and up to 2 end sections. All sections must be connected to each other to form a continuous defence line; the two broken shield sections can be placed either at the end of the defence line, or in the middle of it such that both are within 1/2" of each other (in this case, these two sections count as being connected to each other). All the sections that have been set up are then treated as a single model for all rules purposes.|Special (правая колонка)||
 000002621|1|000008339||||Core|D6|
 000002621|2|000008343||||Core||
 000002621|3|000008428||||Faction||
@@ -4939,7 +4940,7 @@
 000002759|1|000008343||||Core||
 000002759|2|000008346||||Core||
 000002759|3|000009894||||Faction||
-000002759|4|||Indomitable Strength of Will|While this model is leading a unit, each time you spend a Battle Focus token to enable that unit to perform an Agile Manoeuvre, roll one 06: on a 3+, you gain 1 Battle Focus token.|Datasheet||
+000002759|4|||Indomitable Strength of Will|While this model is leading a unit, each time you spend a Battle Focus token to enable that unit to perform an Agile Manoeuvre, roll one D6: on a 3+, you gain 1 Battle Focus token.|Datasheet||
 000002759|5|||Path of Command|Once per battle round, one model from your army with this ability can use it when its unit is targeted with a Stratagem. If it does, reduce the CP cost of that usage of that Stratagem by 1CP.|Datasheet||
 000002760|1|000008343||||Core||
 000002760|2|000008346||||Core||
@@ -6106,7 +6107,7 @@
 000003955|2|||Reinforced Cover|Each time a ranged attack is allocated to a model, if that model is not fully visible to every model in the attacking unit because of this <span class="kwb">FORTIFICATION</span>, that model has the Benefit of Cover against that attack.|Datasheet||
 000003955|3|||Defence Line|While an ASTRA MILITARUM INFANTRY model has the Benefit of Cover as a result of this terrain feature (see above), that model has a 4+ invulnerable save.|Datasheet||
 000003955|4|||Fortification|While an enemy unit is only within Engagement Range of one or more FORTIFICATIONS from your army: <br><ul><li>That unit can still be selected as the target of ranged attacks, but each time such an attack is made, unless it is made with a Pistol, subtract 1 from the Hit roll. </li><li>Models in that unit do not need to take Desperate Escape tests due to Falling Back while Battle-shocked, except for those that will move over enemy models when doing so.</li></ul>|Datasheet||
-000003955|5|||DEPLOYMENT|When this model is set up, it will consist of 1 platform section, up to 5 shield sections, up to 2 broken shield sections, and up to 2 end sections. All sections must be connected to each other to form a continuous defence line; the two broken shield sections can be placed either at the end of the defence line, or in the middle of it such that both are within l/2" of each other (in this case, these two sections count as being connected to each other). All the sections that have been set up are then treated as a single model for all rules purposes.|Special (правая колонка)||
+000003955|5|||DEPLOYMENT|When this model is set up, it will consist of 1 platform section, up to 5 shield sections, up to 2 broken shield sections, and up to 2 end sections. All sections must be connected to each other to form a continuous defence line; the two broken shield sections can be placed either at the end of the defence line, or in the middle of it such that both are within 1/2" of each other (in this case, these two sections count as being connected to each other). All the sections that have been set up are then treated as a single model for all rules purposes.|Special (правая колонка)||
 000003956|1|000008339||||Core|1|
 000003956|2|||Earthshaker Rounds|In your Shooting phase, after this model has shot, if one or more of those attacks made with its earthshaker cannon scored a hit against an enemy Infantry unit, until the end of your opponent’s next turn, that unit is shaken. While a unit is shaken, subtract 2" from its Move characteristic and subtract 2 from Advance and Charge rolls made for it.|Datasheet||
 000003956|3|||Reinforced Cover|Each time a ranged attack is allocated to a model, if that model is not fully visible to every model in the attacking unit because of this Fortification, that model has the Benefit of Cover against that attack.|Datasheet||
@@ -6976,7 +6977,7 @@
 000004186|2|000008340||||Core||
 000004186|3|000008369||||Faction||
 000004186|4|||Protective Disciples|While this model is within 3" of one or more other friendly Destroyer Cult units, this model has the Lone Operative ability.|Datasheet||
-000004186|5|||Infectious Murder-madness (Aura)|While a friendly <span class="kwb">NECRONS</span> unit (excluding Titanic units) is within 6" of this model, each time a model in that unit makes an attack, if that model has the Destroyer Cult keyword or that enemy unit is the closest eligible target, that attack has the [SUSTAINED HITS 1] ability.|Datasheet||
+000004186|5|||Infectious Murder-madness (Aura)|While a friendly <span class="kwb">NECRONS</span> unit (excluding Monster and Titanic units) is within 6" of this model, each time a model in that unit makes an attack, if that model has the Destroyer Cult keyword or that enemy unit is the closest eligible target, that attack has the [SUSTAINED HITS 1] ability.|Datasheet||
 000004186|6|||Prophet of Destruction|Each time this model destroys an enemy unit, select one other friendly Destroyer Cult unit within 9" of it. Until the end of the phase, each time a model in that unit makes an attack, re-roll a Wound roll of 1.|Datasheet||
 000004186|7|||Nullstone Field Generator (Aura)|While a friendly <span class="kwb">NECRONS</span> unit is within 6" of the bearer, models in that unit have the Feel No Pain 5+ ability against mortal wounds and Psychic Attacks.|Wargear||
 000004187|1|000008338||||Core|5+|
@@ -6993,7 +6994,78 @@
 000004188|6|||HEROES OF ULTRAMAR|At the start of the Declare Battle Formations step, this unit can join one of the following units. This unit then counts as part of that unit for the rest of the battle, and that unit’s Starting Strength is increased accordingly.<br><br><ul><li>Assault intercessor Squad, Bladeguard Veteran Squad, Intercessor Squad, Sternguard Veteran Squad</li></ul><br>This unit cannot join an Attached unit, and only Captain Titus can join a unit this unit has joined.|Fortification (левая колонка)||
 000004189|1|000008466||||Faction||
 000004189|2|||Rituale Nullificatus|Models in this unit have the Feel No Pain 4+ ability against Psychic Attacks and mortal wounds.|Datasheet||
-000004189|3|||Virtue of Intolerance|At the start of the battle, select one unit from your opponent’s army to be this unit’s quarry. Each time a model in this unit makes an attack that targets its quarry, that attack has the [PRECISION] ability and you can re-roll the Hit roll.|Datasheet||
+000004189|3|||Virtue of Intolerance|At the start of the battle, select one unit from your opponent’s army to be this unit’s quarry. Each time a model in this unit makes an attack that targets its quarry, that attack has the [PRECISION] ability and you can re-roll the Hit roll. This ability can be used even if this unit is embarked within a Transport.|Datasheet||
 000004189|4|||Simulacrum Imperialis|At the end of your Command phase, for each objective marker you control that has one or more units from your army with this ability within range of it, roll one D6: on a 4+, you gain 1 Miracle dice showing a value equal to that result.|Wargear||
 000004189|5|||Denuncia Oratory|Each time the bearer’s unit’s quarry is destroyed, you can select a new unit from your opponent’s army to be its quarry.|Wargear||
 000004189|6|||ATTACHED UNIT|If a Character unit from your army can be attached to a Dominion Squad unit, it can be attached to this unit instead.|Fortification (левая колонка)||
+000004190|1|000008359||||Faction||
+000004190|2|||Choice Samples|While this unit’s Garreon the Corpsemaster is on the battlefield, in your Command phase, select one of the following: you can return 1 destroyed model (excluding <span class="kwb">CHARACTER</span> models) to this unit, or, if one or more Heretic Astartes Infantry units from your army are below Starting Strength and within 3" of this unit, you gain 1CP.|Datasheet||
+000004190|3|||Fleet Command|After both players have deployed their armies, if this unit is on the battlefield (or any Transport it is embarked within is on the battlefield) select up to three <span class="kwb">HERETIC</span> <span class="kwb">ASTARTES</span> units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves.|Datasheet||
+000004190|4|||Plunder|Once per battle, after this unit ends a Normal move, you can select one visible enemy unit within 12" of it and roll one D6: on a 2+, that enemy unit suffers D3+1 mortal wounds.|Datasheet||
+000004190|5|||MASTERS OF THE MAELSTROM|At the start of the Declare Battle Formations step, this unit can join one of the following units. This unit then counts as part of that unit for the rest of the battle, and that unit’s Starting Strength is increased accordingly.<br><ul><li>Chosen, Legionaries, Red Corsairs Raiders</li></ul>This unit cannot join an Attached unit, and only Huron Blackheart can join a unit this unit has joined.|Fortification (левая колонка)||
+000004191|1|000008345||||Core||
+000004191|2|000008359||||Faction||
+000004191|3|||Trophy Takers|The first time this unit destroys an enemy unit, until the end of the battle, while this unit is not Battle-shocked, add 1 to the Objective Control characteristic of models in this unit.|Datasheet||
+000004191|4|||ATTACHED UNIT|If a Character unit from your army with the Leader ability can be attached to a Legionaries unit, it can be attached to this unit instead.|Fortification (левая колонка)||
+000004192|1|000008345||||Core||
+000004192|2|000008346||||Core||
+000004192|3|000008359||||Faction||
+000004192|4|||Brutal Raider|Each time this model’s unit ends a Charge move, until the end of the turn, add 1 to the Strength characteristic of melee weapons equipped by this model and improve the Armour Penetration characteristics of those weapons by 1.|Datasheet||
+000004192|5|||Raider’s Due|Each time this unit declares a Charge that targets one or more units that are within range of one or more objective markers, you can re-roll the Charge roll.|Datasheet||
+000004193|1|000008346||||Core||
+000004193|2|000008344||||Core|7"|
+000004193|3|000009894||||Faction||
+000004193|4|||Piratical Hero|While this model is leading a unit, each time a model in that unit makes an attack, that attack has the [SUSTAINED HITS 1] ability and add 1 to the Hit roll.|Datasheet||
+000004193|5|||Prince of Corsairs|After both players have deployed their armies, if this unit is on the battlefield (or any Transport it is embarked within is on the battlefield), select up to three <span class="kwb">AELDARI</span> units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves. |Datasheet||
+000004194|1|000008346||||Core||
+000004194|2|000008344||||Core|7"|
+000004194|3|000009894||||Faction||
+000004194|4|||Aethersense (Psychic)|Enemy units that are set up on the battlefield from Reserves cannot be set up within 12" of this model.|Datasheet||
+000004194|5|||Fury of the Void (Psychic)|In your Shooting phase, after this model’s unit has shot, select one enemy unit hit by one or more attacks made with this model’s Dread of the Deep Void. Until the end of the turn, that unit is riven. Each time an <span class="kwb">AELDARI</span> model from your army makes an attack that targets a riven unit, add 1 to the Strength characteristic of that attack.|Datasheet||
+000004195|1|000008339||||Core|1|
+000004195|2|000008344||||Core|7"|
+000004195|3|000009894||||Faction||
+000004195|4|||Hallucinogen Grenades|At the start of your opponent’s Shooting phase, this unit can use this ability. If it does, select one Aeldari Infantry unit from your army visible to and within 36" of this unit: until the end of the phase, that unit has the Stealth ability.|Datasheet||
+000004196|1|000008343||||Core||
+000004196|2|000008344||||Core|7"|
+000004196|3|000009894||||Faction||
+000004196|4|||Raid and Run|At the end of the Fight phase, if this unit was eligible to fight this phase, and is not within Engagement Range of one or more enemy units, it can make a Normal move of up to D3+3". Otherwise, if this unit was eligible to fight this phase, this unit can make a Fall Back move of up to D3+3".|Datasheet||
+000004197|1|000008346||||Core||
+000004197|2|000008344||||Core|7"|
+000004197|3|000009894||||Faction||
+000004197|4|||Aethersense (Psychic)|Enemy units that are set up on the battlefield from Reserves cannot be set up within 12" of this model.|Datasheet||
+000004197|5|||Fury of the Void (Psychic)|In your Shooting phase, after this model’s unit has shot, select one enemy unit hit by one or more attacks made with this model’s Dread of the Deep Void. Until the end of the turn, that unit is riven. Each time an <span class="kwb">AELDARI</span> model from your army makes an attack that targets a riven unit, add 1 to the Strength characteristic of that attack.|Datasheet||
+000004198|1|000008346||||Core||
+000004198|2|000008344||||Core|7"|
+000004198|3|000009894||||Faction||
+000004198|4|||Piratical Hero|While this model is leading a unit, each time a model in that unit makes an attack, that attack has the [SUSTAINED HITS 1] ability and add 1 to the Hit roll.|Datasheet||
+000004198|5|||Prince of Corsairs|After both players have deployed their armies, if this unit is on the battlefield (or any Transport it is embarked within is on the battlefield), select up to three <span class="kwb">AELDARI</span> units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves. |Datasheet||
+000004199|1|000008343||||Core||
+000004199|2|000008344||||Core|7"|
+000004199|3|000009894||||Faction||
+000004199|4|||Raid and Run|At the end of the Fight phase, if this unit was eligible to fight this phase, and is not within Engagement Range of one or more enemy units, it can make a Normal move of up to D3+3". Otherwise, if this unit was eligible to fight this phase, this unit can make a Fall Back move of up to D3+3".|Datasheet||
+000004200|1|000008339||||Core|1|
+000004200|2|000008344||||Core|7"|
+000004200|3|000009894||||Faction||
+000004200|4|||Hallucinogen Grenades|At the start of your opponent’s Shooting phase, this unit can use this ability. If it does, select one Aeldari Infantry unit from your army visible to and within 36" of this unit: until the end of the phase, that unit has the Stealth ability.|Datasheet||
+000004201|1|000008338||||Core|4+|
+000004201|2|000008346||||Core||
+000004201|3|000010432||||Faction||
+000004201|4|||Break the Foe|Melee weapons equipped by models in this model’s unit have the [SUSTAINED HITS 1] ability.|Datasheet||
+000004201|5|||Relentless Avalanche|You can target this model’s unit with the Heroic Intervention Stratagem for 0CP, and can do so even if you have already targeted a different unit with that Stratagem this phase.|Datasheet||
+000004202|1|000008346||||Core||
+000004202|2|000000707||||Faction||
+000004202|3|000000705||||Faction||
+000004202|4|||Alpha Warrior|Weapons equipped by models in this model’s unit have the [SUSTAINED HITS 1] ability.|Datasheet||
+000004202|5|||Aggressive Leader-beast|In your opponent’s Shooting phase, each time an enemy unit has shot, if any models from this unit were destroyed as a result of those attacks, this unit can make a Surge move. To do so, roll one D6: models in this unit move a number of inches up to this result, but this unit must end that move as close as possible to the closest enemy unit (excluding <span class="kwb">AIRCRAFT</span>). When doing so, those models can be moved within Engagement Range of that enemy unit. This unit cannot make a Surge move while it is Battle-shocked or within Engagement Range of one or more enemy units, and can only make one Surge move per phase.|Datasheet||
+000004203|1|000008343||||Core||
+000004203|2|000008344||||Core|8"|
+000004203|3|000008439||||Faction||
+000004203|4|||Exemplars of Mont’ka|Each time a model in this unit makes a ranged attack that targets the closest eligible target, that attack has the [SUSTAINED HITS 1] and [IGNORES COVER] abilities.|Datasheet||
+000004203|5|||Neocapacitor Shields|At the start of your opponent’s Charge phase, you can select one enemy unit (excluding <span class="kwb">MONSTER</span> and <span class="kwb">VEHICLE</span> units) within 12" of this unit. That unit must take a Battle-shock test and, until the end of the turn, subtract 1 from Charge rolls made for that unit.|Datasheet||
+000004203|6|||Retro-thrusters|At the end of the Fight phase, this unit can either make a Normal move of up to 6" or a Fall Back move.|Datasheet||
+000004203|7|||MV15 Gun Drone|The bearer is equipped with 1 twin pulse blaster.|Wargear||
+000004204|1|000008346||||Core||
+000004204|2|000008350||||Faction||
+000004204|3|||Master of Rites|In your Command phase, select one of the following to apply to this model’s unit until the end of the turn:<br><ul><li>This model’s unit is eligible to shoot in a turn in which it Advanced.</li><li>This model’s unit is eligible to declare a charge in a turn in it which it Advanced.</li><li>This model’s unit is eligible to shoot and declare a charge in a turn in which it Fell Back.</li></ul>|Datasheet||
+000004204|4|||Unrelenting and Uncompromising|While this model is leading a unit, each time a model in that unit makes an attack, you can ignore any or all modifiers to that attack’s Ballistic Skill or Weapon Skill characteristics and/or all modifiers to the Hit roll.|Datasheet||
