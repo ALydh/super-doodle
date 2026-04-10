@@ -34,7 +34,7 @@ object SessionRepository {
     sql"DELETE FROM sessions WHERE token = $token".update.run.transact(xa).void
 
   def deleteExpired(xa: Transactor[IO]): IO[Int] = {
-    val now = Instant.now().toString
-    sql"DELETE FROM sessions WHERE expires_at < $now".update.run.transact(xa)
+    val now = Instant.now()
+    sql"DELETE FROM sessions WHERE expires_at < ${now.toString}".update.run.transact(xa)
   }
 }
