@@ -66,7 +66,7 @@ export async function register(username: string, password: string, inviteCode?: 
     credentials: "same-origin",
   });
   if (!res.ok) {
-    const err = await res.json();
+    const err = await res.json().catch(() => ({ error: null }));
     throw new Error(err.error || `Registration failed: ${res.status}`);
   }
   return res.json();
@@ -80,7 +80,7 @@ export async function login(username: string, password: string): Promise<AuthRes
     credentials: "same-origin",
   });
   if (!res.ok) {
-    const err = await res.json();
+    const err = await res.json().catch(() => ({ error: null }));
     throw new Error(err.error || `Login failed: ${res.status}`);
   }
   return res.json();

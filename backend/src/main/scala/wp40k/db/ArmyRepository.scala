@@ -4,8 +4,9 @@ import doobie.*
 import doobie.implicits.*
 import cats.effect.IO
 import cats.implicits.*
-import java.time.{Instant, LocalDateTime}
-import java.time.format.DateTimeFormatter
+import java.time.Instant
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 import wp40k.domain.army.{Army, ArmyUnit, WargearSelection}
 import wp40k.domain.types.*
 import wp40k.domain.models.EnhancementId
@@ -66,17 +67,16 @@ private case class WargearSelectionRow(
 
 object ArmyRepository {
 
-  private val logTimeFmt = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
-  private def now: String = LocalDateTime.now.format(logTimeFmt)
+  private given Logger[IO] = Slf4jLogger.getLogger[IO]
 
   def findById(id: String)(xa: Transactor[IO]): IO[Option[PersistedArmy]] =
     for {
-      _ <- IO.println(s"[$now] [ArmyRepository.findById] Loading army $id")
+      _ <- Logger[IO].debug(s"Loading army $id")
       rowOpt <- sql"SELECT id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at, chapter_id, checklist_notes FROM armies WHERE id = $id"
         .query[ArmyRow].option.transact(xa)
       result <- rowOpt match {
         case None =>
-          IO.println(s"[$now] [ArmyRepository.findById] Army not found").as(None)
+          Logger[IO].debug("Army not found").as(None)
         case Some(row) =>
           (for {
             unitRows <- sql"SELECT id, datasheet_id, size_option_line, enhancement_id, attached_leader_id FROM army_units WHERE army_id = $id"
@@ -95,7 +95,7 @@ object ArmyRepository {
             val checklistNotes = row.checklistNotesJson.flatMap(s => decode[Map[String, String]](s).toOption).getOrElse(Map.empty)
             val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units, row.chapterId, checklistNotes)
             val persisted = PersistedArmy(row.id, row.name, army, row.ownerId.map(UserId.value), row.createdAt, row.updatedAt)
-            IO.println(s"[$now] [ArmyRepository.findById] Found army: ${row.name} with ${units.size} units").as(Some(persisted))
+            Logger[IO].debug(s"Found army: ${row.name} with ${units.size} units").as(Some(persisted))
           }
       }
     } yield result
@@ -104,7 +104,7 @@ object ArmyRepository {
     val now = Instant.now()
     val nowStr = now.toString
     for {
-      _ <- IO.println(s"[$nowStr] [ArmyRepository.create] Creating army $name with ${army.units.size} units")
+      _ <- Logger[IO].info(s"Creating army $name with ${army.units.size} units")
       _ <- (for {
         _ <- {
           val notesJson: Option[String] = if (army.checklistNotes.isEmpty) None else Some(army.checklistNotes.asJson.noSpaces)
@@ -123,7 +123,7 @@ object ArmyRepository {
           } yield ()
         }
       } yield ()).transact(xa)
-      _ <- IO.println(s"[$nowStr] [ArmyRepository.create] Army created successfully")
+      _ <- Logger[IO].info("Army created successfully")
     } yield PersistedArmy(id, name, army, ownerId.map(UserId.value), nowStr, nowStr)
   }
 
@@ -131,7 +131,7 @@ object ArmyRepository {
     val now = Instant.now()
     val nowStr = now.toString
     for {
-      _ <- IO.println(s"[$nowStr] [ArmyRepository.update] Updating army $id")
+      _ <- Logger[IO].debug(s"Updating army $id")
       result <- (for {
         existing <- sql"SELECT created_at, owner_id FROM armies WHERE id = $id".query[(String, Option[UserId])].option
         updated <- existing.traverse { case (createdAt, ownerId) =>
@@ -157,31 +157,31 @@ object ArmyRepository {
           } yield PersistedArmy(id, name, army, ownerId.map(UserId.value), createdAt, nowStr)
         }
       } yield updated).transact(xa)
-      _ <- IO.println(s"[$nowStr] [ArmyRepository.update] Update ${if (result.isDefined) "successful" else "failed - not found"}")
+      _ <- Logger[IO].info(s"Update ${if (result.isDefined) "successful" else "failed - not found"}")
     } yield result
   }
 
   def delete(id: String)(xa: Transactor[IO]): IO[Boolean] =
     for {
-      _ <- IO.println(s"[$now] [ArmyRepository.delete] Deleting army $id")
+      _ <- Logger[IO].debug(s"Deleting army $id")
       deleted <- sql"DELETE FROM armies WHERE id = $id".update.run.transact(xa).map(_ > 0)
-      _ <- IO.println(s"[$now] [ArmyRepository.delete] Delete ${if (deleted) "successful" else "failed - not found"}")
+      _ <- Logger[IO].info(s"Delete ${if (deleted) "successful" else "failed - not found"}")
     } yield deleted
 
   def listSummaries(xa: Transactor[IO], refPrefix: String = ""): IO[List[ArmySummary]] =
     for {
-      _ <- IO.println("[ArmyRepository.listSummaries] Fetching all armies")
+      _ <- Logger[IO].debug("Fetching all armies")
       summaries <- listSummariesQuery(None, refPrefix).query[ArmySummary].to[List].transact(xa)
-      _ <- IO.println(s"[$now] [ArmyRepository.listSummaries] Found ${summaries.size} armies")
-      _ <- summaries.traverse_(a => IO.println(s"  - ${a.name}: warlord=${a.warlordName.getOrElse("none")}, points=${a.totalPoints}"))
+      _ <- Logger[IO].debug(s"Found ${summaries.size} armies")
+      _ <- summaries.traverse_(a => Logger[IO].debug(s"  - ${a.name}: warlord=${a.warlordName.getOrElse("none")}, points=${a.totalPoints}"))
     } yield summaries
 
   def listSummariesByFaction(factionId: FactionId)(xa: Transactor[IO], refPrefix: String = ""): IO[List[ArmySummary]] =
     for {
-      _ <- IO.println(s"[$now] [ArmyRepository.listSummariesByFaction] Fetching armies for faction $factionId")
+      _ <- Logger[IO].debug(s"Fetching armies for faction $factionId")
       summaries <- listSummariesQuery(Some(factionId), refPrefix).query[ArmySummary].to[List].transact(xa)
-      _ <- IO.println(s"[$now] [ArmyRepository.listSummariesByFaction] Found ${summaries.size} armies")
-      _ <- summaries.traverse_(a => IO.println(s"  - ${a.name}: warlord=${a.warlordName.getOrElse("none")}, points=${a.totalPoints}"))
+      _ <- Logger[IO].debug(s"Found ${summaries.size} armies")
+      _ <- summaries.traverse_(a => Logger[IO].debug(s"  - ${a.name}: warlord=${a.warlordName.getOrElse("none")}, points=${a.totalPoints}"))
     } yield summaries
 
   private def listSummariesQuery(factionFilter: Option[FactionId], refPrefix: String): Fragment = {
