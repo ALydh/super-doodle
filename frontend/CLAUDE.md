@@ -4,6 +4,7 @@
 - React 19 with functional components.
 - Vite for bundling.
 - TypeScript in strict mode. No `any`.
+- CSS Modules for component-scoped styles (`.module.css` companion files).
 
 ## Code Philosophy
 - Minimal code, no unnecessary abstractions.
@@ -21,11 +22,13 @@
 
 ## Testing
 - TDD: write tests first, then implement.
-- Jest.
+- Playwright for E2E tests.
+- `npm run test:e2e` to run tests, `npm run test:e2e:ui` for interactive UI mode.
 - Test critical behavior and edge cases, not implementation details.
 
 ## Build
 - `npm run dev` for development, `npm run build` for production.
+- Vite proxies `/api` requests to the backend at `http://127.0.0.1:8080` (see `vite.config.ts`).
 
 ## Git
 - Use `gh` CLI for all git operations.
