@@ -17,6 +17,7 @@
 ## Architecture
 - Simple modules and clean layers. Domain-Driven Design: bounded contexts, aggregates, value objects.
 - Isolate domain logic from infrastructure concerns.
+- Dual-database design: `wp40k-ref.db` (read-only game data, built by `BuildRefDb`) and `wp40k-user.db` (armies, sessions, users). Passed as separate `Transactor[IO]` instances (`refXa` / `userXa`).
 
 ## Testing
 - TDD: write tests first, then implement.
@@ -26,6 +27,9 @@
 ## Build
 - sbt. Run from `backend/` directory.
 - Data files live at `../data/wp40k/` (relative to `backend/`).
+- `sbt nativeImage` — build GraalVM native binary for production.
+- `sbt "runMain wp40k.BuildRefDb"` — build reference database from CSV files.
+- `sbt "testOnly wp40k.domain.models.*"` — run specific test suites.
 
 ## Git
 - Use `gh` CLI for all git operations.
