@@ -38,6 +38,7 @@ export function ArmyBuilderPage() {
   const [warlordId, setWarlordId] = useState("");
   const [chapterId, setChapterId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [expandedIndices, setExpandedIndices] = useState<Set<number>>(new Set());
 
   const [datasheets, setDatasheets] = useState<Datasheet[] | null>(null);
   const [allCosts, setAllCosts] = useState<UnitCost[]>([]);
@@ -151,6 +152,14 @@ export function ArmyBuilderPage() {
   const handleRemoveUnit = (index: number) => { setUnits(units.filter((_, i) => i !== index)); };
   const handleCopyUnit = (index: number) => { const u = units[index]; setUnits([...units, { ...u, enhancementId: null, attachedLeaderId: null, attachedToUnitIndex: null }]); };
   const handleSetWarlord = (index: number) => { setWarlordId(units[index].datasheetId); };
+  const handleToggleExpanded = (index: number) => {
+    setExpandedIndices((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
 
   const handleSave = async () => {
     const army = buildArmy();
@@ -198,7 +207,7 @@ export function ArmyBuilderPage() {
           <table className={styles.unitsTable}>
             <thead><tr><th>Unit</th><th>Size</th><th>Enhancement</th><th>Leader</th><th>Wargear</th><th>Cost</th><th>Warlord</th><th></th></tr></thead>
             <tbody>
-              {renderUnitsForMode(units, loadedDatasheets, warlordId, handleUpdateUnit, handleRemoveUnit, handleCopyUnit, handleSetWarlord, false, profilesByDatasheet)}
+              {renderUnitsForMode(units, loadedDatasheets, warlordId, handleUpdateUnit, handleRemoveUnit, handleCopyUnit, handleSetWarlord, false, profilesByDatasheet, expandedIndices, handleToggleExpanded)}
             </tbody>
           </table>
         </div>
