@@ -7,75 +7,15 @@ import {
 } from "../api";
 import { useAuth } from "../context/useAuth";
 import { useCompactMode } from "../context/CompactModeContext";
-import { glossarySections } from "../data/glossary";
 import { sanitizeHtml } from "../sanitize";
 import { useFocusTrap } from "../hooks/useFocusTrap";
+import { buildSpotlightSections } from "../spotlightSections";
+import type { ResultSection } from "../spotlightSections";
 import styles from "./SpotlightSearch.module.css";
 
 interface SpotlightSearchProps {
   open: boolean;
   onClose: () => void;
-}
-
-const MAX_RESULTS_PER_SECTION = 10;
-
-/**
- * Returns a fuzzy match score for how well `query` matches `target`.
- * Returns null if query characters cannot all be found in order within target.
- *
- * Scoring:
- *  - Exact substring match scores highest (1000 + start-of-string bonus)
- *  - Otherwise, all query chars must appear in order (subsequence match)
- *  - Consecutive matched characters earn increasing bonuses
- *  - Matches at word boundaries (start or after a space) earn extra points
- */
-function fuzzyScore(target: string, query: string): number | null {
-  if (!query) return 0;
-  const t = target.toLowerCase();
-  const q = query.toLowerCase();
-
-  // Exact substring match — highest priority
-  const exactIdx = t.indexOf(q);
-  if (exactIdx !== -1) {
-    return 1000 + (exactIdx === 0 ? 50 : 0);
-  }
-
-  // Fuzzy: every char in q must appear in t in order
-  let score = 0;
-  let ti = 0;
-  let qi = 0;
-  let consecutive = 0;
-  let lastTi = -1;
-
-  while (ti < t.length && qi < q.length) {
-    if (t[ti] === q[qi]) {
-      score += 1;
-      if (lastTi === ti - 1) {
-        consecutive++;
-        score += consecutive; // growing bonus for runs of consecutive chars
-      } else {
-        consecutive = 0;
-      }
-      // word-boundary bonus
-      if (ti === 0 || t[ti - 1] === " ") {
-        score += 5;
-      }
-      lastTi = ti;
-      qi++;
-    }
-    ti++;
-  }
-
-  return qi < q.length ? null : score; // null = not all chars matched
-}
-
-type ResultItem =
-  | { type: "navigate"; name: string; subtitle?: string; action: () => void }
-  | { type: "expand"; name: string; subtitle?: string; description: string };
-
-interface ResultSection {
-  title: string;
-  items: ResultItem[];
 }
 
 export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
@@ -141,175 +81,13 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
     onClose();
   }, [navigate, onClose]);
 
-  const sections = useMemo<ResultSection[]>(() => {
-    const lowerSearch = search.toLowerCase();
-    const hasSearch = lowerSearch.length > 0;
-
-    const filterSorted = <T,>(items: T[], getName: (item: T) => string) => {
-      if (!hasSearch) {
-        return items
-          .sort((a, b) => getName(a).localeCompare(getName(b)))
-          .slice(0, MAX_RESULTS_PER_SECTION);
-      }
-      return items
-        .map((item) => ({ item, score: fuzzyScore(getName(item), lowerSearch) }))
-        .filter(({ score }) => score !== null)
-        .sort((a, b) =>
-          b.score !== a.score
-            ? (b.score ?? 0) - (a.score ?? 0)
-            : getName(a.item).localeCompare(getName(b.item))
-        )
-        .map(({ item }) => item)
-        .slice(0, MAX_RESULTS_PER_SECTION);
-    };
-
-    const result: ResultSection[] = [];
-
-    // Armies
-    const filteredArmies = filterSorted(armies, (a) => a.name);
-    if (filteredArmies.length > 0) {
-      result.push({
-        title: "Armies",
-        items: filteredArmies.map((a) => ({
-          type: "navigate",
-          name: a.name,
-          subtitle: `${a.totalPoints} pts`,
-          action: () => go(`/armies/${a.id}`),
-        })),
-      });
-    }
-
-    // Commands
-    const commandDefs: { name: string; action: () => void }[] = [
-      { name: "Home", action: () => go("/") },
-      { name: "Glossary", action: () => go("/glossary") },
-      { name: "Toggle compact mode", action: () => { toggleCompact(); onClose(); } },
-    ];
-    if (user) {
-      commandDefs.push({ name: "Admin", action: () => go("/admin") });
-    } else {
-      commandDefs.push({ name: "Login", action: () => go("/login") });
-      commandDefs.push({ name: "Register", action: () => go("/register") });
-    }
-    const filteredCommands = filterSorted(commandDefs, (c) => c.name);
-    if (filteredCommands.length > 0) {
-      result.push({
-        title: "Commands",
-        items: filteredCommands.map((c) => ({ type: "navigate", name: c.name, action: c.action })),
-      });
-    }
-
-    if (!hasSearch) return result;
-
-    // Weapon Abilities
-    const filteredWeapon = filterSorted(weaponAbilities, (a) => a.name);
-    if (filteredWeapon.length > 0) {
-      result.push({
-        title: "Weapon Abilities",
-        items: filteredWeapon.map((a) => ({ type: "expand", name: a.name, description: a.description })),
-      });
-    }
-
-    // Core Abilities
-    const filteredCore = filterSorted(coreAbilities, (a) => a.name);
-    if (filteredCore.length > 0) {
-      result.push({
-        title: "Core Abilities",
-        items: filteredCore.map((a) => ({ type: "expand", name: a.name, description: a.description })),
-      });
-    }
-
-    // Factions
-    const filteredFactions = filterSorted(factions, (f) => f.name);
-    if (filteredFactions.length > 0) {
-      result.push({
-        title: "Factions",
-        items: filteredFactions.map((f) => ({ type: "navigate", name: f.name, action: () => go(`/factions/${f.id}`) })),
-      });
-    }
-
-    // Datasheets
-    const filteredDatasheets = filterSorted(datasheets, (d) => d.name);
-    if (filteredDatasheets.length > 0) {
-      result.push({
-        title: "Datasheets",
-        items: filteredDatasheets.map((d) => ({
-          type: "navigate",
-          name: d.name,
-          subtitle: d.factionId ? factionNameMap.get(d.factionId) : undefined,
-          action: () => go(d.factionId ? `/factions/${d.factionId}?unit=${d.id}` : "/"),
-        })),
-      });
-    }
-
-    // Stratagems
-    const filteredStratagems = filterSorted(stratagems, (s) => s.name);
-    if (filteredStratagems.length > 0) {
-      result.push({
-        title: "Stratagems",
-        items: filteredStratagems.map((s) => {
-          const cpSubtitle = s.cpCost != null ? `${s.cpCost} CP` : undefined;
-          const subtitle = s.detachment && cpSubtitle
-            ? `${cpSubtitle} · ${s.detachment}`
-            : cpSubtitle ?? (s.detachment ?? undefined);
-          if (s.factionId) {
-            return {
-              type: "navigate" as const,
-              name: s.name,
-              subtitle,
-              action: () => go(`/factions/${s.factionId}?tab=stratagems`),
-            };
-          }
-          return {
-            type: "expand" as const,
-            name: s.name,
-            subtitle,
-            description: s.description,
-          };
-        }),
-      });
-    }
-
-    // Enhancements
-    const filteredEnhancements = filterSorted(enhancements, (e) => e.name);
-    if (filteredEnhancements.length > 0) {
-      result.push({
-        title: "Enhancements",
-        items: filteredEnhancements.map((e) => {
-          const subtitle = e.detachment
-            ? `${e.cost} pts · ${e.detachment}`
-            : `${e.cost} pts`;
-          if (e.factionId && e.detachmentId) {
-            return {
-              type: "navigate" as const,
-              name: e.name,
-              subtitle,
-              action: () => go(`/factions/${e.factionId}?detachment=${e.detachmentId}`),
-            };
-          }
-          return {
-            type: "expand" as const,
-            name: e.name,
-            subtitle,
-            description: e.description,
-          };
-        }),
-      });
-    }
-
-    // Static glossary sections
-    for (const section of glossarySections) {
-      const filtered = filterSorted(section.entries, (e) => e.name);
-      if (filtered.length > 0) {
-        result.push({
-          title: section.title,
-          items: filtered.map((e) => ({ type: "expand", name: e.name, description: e.description })),
-        });
-      }
-    }
-
-    return result;
-  }, [search, factions, datasheets, stratagems, enhancements, weaponAbilities, coreAbilities, armies, factionNameMap, user, go, onClose, toggleCompact]);
+  const sections = useMemo<ResultSection[]>(() =>
+    buildSpotlightSections({
+      search, armies, factions, datasheets, stratagems, enhancements,
+      weaponAbilities, coreAbilities, factionNameMap, user, go, onClose, toggleCompact,
+    }),
+    [search, factions, datasheets, stratagems, enhancements, weaponAbilities, coreAbilities, armies, factionNameMap, user, go, onClose, toggleCompact],
+  );
 
   const flatItems = useMemo(() => sections.flatMap((s) => s.items), [sections]);
 
