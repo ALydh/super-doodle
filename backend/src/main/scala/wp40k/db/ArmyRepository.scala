@@ -101,14 +101,15 @@ object ArmyRepository {
     } yield result
 
   def create(id: String, name: String, army: Army, ownerId: Option[UserId])(xa: Transactor[IO]): IO[PersistedArmy] = {
-    val now = Instant.now().toString
+    val now = Instant.now()
+    val nowStr = now.toString
     for {
       _ <- Logger[IO].info(s"Creating army $name with ${army.units.size} units")
       _ <- (for {
         _ <- {
           val notesJson: Option[String] = if (army.checklistNotes.isEmpty) None else Some(army.checklistNotes.asJson.noSpaces)
           sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at, chapter_id, checklist_notes)
-                   VALUES ($id, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $ownerId, $now, $now, ${army.chapterId}, $notesJson)""".update.run
+                   VALUES ($id, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $ownerId, $nowStr, $nowStr, ${army.chapterId}, $notesJson)""".update.run
         }
         _ <- army.units.traverse_ { unit =>
           for {
@@ -123,11 +124,12 @@ object ArmyRepository {
         }
       } yield ()).transact(xa)
       _ <- Logger[IO].info("Army created successfully")
-    } yield PersistedArmy(id, name, army, ownerId.map(UserId.value), now, now)
+    } yield PersistedArmy(id, name, army, ownerId.map(UserId.value), nowStr, nowStr)
   }
 
   def update(id: String, name: String, army: Army)(xa: Transactor[IO]): IO[Option[PersistedArmy]] = {
-    val now = Instant.now().toString
+    val now = Instant.now()
+    val nowStr = now.toString
     for {
       _ <- Logger[IO].debug(s"Updating army $id")
       result <- (for {
@@ -138,7 +140,7 @@ object ArmyRepository {
             _ <- {
               val notesJson: Option[String] = if (army.checklistNotes.isEmpty) None else Some(army.checklistNotes.asJson.noSpaces)
               sql"""UPDATE armies SET name = $name, faction_id = ${army.factionId}, battle_size = ${army.battleSize},
-                       detachment_id = ${army.detachmentId}, warlord_id = ${army.warlordId}, chapter_id = ${army.chapterId}, checklist_notes = $notesJson, updated_at = $now
+                       detachment_id = ${army.detachmentId}, warlord_id = ${army.warlordId}, chapter_id = ${army.chapterId}, checklist_notes = $notesJson, updated_at = $nowStr
                        WHERE id = $id""".update.run
             }
             _ <- army.units.traverse_ { unit =>
@@ -152,7 +154,7 @@ object ArmyRepository {
                 }
               } yield ()
             }
-          } yield PersistedArmy(id, name, army, ownerId.map(UserId.value), createdAt, now)
+          } yield PersistedArmy(id, name, army, ownerId.map(UserId.value), createdAt, nowStr)
         }
       } yield updated).transact(xa)
       _ <- Logger[IO].info(s"Update ${if (result.isDefined) "successful" else "failed - not found"}")

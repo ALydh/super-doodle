@@ -29,8 +29,8 @@ object InviteRepository {
       })
 
   def markUsed(code: InviteCode, userId: UserId)(xa: Transactor[IO]): IO[Unit] = {
-    val now = Instant.now().toString
-    sql"UPDATE invites SET used_by = $userId, used_at = $now WHERE code = $code".update.run
+    val now = Instant.now()
+    sql"UPDATE invites SET used_by = $userId, used_at = ${now.toString} WHERE code = $code".update.run
       .transact(xa)
       .void
   }
