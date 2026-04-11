@@ -38,6 +38,7 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const factionNameMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -139,6 +140,18 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
   }, [open, onClose, flatItems, activeIndex, activateItem]);
 
   useEffect(() => {
+    if (!open) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      panelRef.current?.style.setProperty("--vv-height", `${vv.height}px`);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    return () => vv.removeEventListener("resize", update);
+  }, [open]);
+
+  useEffect(() => {
     const el = resultsRef.current?.querySelector(`[data-index="${activeIndex}"]`);
     el?.scrollIntoView({ block: "nearest" });
   }, [activeIndex]);
@@ -150,7 +163,7 @@ export function SpotlightSearch({ open, onClose }: SpotlightSearchProps) {
 
   return (
     <div className={styles.backdrop} onClick={onClose} ref={trapRef}>
-      <div className={styles.panel} role="dialog" aria-modal="true" aria-label="Search" onClick={(e) => e.stopPropagation()}>
+      <div ref={panelRef} className={styles.panel} role="dialog" aria-modal="true" aria-label="Search" onClick={(e) => e.stopPropagation()}>
         <input
           ref={inputRef}
           className={styles.search}
