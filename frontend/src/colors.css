@@ -496,14 +496,14 @@
 
 /* Thousand Sons */
 [data-faction="thousand-sons"] {
-  --faction-primary: #1E4D7B;
-  --faction-secondary: #0F2840;
+  --faction-primary: #2B6CB5;
+  --faction-secondary: #163A5E;
   --faction-trim: #FFD700;
   --faction-emphasis: #00CED1;
   --faction-emphasis-text: #1a1a1a;
   --faction-danger: #FF6347;
-  --faction-primary-dark: #183e62;
-  --faction-secondary-dark: #0c2033;
+  --faction-primary-dark: #225691;
+  --faction-secondary-dark: #112E4B;
   --faction-trim-dark: #ccac00;
   --faction-emphasis-dark: #00a5a7;
   --faction-danger-dark: #cc4f39;
