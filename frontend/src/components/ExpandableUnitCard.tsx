@@ -62,6 +62,7 @@ export function ExpandableUnitCard({
             {profiles[0].invulnerableSave && (
               <span className={styles.statPill}>Inv{profiles[0].invulnerableSave}</span>
             )}
+            <span className={styles.statPill}>LD{profiles[0].leadership}</span>
             <span className={styles.statPill}>OC{profiles[0].objectiveControl}</span>
           </span>
         )}
