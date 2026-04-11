@@ -50,7 +50,12 @@
 }
 
 .btnSave:hover { background-color: #2da042; }
-.btnSave:disabled { background-color: var(--state-disabled); }
+.btnSave:disabled {
+  background-color: var(--state-disabled);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
 .sizeSelect { width: 100%; }
 .detachmentSelect { width: 100%; }
