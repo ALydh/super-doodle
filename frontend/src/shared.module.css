@@ -62,6 +62,9 @@
 
 .btnSave:disabled {
   background-color: var(--state-disabled);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .loading {
