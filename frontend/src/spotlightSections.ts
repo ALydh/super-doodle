@@ -90,6 +90,27 @@ export function buildSpotlightSections(data: SpotlightData): ResultSection[] {
     });
   }
 
+  const filteredFactions = filterSorted(factions, (f) => f.name);
+  if (filteredFactions.length > 0) {
+    result.push({
+      title: "Factions",
+      items: filteredFactions.map((f) => ({ type: "navigate", name: f.name, action: () => go(`/factions/${f.id}`) })),
+    });
+  }
+
+  const filteredDatasheets = filterSorted(datasheets, (d) => d.name);
+  if (filteredDatasheets.length > 0) {
+    result.push({
+      title: "Units",
+      items: filteredDatasheets.map((d) => ({
+        type: "navigate",
+        name: d.name,
+        subtitle: d.factionId ? factionNameMap.get(d.factionId) : undefined,
+        action: () => go(d.factionId ? `/factions/${d.factionId}?unit=${d.id}` : "/"),
+      })),
+    });
+  }
+
   if (!hasSearch) return result;
 
   const filteredWeapon = filterSorted(weaponAbilities, (a) => a.name);
@@ -105,27 +126,6 @@ export function buildSpotlightSections(data: SpotlightData): ResultSection[] {
     result.push({
       title: "Core Abilities",
       items: filteredCore.map((a) => ({ type: "expand", name: a.name, description: a.description })),
-    });
-  }
-
-  const filteredFactions = filterSorted(factions, (f) => f.name);
-  if (filteredFactions.length > 0) {
-    result.push({
-      title: "Factions",
-      items: filteredFactions.map((f) => ({ type: "navigate", name: f.name, action: () => go(`/factions/${f.id}`) })),
-    });
-  }
-
-  const filteredDatasheets = filterSorted(datasheets, (d) => d.name);
-  if (filteredDatasheets.length > 0) {
-    result.push({
-      title: "Datasheets",
-      items: filteredDatasheets.map((d) => ({
-        type: "navigate",
-        name: d.name,
-        subtitle: d.factionId ? factionNameMap.get(d.factionId) : undefined,
-        action: () => go(d.factionId ? `/factions/${d.factionId}?unit=${d.id}` : "/"),
-      })),
     });
   }
 
