@@ -126,24 +126,38 @@ export function Header({ onSearchClick, onRevisionClick }: HeaderProps) {
           {menuOpen ? "×" : "☰"}
         </button>
       </nav>
+      <div
+        className={`${styles.mobileBackdrop} ${menuOpen ? styles.mobileBackdropVisible : ""}`}
+        onClick={closeMenu}
+      />
       <nav id="mobile-menu" className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuOpen : ""}`} role="menu">
-        <button onClick={() => { toggleCompact(); closeMenu(); }} className={styles.mobileMenuItem}>
-          {compact ? "Show flavor text" : "Hide flavor text"}
-        </button>
-        <Link to="/glossary" className={styles.mobileMenuItem} onClick={closeMenu}>Glossary</Link>
-        {user ? (
-          <>
-            <Link to="/admin" className={styles.mobileMenuItem} onClick={closeMenu}>Admin</Link>
-            <span className={styles.mobileMenuItem} style={{ opacity: 0.6 }}>{user.username}</span>
-            <button onClick={() => { copyToken(); closeMenu(); }} className={styles.mobileMenuItem}>{copied ? "Copied!" : "Copy token"}</button>
-            <button onClick={() => { handleLogout(); closeMenu(); }} className={styles.mobileMenuItem}>Logout</button>
-          </>
-        ) : (
-          <>
-            <Link to="/login" className={styles.mobileMenuItem} onClick={closeMenu}>Login</Link>
-            <Link to="/register" className={styles.mobileMenuItem} onClick={closeMenu}>Register</Link>
-          </>
-        )}
+        <div className={styles.mobileMenuHeader}>
+          <button onClick={closeMenu} className={styles.mobileMenuClose} aria-label="Close menu">×</button>
+        </div>
+        <div className={styles.mobileMenuBody}>
+          <div className={styles.mobileMenuGroup}>
+            <span className={styles.mobileMenuGroupLabel}>Navigation</span>
+            <Link to="/glossary" className={styles.mobileMenuItem} onClick={closeMenu}>Glossary</Link>
+            <button onClick={() => { toggleCompact(); closeMenu(); }} className={styles.mobileMenuItem}>
+              {compact ? "Show flavor text" : "Hide flavor text"}
+            </button>
+          </div>
+          <div className={styles.mobileMenuDivider} />
+          {user ? (
+            <div className={styles.mobileMenuGroup}>
+              <span className={styles.mobileUserLabel}>{user.username}</span>
+              <Link to="/admin" className={styles.mobileMenuItem} onClick={closeMenu}>Admin</Link>
+              <button onClick={() => { copyToken(); closeMenu(); }} className={styles.mobileMenuItem}>{copied ? "Copied!" : "Copy token"}</button>
+              <button onClick={() => { handleLogout(); closeMenu(); }} className={styles.mobileMenuItem}>Logout</button>
+            </div>
+          ) : (
+            <div className={styles.mobileMenuGroup}>
+              <span className={styles.mobileMenuGroupLabel}>Account</span>
+              <Link to="/login" className={styles.mobileMenuItem} onClick={closeMenu}>Login</Link>
+              <Link to="/register" className={styles.mobileMenuItem} onClick={closeMenu}>Register</Link>
+            </div>
+          )}
+        </div>
       </nav>
     </header>
   );
