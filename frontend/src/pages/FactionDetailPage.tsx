@@ -327,7 +327,7 @@ export function FactionDetailPage() {
               if (!val) setChapterFilter("all");
             }}
           >
-            <option value="">No Chapter</option>
+            <option value="">All Chapters</option>
             {SM_CHAPTERS.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
