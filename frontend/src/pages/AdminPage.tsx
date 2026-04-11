@@ -65,18 +65,20 @@ export function AdminPage() {
     <div className={styles.page}>
       <h1>Admin</h1>
 
-      <section className={styles.section}>
-        <h2>Invite Codes</h2>
-        <button onClick={handleCreateInvite} disabled={creating} className={styles.createBtn}>
-          {creating ? "Creating..." : "Create Invite"}
-        </button>
+      <section className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Invite Codes</h2>
+          <button onClick={handleCreateInvite} disabled={creating} className={styles.createBtn}>
+            {creating ? "Creating..." : "Create Invite"}
+          </button>
+        </div>
 
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         {loading ? (
-          <p>Loading invites...</p>
+          <Spinner />
         ) : invites.length === 0 ? (
-          <p>No invites created yet.</p>
+          <p className={styles.empty}>No invite codes have been generated yet. Create one to invite a new user.</p>
         ) : (
           <table className={styles.table}>
             <thead>
