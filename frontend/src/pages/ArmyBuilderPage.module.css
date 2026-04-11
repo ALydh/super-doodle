@@ -83,7 +83,14 @@
   align-items: center;
   gap: 16px;
   padding-bottom: 20px;
-  flex-wrap: wrap;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
 .headerIcon {
@@ -236,8 +243,17 @@
 /* ── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 599px) {
+  .viewHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .headerIcon { width: 32px; height: 32px; }
   .nameInputInline { font-size: 1.2rem; }
-  .headerIcon { width: 36px; height: 36px; }
+
+  .headerActions { width: 100%; }
+  .btnSave { width: 100%; }
 
   .bgIcon {
     width: 60vw;
