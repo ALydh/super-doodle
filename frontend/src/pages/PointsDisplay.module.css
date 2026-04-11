@@ -8,6 +8,7 @@
   color: var(--text-primary);
   margin: 20px 0;
   overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
 }
 
 .bar {

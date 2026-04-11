@@ -9,7 +9,8 @@ interface Props {
 
 export function PointsDisplay({ total, battleSize }: Props) {
   const max = BATTLE_SIZE_POINTS[battleSize];
-  const percent = Math.min((total / max) * 100, 100);
+  const rawPercent = Math.min((total / max) * 100, 100);
+  const percent = total > 0 ? Math.max(rawPercent, 3) : 0;
 
   return (
     <div
