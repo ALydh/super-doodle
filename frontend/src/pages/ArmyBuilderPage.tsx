@@ -236,18 +236,20 @@ export function ArmyBuilderPage() {
     <div data-faction={factionTheme} className={styles.page}>
       {bgIcon}
       <div className={styles.viewHeader}>
-        {factionTheme && <img src={`/icons/${factionTheme}.svg`} alt="" className={styles.headerIcon} />}
-        <div className={styles.headerText}>
-          <input
-            className={styles.nameInputInline}
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Army name..."
-          />
-          <p className={styles.meta}>
-            {detachmentName && <>{detachmentName} · </>}{battleSize} · <span className={pointsTotal > maxPoints ? styles.overBudget : styles.pointsOk}>{pointsTotal}/{maxPoints}pts</span>
-          </p>
+        <div className={styles.headerTop}>
+          {factionTheme && <img src={`/icons/${factionTheme}.svg`} alt="" className={styles.headerIcon} />}
+          <div className={styles.headerText}>
+            <input
+              className={styles.nameInputInline}
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Army name..."
+            />
+            <p className={styles.meta}>
+              {detachmentName && <>{detachmentName} · </>}{battleSize} · <span className={pointsTotal > maxPoints ? styles.overBudget : styles.pointsOk}>{pointsTotal}/{maxPoints}pts</span>
+            </p>
+          </div>
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnSave} onClick={handleSave} disabled={!name.trim()}>
