@@ -39,9 +39,7 @@ export function FactionDetailPage() {
   const [detachmentAbilities, setDetachmentAbilities] = useState<Map<string, DetachmentAbility[]>>(new Map());
   const [enhancements, setEnhancements] = useState<Enhancement[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>(() =>
-    (sessionStorage.getItem(`fdp:${factionId}:activeTab`) as TabId | null) ?? "units"
-  );
+  const [activeTab, setActiveTab] = useState<TabId>("units");
   const [expandedUnit, setExpandedUnit] = useState<string | null>(() => {
     const stored = sessionStorage.getItem(`fdp:${factionId}:expandedUnit`);
     return stored ?? searchParams.get("unit");
@@ -128,7 +126,6 @@ export function FactionDetailPage() {
     });
   }, [searchParams, detachments, setSearchParams]);
 
-  useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:activeTab`, activeTab); }, [factionId, activeTab]);
   useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:search`, search); }, [factionId, search]);
   useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:stratDetachmentFilter`, stratagemDetachmentFilter); }, [factionId, stratagemDetachmentFilter]);
   useEffect(() => { sessionStorage.setItem(`fdp:${factionId}:stratPhaseFilter`, stratagemPhaseFilter); }, [factionId, stratagemPhaseFilter]);
