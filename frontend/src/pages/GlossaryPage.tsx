@@ -17,8 +17,8 @@ function GlossaryEntry({ name, description }: EntryProps) {
   return (
     <div className={styles.entry} onClick={() => setOpen(!open)}>
       <div className={styles.entryHeader}>
+        <span className={styles.expandIcon}>{open ? "▼" : "▶"}</span>
         <span className={styles.entryName}>{name}</span>
-        <span className={styles.entryToggle} data-open={open || undefined}>&#9660;</span>
       </div>
       {open && (
         <div
