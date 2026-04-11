@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useCompactMode } from "../context/CompactModeContext";
@@ -16,6 +16,8 @@ export function Header({ onSearchClick, onRevisionClick }: HeaderProps) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const copyToken = () => {
     const token = localStorage.getItem("auth_token");
@@ -32,6 +34,18 @@ export function Header({ onSearchClick, onRevisionClick }: HeaderProps) {
   };
 
   const closeMenu = () => setMenuOpen(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [userMenuOpen]);
 
   return (
     <header className={styles.header}>
@@ -71,11 +85,28 @@ export function Header({ onSearchClick, onRevisionClick }: HeaderProps) {
             <>
               <Link to="/admin">Admin</Link>
               <span className={styles.separator}>·</span>
-              <span className={styles.user}>{user.username}</span>
-              <span className={styles.separator}>·</span>
-              <button onClick={copyToken} className={styles.logout}>{copied ? "Copied!" : "Copy token"}</button>
-              <span className={styles.separator}>·</span>
-              <button onClick={handleLogout} className={styles.logout}>Logout</button>
+              <div className={styles.userMenu} ref={userMenuRef}>
+                <button
+                  className={styles.userMenuTrigger}
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  aria-expanded={userMenuOpen}
+                >
+                  {user.username}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points={userMenuOpen ? "2,7 5,3 8,7" : "2,3 5,7 8,3"} />
+                  </svg>
+                </button>
+                {userMenuOpen && (
+                  <div className={styles.userMenuDropdown}>
+                    <button onClick={() => { copyToken(); setUserMenuOpen(false); }} className={styles.userMenuDropdownItem}>
+                      {copied ? "Copied!" : "Copy token"}
+                    </button>
+                    <button onClick={() => { handleLogout(); setUserMenuOpen(false); }} className={styles.userMenuDropdownItem}>
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>
@@ -104,7 +135,7 @@ export function Header({ onSearchClick, onRevisionClick }: HeaderProps) {
           <>
             <Link to="/admin" className={styles.mobileMenuItem} onClick={closeMenu}>Admin</Link>
             <span className={styles.mobileMenuItem} style={{ opacity: 0.6 }}>{user.username}</span>
-            <button onClick={copyToken} className={styles.mobileMenuItem}>{copied ? "Copied!" : "Copy token"}</button>
+            <button onClick={() => { copyToken(); closeMenu(); }} className={styles.mobileMenuItem}>{copied ? "Copied!" : "Copy token"}</button>
             <button onClick={() => { handleLogout(); closeMenu(); }} className={styles.mobileMenuItem}>Logout</button>
           </>
         ) : (
