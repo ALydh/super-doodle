@@ -4,6 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { CompactModeProvider, useCompactMode } from "./context/CompactModeContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
 import { Header } from "./components/Header";
 import { SpotlightSearch } from "./components/SpotlightSearch";
 import { RevisionPanel } from "./components/RevisionPanel";
@@ -56,8 +57,8 @@ function AppShell() {
       <RevisionPanel open={revisionOpen} onClose={closeRevision} />
       <Routes>
         <Route path="/" element={<FactionListPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
+        <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
         <Route path="/glossary" element={<GlossaryPage />} />
         <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
         <Route path="/factions/:factionId" element={<FactionDetailPage />} />
