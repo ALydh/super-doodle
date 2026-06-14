@@ -25,7 +25,7 @@ import { useArmyData } from "./army-view/useArmyData";
 import { useSessionStorage } from "./army-view/useSessionStorage";
 import { useEditMode } from "./army-view/useEditMode";
 import { useChecklistNotes } from "./army-view/useChecklistNotes";
-import { handleCopy, handleExportJson, handleExportTxt } from "./army-view/exportHandlers";
+import { handleCopy, handleExportJson, handleExportJsonDense, handleExportTxt } from "./army-view/exportHandlers";
 import styles from "./ArmyViewPage.module.css";
 import builderStyles from "./ArmyBuilderPage.module.css";
 
@@ -273,8 +273,15 @@ export function ArmyViewPage() {
             </p>
           </div>
           <div className={styles.actions}>
-            <button className={styles.exportBtn} onClick={() => handleExportJson(battleData)} aria-label="Export as JSON">Export</button>
-            <button className={styles.exportTxtBtn} onClick={() => handleExportTxt(battleData, totalPoints)} aria-label="Export as text">Text</button>
+            <button className={styles.exportBtn} onClick={() => handleExportJson(battleData)} aria-label="Export as JSON" title="Export as JSON">Export</button>
+            <button className={styles.exportDenseBtn} onClick={() => handleExportJsonDense(battleData, {
+              totalPoints,
+              detachmentName,
+              chapterName,
+              detachmentAbilities,
+              detachmentStratagems,
+            })} aria-label="Export as dense JSON (self-contained, all data resolved)" title="Export as dense JSON">Dense</button>
+            <button className={styles.exportTxtBtn} onClick={() => handleExportTxt(battleData, totalPoints)} aria-label="Export as text" title="Export as text">Text</button>
             {user && (
               <button className={styles.copyBtn} onClick={() => handleCopy(battleData, navigate)} aria-label="Copy army">Copy</button>
             )}

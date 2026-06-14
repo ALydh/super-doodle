@@ -87,6 +87,7 @@
 .btnCancel::before { content: "✕"; font-size: 1rem; }
 
 .exportBtn,
+.exportDenseBtn,
 .exportTxtBtn,
 .copyBtn,
 .editBtn,
@@ -107,6 +108,7 @@
 }
 
 .exportBtn:hover,
+.exportDenseBtn:hover,
 .exportTxtBtn:hover,
 .copyBtn:hover,
 .editBtn:hover,
@@ -124,6 +126,20 @@
 }
 
 .exportBtn:hover {
+  background-color: var(--faction-secondary);
+}
+
+.exportDenseBtn {
+  background-color: var(--faction-primary);
+}
+
+.exportDenseBtn::before {
+  content: "D";
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.exportDenseBtn:hover {
   background-color: var(--faction-secondary);
 }
 
@@ -381,7 +397,7 @@
   }
 
   .headerText {
-    padding-right: 220px;
+    padding-right: 264px;
   }
 
   .headerIcon {
