@@ -47,6 +47,15 @@ export interface DenseExportContext {
   detachmentStratagems: Stratagem[];
 }
 
+function toNum(v: string | null): number | string | null {
+  if (v == null) return null;
+  const cleaned = v.trim().replace(/"$/, "");
+  if (cleaned === "") return v;
+  const n = Number(cleaned);
+  if (Number.isFinite(n) && String(n) === cleaned) return n;
+  return v;
+}
+
 export function handleExportJsonDense(battleData: ArmyBattleData, ctx: DenseExportContext) {
   const warlordUnit = battleData.units.find((bu) => bu.unit.datasheetId === battleData.warlordId);
 
@@ -83,28 +92,28 @@ export function handleExportJsonDense(battleData: ArmyBattleData, ctx: DenseExpo
         : null,
       profiles: bu.profiles.map((p) => ({
         name: p.name,
-        movement: p.movement,
-        toughness: p.toughness,
-        save: p.save,
-        invulnerableSave: p.invulnerableSave,
+        movement: toNum(p.movement),
+        toughness: toNum(p.toughness),
+        save: toNum(p.save),
+        invulnerableSave: toNum(p.invulnerableSave),
         invulnerableSaveDescription: p.invulnerableSaveDescription,
         wounds: p.wounds,
-        leadership: p.leadership,
+        leadership: toNum(p.leadership),
         objectiveControl: p.objectiveControl,
-        baseSize: p.baseSize,
+        baseSize: toNum(p.baseSize),
         baseSizeDescription: p.baseSizeDescription,
       })),
       wargear: bu.wargear.map((w) => ({
         name: w.wargear.name,
         modelType: w.modelType,
         quantity: w.quantity,
-        range: w.wargear.range,
+        range: toNum(w.wargear.range),
         weaponType: w.wargear.weaponType,
-        attacks: w.wargear.attacks,
-        ballisticSkill: w.wargear.ballisticSkill,
-        strength: w.wargear.strength,
-        armorPenetration: w.wargear.armorPenetration,
-        damage: w.wargear.damage,
+        attacks: toNum(w.wargear.attacks),
+        ballisticSkill: toNum(w.wargear.ballisticSkill),
+        strength: toNum(w.wargear.strength),
+        armorPenetration: toNum(w.wargear.armorPenetration),
+        damage: toNum(w.wargear.damage),
         description: w.wargear.description,
       })),
       abilities: bu.abilities.map((a) => ({
