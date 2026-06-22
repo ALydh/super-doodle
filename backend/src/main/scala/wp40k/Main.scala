@@ -77,6 +77,11 @@ object Main extends IOApp.Simple {
         _ <- logger.info(s"User DB: ${config.userDbPath}")
         _ <- Schema.initializeUserSchema(plainUserXa)
         initialState <- RevisionUpdater.initialize(revisionsDir, config.refDbPath, plainUserXa)
+        // Top up local-only CSVs in the active revision DB using a write-mode
+        // transactor — dbs.refXa below is read-only and cannot accept inserts.
+        writeRefXa: Transactor[IO] = Database.singleTransactor(initialState.refDbPath)
+        initialCounts <- ReferenceDataRepository.counts(writeRefXa)
+        _ <- DataLoader.loadLocalCsvsIfMissing(writeRefXa, initialCounts)
         activeRef <- Ref.of[IO, RevisionState](initialState)
         dbs = Database.dynamicSplitTransactors(config.userDbPath, activeRef)
         tableCounts <- ReferenceDataRepository.counts(dbs.refXa)
