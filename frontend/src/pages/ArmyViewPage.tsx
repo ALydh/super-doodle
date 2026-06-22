@@ -212,6 +212,19 @@ export function ArmyViewPage() {
     const enhCost = u.enhancementId ? enhancements.find((e) => e.id === u.enhancementId)?.cost ?? 0 : 0;
     return sum + (cost?.cost ?? 0) + enhCost;
   }, 0);
+  const editModelsInArmy = (() => {
+    const parse = (desc: string) => {
+      const m = desc.match(/(\d+)\s*model/i);
+      return m ? parseInt(m[1], 10) : 1;
+    };
+    const map = new Map<string, number>();
+    for (const u of editUnits) {
+      const cost = editCombinedCosts.find((c) => c.datasheetId === u.datasheetId && c.line === u.sizeOptionLine);
+      const models = cost ? parse(cost.description) : 1;
+      map.set(u.datasheetId, (map.get(u.datasheetId) ?? 0) + models);
+    }
+    return map;
+  })();
   const editMaxPoints = BATTLE_SIZE_POINTS[editBattleSize] ?? 0;
   const editDetachmentName = detachments.find((d) => d.detachmentId === editDetachmentId)?.name ?? "";
   const editChapterDetachmentIds = editChapterId ? new Set(CHAPTER_DETACHMENTS[editChapterId] ?? []) : null;
@@ -462,7 +475,7 @@ export function ArmyViewPage() {
                 chapterKeyword={editSelectedChapter?.keyword ?? null}
                 keywordsByDatasheet={keywordsByDatasheet}
                 inventory={inventory}
-                currentCounts={editUnits.reduce((m, u) => m.set(u.datasheetId, (m.get(u.datasheetId) ?? 0) + 1), new Map<string, number>())}
+                modelsInArmy={editModelsInArmy}
               />
             </div>
           </div>
