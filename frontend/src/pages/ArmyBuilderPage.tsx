@@ -215,8 +215,16 @@ export function ArmyBuilderPage() {
     </div>
   );
 
-  const currentCounts = new Map<string, number>();
-  for (const u of units) currentCounts.set(u.datasheetId, (currentCounts.get(u.datasheetId) ?? 0) + 1);
+  const parseModels = (desc: string) => {
+    const match = desc.match(/(\d+)\s*model/i);
+    return match ? parseInt(match[1], 10) : 1;
+  };
+  const modelsInArmy = new Map<string, number>();
+  for (const u of units) {
+    const cost = combinedCosts.find((c) => c.datasheetId === u.datasheetId && c.line === u.sizeOptionLine);
+    const models = cost ? parseModels(cost.description) : 1;
+    modelsInArmy.set(u.datasheetId, (modelsInArmy.get(u.datasheetId) ?? 0) + models);
+  }
 
   const pickerContent = (
     <UnitPicker
@@ -228,7 +236,7 @@ export function ArmyBuilderPage() {
       chapterKeyword={selectedChapter?.keyword ?? null}
       keywordsByDatasheet={keywordsByDatasheet}
       inventory={inventory}
-      currentCounts={currentCounts}
+      modelsInArmy={modelsInArmy}
     />
   );
 

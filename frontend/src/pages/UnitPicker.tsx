@@ -26,7 +26,7 @@ interface Props {
   chapterKeyword?: string | null;
   keywordsByDatasheet?: Map<string, DatasheetKeyword[]>;
   inventory?: Map<string, number> | null;
-  currentCounts?: Map<string, number>;
+  modelsInArmy?: Map<string, number>;
 }
 
 export function UnitPicker({
@@ -38,7 +38,7 @@ export function UnitPicker({
   chapterKeyword = null,
   keywordsByDatasheet = new Map(),
   inventory = null,
-  currentCounts = new Map(),
+  modelsInArmy = new Map(),
 }: Props) {
   const [search, setSearch] = useState("");
   const [chapterFilter, setChapterFilter] = useState<ChapterFilter>("all");
@@ -147,12 +147,19 @@ export function UnitPicker({
     }))
     .filter((ally) => ally.datasheets.length > 0);
 
+  const parseModels = (desc: string) => {
+    const match = desc.match(/(\d+)\s*model/i);
+    return match ? parseInt(match[1], 10) : 1;
+  };
+
   const getCost = (datasheetId: string, costsArray: UnitCost[]) => {
     const dsCosts = costsArray.filter((c) => c.datasheetId === datasheetId);
-    const firstLine = dsCosts[0]?.line ?? 1;
+    const first = dsCosts[0];
+    const firstLine = first?.line ?? 1;
+    const firstLineModels = first ? parseModels(first.description) : 1;
     const minCost =
       dsCosts.length > 0 ? Math.min(...dsCosts.map((c) => c.cost)) : 0;
-    return { firstLine, minCost };
+    return { firstLine, firstLineModels, minCost };
   };
 
   return (
@@ -215,11 +222,11 @@ export function UnitPicker({
           <h4 className={styles.roleHeading}>{role}</h4>
           <ul className={styles.list}>
             {filteredByRole[role].sort(sortUnit).map((ds) => {
-              const { firstLine, minCost } = getCost(ds.id, costs);
+              const { firstLine, firstLineModels, minCost } = getCost(ds.id, costs);
               const unitClass = chapterKeyword ? classifyUnit(ds.id) : null;
               const ownedQty = inventory?.get(ds.id) ?? 0;
-              const inArmy = currentCounts.get(ds.id) ?? 0;
-              const atOwnedCap = inventoryFilter === "owned" && inArmy >= ownedQty;
+              const modelsUsed = modelsInArmy.get(ds.id) ?? 0;
+              const atOwnedCap = inventoryFilter === "owned" && modelsUsed + firstLineModels > ownedQty;
               return (
                 <li
                   key={ds.id}
@@ -261,10 +268,10 @@ export function UnitPicker({
           {alliedExpanded[ally.factionId] && (
             <ul className={styles.list}>
               {ally.datasheets.map((ds) => {
-                const { firstLine, minCost } = getCost(ds.id, alliedCosts);
+                const { firstLine, firstLineModels, minCost } = getCost(ds.id, alliedCosts);
                 const ownedQty = inventory?.get(ds.id) ?? 0;
-                const inArmy = currentCounts.get(ds.id) ?? 0;
-                const atOwnedCap = inventoryFilter === "owned" && inArmy >= ownedQty;
+                const modelsUsed = modelsInArmy.get(ds.id) ?? 0;
+                const atOwnedCap = inventoryFilter === "owned" && modelsUsed + firstLineModels > ownedQty;
                 return (
                   <li key={ds.id} className={styles.item}>
                     <span className={styles.name}>{ds.name}</span>
