@@ -79,6 +79,8 @@ object Main extends IOApp.Simple {
         initialState <- RevisionUpdater.initialize(revisionsDir, config.refDbPath, plainUserXa)
         activeRef <- Ref.of[IO, RevisionState](initialState)
         dbs = Database.dynamicSplitTransactors(config.userDbPath, activeRef)
+        initialCounts <- ReferenceDataRepository.counts(dbs.refXa)
+        _ <- DataLoader.loadLocalCsvsIfMissing(dbs.refXa, initialCounts)
         tableCounts <- ReferenceDataRepository.counts(dbs.refXa)
         _ <- printSummary(tableCounts, dbs.refXa)
         _ <- startSessionCleanup(plainUserXa)
