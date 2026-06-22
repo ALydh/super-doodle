@@ -15,6 +15,12 @@
   cursor: help;
 }
 
+.abbr {
+  text-decoration: underline dotted var(--faction-trim);
+  text-underline-offset: 2px;
+  cursor: help;
+}
+
 .tooltipBox {
   position: fixed;
   background-color: var(--surface-page);

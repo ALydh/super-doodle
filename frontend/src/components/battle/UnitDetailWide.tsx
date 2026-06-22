@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { BattleUnitData } from "../../types";
-import { WeaponAbilityText } from "../../pages/WeaponAbilityText";
-import { sanitizeHtml } from "../../sanitize";
+import { WeaponAbilityText, AbilityHtml } from "../../pages/WeaponAbilityText";
 import { useCompactMode } from "../../context/CompactModeContext";
 import styles from "./UnitDetailWide.module.css";
 
@@ -167,7 +166,7 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
                       <span className={styles.enhancementCost}>+{enhancement.cost}pts</span>
                     </div>
                     {enhancement.description && (
-                      <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(enhancement.description) }} />
+                      <p><AbilityHtml text={enhancement.description} /></p>
                     )}
                   </div>
                 </div>
@@ -191,7 +190,7 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
                           ))}
                         </div>
                         {expandedCore !== null && core[expandedCore]?.description && (
-                          <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
+                          <div className={styles.coreAbilityExpanded}><AbilityHtml text={core[expandedCore].description} /></div>
                         )}
                       </>
                     )}
@@ -200,7 +199,7 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
                         {other.map((a, i) => (
                           <li key={i}>
                             <strong>{a.name}</strong>
-                            {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
+                            {a.description && <p><AbilityHtml text={a.description} /></p>}
                           </li>
                         ))}
                       </ul>

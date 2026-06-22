@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { DatasheetDetail } from "../types";
-import { WeaponAbilityText } from "../pages/WeaponAbilityText";
-import { sanitizeHtml } from "../sanitize";
+import { WeaponAbilityText, AbilityHtml } from "../pages/WeaponAbilityText";
 import { useCompactMode } from "../context/CompactModeContext";
 import styles from "./ExpandableUnitCard.module.css";
 import sharedStyles from "../shared.module.css";
@@ -145,7 +144,7 @@ export function UnitCardDetail({ detail }: Props) {
                     ))}
                   </div>
                   {expandedCore !== null && core[expandedCore]?.description && (
-                    <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
+                    <div className={styles.coreAbilityExpanded}><AbilityHtml text={core[expandedCore].description} /></div>
                   )}
                 </>
               )}
@@ -154,7 +153,7 @@ export function UnitCardDetail({ detail }: Props) {
                   {other.map((a, i) => (
                     <li key={i}>
                       <strong>{a.name}</strong>
-                      {a.description && <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(`: ${a.description}`) }} />}
+                      {a.description && <>: <AbilityHtml text={a.description} /></>}
                     </li>
                   ))}
                 </ul>

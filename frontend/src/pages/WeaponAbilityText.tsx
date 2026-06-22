@@ -13,7 +13,7 @@ export function clearWeaponAbilitiesCache(): void {
   fetchPromise = null;
 }
 
-function useWeaponAbilities(): WeaponAbility[] {
+export function useWeaponAbilities(): WeaponAbility[] {
   const [abilities, setAbilities] = useState<WeaponAbility[]>(cachedAbilities ?? []);
 
   useEffect(() => {
@@ -147,6 +147,32 @@ function renderAbilitySegment(segment: string, abilities: WeaponAbility[], keyPr
   }
 
   return <>{parts}</>;
+}
+
+function escapeAttr(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+export function addAbilityTooltips(html: string, abilities: WeaponAbility[]): string {
+  if (abilities.length === 0) return html;
+  const flattened = html.replace(/<span[^>]*class="[^"]*\btt\b[^"]*"[^>]*>([^<]*)<\/span>/g, "$1");
+  return flattened.replace(/\[([A-Z][A-Z\s]*?(?:\s+\d+\+?)?)\]/g, (match, inner: string) => {
+    const cleanName = inner.replace(/\s+\d+\+?$/, "").trim();
+    const ability = abilities.find((a) => a.name.toLowerCase() === cleanName.toLowerCase());
+    if (!ability) return match;
+    return `<abbr class="${styles.abbr}" title="${escapeAttr(ability.description)}">${match}</abbr>`;
+  });
+}
+
+export function AbilityHtml({ text }: { text: string | null | undefined }) {
+  const abilities = useWeaponAbilities();
+  if (!text) return null;
+  const html = addAbilityTooltips(sanitizeHtml(text), abilities);
+  return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 export function WeaponAbilityText({ text }: Props) {
