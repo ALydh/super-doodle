@@ -230,6 +230,126 @@ export const glossarySections: GlossarySection[] = [
     ],
   },
   {
+    title: "Weapon Abilities",
+    entries: [
+      {
+        name: "Sustained Hits X",
+        description:
+          "Each unmodified hit roll of 6 with this weapon scores X additional automatic hits on the target (in addition to the original hit). X is either a number (e.g. Sustained Hits 1, Sustained Hits 2) or a die roll such as D3.",
+      },
+      {
+        name: "Lethal Hits",
+        description:
+          "Each unmodified hit roll of 6 with this weapon automatically wounds the target — skip the wound roll entirely. The attack then proceeds straight to the saving throw step.",
+      },
+      {
+        name: "Devastating Wounds",
+        description:
+          "Each unmodified wound roll of 6 with this weapon inflicts a Critical Wound. Critical Wounds bypass normal saves and invulnerable saves and instead deal damage equal to the weapon's Damage characteristic directly to the target as mortal wounds.",
+      },
+      {
+        name: "Twin-linked",
+        description:
+          "When making attacks with a Twin-linked weapon, re-roll any failed wound rolls.",
+      },
+      {
+        name: "Torrent",
+        description:
+          "Attacks made with a Torrent weapon automatically hit the target — no hit roll is needed. This bypasses any modifiers to the hit roll, including Heavy Cover and Stealth.",
+      },
+      {
+        name: "Blast",
+        description:
+          "When attacking with a Blast weapon, add 1 to the Attacks characteristic for every 5 models in the target unit (rounding down). Blast weapons can never be used to make attacks against units within Engagement Range of any models from the attacking unit's army.",
+      },
+      {
+        name: "Heavy",
+        description:
+          "If the bearer's unit Remained Stationary in the previous Movement phase, add 1 to hit rolls when attacking with a Heavy weapon.",
+      },
+      {
+        name: "Assault",
+        description:
+          "A unit equipped with one or more Assault weapons can shoot with those weapons in its Shooting phase even if it Advanced in its preceding Movement phase.",
+      },
+      {
+        name: "Rapid Fire X",
+        description:
+          "Add X to the Attacks characteristic of this weapon when targeting a unit within half range. X is typically a number (e.g. Rapid Fire 1, Rapid Fire 2) but can be a die roll.",
+      },
+      {
+        name: "Pistol",
+        description:
+          "Pistols can be fired in the Shooting phase even while the bearer's unit is within Engagement Range of enemy units, targeting one of those enemy units. A model equipped with one or more Pistols can either shoot with its Pistols or with all its other weapons in a given Shooting phase, never both.",
+      },
+      {
+        name: "Melta X",
+        description:
+          "If a target is within half range of a Melta weapon, add X to that weapon's Damage characteristic for the attack. X is a number (e.g. Melta 2 adds 2 to Damage at half range).",
+      },
+      {
+        name: "Lance",
+        description:
+          "Each time the bearer makes a melee attack with a Lance weapon in a turn it made a Charge move, add 1 to the wound roll.",
+      },
+      {
+        name: "Precision",
+        description:
+          "When attacking with a Precision weapon, if the target unit contains a Character model, the attacking player can choose to allocate any successful attacks to that Character — ignoring the Look Out, Sir rule that normally protects attached Characters.",
+      },
+      {
+        name: "Ignores Cover",
+        description:
+          "Attacks made with this weapon ignore the Benefit of Cover. The target cannot add 1 to its saving throws from cover against these attacks.",
+      },
+      {
+        name: "Indirect Fire",
+        description:
+          "Indirect Fire weapons can target enemy units that are not visible to the attacking model. When doing so, attacks are made with a -1 to hit modifier, the target receives the Benefit of Cover, and attacks cannot be allocated using Precision.",
+      },
+      {
+        name: "Anti-KEYWORD X+",
+        description:
+          "Each time an attack is made with this weapon against a target with the matching keyword (e.g. Anti-Infantry 4+, Anti-Vehicle 2+), an unmodified wound roll of X or higher scores a Critical Wound.",
+      },
+      {
+        name: "Hazardous",
+        description:
+          "After a unit shoots or fights with one or more Hazardous weapons, roll a D6 for each Hazardous weapon that was fired (or one D6 per model with a Hazardous melee weapon). On a 1, the unit suffers 3 mortal wounds (resolved after the attacks). Characters can take wounds first to avoid losing the model.",
+      },
+      {
+        name: "Extra Attacks",
+        description:
+          "Attacks made with an Extra Attacks weapon are made in addition to those made with the bearer's other melee weapons — they cannot be swapped for or replaced. The bearer always makes attacks with an Extra Attacks weapon in the Fight phase in addition to any other melee weapons.",
+      },
+      {
+        name: "One Shot",
+        description:
+          "A One Shot weapon can only be used to make attacks once per battle. After it has been fired, it cannot be used again for the rest of the game.",
+      },
+      {
+        name: "Psychic",
+        description:
+          "Attacks made with a Psychic weapon are considered Psychic Attacks. Some rules and abilities only trigger against, or are triggered by, Psychic attacks.",
+      },
+      {
+        name: "Conversion",
+        description:
+          "When targeting a unit at long range (more than half range away) with a Conversion weapon, improve the Armour Penetration (AP) characteristic of that weapon by 1 for the attack.",
+      },
+      {
+        name: "Critical Hit",
+        description:
+          "An unmodified hit roll of 6. Weapon abilities like Sustained Hits and Lethal Hits trigger on Critical Hits. Some abilities allow Critical Hits to be scored on a different roll (e.g. 5+).",
+      },
+      {
+        name: "Critical Wound",
+        description:
+          "An unmodified wound roll of 6, or an Anti-keyword wound roll meeting the specified threshold. Devastating Wounds triggers on Critical Wounds. Some abilities allow Critical Wounds to be scored on different rolls.",
+      },
+    ],
+  },
+  {
     title: "Terrain & Cover",
     entries: [
       {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ArmyUnit, DatasheetDetail, WargearWithQuantity, Enhancement, DatasheetOption, WargearSelection } from "../types";
 import type { WargearOptionType } from "../components/WargearSelector";
-import { WeaponAbilityText } from "./WeaponAbilityText";
+import { WeaponAbilityText, AbilityHtml } from "./WeaponAbilityText";
 import { sanitizeHtml } from "../sanitize";
 import { EnhancementSelector } from "../components/EnhancementSelector";
 import { WargearSelector } from "../components/WargearSelector";
@@ -216,7 +216,7 @@ export function UnitRowExpanded({
                   ))}
                 </div>
                 {expandedCore !== null && core[expandedCore]?.description && (
-                  <div className={styles.coreAbilityExpanded} dangerouslySetInnerHTML={{ __html: sanitizeHtml(core[expandedCore].description!) }} />
+                  <div className={styles.coreAbilityExpanded}><AbilityHtml text={core[expandedCore].description} /></div>
                 )}
               </>
             )}
@@ -225,7 +225,7 @@ export function UnitRowExpanded({
                 {other.map((a, i) => (
                   <div key={i} className={styles.abilityLine}>
                     <strong>{a.name}</strong>
-                    {a.description && <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(a.description) }} />}
+                    {a.description && <p><AbilityHtml text={a.description} /></p>}
                   </div>
                 ))}
               </div>
