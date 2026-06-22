@@ -91,6 +91,26 @@ export function useArmyData(armyId: string | undefined, isEditRoute: boolean) {
         if (cancelled) return;
         const migratedData = migrateBattleData(data);
         setBattleData(migratedData);
+
+        const seenIds = new Set<string>();
+        const seedDs: Datasheet[] = [];
+        const seedKw = new Map<string, DatasheetKeyword[]>();
+        const seedProf = new Map<string, ModelProfile[]>();
+        const seedCosts: UnitCost[] = [];
+        for (const u of migratedData.units) {
+          if (!seenIds.has(u.datasheet.id)) {
+            seenIds.add(u.datasheet.id);
+            seedDs.push(u.datasheet);
+          }
+          seedKw.set(u.datasheet.id, u.keywords);
+          seedProf.set(u.datasheet.id, u.profiles);
+          if (u.cost) seedCosts.push(u.cost);
+        }
+        setDatasheets(seedDs);
+        setKeywordsByDatasheet(seedKw);
+        setProfilesByDatasheet(seedProf);
+        setAllCosts(seedCosts);
+
         return Promise.allSettled([
           fetchStratagemsByFaction(data.factionId),
           fetchEnhancementsByFaction(data.factionId),
@@ -127,17 +147,28 @@ export function useArmyData(armyId: string | undefined, isEditRoute: boolean) {
       fetchAvailableAllies(battleData.factionId),
     ]).then(([details, ldr, allies]) => {
       if (cancelled) return;
-      setAllCosts(details.flatMap((d) => d.costs));
+      const costKey = (c: UnitCost) => `${c.datasheetId}:${c.line}`;
+      setAllCosts((prev) => {
+        const m = new Map(prev.map((c) => [costKey(c), c]));
+        for (const d of details) for (const c of d.costs) m.set(costKey(c), c);
+        return [...m.values()];
+      });
       setAllOptions(details.flatMap((d) => d.options));
-      setDatasheets(details.map((d) => d.datasheet));
-      const kwMap = new Map<string, DatasheetKeyword[]>();
-      const profMap = new Map<string, ModelProfile[]>();
-      for (const d of details) {
-        kwMap.set(d.datasheet.id, d.keywords);
-        profMap.set(d.datasheet.id, d.profiles);
-      }
-      setKeywordsByDatasheet(kwMap);
-      setProfilesByDatasheet(profMap);
+      setDatasheets((prev) => {
+        const m = new Map(prev.map((d) => [d.id, d]));
+        for (const d of details) m.set(d.datasheet.id, d.datasheet);
+        return [...m.values()];
+      });
+      setKeywordsByDatasheet((prev) => {
+        const m = new Map(prev);
+        for (const d of details) m.set(d.datasheet.id, d.keywords);
+        return m;
+      });
+      setProfilesByDatasheet((prev) => {
+        const m = new Map(prev);
+        for (const d of details) m.set(d.datasheet.id, d.profiles);
+        return m;
+      });
       setLeaders(ldr);
       setAlliedFactions(allies);
       if (allies.length > 0) {
