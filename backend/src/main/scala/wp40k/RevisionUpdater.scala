@@ -25,29 +25,6 @@ object RevisionUpdater {
     "Stratagems.csv", "Abilities.csv", "Enhancements.csv", "Detachment_abilities.csv"
   )
 
-  // CSVs not served by wahapedia — bundled as classpath resources under /local-data
-  // and copied into the build dir for every revision so the tables stay populated.
-  private val localCsvFiles = List(
-    "Weapon_abilities.csv",
-    "Datasheets_wargear_options_parsed.csv"
-  )
-
-  private def copyLocalCsvs(targetDir: Path)(using Logger[IO]): IO[Unit] =
-    localCsvFiles.traverse_ { file =>
-      IO {
-        val resource = getClass.getResourceAsStream(s"/local-data/$file")
-        if (resource == null) None
-        else {
-          try Files.copy(resource, targetDir.resolve(file), StandardCopyOption.REPLACE_EXISTING)
-          finally resource.close()
-          Some(file)
-        }
-      }.flatMap {
-        case Some(_) => Logger[IO].info(s"Bundled $file into revision build")
-        case None    => Logger[IO].warn(s"Local CSV $file missing from classpath; table will be empty")
-      }
-    }
-
   def timestampToRevisionId(timestamp: String): String = {
     val parts = timestamp.trim.split(" ")
     val date = parts(0).replace("-", "")
@@ -187,7 +164,6 @@ object RevisionUpdater {
           IO(Files.writeString(tempDir.resolve(file), content))
         }
       }
-      _ <- copyLocalCsvs(tempDir)
       _ <- Logger[IO].info(s"Building ref DB at $dbPath...")
       buildXa = Database.singleTransactor(dbPath)
       _ <- Schema.initializeRefSchema(buildXa)
