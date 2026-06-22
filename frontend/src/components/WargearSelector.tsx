@@ -8,6 +8,18 @@ export type WargearOptionType =
   | { kind: 'two'; choices: string[] }
   | { kind: 'either-or-two'; singleton: string; choices: string[] };
 
+function defaultNotesFor(opt: WargearOptionType | null): string | undefined {
+  if (!opt) return undefined;
+  switch (opt.kind) {
+    case 'single':
+      return opt.choices[0];
+    case 'two':
+      return opt.choices.length >= 2 ? `${opt.choices[0]}|${opt.choices[1]}` : undefined;
+    case 'either-or-two':
+      return opt.singleton;
+  }
+}
+
 interface Props {
   options: DatasheetOption[];
   selections: WargearSelection[];
@@ -84,7 +96,7 @@ export function WargearSelector({
             className={`${styles.cardOption} ${isSelected ? styles.selected : ""}`}
             onClick={() => {
               const newSelected = !isSelected;
-              const initialNotes = newSelected && !notes && opt?.kind === 'either-or-two' ? opt.singleton : undefined;
+              const initialNotes = newSelected && !notes ? defaultNotesFor(opt) : undefined;
               onSelectionChange(option.line, newSelected, initialNotes);
             }}
           >
