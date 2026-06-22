@@ -7,7 +7,7 @@ import cats.implicits.*
 import wp40k.domain.models.*
 import wp40k.domain.types.*
 import wp40k.csv.{CsvProcessor, StreamingCsvParser}
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Paths}
 import DoobieMeta.given
 
 object DataLoader {
@@ -304,49 +304,6 @@ object DataLoader {
   )(xa: Transactor[IO], counts: Map[String, Int], dataDir: String): IO[Unit] =
     if (counts.getOrElse(tableName, 0) == 0) loadFileIfExists(filename, parser, insert)(xa, dataDir)
     else IO.unit
-
-  // Local-only CSVs (not served by wahapedia) bundled as classpath resources under /local-data.
-  // Used to top up a revision DB that was built from wahapedia alone.
-  def loadLocalCsvsIfMissing(xa: Transactor[IO], counts: Map[String, Int]): IO[Unit] = {
-    val tempDirIO = IO(Files.createTempDirectory("wp40k-local-csvs"))
-    tempDirIO.bracket { tempDir =>
-      for {
-        _ <- loadLocalIfEmpty("weapon_abilities", "Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility, counts, tempDir, xa)
-        _ <- loadLocalIfEmpty("parsed_wargear_options", "Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption, counts, tempDir, xa)
-      } yield ()
-    } { tempDir =>
-      IO {
-        if (Files.exists(tempDir)) {
-          Files.walk(tempDir).sorted(java.util.Comparator.reverseOrder())
-            .forEach(p => Files.deleteIfExists(p))
-        }
-      }.handleError(_ => ())
-    }
-  }
-
-  private def loadLocalIfEmpty[A](
-    table: String,
-    filename: String,
-    parser: StreamingCsvParser[A],
-    insert: A => ConnectionIO[Int],
-    counts: Map[String, Int],
-    tempDir: Path,
-    xa: Transactor[IO]
-  ): IO[Unit] =
-    if (counts.getOrElse(table, 0) > 0) IO.unit
-    else for {
-      extracted <- IO {
-        val res = getClass.getResourceAsStream(s"/local-data/$filename")
-        if (res == null) false
-        else {
-          try Files.copy(res, tempDir.resolve(filename))
-          finally res.close()
-          true
-        }
-      }
-      _ <- if (extracted) loadFile(filename, parser, insert)(xa, tempDir.toString)
-           else IO.println(s"Local CSV $filename missing from classpath; table $table will stay empty")
-    } yield ()
 
   def loadMissing(xa: Transactor[IO], counts: Map[String, Int], dataDir: String = defaultDataDir): IO[Unit] =
     for {
