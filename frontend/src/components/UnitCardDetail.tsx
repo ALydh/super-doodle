@@ -15,7 +15,12 @@ export function UnitCardDetail({ detail }: Props) {
   const filteredAbilities = detail.abilities.filter(a => a.name);
   const filteredKeywords = detail.keywords.filter(k => k.keyword);
   const filteredWargear = detail.wargear.filter(w => w.name);
+  const rangedWargear = filteredWargear.filter(w => w.range?.toLowerCase() !== "melee");
+  const meleeWargear = filteredWargear.filter(w => w.range?.toLowerCase() === "melee");
   const hasRightColumn = filteredAbilities.length > 0;
+  const invulNotes = detail.profiles
+    .filter(p => p.invulnerableSaveDescription)
+    .map(p => ({ key: `${p.line}`, label: detail.profiles.length > 1 ? p.name : null, text: p.invulnerableSaveDescription as string }));
 
   return (<>
     <div className={styles.wideColumns}>
@@ -70,16 +75,47 @@ export function UnitCardDetail({ detail }: Props) {
           </div>
         )}
 
-        {filteredWargear.length > 0 && (
+        {invulNotes.length > 0 && (
+          <div className={styles.statNotesSection}>
+            {invulNotes.map(n => (
+              <p key={`inv-${n.key}`} className={styles.statNote}>
+                <strong>Inv{n.label ? ` (${n.label})` : ""}:</strong> <AbilityHtml text={n.text} />
+              </p>
+            ))}
+          </div>
+        )}
+
+        {detail.datasheet.damagedW && detail.datasheet.damagedDescription && (
+          <div className={styles.damagedSection}>
+            <h4>Damaged: {detail.datasheet.damagedW} wounds remaining</h4>
+            <p>{detail.datasheet.damagedDescription}</p>
+          </div>
+        )}
+
+        {detail.datasheet.transport && (
+          <div className={styles.calloutSection}>
+            <h4>Transport</h4>
+            <p><AbilityHtml text={detail.datasheet.transport} /></p>
+          </div>
+        )}
+
+        {detail.datasheet.leaderHead && (
+          <div className={styles.calloutSection}>
+            <h4>Leader</h4>
+            <p><AbilityHtml text={detail.datasheet.leaderHead} /></p>
+          </div>
+        )}
+
+        {rangedWargear.length > 0 && (
           <div className={styles.weaponsSection}>
-            <h4>Weapons</h4>
+            <h4>Ranged Weapons</h4>
             <table className={`${sharedStyles.weaponsTable} ${styles.weaponsTable}`}>
               <thead>
                 <tr>
                   <th>Name</th>
                   <th>Range</th>
                   <th>A</th>
-                  <th>BS/WS</th>
+                  <th>BS</th>
                   <th>S</th>
                   <th>AP</th>
                   <th>D</th>
@@ -87,7 +123,7 @@ export function UnitCardDetail({ detail }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {filteredWargear.map((w, i) => (
+                {rangedWargear.map((w, i) => (
                   <tr key={i}>
                     <td>{w.name}</td>
                     <td>{w.range ?? "-"}</td>
@@ -102,17 +138,65 @@ export function UnitCardDetail({ detail }: Props) {
               </tbody>
             </table>
             <div className={styles.weaponsMobile}>
-              {filteredWargear.map((w, i) => (
+              {rangedWargear.map((w, i) => (
                 <div key={i} className={styles.weaponCard}>
                   <div className={styles.weaponCardHeader}>
                     <span className={styles.weaponCardName}>{w.name}</span>
-                    <span className={styles.weaponCardRange}>
-                      {w.range?.toLowerCase() === "melee" ? "Melee" : w.range ?? "-"}
-                    </span>
+                    <span className={styles.weaponCardRange}>{w.range ?? "-"}</span>
                   </div>
                   <div className={styles.weaponCardValues}>
                     <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{w.attacks ?? "-"}</span></div>
-                    <div className={styles.statItem}><span className={styles.statLabel}>BS/WS</span><span className={styles.statValue}>{w.ballisticSkill ?? "-"}</span></div>
+                    <div className={styles.statItem}><span className={styles.statLabel}>BS</span><span className={styles.statValue}>{w.ballisticSkill ?? "-"}</span></div>
+                    <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{w.strength ?? "-"}</span></div>
+                    <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{w.armorPenetration ?? "-"}</span></div>
+                    <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{w.damage ?? "-"}</span></div>
+                  </div>
+                  {w.description && <div className={styles.weaponCardAbilities}><WeaponAbilityText text={w.description} /></div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {meleeWargear.length > 0 && (
+          <div className={styles.weaponsSection}>
+            <h4>Melee Weapons</h4>
+            <table className={`${sharedStyles.weaponsTable} ${styles.weaponsTable}`}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>A</th>
+                  <th>WS</th>
+                  <th>S</th>
+                  <th>AP</th>
+                  <th>D</th>
+                  <th>Abilities</th>
+                </tr>
+              </thead>
+              <tbody>
+                {meleeWargear.map((w, i) => (
+                  <tr key={i}>
+                    <td>{w.name}</td>
+                    <td>{w.attacks ?? "-"}</td>
+                    <td>{w.ballisticSkill ?? "-"}</td>
+                    <td>{w.strength ?? "-"}</td>
+                    <td>{w.armorPenetration ?? "-"}</td>
+                    <td>{w.damage ?? "-"}</td>
+                    <td><WeaponAbilityText text={w.description} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className={styles.weaponsMobile}>
+              {meleeWargear.map((w, i) => (
+                <div key={i} className={styles.weaponCard}>
+                  <div className={styles.weaponCardHeader}>
+                    <span className={styles.weaponCardName}>{w.name}</span>
+                    <span className={styles.weaponCardRange}>Melee</span>
+                  </div>
+                  <div className={styles.weaponCardValues}>
+                    <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{w.attacks ?? "-"}</span></div>
+                    <div className={styles.statItem}><span className={styles.statLabel}>WS</span><span className={styles.statValue}>{w.ballisticSkill ?? "-"}</span></div>
                     <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{w.strength ?? "-"}</span></div>
                     <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{w.armorPenetration ?? "-"}</span></div>
                     <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{w.damage ?? "-"}</span></div>
@@ -172,6 +256,13 @@ export function UnitCardDetail({ detail }: Props) {
             <span key={i} className={sharedStyles.keyword}>{k.keyword}</span>
           ))}
         </div>
+      </div>
+    )}
+
+    {detail.datasheet.leaderFooter && (
+      <div className={styles.calloutSection}>
+        <h4>Leader Attachment</h4>
+        <p><AbilityHtml text={detail.datasheet.leaderFooter} /></p>
       </div>
     )}
   </>);

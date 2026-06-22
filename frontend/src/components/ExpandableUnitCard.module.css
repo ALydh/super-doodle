@@ -139,18 +139,58 @@
 
 .weaponsSection,
 .abilitiesSection,
-.keywordsSection {
+.keywordsSection,
+.damagedSection,
+.calloutSection,
+.statNotesSection {
   margin-top: 16px;
 }
 
 .statsSection h4,
 .weaponsSection h4,
 .abilitiesSection h4,
-.keywordsSection h4 {
+.keywordsSection h4,
+.damagedSection h4,
+.calloutSection h4 {
   color: var(--faction-primary);
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 8px;
+}
+
+.damagedSection,
+.calloutSection {
+  padding: 8px 12px;
+  background: var(--surface-panel);
+  border-left: 3px solid var(--faction-trim);
+  border-radius: 4px;
+}
+
+.damagedSection h4 {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.damagedSection p,
+.calloutSection p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.statNotesSection {
+  margin-top: 8px;
+}
+
+.statNote {
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.statNote strong {
+  color: var(--text-primary);
 }
 
 .weaponsTable {

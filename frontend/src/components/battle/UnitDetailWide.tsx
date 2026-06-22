@@ -21,7 +21,13 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
   const filteredKeywords = keywords.filter((k) => k.keyword);
   const hasKeywords = filteredKeywords.length > 0;
   const hasWeapons = wargear.length > 0;
-  const hasRightColumn = hasEnhancement || hasAbilities;
+  const rangedWargear = wargear.filter((wq) => wq.wargear.range?.toLowerCase() !== "melee");
+  const meleeWargear = wargear.filter((wq) => wq.wargear.range?.toLowerCase() === "melee");
+  const invulNotes = profiles
+    .filter((p) => p.invulnerableSaveDescription)
+    .map((p) => ({ key: `${p.line}`, label: profiles.length > 1 ? p.name : null, text: p.invulnerableSaveDescription as string }));
+  const hasCallouts = !!(datasheet.damagedW && datasheet.damagedDescription) || !!datasheet.transport || !!datasheet.leaderHead || !!datasheet.leaderFooter;
+  const hasRightColumn = hasEnhancement || hasAbilities || hasCallouts;
 
   return (
     <div className={styles.wide}>
@@ -100,16 +106,26 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
               </div>
             )}
 
-            {hasWeapons && (
+            {invulNotes.length > 0 && (
+              <div className={styles.statNotes}>
+                {invulNotes.map((n) => (
+                  <p key={`inv-${n.key}`} className={styles.statNote}>
+                    <strong>Inv{n.label ? ` (${n.label})` : ""}:</strong> <AbilityHtml text={n.text} />
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {rangedWargear.length > 0 && (
               <div className={styles.weapons}>
-                <h4>Weapons</h4>
+                <h4>Ranged Weapons</h4>
                 <table className={styles.weaponsTable}>
                   <thead>
                     <tr>
                       <th>Name</th>
                       <th>Range</th>
                       <th>A</th>
-                      <th>BS/WS</th>
+                      <th>BS</th>
                       <th>S</th>
                       <th>AP</th>
                       <th>D</th>
@@ -117,7 +133,7 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {wargear.map((wq, i) => (
+                    {rangedWargear.map((wq, i) => (
                       <tr key={i}>
                         <td className={styles.weaponName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</td>
                         <td>{wq.wargear.range ?? "-"}</td>
@@ -132,17 +148,65 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
                   </tbody>
                 </table>
                 <div className={styles.weaponsMobile}>
-                  {wargear.map((wq, i) => (
+                  {rangedWargear.map((wq, i) => (
                     <div key={i} className={styles.weaponCard}>
                       <div className={styles.weaponCardHeader}>
                         <span className={styles.weaponCardName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
-                        <span className={styles.weaponCardRange}>
-                          {wq.wargear.range?.toLowerCase() === "melee" ? "Melee" : wq.wargear.range ?? "-"}
-                        </span>
+                        <span className={styles.weaponCardRange}>{wq.wargear.range ?? "-"}</span>
                       </div>
                       <div className={styles.weaponCardValues}>
                         <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{wq.wargear.attacks ?? "-"}</span></div>
-                        <div className={styles.statItem}><span className={styles.statLabel}>BS/WS</span><span className={styles.statValue}>{wq.wargear.ballisticSkill ?? "-"}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>BS</span><span className={styles.statValue}>{wq.wargear.ballisticSkill ?? "-"}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{wq.wargear.strength ?? "-"}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{wq.wargear.armorPenetration ?? "-"}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{wq.wargear.damage ?? "-"}</span></div>
+                      </div>
+                      {wq.wargear.description && <div className={styles.weaponCardAbilities}><WeaponAbilityText text={wq.wargear.description} /></div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {meleeWargear.length > 0 && (
+              <div className={styles.weapons}>
+                <h4>Melee Weapons</h4>
+                <table className={styles.weaponsTable}>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>A</th>
+                      <th>WS</th>
+                      <th>S</th>
+                      <th>AP</th>
+                      <th>D</th>
+                      <th>Abilities</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {meleeWargear.map((wq, i) => (
+                      <tr key={i}>
+                        <td className={styles.weaponName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</td>
+                        <td>{wq.wargear.attacks ?? "-"}</td>
+                        <td>{wq.wargear.ballisticSkill ?? "-"}</td>
+                        <td>{wq.wargear.strength ?? "-"}</td>
+                        <td>{wq.wargear.armorPenetration ?? "-"}</td>
+                        <td>{wq.wargear.damage ?? "-"}</td>
+                        <td><WeaponAbilityText text={wq.wargear.description} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className={styles.weaponsMobile}>
+                  {meleeWargear.map((wq, i) => (
+                    <div key={i} className={styles.weaponCard}>
+                      <div className={styles.weaponCardHeader}>
+                        <span className={styles.weaponCardName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
+                        <span className={styles.weaponCardRange}>Melee</span>
+                      </div>
+                      <div className={styles.weaponCardValues}>
+                        <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{wq.wargear.attacks ?? "-"}</span></div>
+                        <div className={styles.statItem}><span className={styles.statLabel}>WS</span><span className={styles.statValue}>{wq.wargear.ballisticSkill ?? "-"}</span></div>
                         <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{wq.wargear.strength ?? "-"}</span></div>
                         <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{wq.wargear.armorPenetration ?? "-"}</span></div>
                         <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{wq.wargear.damage ?? "-"}</span></div>
@@ -207,6 +271,34 @@ export function UnitDetailWide({ data, isWarlord, hideHeader }: Props) {
                   </div>
                 );
               })()}
+
+              {datasheet.damagedW && datasheet.damagedDescription && (
+                <div className={styles.damaged}>
+                  <h4>Damaged: {datasheet.damagedW} wounds remaining</h4>
+                  <p>{datasheet.damagedDescription}</p>
+                </div>
+              )}
+
+              {datasheet.transport && (
+                <div className={styles.callout}>
+                  <h4>Transport</h4>
+                  <p><AbilityHtml text={datasheet.transport} /></p>
+                </div>
+              )}
+
+              {datasheet.leaderHead && (
+                <div className={styles.callout}>
+                  <h4>Leader</h4>
+                  <p><AbilityHtml text={datasheet.leaderHead} /></p>
+                </div>
+              )}
+
+              {datasheet.leaderFooter && (
+                <div className={styles.callout}>
+                  <h4>Leader Attachment</h4>
+                  <p><AbilityHtml text={datasheet.leaderFooter} /></p>
+                </div>
+              )}
             </div>
           )}
         </div>

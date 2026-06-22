@@ -25,15 +25,17 @@ async function login(page: Page, username: string, password: string) {
 }
 
 async function getWeaponNames(page: Page): Promise<string[]> {
-  // The Weapons table is the table that follows the "Weapons" heading inside the expanded row.
-  const heading = page.getByRole('heading', { name: 'Weapons', exact: true });
-  const tableContainer = heading.locator('..');
-  const rows = tableContainer.locator('table tbody tr');
-  const count = await rows.count();
+  const headings = page.getByRole('heading', { name: /^(Ranged|Melee) Weapons$/ });
+  const headingCount = await headings.count();
   const names: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const cell = await rows.nth(i).locator('td').first().textContent();
-    names.push((cell ?? '').trim());
+  for (let h = 0; h < headingCount; h++) {
+    const tableContainer = headings.nth(h).locator('..');
+    const rows = tableContainer.locator('table tbody tr');
+    const rowCount = await rows.count();
+    for (let i = 0; i < rowCount; i++) {
+      const cell = await rows.nth(i).locator('td').first().textContent();
+      names.push((cell ?? '').trim());
+    }
   }
   return names.sort();
 }
@@ -83,7 +85,7 @@ test('clicking a wargear option updates the weapons table', async ({ page, reque
   await initialFilter;
 
   // Wait for the Weapons table to appear.
-  await expect(page.getByRole('heading', { name: 'Weapons' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^(Ranged|Melee) Weapons$/ }).first()).toBeVisible();
   const initialWeapons = await getWeaponNames(page);
   console.log('Initial weapons:', initialWeapons);
   expect(initialWeapons.length).toBeGreaterThan(0);
@@ -169,7 +171,7 @@ test('clicking an option card alone (no dropdown) updates the weapons table', as
   const initialFilter = page.waitForResponse(/filter-wargear/);
   await header.click();
   await initialFilter;
-  await expect(page.getByRole('heading', { name: 'Weapons' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^(Ranged|Melee) Weapons$/ }).first()).toBeVisible();
 
   const initialWeapons = await getWeaponNames(page);
   console.log('Initial weapons:', initialWeapons);

@@ -375,6 +375,41 @@
   border-top: 1px solid var(--surface-border);
 }
 
+.statNotes {
+  margin-top: 8px;
+}
+
+.statNote {
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.statNote strong {
+  color: var(--text-primary);
+}
+
+.damaged,
+.callout {
+  margin-top: 16px;
+  padding: 8px 12px;
+  background: var(--surface-panel);
+  border-left: 3px solid var(--faction-trim);
+  border-radius: 4px;
+}
+
+.damaged p,
+.callout p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.damaged .sectionHeading,
+.callout .sectionHeading {
+  margin-bottom: 4px;
+}
+
 .coreAbilitiesPills {
   display: flex;
   flex-wrap: wrap;
