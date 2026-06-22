@@ -215,6 +215,9 @@ export function ArmyBuilderPage() {
     </div>
   );
 
+  const currentCounts = new Map<string, number>();
+  for (const u of units) currentCounts.set(u.datasheetId, (currentCounts.get(u.datasheetId) ?? 0) + 1);
+
   const pickerContent = (
     <UnitPicker
       datasheets={datasheets ?? []}
@@ -225,6 +228,7 @@ export function ArmyBuilderPage() {
       chapterKeyword={selectedChapter?.keyword ?? null}
       keywordsByDatasheet={keywordsByDatasheet}
       inventory={inventory}
+      currentCounts={currentCounts}
     />
   );
 
