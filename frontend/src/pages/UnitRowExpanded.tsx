@@ -46,6 +46,12 @@ export function UnitRowExpanded({
   getWargearSelection,
 }: Props) {
   const [expandedCore, setExpandedCore] = useState<number | null>(null);
+  const datasheet = detail?.datasheet;
+  const rangedWargear = filteredWargear.filter(wq => wq.wargear.range?.toLowerCase() !== "melee");
+  const meleeWargear = filteredWargear.filter(wq => wq.wargear.range?.toLowerCase() === "melee");
+  const invulNotes = (detail?.profiles ?? [])
+    .filter(p => p.invulnerableSaveDescription)
+    .map(p => ({ key: `${p.line}`, label: (detail?.profiles.length ?? 0) > 1 ? p.name : null, text: p.invulnerableSaveDescription as string }));
   return (
     <div className={styles.expanded}>
       {loadingDetail && <div className="loading">Loading stats...</div>}
@@ -100,16 +106,26 @@ export function UnitRowExpanded({
             </>
           )}
 
-          {filteredWargear.length > 0 && (
+          {invulNotes.length > 0 && (
+            <div className={styles.statNotes}>
+              {invulNotes.map(n => (
+                <p key={`inv-${n.key}`} className={styles.statNote}>
+                  <strong>Inv{n.label ? ` (${n.label})` : ""}:</strong> <AbilityHtml text={n.text} />
+                </p>
+              ))}
+            </div>
+          )}
+
+          {rangedWargear.length > 0 && (
             <div>
-              <h5 className={styles.sectionHeading}>Weapons</h5>
+              <h5 className={styles.sectionHeading}>Ranged Weapons</h5>
               <table className={`${sharedStyles.weaponsTable} ${styles.weaponsTable}`}>
                 <thead>
                   <tr>
                     <th>Name</th>
                     <th>Range</th>
                     <th>A</th>
-                    <th>BS/WS</th>
+                    <th>BS</th>
                     <th>S</th>
                     <th>AP</th>
                     <th>D</th>
@@ -117,7 +133,7 @@ export function UnitRowExpanded({
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredWargear.map((wq, i) => (
+                  {rangedWargear.map((wq, i) => (
                     <tr key={i}>
                       <td>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</td>
                       <td>{wq.wargear.range ?? "-"}</td>
@@ -132,17 +148,65 @@ export function UnitRowExpanded({
                 </tbody>
               </table>
               <div className={styles.weaponsMobile}>
-                {filteredWargear.map((wq, i) => (
+                {rangedWargear.map((wq, i) => (
                   <div key={i} className={styles.weaponCard}>
                     <div className={styles.weaponCardHeader}>
                       <span className={styles.weaponCardName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
-                      <span className={styles.weaponCardRange}>
-                        {wq.wargear.range?.toLowerCase() === "melee" ? "Melee" : wq.wargear.range ?? "-"}
-                      </span>
+                      <span className={styles.weaponCardRange}>{wq.wargear.range ?? "-"}</span>
                     </div>
                     <div className={styles.weaponCardValues}>
                       <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{wq.wargear.attacks ?? "-"}</span></div>
-                      <div className={styles.statItem}><span className={styles.statLabel}>BS/WS</span><span className={styles.statValue}>{wq.wargear.ballisticSkill ?? "-"}</span></div>
+                      <div className={styles.statItem}><span className={styles.statLabel}>BS</span><span className={styles.statValue}>{wq.wargear.ballisticSkill ?? "-"}</span></div>
+                      <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{wq.wargear.strength ?? "-"}</span></div>
+                      <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{wq.wargear.armorPenetration ?? "-"}</span></div>
+                      <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{wq.wargear.damage ?? "-"}</span></div>
+                    </div>
+                    {wq.wargear.description && <div className={styles.weaponCardAbilities}><WeaponAbilityText text={wq.wargear.description} /></div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {meleeWargear.length > 0 && (
+            <div>
+              <h5 className={styles.sectionHeading}>Melee Weapons</h5>
+              <table className={`${sharedStyles.weaponsTable} ${styles.weaponsTable}`}>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>A</th>
+                    <th>WS</th>
+                    <th>S</th>
+                    <th>AP</th>
+                    <th>D</th>
+                    <th>Abilities</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {meleeWargear.map((wq, i) => (
+                    <tr key={i}>
+                      <td>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</td>
+                      <td>{wq.wargear.attacks ?? "-"}</td>
+                      <td>{wq.wargear.ballisticSkill ?? "-"}</td>
+                      <td>{wq.wargear.strength ?? "-"}</td>
+                      <td>{wq.wargear.armorPenetration ?? "-"}</td>
+                      <td>{wq.wargear.damage ?? "-"}</td>
+                      <td><WeaponAbilityText text={wq.wargear.description} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className={styles.weaponsMobile}>
+                {meleeWargear.map((wq, i) => (
+                  <div key={i} className={styles.weaponCard}>
+                    <div className={styles.weaponCardHeader}>
+                      <span className={styles.weaponCardName}>{wq.quantity > 1 ? `${wq.quantity}x ` : ""}{wq.wargear.name}</span>
+                      <span className={styles.weaponCardRange}>Melee</span>
+                    </div>
+                    <div className={styles.weaponCardValues}>
+                      <div className={styles.statItem}><span className={styles.statLabel}>A</span><span className={styles.statValue}>{wq.wargear.attacks ?? "-"}</span></div>
+                      <div className={styles.statItem}><span className={styles.statLabel}>WS</span><span className={styles.statValue}>{wq.wargear.ballisticSkill ?? "-"}</span></div>
                       <div className={styles.statItem}><span className={styles.statLabel}>S</span><span className={styles.statValue}>{wq.wargear.strength ?? "-"}</span></div>
                       <div className={styles.statItem}><span className={styles.statLabel}>AP</span><span className={styles.statValue}>{wq.wargear.armorPenetration ?? "-"}</span></div>
                       <div className={styles.statItem}><span className={styles.statLabel}>D</span><span className={styles.statValue}>{wq.wargear.damage ?? "-"}</span></div>
@@ -233,6 +297,34 @@ export function UnitRowExpanded({
           </div>
         );
       })()}
+
+      {datasheet?.damagedW && datasheet.damagedDescription && (
+        <div className={styles.damaged}>
+          <h5 className={styles.sectionHeading}>Damaged: {datasheet.damagedW} wounds remaining</h5>
+          <p>{datasheet.damagedDescription}</p>
+        </div>
+      )}
+
+      {datasheet?.transport && (
+        <div className={styles.callout}>
+          <h5 className={styles.sectionHeading}>Transport</h5>
+          <p><AbilityHtml text={datasheet.transport} /></p>
+        </div>
+      )}
+
+      {datasheet?.leaderHead && (
+        <div className={styles.callout}>
+          <h5 className={styles.sectionHeading}>Leader</h5>
+          <p><AbilityHtml text={datasheet.leaderHead} /></p>
+        </div>
+      )}
+
+      {datasheet?.leaderFooter && (
+        <div className={styles.callout}>
+          <h5 className={styles.sectionHeading}>Leader Attachment</h5>
+          <p><AbilityHtml text={datasheet.leaderFooter} /></p>
+        </div>
+      )}
     </div>
   );
 }
