@@ -116,27 +116,6 @@ export function UnitRowExpanded({
             </div>
           )}
 
-          {datasheet?.damagedW && datasheet.damagedDescription && (
-            <div className={styles.damaged}>
-              <h5 className={styles.sectionHeading}>Damaged: {datasheet.damagedW} wounds remaining</h5>
-              <p>{datasheet.damagedDescription}</p>
-            </div>
-          )}
-
-          {datasheet?.transport && (
-            <div className={styles.callout}>
-              <h5 className={styles.sectionHeading}>Transport</h5>
-              <p><AbilityHtml text={datasheet.transport} /></p>
-            </div>
-          )}
-
-          {datasheet?.leaderHead && (
-            <div className={styles.callout}>
-              <h5 className={styles.sectionHeading}>Leader</h5>
-              <p><AbilityHtml text={datasheet.leaderHead} /></p>
-            </div>
-          )}
-
           {rangedWargear.length > 0 && (
             <div>
               <h5 className={styles.sectionHeading}>Ranged Weapons</h5>
@@ -318,6 +297,27 @@ export function UnitRowExpanded({
           </div>
         );
       })()}
+
+      {datasheet?.damagedW && datasheet.damagedDescription && (
+        <div className={styles.damaged}>
+          <h5 className={styles.sectionHeading}>Damaged: {datasheet.damagedW} wounds remaining</h5>
+          <p>{datasheet.damagedDescription}</p>
+        </div>
+      )}
+
+      {datasheet?.transport && (
+        <div className={styles.callout}>
+          <h5 className={styles.sectionHeading}>Transport</h5>
+          <p><AbilityHtml text={datasheet.transport} /></p>
+        </div>
+      )}
+
+      {datasheet?.leaderHead && (
+        <div className={styles.callout}>
+          <h5 className={styles.sectionHeading}>Leader</h5>
+          <p><AbilityHtml text={datasheet.leaderHead} /></p>
+        </div>
+      )}
 
       {datasheet?.leaderFooter && (
         <div className={styles.callout}>

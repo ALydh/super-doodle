@@ -17,7 +17,9 @@ export function UnitCardDetail({ detail }: Props) {
   const filteredWargear = detail.wargear.filter(w => w.name);
   const rangedWargear = filteredWargear.filter(w => w.range?.toLowerCase() !== "melee");
   const meleeWargear = filteredWargear.filter(w => w.range?.toLowerCase() === "melee");
-  const hasRightColumn = filteredAbilities.length > 0;
+  const ds = detail.datasheet;
+  const hasCallouts = !!(ds.damagedW && ds.damagedDescription) || !!ds.transport || !!ds.leaderHead || !!ds.leaderFooter;
+  const hasRightColumn = filteredAbilities.length > 0 || hasCallouts;
   const invulNotes = detail.profiles
     .filter(p => p.invulnerableSaveDescription)
     .map(p => ({ key: `${p.line}`, label: detail.profiles.length > 1 ? p.name : null, text: p.invulnerableSaveDescription as string }));
@@ -82,27 +84,6 @@ export function UnitCardDetail({ detail }: Props) {
                 <strong>Inv{n.label ? ` (${n.label})` : ""}:</strong> <AbilityHtml text={n.text} />
               </p>
             ))}
-          </div>
-        )}
-
-        {detail.datasheet.damagedW && detail.datasheet.damagedDescription && (
-          <div className={styles.damagedSection}>
-            <h4>Damaged: {detail.datasheet.damagedW} wounds remaining</h4>
-            <p>{detail.datasheet.damagedDescription}</p>
-          </div>
-        )}
-
-        {detail.datasheet.transport && (
-          <div className={styles.calloutSection}>
-            <h4>Transport</h4>
-            <p><AbilityHtml text={detail.datasheet.transport} /></p>
-          </div>
-        )}
-
-        {detail.datasheet.leaderHead && (
-          <div className={styles.calloutSection}>
-            <h4>Leader</h4>
-            <p><AbilityHtml text={detail.datasheet.leaderHead} /></p>
           </div>
         )}
 
@@ -214,35 +195,65 @@ export function UnitCardDetail({ detail }: Props) {
         const other = filteredAbilities.filter(a => a.abilityType !== "Core" && a.abilityType !== "Faction" && a.abilityType !== "Wargear profile");
         return (
           <div className={styles.wideRight}>
-            <div className={styles.abilitiesSection}>
-              <h4>Abilities</h4>
-              {core.length > 0 && (
-                <>
-                  <div className={styles.coreAbilitiesPills}>
-                    {core.map((a, i) => (
-                      <span
-                        key={i}
-                        className={`${styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
-                        onClick={() => setExpandedCore(expandedCore === i ? null : i)}
-                      >{a.name}</span>
+            {filteredAbilities.length > 0 && (
+              <div className={styles.abilitiesSection}>
+                <h4>Abilities</h4>
+                {core.length > 0 && (
+                  <>
+                    <div className={styles.coreAbilitiesPills}>
+                      {core.map((a, i) => (
+                        <span
+                          key={i}
+                          className={`${styles.coreAbilityPill} ${styles.coreAbilityPillClickable} ${expandedCore === i ? styles.coreAbilityPillActive : ""}`}
+                          onClick={() => setExpandedCore(expandedCore === i ? null : i)}
+                        >{a.name}</span>
+                      ))}
+                    </div>
+                    {expandedCore !== null && core[expandedCore]?.description && (
+                      <div className={styles.coreAbilityExpanded}><AbilityHtml text={core[expandedCore].description} /></div>
+                    )}
+                  </>
+                )}
+                {other.length > 0 && (
+                  <ul className={styles.abilitiesList}>
+                    {other.map((a, i) => (
+                      <li key={i}>
+                        <strong>{a.name}</strong>
+                        {a.description && <>: <AbilityHtml text={a.description} /></>}
+                      </li>
                     ))}
-                  </div>
-                  {expandedCore !== null && core[expandedCore]?.description && (
-                    <div className={styles.coreAbilityExpanded}><AbilityHtml text={core[expandedCore].description} /></div>
-                  )}
-                </>
-              )}
-              {other.length > 0 && (
-                <ul className={styles.abilitiesList}>
-                  {other.map((a, i) => (
-                    <li key={i}>
-                      <strong>{a.name}</strong>
-                      {a.description && <>: <AbilityHtml text={a.description} /></>}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {ds.damagedW && ds.damagedDescription && (
+              <div className={styles.damagedSection}>
+                <h4>Damaged: {ds.damagedW} wounds remaining</h4>
+                <p>{ds.damagedDescription}</p>
+              </div>
+            )}
+
+            {ds.transport && (
+              <div className={styles.calloutSection}>
+                <h4>Transport</h4>
+                <p><AbilityHtml text={ds.transport} /></p>
+              </div>
+            )}
+
+            {ds.leaderHead && (
+              <div className={styles.calloutSection}>
+                <h4>Leader</h4>
+                <p><AbilityHtml text={ds.leaderHead} /></p>
+              </div>
+            )}
+
+            {ds.leaderFooter && (
+              <div className={styles.calloutSection}>
+                <h4>Leader Attachment</h4>
+                <p><AbilityHtml text={ds.leaderFooter} /></p>
+              </div>
+            )}
           </div>
         );
       })()}
@@ -256,13 +267,6 @@ export function UnitCardDetail({ detail }: Props) {
             <span key={i} className={sharedStyles.keyword}>{k.keyword}</span>
           ))}
         </div>
-      </div>
-    )}
-
-    {detail.datasheet.leaderFooter && (
-      <div className={styles.calloutSection}>
-        <h4>Leader Attachment</h4>
-        <p><AbilityHtml text={detail.datasheet.leaderFooter} /></p>
       </div>
     )}
   </>);
