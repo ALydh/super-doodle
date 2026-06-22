@@ -60,7 +60,7 @@ function findAbilityMatches(text: string, abilities: WeaponAbility[]): AbilityMa
 
         const beforeChar = idx > 0 ? lowerText[idx - 1] : " ";
         const afterChar = idx + term.length < lowerText.length ? lowerText[idx + term.length] : " ";
-        const isWordBoundary = /[\s,<>]/.test(beforeChar) && /[\s,<>0-9+]/.test(afterChar);
+        const isWordBoundary = /[\s,<>]/.test(beforeChar) && /[\s,<>0-9+-]/.test(afterChar);
 
         if (isWordBoundary) {
           const alreadyMatched = matches.some(
@@ -69,8 +69,9 @@ function findAbilityMatches(text: string, abilities: WeaponAbility[]): AbilityMa
           if (!alreadyMatched) {
             let endPos = idx + term.length;
             const afterMatch = text.slice(endPos);
-            const paramMatch = afterMatch.match(/^[\s]*(\d+\+?)/);
-            if (paramMatch) {
+            // Consume optional "-keyword" and "N+" suffix so anti-infantry 4+ is one match.
+            const paramMatch = afterMatch.match(/^(?:-[A-Za-z]+)?\s*\d+\+?/);
+            if (paramMatch && paramMatch[0]) {
               endPos += paramMatch[0].length;
             }
             matches.push({
@@ -149,30 +150,48 @@ function renderAbilitySegment(segment: string, abilities: WeaponAbility[], keyPr
   return <>{parts}</>;
 }
 
-function escapeAttr(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+const ABILITY_PATTERN = /\[([A-Z][A-Z\s-]*?(?:\s+\d+\+?)?)\]/g;
+
+function resolveAbility(rawInner: string, abilities: WeaponAbility[]): WeaponAbility | undefined {
+  const cleanName = rawInner.replace(/\s+\d+\+?$/, "").trim().toLowerCase();
+  return abilities.find((a) => a.name.toLowerCase() === cleanName)
+    ?? abilities.find((a) => cleanName.startsWith(`${a.name.toLowerCase()}-`));
 }
 
-export function addAbilityTooltips(html: string, abilities: WeaponAbility[]): string {
-  if (abilities.length === 0) return html;
-  const flattened = html.replace(/<span[^>]*class="[^"]*\btt\b[^"]*"[^>]*>([^<]*)<\/span>/g, "$1");
-  return flattened.replace(/\[([A-Z][A-Z\s]*?(?:\s+\d+\+?)?)\]/g, (match, inner: string) => {
-    const cleanName = inner.replace(/\s+\d+\+?$/, "").trim();
-    const ability = abilities.find((a) => a.name.toLowerCase() === cleanName.toLowerCase());
-    if (!ability) return match;
-    return `<abbr class="${styles.abbr}" title="${escapeAttr(ability.description)}">${match}</abbr>`;
-  });
+// Strip wahapedia's split-span markup (e.g. <span class="tt kwbu">[SUSTAINED</span>...) so the
+// bracketed name appears as one token before we look for matches.
+function flattenInlineSpans(html: string): string {
+  return html.replace(/<span[^>]*class="[^"]*\btt\b[^"]*"[^>]*>([^<]*)<\/span>/g, "$1");
 }
 
 export function AbilityHtml({ text }: { text: string | null | undefined }) {
   const abilities = useWeaponAbilities();
   if (!text) return null;
-  const html = addAbilityTooltips(sanitizeHtml(text), abilities);
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+  const sanitized = flattenInlineSpans(sanitizeHtml(text));
+  if (abilities.length === 0) {
+    return <span dangerouslySetInnerHTML={{ __html: sanitized }} />;
+  }
+  const parts: React.ReactNode[] = [];
+  let lastEnd = 0;
+  let i = 0;
+  for (const m of sanitized.matchAll(ABILITY_PATTERN)) {
+    const offset = m.index ?? 0;
+    const ability = resolveAbility(m[1], abilities);
+    if (!ability) continue;
+    if (offset > lastEnd) {
+      parts.push(<span key={`h-${i}`} dangerouslySetInnerHTML={{ __html: sanitized.slice(lastEnd, offset) }} />);
+    }
+    parts.push(<AbilitySpan key={`a-${i}`} text={m[0]} description={ability.description} />);
+    lastEnd = offset + m[0].length;
+    i++;
+  }
+  if (lastEnd < sanitized.length) {
+    parts.push(<span key="h-tail" dangerouslySetInnerHTML={{ __html: sanitized.slice(lastEnd) }} />);
+  }
+  if (parts.length === 0) {
+    return <span dangerouslySetInnerHTML={{ __html: sanitized }} />;
+  }
+  return <>{parts}</>;
 }
 
 export function WeaponAbilityText({ text }: Props) {
