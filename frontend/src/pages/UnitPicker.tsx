@@ -26,6 +26,7 @@ interface Props {
   chapterKeyword?: string | null;
   keywordsByDatasheet?: Map<string, DatasheetKeyword[]>;
   inventory?: Map<string, number> | null;
+  currentCounts?: Map<string, number>;
 }
 
 export function UnitPicker({
@@ -37,6 +38,7 @@ export function UnitPicker({
   chapterKeyword = null,
   keywordsByDatasheet = new Map(),
   inventory = null,
+  currentCounts = new Map(),
 }: Props) {
   const [search, setSearch] = useState("");
   const [chapterFilter, setChapterFilter] = useState<ChapterFilter>("all");
@@ -216,6 +218,8 @@ export function UnitPicker({
               const { firstLine, minCost } = getCost(ds.id, costs);
               const unitClass = chapterKeyword ? classifyUnit(ds.id) : null;
               const ownedQty = inventory?.get(ds.id) ?? 0;
+              const inArmy = currentCounts.get(ds.id) ?? 0;
+              const atOwnedCap = inventoryFilter === "owned" && inArmy >= ownedQty;
               return (
                 <li
                   key={ds.id}
@@ -231,7 +235,12 @@ export function UnitPicker({
                     <span className={styles.ownedBadge}>{ownedQty} owned</span>
                   )}
                   <span className={styles.costPill}>{minCost}</span>
-                  <button className={styles.addBtn} onClick={() => onAdd(ds.id, firstLine)}>+</button>
+                  <button
+                    className={styles.addBtn}
+                    onClick={() => onAdd(ds.id, firstLine)}
+                    disabled={atOwnedCap}
+                    title={atOwnedCap ? "You already have all you own in this army" : undefined}
+                  >+</button>
                 </li>
               );
             })}
@@ -253,11 +262,19 @@ export function UnitPicker({
             <ul className={styles.list}>
               {ally.datasheets.map((ds) => {
                 const { firstLine, minCost } = getCost(ds.id, alliedCosts);
+                const ownedQty = inventory?.get(ds.id) ?? 0;
+                const inArmy = currentCounts.get(ds.id) ?? 0;
+                const atOwnedCap = inventoryFilter === "owned" && inArmy >= ownedQty;
                 return (
                   <li key={ds.id} className={styles.item}>
                     <span className={styles.name}>{ds.name}</span>
                     <span className={styles.costPill}>{minCost}</span>
-                    <button className={styles.addBtn} onClick={() => onAdd(ds.id, firstLine, true)}>+</button>
+                    <button
+                      className={styles.addBtn}
+                      onClick={() => onAdd(ds.id, firstLine, true)}
+                      disabled={atOwnedCap}
+                      title={atOwnedCap ? "You already have all you own in this army" : undefined}
+                    >+</button>
                   </li>
                 );
               })}

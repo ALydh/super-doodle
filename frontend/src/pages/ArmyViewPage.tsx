@@ -462,6 +462,7 @@ export function ArmyViewPage() {
                 chapterKeyword={editSelectedChapter?.keyword ?? null}
                 keywordsByDatasheet={keywordsByDatasheet}
                 inventory={inventory}
+                currentCounts={editUnits.reduce((m, u) => m.set(u.datasheetId, (m.get(u.datasheetId) ?? 0) + 1), new Map<string, number>())}
               />
             </div>
           </div>
