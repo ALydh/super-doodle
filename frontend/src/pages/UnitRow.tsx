@@ -289,6 +289,7 @@ export function UnitRow({
             enhancements={enhancements}
             unitOptions={unitOptions}
             parsedWargearOptions={detail?.parsedWargearOptions ?? []}
+            unitWargear={detail?.wargear ?? []}
             isCharacter={isCharacter ?? false}
             isAllied={isAllied}
             readOnly={readOnly}
