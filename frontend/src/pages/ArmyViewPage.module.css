@@ -205,6 +205,54 @@
   max-width: 400px;
 }
 
+.battleControls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.battleModeToggle {
+  display: inline-flex;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.battleModeBtn {
+  appearance: none;
+  background: var(--surface-card);
+  border: none;
+  border-right: 1px solid var(--surface-border);
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.battleModeBtn:last-child {
+  border-right: none;
+}
+
+.battleModeBtn:hover {
+  color: var(--text-primary);
+}
+
+.battleModeBtnActive,
+.battleModeBtnActive:hover {
+  background: var(--faction-primary);
+  color: var(--faction-primary-text, var(--text-primary));
+}
+
+.battleSearch {
+  flex: 1;
+  min-width: 180px;
+  max-width: 400px;
+}
+
 .roleHeader {
   font-size: 0.75rem;
   font-weight: 600;

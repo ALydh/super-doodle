@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 
-type TabId = "units" | "stratagems" | "detachment" | "shopping" | "checklist";
+type TabId = "units" | "battle" | "stratagems" | "detachment" | "shopping" | "checklist";
+type BattleViewMode = "compact" | "expanded" | "ranged" | "melee";
 
-export type { TabId };
+const BATTLE_VIEW_MODES: ReadonlySet<BattleViewMode> = new Set(["compact", "expanded", "ranged", "melee"]);
+
+export type { TabId, BattleViewMode };
 
 export function useSessionStorage(armyId: string | undefined) {
   const [activeTab, setActiveTab] = useState<TabId>(() =>
@@ -17,6 +20,10 @@ export function useSessionStorage(armyId: string | undefined) {
   const [stratagemTurnFilter, setStratagemTurnFilter] = useState(() =>
     sessionStorage.getItem(`avp:${armyId}:stratTurnFilter`) ?? "all"
   );
+  const [battleViewMode, setBattleViewMode] = useState<BattleViewMode>(() => {
+    const stored = sessionStorage.getItem(`avp:${armyId}:battleViewMode`);
+    return stored && BATTLE_VIEW_MODES.has(stored as BattleViewMode) ? (stored as BattleViewMode) : "compact";
+  });
   const [expandedViewIds, setExpandedViewIds] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(sessionStorage.getItem(`avp:${armyId}:view`) ?? "[]")); } catch (e) { console.error("Failed to parse session storage (view):", e); return new Set(); }
   });
@@ -28,6 +35,7 @@ export function useSessionStorage(armyId: string | undefined) {
   useEffect(() => { sessionStorage.setItem(`avp:${armyId}:searchQuery`, searchQuery); }, [armyId, searchQuery]);
   useEffect(() => { sessionStorage.setItem(`avp:${armyId}:stratPhaseFilter`, stratagemPhaseFilter); }, [armyId, stratagemPhaseFilter]);
   useEffect(() => { sessionStorage.setItem(`avp:${armyId}:stratTurnFilter`, stratagemTurnFilter); }, [armyId, stratagemTurnFilter]);
+  useEffect(() => { sessionStorage.setItem(`avp:${armyId}:battleViewMode`, battleViewMode); }, [armyId, battleViewMode]);
 
   const handleToggleViewExpanded = (id: string) => {
     setExpandedViewIds((prev) => {
@@ -52,6 +60,7 @@ export function useSessionStorage(armyId: string | undefined) {
     searchQuery, setSearchQuery,
     stratagemPhaseFilter, setStratagemPhaseFilter,
     stratagemTurnFilter, setStratagemTurnFilter,
+    battleViewMode, setBattleViewMode,
     expandedViewIds, handleToggleViewExpanded,
     expandedEditIndices, handleToggleEditExpanded,
   };
