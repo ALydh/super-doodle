@@ -98,15 +98,26 @@ export function WargearSelector({
         const isManual = manualByLine[option.line] ?? false;
         const manualWeapons = (() => {
           const seen = new Set<string>();
-          return parsedWargearOptions
+          const dedup = (names: string[]) => names.filter(name => {
+            const key = name.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+          const fromParsed = parsedWargearOptions
             .filter(p => p.optionLine === option.line && p.action === 'add' && p.choiceIndex > 0)
-            .map(p => p.weaponName)
-            .filter(name => {
-              const key = name.toLowerCase();
-              if (seen.has(key)) return false;
-              seen.add(key);
-              return true;
-            });
+            .map(p => p.weaponName);
+          if (fromParsed.length > 0) return dedup(fromParsed);
+          const ul = option.description.match(/<ul[^>]*>([\s\S]*?)<\/ul>/);
+          if (!ul) return [];
+          const liItems = (ul[1].match(/<li[^>]*>([\s\S]*?)<\/li>/g) ?? [])
+            .map(li => li.replace(/<[^>]*>/g, '').trim());
+          const weapons = liItems.flatMap(text =>
+            text.split(/,\s+|\s+and\s+/)
+              .map(s => s.trim().replace(/^\d+\s+/, '').replace(/\s*\([^)]*\)\s*$/, ''))
+              .filter(s => s.length > 0)
+          );
+          return dedup(weapons);
         })();
         const selectedManualSet = new Set(notes.split('|').map(s => s.trim().toLowerCase()).filter(Boolean));
         const toggleManualWeapon = (name: string) => {
