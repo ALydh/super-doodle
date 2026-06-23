@@ -465,4 +465,25 @@
   .filters select {
     width: 100%;
   }
+
+  .battleControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .battleModeToggle {
+    width: 100%;
+  }
+
+  .battleModeBtn {
+    flex: 1;
+    min-height: 40px;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+
+  .battleSearch {
+    width: 100%;
+    max-width: none;
+  }
 }
