@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { DatasheetOption, WargearSelection, ParsedWargearOption } from "../types";
+import type { DatasheetOption, WargearSelection, ParsedWargearOption, Wargear } from "../types";
 import { sanitizeHtml } from "../sanitize";
 import styles from "./WargearSelector.module.css";
 
@@ -30,6 +30,7 @@ interface Props {
   onNotesChange: (optionLine: number, notes: string) => void;
   extractOption: (description: string) => WargearOptionType | null;
   parsedWargearOptions?: ParsedWargearOption[];
+  unitWargear?: Wargear[];
 }
 
 export function WargearSelector({
@@ -39,6 +40,7 @@ export function WargearSelector({
   onNotesChange,
   extractOption,
   parsedWargearOptions = [],
+  unitWargear = [],
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [manualByLine, setManualByLine] = useState<Record<number, boolean>>({});
@@ -104,6 +106,12 @@ export function WargearSelector({
             seen.add(key);
             return true;
           });
+          const stripVariant = (name: string) => name.split(/\s+–\s+/)[0].trim();
+          const fromUnit = unitWargear
+            .map(w => w.name)
+            .filter((n): n is string => !!n)
+            .map(stripVariant);
+          if (fromUnit.length > 0) return dedup(fromUnit);
           const fromParsed = parsedWargearOptions
             .filter(p => p.optionLine === option.line && p.action === 'add' && p.choiceIndex > 0)
             .map(p => p.weaponName);
@@ -254,6 +262,18 @@ export function WargearSelector({
                       </select>
                     </>
                   )}
+                </div>
+              )}
+              {isSelected && isManual && options.length > 1 && (
+                <div className={styles.manualReference} onClick={(e) => e.stopPropagation()}>
+                  <div className={styles.manualReferenceHeader}>All wargear options for this unit:</div>
+                  {options.map((o) => (
+                    <p
+                      key={o.line}
+                      className={styles.manualReferenceItem}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(o.description) }}
+                    />
+                  ))}
                 </div>
               )}
               {isSelected && isManual && manualWeapons.length > 0 && (
