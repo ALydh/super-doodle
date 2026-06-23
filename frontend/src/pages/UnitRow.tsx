@@ -115,15 +115,32 @@ export function UnitRow({
   const extractWargearOption = (description: string): WargearOptionType | null => {
     const lower = description.toLowerCase();
     const hasFromList = lower.includes('from the following list');
-    const hasOneOf = lower.includes('one of the following');
-    if (!hasFromList && !hasOneOf) return null;
+    const hasOneOf = /\b(?:one|1) of the following\b/.test(lower);
+    const hasReplacedWithUl = /replaced with\s*:\s*<ul/i.test(description);
+    if (!hasFromList && !hasOneOf && !hasReplacedWithUl) return null;
 
     const ulMatch = description.match(/<ul[^>]*>([\s\S]*?)<\/ul>/);
     if (!ulMatch) return null;
     const liMatches = ulMatch[1].match(/<li[^>]*>([\s\S]*?)<\/li>/g) ?? [];
     const choices = liMatches.map(li => li.replace(/<[^>]*>/g, '').trim().replace(/^\d+\s+/, '')).filter(c => c.length > 0);
 
-    if (hasOneOf) return { kind: 'single', choices };
+    if (hasOneOf || hasReplacedWithUl) {
+      const splitWeapons = (text: string): string[] =>
+        text.split(/,\s+|\s+and\s+/).map(s => s.trim().replace(/^\d+\s+/, '')).filter(s => s.length > 0);
+      const weaponLists = choices.map(splitWeapons);
+      const isComposite = weaponLists.some(ws => ws.length > 1);
+      if (isComposite) {
+        const values = weaponLists.map((ws, idx) => {
+          const otherSet = new Set(
+            weaponLists.flatMap((w, i) => i === idx ? [] : w).map(w => w.toLowerCase())
+          );
+          const unique = ws.filter(w => !otherSet.has(w.toLowerCase()));
+          return (unique.length > 0 ? unique : ws).join('|');
+        });
+        return { kind: 'single', choices, values };
+      }
+      return { kind: 'single', choices };
+    }
 
     const orTwoDiffMatch = description.match(/,?\s+or\s+two different/i);
     if (orTwoDiffMatch) {
@@ -262,6 +279,7 @@ export function UnitRow({
             index={index}
             enhancements={enhancements}
             unitOptions={unitOptions}
+            parsedWargearOptions={detail?.parsedWargearOptions ?? []}
             isCharacter={isCharacter ?? false}
             isAllied={isAllied}
             readOnly={readOnly}

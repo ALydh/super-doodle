@@ -1,10 +1,10 @@
 import { useState } from "react";
-import type { DatasheetOption, WargearSelection } from "../types";
+import type { DatasheetOption, WargearSelection, ParsedWargearOption } from "../types";
 import { sanitizeHtml } from "../sanitize";
 import styles from "./WargearSelector.module.css";
 
 export type WargearOptionType =
-  | { kind: 'single'; choices: string[] }
+  | { kind: 'single'; choices: string[]; values?: string[] }
   | { kind: 'two'; choices: string[] }
   | { kind: 'either-or-two'; singleton: string; choices: string[] };
 
@@ -12,7 +12,7 @@ function defaultNotesFor(opt: WargearOptionType | null): string | undefined {
   if (!opt) return undefined;
   switch (opt.kind) {
     case 'single':
-      return opt.choices[0];
+      return opt.values?.[0] ?? opt.choices[0];
     case 'two':
       return opt.choices.length >= 2 ? `${opt.choices[0]}|${opt.choices[1]}` : undefined;
     case 'either-or-two':
@@ -26,6 +26,7 @@ interface Props {
   onSelectionChange: (optionLine: number, selected: boolean, initialNotes?: string) => void;
   onNotesChange: (optionLine: number, notes: string) => void;
   extractOption: (description: string) => WargearOptionType | null;
+  parsedWargearOptions?: ParsedWargearOption[];
 }
 
 export function WargearSelector({
@@ -34,8 +35,10 @@ export function WargearSelector({
   onSelectionChange,
   onNotesChange,
   extractOption,
+  parsedWargearOptions = [],
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [manualByLine, setManualByLine] = useState<Record<number, boolean>>({});
 
   const getSelection = (line: number) => selections.find(s => s.optionLine === line);
   const selectedOptions = selections
@@ -89,6 +92,27 @@ export function WargearSelector({
         const hasPipe = notes.includes('|');
         const [notes1, notes2] = hasPipe ? notes.split('|', 2) : ['', ''];
         const isEither = !hasPipe;
+        const isManual = manualByLine[option.line] ?? false;
+        const manualWeapons = (() => {
+          const seen = new Set<string>();
+          return parsedWargearOptions
+            .filter(p => p.optionLine === option.line && p.action === 'add' && p.choiceIndex > 0)
+            .map(p => p.weaponName)
+            .filter(name => {
+              const key = name.toLowerCase();
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            });
+        })();
+        const selectedManualSet = new Set(notes.split('|').map(s => s.trim().toLowerCase()).filter(Boolean));
+        const toggleManualWeapon = (name: string) => {
+          const next = new Set(selectedManualSet);
+          const key = name.toLowerCase();
+          if (next.has(key)) next.delete(key);
+          else next.add(key);
+          onNotesChange(option.line, [...next].join('|'));
+        };
 
         return (
           <div
@@ -108,7 +132,7 @@ export function WargearSelector({
                 className={styles.description}
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(option.description) }}
               />
-              {isSelected && opt?.kind === 'single' && (
+              {isSelected && !isManual && opt?.kind === 'single' && (
                 <select
                   className={`${styles.unitSelect} ${styles.choiceDropdown}`}
                   value={notes}
@@ -117,11 +141,11 @@ export function WargearSelector({
                 >
                   <option value="">Select wargear...</option>
                   {opt.choices.map((choice, idx) => (
-                    <option key={idx} value={choice}>{choice}</option>
+                    <option key={idx} value={opt.values?.[idx] ?? choice}>{choice}</option>
                   ))}
                 </select>
               )}
-              {isSelected && opt?.kind === 'two' && (
+              {isSelected && !isManual && opt?.kind === 'two' && (
                 <div onClick={(e) => e.stopPropagation()}>
                   <select
                     className={`${styles.unitSelect} ${styles.choiceDropdown}`}
@@ -145,7 +169,7 @@ export function WargearSelector({
                   </select>
                 </div>
               )}
-              {isSelected && opt?.kind === 'either-or-two' && (
+              {isSelected && !isManual && opt?.kind === 'either-or-two' && (
                 <div onClick={(e) => e.stopPropagation()}>
                   <label>
                     <input
@@ -188,6 +212,32 @@ export function WargearSelector({
                     </>
                   )}
                 </div>
+              )}
+              {isSelected && isManual && manualWeapons.length > 0 && (
+                <div className={styles.manualGrid} onClick={(e) => e.stopPropagation()}>
+                  {manualWeapons.map((name) => (
+                    <label key={name} className={styles.manualItem}>
+                      <input
+                        type="checkbox"
+                        checked={selectedManualSet.has(name.toLowerCase())}
+                        onChange={() => toggleManualWeapon(name)}
+                      />
+                      {' '}{name}
+                    </label>
+                  ))}
+                </div>
+              )}
+              {isSelected && manualWeapons.length > 0 && (
+                <button
+                  type="button"
+                  className={styles.manualToggle}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setManualByLine((prev) => ({ ...prev, [option.line]: !isManual }));
+                  }}
+                >
+                  {isManual ? "Use guided selection" : "Pick weapons manually"}
+                </button>
               )}
             </div>
           </div>
