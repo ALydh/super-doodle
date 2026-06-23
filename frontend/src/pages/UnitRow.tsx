@@ -115,16 +115,25 @@ export function UnitRow({
   const extractWargearOption = (description: string): WargearOptionType | null => {
     const lower = description.toLowerCase();
     const hasFromList = lower.includes('from the following list');
-    const hasOneOf = /\b(?:one|1) of the following\b/.test(lower);
-    const hasReplacedWithUl = /replaced with\s*:\s*<ul/i.test(description);
-    if (!hasFromList && !hasOneOf && !hasReplacedWithUl) return null;
+    const hasOneOf = /\b(?:one|1|on) of the following\b/.test(lower);
+    const hasAnyOf = /\bany of the following\b/.test(lower);
+    const upToMatch = lower.match(/\bup to (\d+|one|two|three|four|five) of the following\b/);
+    const isMulti = !!upToMatch || hasAnyOf;
+    const hasGenericWithUl = /\b(?:replaced|equipped) with\s*:\s*<ul/i.test(description) || /\bwith\s*:\s*<ul/i.test(description);
+    if (!hasFromList && !hasOneOf && !isMulti && !hasGenericWithUl) return null;
 
     const ulMatch = description.match(/<ul[^>]*>([\s\S]*?)<\/ul>/);
     if (!ulMatch) return null;
     const liMatches = ulMatch[1].match(/<li[^>]*>([\s\S]*?)<\/li>/g) ?? [];
     const choices = liMatches.map(li => li.replace(/<[^>]*>/g, '').trim().replace(/^\d+\s+/, '')).filter(c => c.length > 0);
 
-    if (hasOneOf || hasReplacedWithUl) {
+    if (isMulti) {
+      const wordToNum: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5 };
+      const max = upToMatch ? (wordToNum[upToMatch[1]] ?? parseInt(upToMatch[1], 10)) : undefined;
+      return { kind: 'multi', choices, max };
+    }
+
+    if (hasOneOf || hasGenericWithUl) {
       const splitWeapons = (text: string): string[] =>
         text.split(/,\s+|\s+and\s+/).map(s => s.trim().replace(/^\d+\s+/, '')).filter(s => s.length > 0);
       const weaponLists = choices.map(splitWeapons);
