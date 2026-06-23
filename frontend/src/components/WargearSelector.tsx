@@ -6,7 +6,8 @@ import styles from "./WargearSelector.module.css";
 export type WargearOptionType =
   | { kind: 'single'; choices: string[]; values?: string[] }
   | { kind: 'two'; choices: string[] }
-  | { kind: 'either-or-two'; singleton: string; choices: string[] };
+  | { kind: 'either-or-two'; singleton: string; choices: string[] }
+  | { kind: 'multi'; choices: string[]; max?: number };
 
 function defaultNotesFor(opt: WargearOptionType | null): string | undefined {
   if (!opt) return undefined;
@@ -17,6 +18,8 @@ function defaultNotesFor(opt: WargearOptionType | null): string | undefined {
       return opt.choices.length >= 2 ? `${opt.choices[0]}|${opt.choices[1]}` : undefined;
     case 'either-or-two':
       return opt.singleton;
+    case 'multi':
+      return undefined;
   }
 }
 
@@ -167,6 +170,35 @@ export function WargearSelector({
                       <option key={idx} value={choice}>{choice}</option>
                     ))}
                   </select>
+                </div>
+              )}
+              {isSelected && !isManual && opt?.kind === 'multi' && (
+                <div className={styles.manualGrid} onClick={(e) => e.stopPropagation()}>
+                  {opt.choices.map((choice) => {
+                    const key = choice.toLowerCase();
+                    const checkedSet = new Set(notes.split('|').map(s => s.trim().toLowerCase()).filter(Boolean));
+                    const isChecked = checkedSet.has(key);
+                    const atMax = opt.max != null && checkedSet.size >= opt.max && !isChecked;
+                    return (
+                      <label key={choice} className={styles.manualItem}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          disabled={atMax}
+                          onChange={() => {
+                            const next = new Set(checkedSet);
+                            if (next.has(key)) next.delete(key);
+                            else next.add(key);
+                            onNotesChange(option.line, [...next].join('|'));
+                          }}
+                        />
+                        {' '}{choice}
+                      </label>
+                    );
+                  })}
+                  {opt.max != null && (
+                    <span className={styles.manualHint}>Up to {opt.max}</span>
+                  )}
                 </div>
               )}
               {isSelected && !isManual && opt?.kind === 'either-or-two' && (

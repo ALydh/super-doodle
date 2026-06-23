@@ -174,3 +174,10 @@
   color: var(--text-body);
   cursor: pointer;
 }
+
+.manualHint {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
