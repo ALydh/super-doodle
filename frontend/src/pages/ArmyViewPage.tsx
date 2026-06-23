@@ -10,6 +10,7 @@ import { TabNavigation } from "../components/TabNavigation";
 import { StratagemCard } from "../components/StratagemCard";
 import { DetachmentCard } from "../components/DetachmentCard";
 import { UnitsTab } from "./army-view/UnitsTab";
+import { BattleTab } from "./army-view/BattleTab";
 import { ShoppingTab } from "./army-view/ShoppingTab";
 import { ChecklistTab } from "./army-view/ChecklistTab";
 import { Spinner } from "../components/Spinner";
@@ -29,10 +30,11 @@ import { handleCopy, handleExportJson, handleExportJsonDense, handleExportTxt } 
 import styles from "./ArmyViewPage.module.css";
 import builderStyles from "./ArmyBuilderPage.module.css";
 
-type TabId = "units" | "stratagems" | "detachment" | "shopping" | "checklist";
+type TabId = "units" | "battle" | "stratagems" | "detachment" | "shopping" | "checklist";
 
 const TABS = [
   { id: "units" as const, label: "Units" },
+  { id: "battle" as const, label: "Battle" },
   { id: "stratagems" as const, label: "Stratagems" },
   { id: "detachment" as const, label: "Detachment" },
   { id: "checklist" as const, label: "Checklist" },
@@ -66,6 +68,7 @@ export function ArmyViewPage() {
     searchQuery, setSearchQuery,
     stratagemPhaseFilter, setStratagemPhaseFilter,
     stratagemTurnFilter, setStratagemTurnFilter,
+    battleViewMode, setBattleViewMode,
     expandedViewIds, handleToggleViewExpanded,
     expandedEditIndices, handleToggleEditExpanded,
   } = session;
@@ -99,6 +102,20 @@ export function ArmyViewPage() {
       }))
       .filter((rg) => rg.units.length > 0);
   }, [roleGroups, searchQuery]);
+
+  const battleRoleGroups = useMemo(() => {
+    return filteredRoleGroups
+      .map((rg) => {
+        const seen = new Set<string>();
+        const units = rg.units.filter((u) => {
+          if (seen.has(u.unit.datasheetId)) return false;
+          seen.add(u.unit.datasheetId);
+          return true;
+        });
+        return { role: rg.role, units };
+      })
+      .filter((rg) => rg.units.length > 0);
+  }, [filteredRoleGroups]);
 
   const shoppingList = useMemo(() => {
     if (!battleData || !inventory) return [];
@@ -309,7 +326,7 @@ export function ArmyViewPage() {
       )}
 
       <TabNavigation
-        tabs={!isEditing && inventory ? TABS_WITH_SHOPPING : TABS}
+        tabs={isEditing ? TABS.filter((t) => t.id !== "battle") : inventory ? TABS_WITH_SHOPPING : TABS}
         activeTab={activeTab}
         onTabChange={(t) => setActiveTab(t as TabId)}
       />
@@ -351,6 +368,19 @@ export function ArmyViewPage() {
             onToggleExpanded={handleToggleViewExpanded}
           />
         )
+      )}
+
+      {!isEditing && activeTab === "battle" && (
+        <BattleTab
+          roleGroups={battleRoleGroups}
+          battleData={battleData}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          viewMode={battleViewMode}
+          onViewModeChange={setBattleViewMode}
+          expandedIds={expandedViewIds}
+          onToggleExpanded={handleToggleViewExpanded}
+        />
       )}
 
       {activeTab === "stratagems" && (

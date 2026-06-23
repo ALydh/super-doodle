@@ -2,6 +2,8 @@ import type { BattleUnitData } from "../../types";
 import { UnitDetailWide } from "./UnitDetailWide";
 import styles from "./BattleUnitCard.module.css";
 
+type BattleViewMode = "compact" | "expanded" | "ranged" | "melee";
+
 interface Props {
   data: BattleUnitData;
   isWarlord: boolean;
@@ -9,20 +11,25 @@ interface Props {
   onToggle: () => void;
   leadingUnit?: string;
   attachedLeader?: string;
+  viewMode?: BattleViewMode;
 }
 
-export function BattleUnitCard({ data, isWarlord, isExpanded: expanded, onToggle, leadingUnit, attachedLeader }: Props) {
+export function BattleUnitCard({ data, isWarlord, isExpanded: expanded, onToggle, leadingUnit, attachedLeader, viewMode = "compact" }: Props) {
   const { datasheet, profiles, cost, enhancement } = data;
 
   const mainProfile = profiles[0];
   const totalCost = (cost?.cost ?? 0) + (enhancement?.cost ?? 0);
   const modelCount = cost?.description.match(/(\d+)\s*model/i)?.[1];
+  const bodyVisible = viewMode === "compact" ? expanded : true;
+  const headerClickable = viewMode === "compact";
 
   return (
-    <div className={`${styles.card} ${expanded ? styles.expanded : ""}`}>
+    <div className={`${styles.card} ${bodyVisible ? styles.expanded : ""}`}>
       <button
         className={styles.header}
-        onClick={onToggle}
+        onClick={headerClickable ? onToggle : undefined}
+        tabIndex={headerClickable ? 0 : -1}
+        style={headerClickable ? undefined : { cursor: "default" }}
       >
         <span className={styles.name}>
           {datasheet.name}
@@ -58,9 +65,13 @@ export function BattleUnitCard({ data, isWarlord, isExpanded: expanded, onToggle
         {modelCount && Number(modelCount) > 1 && <span className={styles.modelCount}>{modelCount} models</span>}
         <span className={styles.cost}>{totalCost}pts</span>
       </button>
-      {expanded && (
+      {bodyVisible && (
         <div className={styles.content}>
-          <UnitDetailWide data={data} isWarlord={isWarlord} hideHeader />
+          {viewMode === "ranged" || viewMode === "melee" ? (
+            <UnitDetailWide data={data} isWarlord={isWarlord} hideHeader weaponsOnly={viewMode} />
+          ) : (
+            <UnitDetailWide data={data} isWarlord={isWarlord} hideHeader />
+          )}
         </div>
       )}
     </div>
