@@ -141,3 +141,36 @@
   border-color: var(--faction-primary);
   outline: none;
 }
+
+.manualToggle {
+  margin-top: 8px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  background: transparent;
+  border: 1px dashed var(--surface-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.manualToggle:hover {
+  border-color: var(--faction-trim);
+  color: var(--text-primary);
+}
+
+.manualGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 4px 12px;
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--surface-app);
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+}
+
+.manualItem {
+  font-size: 0.8rem;
+  color: var(--text-body);
+  cursor: pointer;
+}

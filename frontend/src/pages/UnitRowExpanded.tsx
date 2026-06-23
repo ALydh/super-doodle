@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ArmyUnit, DatasheetDetail, WargearWithQuantity, Enhancement, DatasheetOption, WargearSelection } from "../types";
+import type { ArmyUnit, DatasheetDetail, WargearWithQuantity, Enhancement, DatasheetOption, WargearSelection, ParsedWargearOption } from "../types";
 import type { WargearOptionType } from "../components/WargearSelector";
 import { WeaponAbilityText, AbilityHtml } from "./WeaponAbilityText";
 import { sanitizeHtml } from "../sanitize";
@@ -16,6 +16,7 @@ interface Props {
   index: number;
   enhancements: Enhancement[];
   unitOptions: DatasheetOption[];
+  parsedWargearOptions: ParsedWargearOption[];
   isCharacter: boolean;
   isAllied: boolean;
   readOnly: boolean;
@@ -35,6 +36,7 @@ export function UnitRowExpanded({
   index,
   enhancements,
   unitOptions,
+  parsedWargearOptions,
   isCharacter,
   isAllied,
   readOnly,
@@ -240,6 +242,7 @@ export function UnitRowExpanded({
             onSelectionChange={onSelectionChange}
             onNotesChange={onNotesChange}
             extractOption={extractWargearOption}
+            parsedWargearOptions={parsedWargearOptions}
           />
         </div>
       )}
