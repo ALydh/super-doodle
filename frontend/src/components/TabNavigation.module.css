@@ -34,8 +34,10 @@
 @media (max-width: 599px) {
   .button {
     flex: 1;
+    min-width: 0;
     padding: 12px 8px;
     font-size: 0.9rem;
     text-align: center;
+    word-break: break-word;
   }
 }
