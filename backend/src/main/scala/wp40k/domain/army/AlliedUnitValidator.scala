@@ -70,9 +70,12 @@ private[army] object AlliedUnitValidator {
 
         val pointsError = limits.maxPoints match {
           case Some(max) =>
-            val alliedPoints = unitsForAlly.flatMap { unit =>
-              costIndex.get((unit.datasheetId, unit.sizeOptionLine)).flatMap(_.headOption).map(_.cost)
-            }.sum
+            val alliedPoints = UnitCosting.withOrdinals(army.units).collect {
+              case (unit, ordinal) if unitsForAlly.contains(unit) =>
+                costIndex.get((unit.datasheetId, unit.sizeOptionLine))
+                  .flatMap(costs => UnitCosting.costFor(costs, unit.sizeOptionLine, ordinal))
+                  .map(_.cost)
+            }.flatten.sum
             if (alliedPoints > max) List(AlliedPointsExceeded(allyTypeName, alliedPoints, max))
             else Nil
           case None => Nil

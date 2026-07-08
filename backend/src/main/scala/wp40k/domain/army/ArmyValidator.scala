@@ -55,8 +55,10 @@ object ArmyValidator {
 
     if (unitCostErrors.nonEmpty) return unitCostErrors
 
-    val unitTotal = army.units.flatMap { unit =>
-      costIndex.get((unit.datasheetId, unit.sizeOptionLine)).flatMap(_.headOption).map(_.cost)
+    val unitTotal = UnitCosting.withOrdinals(army.units).flatMap { case (unit, ordinal) =>
+      costIndex.get((unit.datasheetId, unit.sizeOptionLine))
+        .flatMap(costs => UnitCosting.costFor(costs, unit.sizeOptionLine, ordinal))
+        .map(_.cost)
     }.sum
 
     val enhancementTotal = army.units.flatMap { unit =>

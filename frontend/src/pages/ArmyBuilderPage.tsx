@@ -24,6 +24,7 @@ import { PointsDisplay } from "./PointsDisplay";
 import { SM_CHAPTERS, CHAPTER_DETACHMENTS, ALL_CHAPTER_DETACHMENT_IDS, getChapterTheme, isSpaceMarines } from "../chapters";
 import { Spinner } from "../components/Spinner";
 import { BATTLE_SIZE_POINTS } from "../types";
+import { armyPointsTotal } from "../points";
 import styles from "./ArmyBuilderPage.module.css";
 
 export function ArmyBuilderPage() {
@@ -139,11 +140,7 @@ export function ArmyBuilderPage() {
   }, [units, battleSize, detachmentId, warlordId, loading, buildArmy]);
 
   const combinedCosts = [...allCosts, ...alliedCosts];
-  const pointsTotal = units.reduce((sum, u) => {
-    const cost = combinedCosts.find((c) => c.datasheetId === u.datasheetId && c.line === u.sizeOptionLine);
-    const enhCost = u.enhancementId ? enhancements.find((e) => e.id === u.enhancementId)?.cost ?? 0 : 0;
-    return sum + (cost?.cost ?? 0) + enhCost;
-  }, 0);
+  const pointsTotal = armyPointsTotal(units, combinedCosts, enhancements);
 
   const handleAddUnit = (datasheetId: string, sizeOptionLine: number, isAllied?: boolean) => {
     setUnits([...units, { datasheetId, sizeOptionLine, enhancementId: null, attachedLeaderId: null, attachedToUnitIndex: null, wargearSelections: [], isAllied }]);

@@ -38,7 +38,7 @@ object ReferenceDataRepository {
   private val wargearBase = fr"""SELECT datasheet_id, line, line_in_wargear, dice, name, description,
     range, weapon_type, attacks, ballistic_skill, strength, armor_penetration, damage FROM wargear"""
 
-  private val unitCostBase = fr"SELECT datasheet_id, line, description, cost FROM unit_cost"
+  private val unitCostBase = fr"SELECT datasheet_id, line, description, cost, min_count, max_count FROM unit_cost"
 
   private val keywordBase = fr"SELECT datasheet_id, keyword, model, is_faction_keyword FROM datasheet_keywords"
 

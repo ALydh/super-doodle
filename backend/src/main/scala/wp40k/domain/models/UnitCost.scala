@@ -9,12 +9,17 @@ case class UnitCost(
   datasheetId: DatasheetId,
   line: Int,
   description: String,
-  cost: Int
+  cost: Int,
+  minCount: Int = 1,
+  maxCount: Option[Int] = None
 )
 
 object UnitCostParser extends StreamingCsvParser[UnitCost] {
 
   override protected def expectedColumns: Seq[String] = Seq("datasheet_id", "line", "description", "cost")
+
+  private def optionalInt(value: String): Option[Int] =
+    Option(value).map(_.trim).filter(_.nonEmpty).flatMap(_.toIntOption)
 
   protected[wp40k] def parseLineWithContext(
     line: String,
@@ -36,6 +41,10 @@ object UnitCostParser extends StreamingCsvParser[UnitCost] {
       lineNum <- CsvParsing.parseInt("line", cols(1))
       description <- CsvParsing.parseString("description", cols(2))
       cost <- CsvParsing.parseInt("cost", cols(3))
-    } yield UnitCost(datasheetId, lineNum, description, cost)
+    } yield UnitCost(
+      datasheetId, lineNum, description, cost,
+      optionalInt(cols(4)).getOrElse(1),
+      optionalInt(cols(5))
+    )
   }
 }

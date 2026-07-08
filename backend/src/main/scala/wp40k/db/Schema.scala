@@ -169,7 +169,9 @@ object Schema {
       line INTEGER NOT NULL,
       description TEXT NOT NULL,
       cost INTEGER NOT NULL,
-      PRIMARY KEY (datasheet_id, line)
+      min_count INTEGER NOT NULL DEFAULT 1,
+      max_count INTEGER,
+      PRIMARY KEY (datasheet_id, line, min_count)
     )""",
 
     sql"""CREATE TABLE IF NOT EXISTS last_update (
@@ -347,6 +349,12 @@ object Schema {
     _ <- if (!hasCol) sql"ALTER TABLE armies ADD COLUMN checklist_notes TEXT".update.run else FC.unit
   } yield ()
 
+  private val migrateUnitCostTiers: ConnectionIO[Unit] = for {
+    cols <- sql"PRAGMA table_info(unit_cost)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.map(_._2).toSet)
+    _ <- if (!cols.contains("min_count")) sql"ALTER TABLE unit_cost ADD COLUMN min_count INTEGER NOT NULL DEFAULT 1".update.run else FC.unit
+    _ <- if (!cols.contains("max_count")) sql"ALTER TABLE unit_cost ADD COLUMN max_count INTEGER".update.run else FC.unit
+  } yield ()
+
   private val populateFactionGroups: ConnectionIO[Unit] = {
     val imperium = List("AS", "AC", "AdM", "TL", "AM", "GK", "AoI", "QI", "SM")
     val chaos = List("CD", "QT", "CSM", "DG", "EC", "TS", "WE")
@@ -360,7 +368,7 @@ object Schema {
   }
 
   def initializeRefSchema(xa: Transactor[IO]): IO[Unit] =
-    (refTables.traverse_(_.update.run) *> migrateFactionGroup *> populateFactionGroups).transact(xa)
+    (refTables.traverse_(_.update.run) *> migrateFactionGroup *> migrateUnitCostTiers *> populateFactionGroups).transact(xa)
 
   def initializeUserSchema(xa: Transactor[IO]): IO[Unit] =
     (userTables.traverse_(_.update.run) *> migrateArmies *> migrateIsAdmin *> migrateChapterId *> migrateChecklistNotes).transact(xa)

@@ -156,10 +156,10 @@ object ArmyRoutesTapir {
                   val parsedOptionsMap = parsedOptions.groupBy(o => DatasheetId.value(o.datasheetId))
                   val enhancementsMap = enhancements.map(e => EnhancementId.value(e.id) -> e).toMap
 
-                  val battleUnits = army.units.flatMap { unit =>
+                  val battleUnits = UnitCosting.withOrdinals(army.units).flatMap { case (unit, ordinal) =>
                     val dsId = DatasheetId.value(unit.datasheetId)
                     datasheetMap.get(dsId).map { datasheet =>
-                      val unitCost = costsMap.getOrElse(dsId, List.empty).find(_.line == unit.sizeOptionLine)
+                      val unitCost = UnitCosting.costFor(costsMap.getOrElse(dsId, List.empty), unit.sizeOptionLine, ordinal)
                       val unitSize = unitCost.flatMap(c => parseUnitSizeFromDescription(c.description)).getOrElse(1)
                       val enh = unit.enhancementId.flatMap(eid => enhancementsMap.get(EnhancementId.value(eid)))
                       val allWargear = wargearMap.getOrElse(dsId, List.empty)

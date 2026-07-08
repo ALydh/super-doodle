@@ -20,6 +20,7 @@ import { ValidationErrors } from "./ValidationErrors";
 import { renderUnitsForMode } from "./renderUnitsForMode";
 import { ReferenceDataProvider } from "../context/ReferenceDataContext";
 import { PointsDisplay } from "./PointsDisplay";
+import { armyPointsTotal } from "../points";
 import { DetachmentAbilitiesSection } from "./DetachmentAbilitiesSection";
 import { StrategemsSection } from "./StrategemsSection";
 import { useArmyData } from "./army-view/useArmyData";
@@ -224,11 +225,7 @@ export function ArmyViewPage() {
   const editAlliedDatasheets = alliedFactions.flatMap((a) => a.datasheets);
   const editLoadedDatasheets = [...datasheets, ...editAlliedDatasheets];
   const editCombinedCosts = [...allCosts, ...alliedCosts];
-  const editPointsTotal = editUnits.reduce((sum, u) => {
-    const cost = editCombinedCosts.find((c) => c.datasheetId === u.datasheetId && c.line === u.sizeOptionLine);
-    const enhCost = u.enhancementId ? enhancements.find((e) => e.id === u.enhancementId)?.cost ?? 0 : 0;
-    return sum + (cost?.cost ?? 0) + enhCost;
-  }, 0);
+  const editPointsTotal = armyPointsTotal(editUnits, editCombinedCosts, enhancements);
   const editModelsInArmy = (() => {
     const parse = (desc: string) => {
       const m = desc.match(/(\d+)\s*model/i);

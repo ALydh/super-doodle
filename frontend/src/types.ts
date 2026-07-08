@@ -58,6 +58,8 @@ export interface UnitCost {
   line: number;
   description: string;
   cost: number;
+  minCount: number;
+  maxCount: number | null;
 }
 
 export interface DatasheetKeyword {

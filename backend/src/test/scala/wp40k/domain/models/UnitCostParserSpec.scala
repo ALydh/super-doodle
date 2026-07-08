@@ -19,6 +19,28 @@ class UnitCostParserSpec extends AnyFlatSpec with Matchers with EitherValues {
     result.value.cost shouldBe 75
   }
 
+  it should "default to a single open-ended tier when tier columns are absent" in {
+    val result = UnitCostParser.parseLine("000000001|1|1 model|75|")
+
+    result.value.minCount shouldBe 1
+    result.value.maxCount shouldBe None
+  }
+
+  it should "parse an open-ended ordinal tier when tier columns are present" in {
+    val result = UnitCostParser.parseLine("000000231|1|5 models|260|2||")
+
+    result.value.cost shouldBe 260
+    result.value.minCount shouldBe 2
+    result.value.maxCount shouldBe None
+  }
+
+  it should "parse a bounded tier range" in {
+    val result = UnitCostParser.parseLine("000003698|1|3 models|80|1|2|")
+
+    result.value.minCount shouldBe 1
+    result.value.maxCount shouldBe Some(2)
+  }
+
   "parseStream integration" should "parse all costs" in {
     val costs = CsvProcessor.failFastParse(
       "../data/wp40k/Datasheets_models_cost.csv",

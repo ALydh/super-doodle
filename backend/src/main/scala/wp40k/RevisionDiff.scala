@@ -69,7 +69,7 @@ object RevisionDiff {
         n.cost
       FROM new_rev.unit_cost n
       FULL OUTER JOIN old_rev.unit_cost o
-        ON n.datasheet_id = o.datasheet_id AND n.line = o.line
+        ON n.datasheet_id = o.datasheet_id AND n.line = o.line AND n.min_count = o.min_count
       LEFT JOIN new_rev.datasheets nd ON nd.id = n.datasheet_id
       LEFT JOIN old_rev.datasheets od ON od.id = o.datasheet_id
       WHERE o.cost IS NULL OR n.cost IS NULL OR n.cost != o.cost

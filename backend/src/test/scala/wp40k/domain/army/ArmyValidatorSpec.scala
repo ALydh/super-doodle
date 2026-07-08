@@ -234,6 +234,30 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     errors should contain(UnitCostNotFound(boyzId, 99))
   }
 
+  it should "charge escalating tier costs for repeated units of the same datasheet" in {
+    val tieredRef = baseRef.copy(unitCosts =
+      baseRef.unitCosts.filterNot(_.datasheetId == boyzId) ++ List(
+        UnitCost(boyzId, 1, "10 models", 300, 1, Some(1)),
+        UnitCost(boyzId, 1, "10 models", 400, 2, None)
+      )
+    )
+    val army = Army(
+      factionId = orkFaction,
+      battleSize = BattleSize.Incursion,
+      detachmentId = detId,
+      warlordId = warbossId,
+      units = List(
+        ArmyUnit(warbossId, 1, None, None), // 65
+        ArmyUnit(boyzId, 1, None, None),    // 1st: 300
+        ArmyUnit(boyzId, 1, None, None),    // 2nd: 400
+        ArmyUnit(boyzId, 1, None, None)     // 3rd: 400
+      )
+    )
+    // 65 + 300 + 400 + 400 = 1165 > 1000
+    val errors = ArmyValidator.validate(army, tieredRef)
+    errors should contain(PointsExceeded(1165, 1000))
+  }
+
   // Rule 3: at least 1 character
   "character requirement" should "reject an army with no characters" in {
     val army = Army(

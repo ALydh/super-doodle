@@ -27,6 +27,7 @@ object DataLoader {
       _ <- loadFile("Datasheets_unit_composition.csv", UnitCompositionParser, insertUnitComposition)(xa, dataDir)
       _ <- generateParsedUnitComposition(xa)
       _ <- loadFile("Datasheets_models_cost.csv", UnitCostParser, insertUnitCost)(xa, dataDir)
+      _ <- loadFileIfExists("Datasheets_models_cost_tiers.csv", UnitCostParser, insertUnitCost)(xa, dataDir)
       _ <- loadFile("Datasheets_keywords.csv", DatasheetKeywordParser, insertDatasheetKeyword)(xa, dataDir)
       _ <- loadFile("Datasheets_abilities.csv", DatasheetAbilityParser, insertDatasheetAbility)(xa, dataDir)
       _ <- loadFile("Datasheets_options.csv", DatasheetOptionParser, insertDatasheetOption)(xa, dataDir)
@@ -127,8 +128,8 @@ object DataLoader {
           VALUES (${uc.datasheetId}, ${uc.line}, ${uc.description})""".update.run
 
   private def insertUnitCost(uc: UnitCost): ConnectionIO[Int] =
-    sql"""INSERT INTO unit_cost (datasheet_id, line, description, cost)
-          VALUES (${uc.datasheetId}, ${uc.line}, ${uc.description}, ${uc.cost})""".update.run
+    sql"""INSERT OR REPLACE INTO unit_cost (datasheet_id, line, description, cost, min_count, max_count)
+          VALUES (${uc.datasheetId}, ${uc.line}, ${uc.description}, ${uc.cost}, ${uc.minCount}, ${uc.maxCount})""".update.run
 
   private def insertDatasheetKeyword(dk: DatasheetKeyword): ConnectionIO[Int] =
     sql"""INSERT INTO datasheet_keywords (datasheet_id, keyword, model, is_faction_keyword)
@@ -313,6 +314,7 @@ object DataLoader {
       for {
         _ <- loadLocalIfEmpty("weapon_abilities", "Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility, counts, tempDir, xa)
         _ <- loadLocalIfEmpty("parsed_wargear_options", "Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption, counts, tempDir, xa)
+        _ <- overlayLocalCsv("Datasheets_models_cost_tiers.csv", UnitCostParser, insertUnitCost, tempDir, xa).handleError(_ => ())
       } yield ()
     } { tempDir =>
       IO {
@@ -346,6 +348,26 @@ object DataLoader {
       }
       _ <- if (extracted) loadFile(filename, parser, insert)(xa, tempDir.toString)
            else IO.println(s"Local CSV $filename missing from classpath; table $table will stay empty")
+    } yield ()
+
+  private def overlayLocalCsv[A](
+    filename: String,
+    parser: StreamingCsvParser[A],
+    insert: A => ConnectionIO[Int],
+    tempDir: Path,
+    xa: Transactor[IO]
+  ): IO[Unit] =
+    for {
+      extracted <- IO {
+        val res = getClass.getResourceAsStream(s"/local-data/$filename")
+        if (res == null) false
+        else {
+          try Files.copy(res, tempDir.resolve(filename))
+          finally res.close()
+          true
+        }
+      }
+      _ <- if (extracted) loadFile(filename, parser, insert)(xa, tempDir.toString) else IO.unit
     } yield ()
 
   def loadMissing(xa: Transactor[IO], counts: Map[String, Int], dataDir: String = defaultDataDir): IO[Unit] =

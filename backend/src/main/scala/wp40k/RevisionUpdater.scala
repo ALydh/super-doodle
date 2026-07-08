@@ -29,7 +29,8 @@ object RevisionUpdater {
   // and copied into the build dir for every revision so the tables stay populated.
   private val localCsvFiles = List(
     "Weapon_abilities.csv",
-    "Datasheets_wargear_options_parsed.csv"
+    "Datasheets_wargear_options_parsed.csv",
+    "Datasheets_models_cost_tiers.csv"
   )
 
   private def copyLocalCsvs(targetDir: Path)(using Logger[IO]): IO[Unit] =
