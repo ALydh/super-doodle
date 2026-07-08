@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { WeaponAbility } from "../types";
 import { fetchWeaponAbilities } from "../api";
@@ -94,6 +94,18 @@ interface TooltipPos { x: number; y: number }
 
 function AbilitySpan({ text, description }: { text: string; description: string }) {
   const [pos, setPos] = useState<TooltipPos | null>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!pos || !boxRef.current) return;
+    const box = boxRef.current;
+    const { width, height } = box.getBoundingClientRect();
+    const margin = 8;
+    const left = Math.max(margin, Math.min(pos.x - width / 2, window.innerWidth - width - margin));
+    const top = pos.y - height >= margin ? pos.y - height : pos.y + 24;
+    box.style.left = `${left}px`;
+    box.style.top = `${top}px`;
+  }, [pos]);
 
   return (
     <>
@@ -105,10 +117,7 @@ function AbilitySpan({ text, description }: { text: string; description: string 
         {text}
       </span>
       {pos && createPortal(
-        <div
-          className={styles.tooltipBox}
-          style={{ left: pos.x, top: pos.y, transform: 'translate(-50%, -100%)' }}
-        >
+        <div ref={boxRef} className={styles.tooltipBox} style={{ left: pos.x, top: pos.y }}>
           {description}
         </div>,
         document.body
