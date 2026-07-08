@@ -29,9 +29,13 @@ object RevisionUpdater {
   // and copied into the build dir for every revision so the tables stay populated.
   private val localCsvFiles = List(
     "Weapon_abilities.csv",
-    "Datasheets_wargear_options_parsed.csv",
-    "Datasheets_models_cost_tiers.csv"
+    "Datasheets_wargear_options_parsed.csv"
   )
+
+  // Suffix and label for the derived revision that overlays the Munitorum Field
+  // Manual tier patch on top of a base wahapedia revision.
+  private val patchSuffix = "-mfm-dark-angels"
+  private val patchLabel = "Munitorum Field Manual — Dark Angels v1.0 (tiered points)"
 
   private def copyLocalCsvs(targetDir: Path)(using Logger[IO]): IO[Unit] =
     localCsvFiles.traverse_ { file =>
@@ -82,6 +86,7 @@ object RevisionUpdater {
           Logger[IO].info("No active revision found, migrating existing ref DB") *>
             migrateExisting(revisionsDir, existingRefDbPath, userXa)
       }
+      _ <- ensurePatchedRevision(state.revisionId, state.refDbPath, revisionsDir, userXa)
     } yield state
 
   private def migrateExisting(
@@ -163,6 +168,8 @@ object RevisionUpdater {
             case None =>
               fetchAndBuild(client, revisionsDir, remoteTimestamp, userXa, activeRef)
           }
+          current <- activeRef.get
+          _ <- ensurePatchedRevision(current.revisionId, current.refDbPath, revisionsDir, userXa)
           _ <- cleanup(revisionsDir, userXa, activeRef)
         } yield ()
       }
@@ -221,7 +228,7 @@ object RevisionUpdater {
     for {
       all <- sql"SELECT id, db_path, is_active FROM revisions ORDER BY fetched_at DESC"
         .query[(String, String, Boolean)].to[List].transact(userXa)
-      toDelete = all.filterNot(_._3).drop(keep - 1)
+      toDelete = all.filterNot(_._3).filterNot(_._1.endsWith(patchSuffix)).drop(keep - 1)
       _ <- toDelete.traverse_ { case (id, dbPath, _) =>
         IO(Files.deleteIfExists(Paths.get(dbPath))) *>
           sql"DELETE FROM revisions WHERE id = $id".update.run.transact(userXa) *>
@@ -239,6 +246,46 @@ object RevisionUpdater {
     (sql"UPDATE revisions SET is_active = 0".update.run *>
      sql"""INSERT OR REPLACE INTO revisions (id, wahapedia_timestamp, db_path, fetched_at, is_active)
            VALUES ($revisionId, $timestamp, $dbPath, $now, 1)""".update.run).transact(userXa).void
+  }
+
+  def ensurePatchedRevision(
+    baseId: String,
+    baseDbPath: String,
+    revisionsDir: String,
+    userXa: Transactor[IO]
+  )(using Logger[IO]): IO[Unit] =
+    if (baseId.endsWith(patchSuffix)) IO.unit
+    else findRevision(baseId + patchSuffix, userXa).flatMap {
+      case Some(_) => IO.unit
+      case None    => buildPatchedRevision(baseId, baseDbPath, revisionsDir, userXa)
+    }
+
+  private def buildPatchedRevision(
+    baseId: String,
+    baseDbPath: String,
+    revisionsDir: String,
+    userXa: Transactor[IO]
+  )(using Logger[IO]): IO[Unit] = {
+    val patchedId = baseId + patchSuffix
+    val dbPath = Paths.get(revisionsDir, s"wp40k-ref-$patchedId.db")
+    for {
+      _ <- IO(Files.copy(Paths.get(baseDbPath), dbPath, StandardCopyOption.REPLACE_EXISTING))
+      buildXa = Database.singleTransactor(dbPath.toString)
+      _ <- Schema.initializeRefSchema(buildXa)
+      _ <- DataLoader.applyTierPatch(buildXa)
+      _ <- registerPatchedRevision(patchedId, dbPath.toString, userXa)
+      _ <- Logger[IO].info(s"Built patched revision $patchedId")
+    } yield ()
+  }
+
+  private def registerPatchedRevision(
+    revisionId: String,
+    dbPath: String,
+    userXa: Transactor[IO]
+  ): IO[Unit] = {
+    val now = Instant.now().toString
+    sql"""INSERT OR REPLACE INTO revisions (id, wahapedia_timestamp, db_path, fetched_at, is_active)
+          VALUES ($revisionId, $patchLabel, $dbPath, $now, 0)""".update.run.transact(userXa).void
   }
 
   private def findActiveRevision(xa: Transactor[IO]): IO[Option[Revision]] =
