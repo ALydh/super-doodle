@@ -86,9 +86,9 @@ object CirceCodecs {
     "datasheetId", "keyword", "model", "isFactionKeyword"
   )((k: DatasheetKeyword) => (k.datasheetId, k.keyword, k.model, k.isFactionKeyword))
 
-  given Encoder[UnitCost] = Encoder.forProduct4(
-    "datasheetId", "line", "description", "cost"
-  )((c: UnitCost) => (c.datasheetId, c.line, c.description, c.cost))
+  given Encoder[UnitCost] = Encoder.forProduct6(
+    "datasheetId", "line", "description", "cost", "minCount", "maxCount"
+  )((c: UnitCost) => (c.datasheetId, c.line, c.description, c.cost, c.minCount, c.maxCount))
 
   given Encoder[ParsedWargearOption] = Encoder.forProduct9(
     "datasheetId", "optionLine", "choiceIndex", "groupId", "action", "weaponName", "modelTarget", "countPerNModels", "maxCount"

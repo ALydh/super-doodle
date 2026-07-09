@@ -127,8 +127,8 @@ object DataLoader {
           VALUES (${uc.datasheetId}, ${uc.line}, ${uc.description})""".update.run
 
   private def insertUnitCost(uc: UnitCost): ConnectionIO[Int] =
-    sql"""INSERT INTO unit_cost (datasheet_id, line, description, cost)
-          VALUES (${uc.datasheetId}, ${uc.line}, ${uc.description}, ${uc.cost})""".update.run
+    sql"""INSERT OR REPLACE INTO unit_cost (datasheet_id, line, description, cost, min_count, max_count)
+          VALUES (${uc.datasheetId}, ${uc.line}, ${uc.description}, ${uc.cost}, ${uc.minCount}, ${uc.maxCount})""".update.run
 
   private def insertDatasheetKeyword(dk: DatasheetKeyword): ConnectionIO[Int] =
     sql"""INSERT INTO datasheet_keywords (datasheet_id, keyword, model, is_faction_keyword)
@@ -347,6 +347,30 @@ object DataLoader {
       _ <- if (extracted) loadFile(filename, parser, insert)(xa, tempDir.toString)
            else IO.println(s"Local CSV $filename missing from classpath; table $table will stay empty")
     } yield ()
+
+  // Overlays the bundled tier patch onto an existing ref DB. tier-1 rows carry
+  // min_count = 1 so INSERT OR REPLACE overwrites each base cost row, while the
+  // higher tiers are added alongside it.
+  def applyTierPatch(xa: Transactor[IO]): IO[Unit] = {
+    val filename = "Datasheets_models_cost_tiers.csv"
+    IO(Files.createTempDirectory("wp40k-tier-patch")).bracket { tempDir =>
+      for {
+        extracted <- IO {
+          val res = getClass.getResourceAsStream(s"/local-data/$filename")
+          if (res == null) false
+          else {
+            try Files.copy(res, tempDir.resolve(filename))
+            finally res.close()
+            true
+          }
+        }
+        _ <- if (extracted) loadFile(filename, UnitCostParser, insertUnitCost)(xa, tempDir.toString) else IO.unit
+      } yield ()
+    } { tempDir =>
+      IO(Files.walk(tempDir).sorted(java.util.Comparator.reverseOrder()).forEach(p => Files.deleteIfExists(p)))
+        .handleError(_ => ())
+    }
+  }
 
   def loadMissing(xa: Transactor[IO], counts: Map[String, Int], dataDir: String = defaultDataDir): IO[Unit] =
     for {

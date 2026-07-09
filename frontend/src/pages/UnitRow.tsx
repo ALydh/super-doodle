@@ -3,6 +3,7 @@ import type { ArmyUnit, Datasheet, ModelProfile, WargearSelection, DatasheetDeta
 import type { WargearOptionType } from "../components/WargearSelector";
 import { fetchDatasheetDetail, filterWargear } from "../api";
 import { useReferenceData } from "../context/ReferenceDataContext";
+import { costForOrdinal } from "../points";
 import { LeaderSlotsSection } from "../components/LeaderSlotsSection";
 import { UnitRowExpanded } from "./UnitRowExpanded";
 import styles from "./UnitRow.module.css";
@@ -52,7 +53,8 @@ export function UnitRow({
         .find(Boolean) ?? null
     : null;
 
-  const selectedCost = unitCosts.find((c) => c.line === unit.sizeOptionLine);
+  const ordinal = allUnits.slice(0, index + 1).filter((u) => u.datasheetId === unit.datasheetId).length || 1;
+  const selectedCost = costForOrdinal(unitCosts, unit.datasheetId, unit.sizeOptionLine, ordinal);
   const enhancementObj = unit.enhancementId ? enhancements.find((e) => e.id === unit.enhancementId) : null;
   const enhancementCost = enhancementObj?.cost ?? 0;
   const totalCost = (selectedCost?.cost ?? 0) + enhancementCost;

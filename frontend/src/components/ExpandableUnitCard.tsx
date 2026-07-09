@@ -42,6 +42,19 @@ export function ExpandableUnitCard({
 
   const loading = isExpanded && !detail;
 
+  const costGroups = costs
+    ? [...new Map(costs.map((c) => [c.line, c])).values()].map((first) => {
+        const forLine = costs.filter((c) => c.line === first.line).map((c) => c.cost);
+        const min = Math.min(...forLine);
+        const max = Math.max(...forLine);
+        return {
+          line: first.line,
+          description: first.description,
+          label: min === max ? `${min}pts` : `${min}–${max}pts`,
+        };
+      })
+    : [];
+
   return (
     <div className={`${styles.card} ${isExpanded ? styles.expanded : ""}`}>
       <button className={styles.header} onClick={onToggle}>
@@ -66,10 +79,10 @@ export function ExpandableUnitCard({
             <span className={styles.statPill}>OC{profiles[0].objectiveControl}</span>
           </span>
         )}
-        {costs && costs.length > 1 ? (
+        {costGroups.length > 1 ? (
           <span className={styles.costOptions}>
-            {costs.map((c) => (
-              <span key={c.line} className={styles.costOption}>{c.description}: {c.cost}pts</span>
+            {costGroups.map((c) => (
+              <span key={c.line} className={styles.costOption}>{c.description}: {c.label}</span>
             ))}
           </span>
         ) : (
