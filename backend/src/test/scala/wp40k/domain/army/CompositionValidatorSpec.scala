@@ -64,7 +64,7 @@ class CompositionValidatorSpec extends AnyFlatSpec with Matchers {
   def baseArmy: Army = Army(
     factionId = orkFaction,
     battleSize = BattleSize.StrikeForce,
-    detachmentId = detId,
+    detachments = List(detId),
     warlordId = warbossId,
     units = List(
       ArmyUnit(warbossId, 1, None, None),
@@ -199,7 +199,7 @@ class CompositionValidatorSpec extends AnyFlatSpec with Matchers {
     val army = Army(
       factionId = smFaction,
       battleSize = BattleSize.StrikeForce,
-      detachmentId = detId,
+      detachments = List(detId),
       warlordId = DatasheetId("000000200"),
       units = List(ArmyUnit(DatasheetId("000000200"), 1, None, None)),
       chapterId = Some("ultramarines")
@@ -221,7 +221,7 @@ class CompositionValidatorSpec extends AnyFlatSpec with Matchers {
     val army = Army(
       factionId = smFaction,
       battleSize = BattleSize.StrikeForce,
-      detachmentId = detId,
+      detachments = List(detId),
       warlordId = baId,
       units = List(ArmyUnit(baId, 1, None, None)),
       chapterId = Some("ultramarines")
@@ -243,7 +243,7 @@ class CompositionValidatorSpec extends AnyFlatSpec with Matchers {
     val army = Army(
       factionId = smFaction,
       battleSize = BattleSize.StrikeForce,
-      detachmentId = detId,
+      detachments = List(detId),
       warlordId = smCaptainId,
       units = List(ArmyUnit(smCaptainId, 1, None, None), ArmyUnit(baId, 1, None, None, isAllied = true)),
       chapterId = Some("ultramarines")

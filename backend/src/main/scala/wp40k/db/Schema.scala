@@ -262,6 +262,15 @@ object Schema {
       PRIMARY KEY (datasheet_id, detachment_ability_id)
     )""",
 
+    sql"""CREATE TABLE IF NOT EXISTS detachments (
+      id TEXT PRIMARY KEY,
+      faction_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      dp_cost INTEGER NOT NULL,
+      keyword TEXT,
+      force_dispositions TEXT
+    )""",
+
     sql"""CREATE TABLE IF NOT EXISTS weapon_abilities (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -349,6 +358,12 @@ object Schema {
     _ <- if (!hasCol) sql"ALTER TABLE armies ADD COLUMN checklist_notes TEXT".update.run else FC.unit
   } yield ()
 
+  private val migrateArmyDetachments: ConnectionIO[Unit] = for {
+    cols <- sql"PRAGMA table_info(armies)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.map(_._2).toSet)
+    _ <- if (!cols.contains("detachments")) sql"ALTER TABLE armies ADD COLUMN detachments TEXT".update.run else FC.unit
+    _ <- if (!cols.contains("force_disposition")) sql"ALTER TABLE armies ADD COLUMN force_disposition TEXT".update.run else FC.unit
+  } yield ()
+
   private val migrateUnitCostTiers: ConnectionIO[Unit] = for {
     cols <- sql"PRAGMA table_info(unit_cost)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.map(_._2).toSet)
     _ <- if (!cols.contains("min_count")) sql"ALTER TABLE unit_cost ADD COLUMN min_count INTEGER NOT NULL DEFAULT 1".update.run else FC.unit
@@ -371,7 +386,7 @@ object Schema {
     (refTables.traverse_(_.update.run) *> migrateFactionGroup *> migrateUnitCostTiers *> populateFactionGroups).transact(xa)
 
   def initializeUserSchema(xa: Transactor[IO]): IO[Unit] =
-    (userTables.traverse_(_.update.run) *> migrateArmies *> migrateIsAdmin *> migrateChapterId *> migrateChecklistNotes).transact(xa)
+    (userTables.traverse_(_.update.run) *> migrateArmies *> migrateIsAdmin *> migrateChapterId *> migrateChecklistNotes *> migrateArmyDetachments).transact(xa)
 
   def initialize(xa: Transactor[IO]): IO[Unit] =
     initializeRefSchema(xa) *> initializeUserSchema(xa)

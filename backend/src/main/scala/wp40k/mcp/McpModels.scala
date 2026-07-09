@@ -2,8 +2,8 @@ package wp40k.mcp
 
 import org.jsoup.Jsoup
 import wp40k.domain.types.*
-import wp40k.domain.models.*
-import wp40k.db.{PersistedArmy, ArmySummary}
+import wp40k.domain.models.*
+import wp40k.db.{PersistedArmy, ArmySummary}
 
 def stripHtml(s: String): String = Jsoup.parse(s).text()
 def stripHtmlOpt(s: Option[String]): Option[String] = s.map(stripHtml)
@@ -123,7 +123,7 @@ case class ArmyOut(id: String, name: String, factionId: String, battleSize: Stri
 object ArmyOut:
   def from(p: PersistedArmy): ArmyOut =
     ArmyOut(p.id, p.name, FactionId.value(p.army.factionId), p.army.battleSize.toString,
-      DetachmentId.value(p.army.detachmentId), DatasheetId.value(p.army.warlordId),
+      p.army.primaryDetachment.map(DetachmentId.value).getOrElse(""), DatasheetId.value(p.army.warlordId),
       p.army.chapterId,
       p.army.units.map(u => ArmyUnitOut(DatasheetId.value(u.datasheetId), u.sizeOptionLine, u.enhancementId.map(EnhancementId.value), u.attachedLeaderId.map(DatasheetId.value))),
       p.createdAt, p.updatedAt)

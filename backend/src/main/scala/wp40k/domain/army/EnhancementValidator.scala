@@ -2,13 +2,12 @@ package wp40k.domain.army
 
 import wp40k.domain.types.{DatasheetId, DetachmentId, Role}
 import wp40k.domain.models.*
-import wp40k.domain.Constants.Validation
 
 private[army] object EnhancementValidator {
 
   def validateCount(army: Army): List[ValidationError] = {
     val enhancementCount = army.units.flatMap(_.enhancementId).size
-    if (enhancementCount > Validation.MaxEnhancements) List(TooManyEnhancements(enhancementCount))
+    if (enhancementCount > army.battleSize.maxEnhancements) List(TooManyEnhancements(enhancementCount))
     else Nil
   }
 
@@ -39,13 +38,13 @@ private[army] object EnhancementValidator {
     army: Army,
     enhancementIndex: Map[EnhancementId, List[Enhancement]]
   ): List[ValidationError] = {
-    val armyDetachment = DetachmentId.value(army.detachmentId)
+    val armyDetachments = army.detachments.map(DetachmentId.value).toSet
     army.units.flatMap { unit =>
       unit.enhancementId.flatMap { enhId =>
         enhancementIndex.get(enhId).flatMap(_.headOption).flatMap { enh =>
           enh.detachmentId match {
-            case Some(detId) if detId != armyDetachment =>
-              Some(EnhancementDetachmentMismatch(enhId, army.detachmentId))
+            case Some(detId) if !armyDetachments.contains(detId) =>
+              Some(EnhancementDetachmentMismatch(enhId, DetachmentId(detId)))
             case _ => None
           }
         }

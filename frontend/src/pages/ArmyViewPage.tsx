@@ -170,12 +170,16 @@ export function ArmyViewPage() {
     ? SM_CHAPTERS.find((c) => c.id === battleData.chapterId)?.name ?? null
     : null;
 
-  const detachmentInfo = detachments.find((d) => d.detachmentId === battleData.detachmentId);
-  const detachmentName = detachmentInfo?.name ?? battleData.detachmentId;
+  const detachmentIdList = battleData.detachments.length > 0 ? battleData.detachments : [battleData.detachmentId];
+  const detachmentIdSet = new Set(detachmentIdList);
+  const detachmentName = detachmentIdList
+    .map((id) => detachments.find((d) => d.detachmentId === id)?.name ?? id)
+    .join(" + ")
+    + (battleData.forceDisposition ? ` · ${battleData.forceDisposition}` : "");
 
   const detachmentStratagems = stratagems.filter(
     (s) =>
-      (s.detachmentId === battleData.detachmentId || !s.detachmentId) &&
+      ((s.detachmentId != null && detachmentIdSet.has(s.detachmentId)) || !s.detachmentId) &&
       !s.stratagemType?.startsWith("Challenger") &&
       !s.stratagemType?.startsWith("Boarding Actions")
   );
@@ -218,7 +222,7 @@ export function ArmyViewPage() {
   })();
 
   const detachmentEnhancements = enhancements.filter(
-    (e) => e.detachmentId === battleData.detachmentId
+    (e) => e.detachmentId != null && detachmentIdSet.has(e.detachmentId)
   );
 
   // Edit mode computed values

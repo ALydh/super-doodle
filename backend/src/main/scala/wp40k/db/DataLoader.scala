@@ -37,6 +37,7 @@ object DataLoader {
       _ <- loadFile("Datasheets_enhancements.csv", DatasheetEnhancementParser, insertDatasheetEnhancement)(xa, dataDir)
       _ <- loadFile("Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa, dataDir)
       _ <- loadFile("Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa, dataDir)
+      _ <- loadFileIfExists("Detachments_11e.csv", DetachmentParser, insertDetachment)(xa, dataDir)
       _ <- loadFile("Last_update.csv", LastUpdateParser, insertLastUpdate)(xa, dataDir)
       _ <- loadFileIfExists("Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa, dataDir)
       _ <- loadFileIfExists("Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa, dataDir)
@@ -51,6 +52,7 @@ object DataLoader {
       sql"DELETE FROM parsed_wargear_options",
       sql"DELETE FROM weapon_abilities",
       sql"DELETE FROM datasheet_detachment_abilities",
+      sql"DELETE FROM detachments",
       sql"DELETE FROM detachment_abilities",
       sql"DELETE FROM datasheet_enhancements",
       sql"DELETE FROM enhancements",
@@ -169,6 +171,12 @@ object DataLoader {
   private def insertDatasheetDetachmentAbility(dda: DatasheetDetachmentAbility): ConnectionIO[Int] =
     sql"""INSERT INTO datasheet_detachment_abilities (datasheet_id, detachment_ability_id)
           VALUES (${dda.datasheetId}, ${dda.detachmentAbilityId})""".update.run
+
+  private def insertDetachment(d: Detachment): ConnectionIO[Int] = {
+    val dispositions = Option.when(d.forceDispositions.nonEmpty)(d.forceDispositions.mkString(","))
+    sql"""INSERT OR REPLACE INTO detachments (id, faction_id, name, dp_cost, keyword, force_dispositions)
+          VALUES (${d.id}, ${d.factionId}, ${d.name}, ${d.dpCost}, ${d.keyword}, $dispositions)""".update.run
+  }
 
   private def insertLastUpdate(lu: LastUpdate): ConnectionIO[Int] =
     sql"INSERT INTO last_update (timestamp) VALUES (${lu.timestamp})".update.run
@@ -392,6 +400,7 @@ object DataLoader {
       _ <- loadIfEmpty("datasheet_enhancements", "Datasheets_enhancements.csv", DatasheetEnhancementParser, insertDatasheetEnhancement)(xa, counts, dataDir)
       _ <- loadIfEmpty("detachment_abilities", "Detachment_abilities.csv", DetachmentAbilityParser, insertDetachmentAbility)(xa, counts, dataDir)
       _ <- loadIfEmpty("datasheet_detachment_abilities", "Datasheets_detachment_abilities.csv", DatasheetDetachmentAbilityParser, insertDatasheetDetachmentAbility)(xa, counts, dataDir)
+      _ <- loadIfEmpty("detachments", "Detachments_11e.csv", DetachmentParser, insertDetachment)(xa, counts, dataDir)
       _ <- loadIfEmpty("last_update", "Last_update.csv", LastUpdateParser, insertLastUpdate)(xa, counts, dataDir)
       _ <- loadIfEmpty("weapon_abilities", "Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility)(xa, counts, dataDir)
       _ <- loadIfEmpty("parsed_wargear_options", "Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption)(xa, counts, dataDir)

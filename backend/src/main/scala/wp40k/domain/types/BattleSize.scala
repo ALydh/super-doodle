@@ -3,10 +3,10 @@ package wp40k.domain.types
 import io.circe.{Encoder, Decoder}
 import sttp.tapir.Schema
 
-enum BattleSize(val maxPoints: Int):
-  case Incursion extends BattleSize(1000)
-  case StrikeForce extends BattleSize(2000)
-  case Onslaught extends BattleSize(3000)
+enum BattleSize(val maxPoints: Int, val detachmentPoints: Int, val maxEnhancements: Int):
+  case Incursion extends BattleSize(1000, 2, 2)
+  case StrikeForce extends BattleSize(2000, 3, 4)
+  case Onslaught extends BattleSize(3000, 4, 6)
 
 object BattleSize {
   def parse(s: String): Either[String, BattleSize] = s.toLowerCase match {

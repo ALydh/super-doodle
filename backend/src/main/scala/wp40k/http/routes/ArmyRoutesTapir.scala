@@ -131,7 +131,9 @@ object ArmyRoutesTapir {
                 IO.pure(Right(ArmyBattleData(
                   persisted.id, persisted.name,
                   FactionId.value(army.factionId), army.battleSize.toString,
-                  DetachmentId.value(army.detachmentId), DatasheetId.value(army.warlordId),
+                  army.primaryDetachment.map(DetachmentId.value).getOrElse(""),
+                  army.detachments.map(DetachmentId.value), army.forceDisposition,
+                  DatasheetId.value(army.warlordId),
                   army.chapterId, army.checklistNotes, List.empty
                 ).asJson))
               case Some(datasheetIds) =>
@@ -190,7 +192,9 @@ object ArmyRoutesTapir {
                   Right(ArmyBattleData(
                     persisted.id, persisted.name,
                     FactionId.value(army.factionId), army.battleSize.toString,
-                    DetachmentId.value(army.detachmentId), DatasheetId.value(army.warlordId),
+                    army.primaryDetachment.map(DetachmentId.value).getOrElse(""),
+                    army.detachments.map(DetachmentId.value), army.forceDisposition,
+                    DatasheetId.value(army.warlordId),
                     army.chapterId, army.checklistNotes, battleUnits
                   ).asJson)
                 }

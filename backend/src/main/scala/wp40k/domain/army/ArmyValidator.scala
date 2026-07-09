@@ -10,7 +10,8 @@ case class ReferenceData(
   unitCosts: List[UnitCost],
   enhancements: List[Enhancement],
   leaders: List[DatasheetLeader],
-  detachmentAbilities: List[DetachmentAbility]
+  detachmentAbilities: List[DetachmentAbility],
+  detachments: List[Detachment] = List.empty
 )
 
 object ArmyValidator {
@@ -21,6 +22,7 @@ object ArmyValidator {
     val costIndex = ref.unitCosts.groupBy(ds => (ds.datasheetId, ds.line))
     val leaderIndex = ref.leaders.groupBy(_.leaderId)
     val enhancementIndex = ref.enhancements.groupBy(_.id)
+    val detachmentIndex = ref.detachments.map(d => d.id -> d).toMap
 
     List(
       CompositionValidator.validateFactionKeywords(army, datasheetIndex, keywordIndex),
@@ -34,6 +36,7 @@ object ArmyValidator {
       EnhancementValidator.validateUniqueness(army),
       EnhancementValidator.validateOnCharacters(army, datasheetIndex),
       EnhancementValidator.validateDetachment(army, enhancementIndex),
+      DetachmentValidator.validate(army, detachmentIndex),
       AlliedUnitValidator.validate(army, datasheetIndex, keywordIndex, costIndex),
       CompositionValidator.validateChapterUnits(army, datasheetIndex, keywordIndex)
     ).flatten

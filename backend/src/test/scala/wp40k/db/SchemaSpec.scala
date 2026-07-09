@@ -25,7 +25,7 @@ class SchemaSpec extends AnyFlatSpec with Matchers {
     }
   }
 
-  "Schema.initialize" should "create all 31 tables" in withTempDb { xa =>
+  "Schema.initialize" should "create all 33 tables" in withTempDb { xa =>
     val tableNames = (for {
       _ <- Schema.initialize(xa)
       names <- sql"SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
@@ -38,7 +38,7 @@ class SchemaSpec extends AnyFlatSpec with Matchers {
       "datasheet_keywords", "datasheet_abilities", "datasheet_leaders",
       "datasheet_options", "stratagems", "datasheet_stratagems",
       "enhancements", "datasheet_enhancements", "detachment_abilities",
-      "datasheet_detachment_abilities", "armies", "army_units",
+      "datasheet_detachment_abilities", "detachments", "armies", "army_units",
       "weapon_abilities", "users", "sessions", "invites", "parsed_wargear_options",
       "parsed_loadouts", "parsed_unit_composition", "unit_wargear_defaults",
       "army_unit_wargear_selections", "user_inventory", "revisions"
@@ -54,6 +54,6 @@ class SchemaSpec extends AnyFlatSpec with Matchers {
         .query[String].to[List].transact(xa)
     } yield names).unsafeRunSync()
 
-    result.size shouldBe 32
+    result.size shouldBe 33
   }
 }

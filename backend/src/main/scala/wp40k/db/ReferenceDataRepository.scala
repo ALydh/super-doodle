@@ -288,11 +288,36 @@ object ReferenceDataRepository {
         }
       }
 
-  case class DetachmentInfo(name: String, detachmentId: String)
+  case class DetachmentInfo(
+    name: String,
+    detachmentId: String,
+    dpCost: Int,
+    keyword: Option[String],
+    forceDispositions: List[String]
+  )
+
+  private val defaultDpCost = 2
+
+  private def parseDispositions(raw: Option[String]): List[String] =
+    raw.map(_.split(",").toList.map(_.trim).filter(_.nonEmpty)).getOrElse(List.empty)
 
   def detachmentsByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DetachmentInfo]] =
-    sql"SELECT DISTINCT detachment, detachment_id FROM detachment_abilities WHERE faction_id = $factionId"
-      .query[DetachmentInfo].to[List].transact(xa)
+    sql"""SELECT DISTINCT da.detachment, da.detachment_id,
+            COALESCE(d.dp_cost, $defaultDpCost), d.keyword, d.force_dispositions
+          FROM detachment_abilities da
+          LEFT JOIN detachments d ON da.detachment_id = d.id
+          WHERE da.faction_id = $factionId"""
+      .query[(String, String, Int, Option[String], Option[String])].to[List].transact(xa)
+      .map(_.map { case (name, id, dp, kw, disp) =>
+        DetachmentInfo(name, id, dp, kw, parseDispositions(disp))
+      })
+
+  def allDetachments(xa: Transactor[IO]): IO[List[Detachment]] =
+    sql"SELECT id, faction_id, name, dp_cost, keyword, force_dispositions FROM detachments"
+      .query[(DetachmentId, FactionId, String, Int, Option[String], Option[String])].to[List].transact(xa)
+      .map(_.map { case (id, fid, name, dp, kw, disp) =>
+        Detachment(id, fid, name, dp, kw, parseDispositions(disp))
+      })
 
   def leadersByFaction(factionId: FactionId)(xa: Transactor[IO]): IO[List[DatasheetLeader]] =
     sql"""SELECT dl.leader_id, dl.attached_id
@@ -309,7 +334,8 @@ object ReferenceDataRepository {
       enhancements <- allEnhancements(xa)
       leaders <- allDatasheetLeaders(xa)
       detachmentAbilities <- allDetachmentAbilities(xa)
-    } yield ReferenceData(datasheets, keywords, unitCosts, enhancements, leaders, detachmentAbilities)
+      detachments <- allDetachments(xa)
+    } yield ReferenceData(datasheets, keywords, unitCosts, enhancements, leaders, detachmentAbilities, detachments)
 
   def parsedCompositionForDatasheet(datasheetId: DatasheetId)(xa: Transactor[IO]): IO[List[ParsedCompositionLine]] =
     sql"SELECT model_name, min_count, max_count, group_index FROM parsed_unit_composition WHERE datasheet_id = $datasheetId"
@@ -332,7 +358,7 @@ object ReferenceDataRepository {
       "datasheet_abilities", "datasheet_options", "datasheet_leaders",
       "stratagems", "datasheet_stratagems", "enhancements",
       "datasheet_enhancements", "detachment_abilities",
-      "datasheet_detachment_abilities", "last_update", "weapon_abilities", "parsed_wargear_options",
+      "datasheet_detachment_abilities", "detachments", "last_update", "weapon_abilities", "parsed_wargear_options",
       "parsed_loadouts", "parsed_unit_composition",
       "unit_wargear_defaults"
     )

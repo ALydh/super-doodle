@@ -21,9 +21,12 @@ case class ArmyUnit(
 case class Army(
   factionId: FactionId,
   battleSize: BattleSize,
-  detachmentId: DetachmentId,
+  detachments: List[DetachmentId],
   warlordId: DatasheetId,
   units: List[ArmyUnit],
   chapterId: Option[String] = None,
-  checklistNotes: Map[String, String] = Map.empty
-)
+  checklistNotes: Map[String, String] = Map.empty,
+  forceDisposition: Option[String] = None
+) {
+  def primaryDetachment: Option[DetachmentId] = detachments.headOption
+}

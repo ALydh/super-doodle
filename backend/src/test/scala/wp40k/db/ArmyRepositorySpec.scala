@@ -41,7 +41,7 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
   private val testArmy = Army(
     factionId = orkFaction,
     battleSize = BattleSize.StrikeForce,
-    detachmentId = detId,
+    detachments = List(detId),
     warlordId = warbossId,
     units = List(
       ArmyUnit(warbossId, 1, Some(enhId), Some(boyzId)),

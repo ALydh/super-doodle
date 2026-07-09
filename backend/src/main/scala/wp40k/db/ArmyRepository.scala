@@ -47,7 +47,9 @@ private case class ArmyRow(
   createdAt: String,
   updatedAt: String,
   chapterId: Option[String],
-  checklistNotesJson: Option[String]
+  checklistNotesJson: Option[String],
+  detachmentsJson: Option[String],
+  forceDisposition: Option[String]
 )
 
 private case class ArmyUnitRow(
@@ -72,7 +74,7 @@ object ArmyRepository {
   def findById(id: String)(xa: Transactor[IO]): IO[Option[PersistedArmy]] =
     for {
       _ <- Logger[IO].debug(s"Loading army $id")
-      rowOpt <- sql"SELECT id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at, chapter_id, checklist_notes FROM armies WHERE id = $id"
+      rowOpt <- sql"SELECT id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at, chapter_id, checklist_notes, detachments, force_disposition FROM armies WHERE id = $id"
         .query[ArmyRow].option.transact(xa)
       result <- rowOpt match {
         case None =>
@@ -93,7 +95,12 @@ object ArmyRepository {
               ArmyUnit(u.datasheetId, u.sizeOptionLine, u.enhancementId, u.attachedLeaderId, wargear)
             }
             val checklistNotes = row.checklistNotesJson.flatMap(s => decode[Map[String, String]](s).toOption).getOrElse(Map.empty)
-            val army = Army(row.factionId, row.battleSize, row.detachmentId, row.warlordId, units, row.chapterId, checklistNotes)
+            val detachments = row.detachmentsJson
+              .flatMap(s => decode[List[String]](s).toOption)
+              .filter(_.nonEmpty)
+              .map(_.map(DetachmentId(_)))
+              .getOrElse(List(row.detachmentId))
+            val army = Army(row.factionId, row.battleSize, detachments, row.warlordId, units, row.chapterId, checklistNotes, row.forceDisposition)
             val persisted = PersistedArmy(row.id, row.name, army, row.ownerId.map(UserId.value), row.createdAt, row.updatedAt)
             Logger[IO].debug(s"Found army: ${row.name} with ${units.size} units").as(Some(persisted))
           }
@@ -108,8 +115,10 @@ object ArmyRepository {
       _ <- (for {
         _ <- {
           val notesJson: Option[String] = if (army.checklistNotes.isEmpty) None else Some(army.checklistNotes.asJson.noSpaces)
-          sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at, chapter_id, checklist_notes)
-                   VALUES ($id, $name, ${army.factionId}, ${army.battleSize}, ${army.detachmentId}, ${army.warlordId}, $ownerId, $nowStr, $nowStr, ${army.chapterId}, $notesJson)""".update.run
+          val detachmentsJson: Option[String] = if (army.detachments.isEmpty) None else Some(army.detachments.map(DetachmentId.value).asJson.noSpaces)
+          val primaryDetachment: DetachmentId = army.primaryDetachment.getOrElse(DetachmentId(""))
+          sql"""INSERT INTO armies (id, name, faction_id, battle_size, detachment_id, warlord_id, owner_id, created_at, updated_at, chapter_id, checklist_notes, detachments, force_disposition)
+                   VALUES ($id, $name, ${army.factionId}, ${army.battleSize}, $primaryDetachment, ${army.warlordId}, $ownerId, $nowStr, $nowStr, ${army.chapterId}, $notesJson, $detachmentsJson, ${army.forceDisposition})""".update.run
         }
         _ <- army.units.traverse_ { unit =>
           for {
@@ -139,8 +148,11 @@ object ArmyRepository {
             _ <- sql"DELETE FROM army_units WHERE army_id = $id".update.run
             _ <- {
               val notesJson: Option[String] = if (army.checklistNotes.isEmpty) None else Some(army.checklistNotes.asJson.noSpaces)
+              val detachmentsJson: Option[String] = if (army.detachments.isEmpty) None else Some(army.detachments.map(DetachmentId.value).asJson.noSpaces)
+              val primaryDetachment: DetachmentId = army.primaryDetachment.getOrElse(DetachmentId(""))
               sql"""UPDATE armies SET name = $name, faction_id = ${army.factionId}, battle_size = ${army.battleSize},
-                       detachment_id = ${army.detachmentId}, warlord_id = ${army.warlordId}, chapter_id = ${army.chapterId}, checklist_notes = $notesJson, updated_at = $nowStr
+                       detachment_id = $primaryDetachment, warlord_id = ${army.warlordId}, chapter_id = ${army.chapterId}, checklist_notes = $notesJson,
+                       detachments = $detachmentsJson, force_disposition = ${army.forceDisposition}, updated_at = $nowStr
                        WHERE id = $id""".update.run
             }
             _ <- army.units.traverse_ { unit =>

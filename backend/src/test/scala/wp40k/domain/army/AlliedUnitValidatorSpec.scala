@@ -109,7 +109,7 @@ class AlliedUnitValidatorSpec extends AnyFlatSpec with Matchers {
   def imperiumArmy(alliedUnits: List[ArmyUnit] = Nil): Army = Army(
     factionId = smFaction,
     battleSize = BattleSize.StrikeForce,
-    detachmentId = detId,
+    detachments = List(detId),
     warlordId = smCaptainId,
     units = List(ArmyUnit(smCaptainId, 1, None, None)) ++ alliedUnits
   )
@@ -117,7 +117,7 @@ class AlliedUnitValidatorSpec extends AnyFlatSpec with Matchers {
   def chaosArmy(alliedUnits: List[ArmyUnit] = Nil): Army = Army(
     factionId = orkFaction,
     battleSize = BattleSize.StrikeForce,
-    detachmentId = detId,
+    detachments = List(detId),
     warlordId = warbossId,
     units = List(
       ArmyUnit(warbossId, 1, None, None),
