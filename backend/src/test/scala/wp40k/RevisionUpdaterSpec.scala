@@ -29,7 +29,7 @@ class RevisionUpdaterSpec extends AnyFlatSpec with Matchers {
     (baseId, dbPath)
   }
 
-  "ensurePatchedRevision" should "register a selectable sibling revision whose DB carries the tiers" in {
+  "ensurePatchedRevision" should "register the tiered sibling as the active default and carry the tiers" in {
     val dir = Files.createTempDirectory("wp40k-rev-test")
     val userPath = dir.resolve("user.db").toString
     val userXa = Database.singleTransactor(userPath)
@@ -37,12 +37,14 @@ class RevisionUpdaterSpec extends AnyFlatSpec with Matchers {
 
     val (baseId, _) = buildBaseRevision(dir, userXa)
 
-    RevisionUpdater.ensurePatchedRevision(baseId, dir.resolve(s"wp40k-ref-$baseId.db").toString, dir.toString, userXa).unsafeRunSync()
+    val result = RevisionUpdater.ensurePatchedRevision(baseId, dir.resolve(s"wp40k-ref-$baseId.db").toString, dir.toString, userXa).unsafeRunSync()
+    result.map(_.revisionId) shouldBe Some(s"$baseId-mfm-dark-angels")
 
     val revs = RevisionUpdater.listAll(userXa).unsafeRunSync()
     val patched = revs.find(_.id == s"$baseId-mfm-dark-angels")
     patched.isDefined shouldBe true
-    patched.get.isActive shouldBe false
+    patched.get.isActive shouldBe true
+    revs.find(_.id == baseId).get.isActive shouldBe false
 
     val patchedXa = Database.singleTransactor(patched.get.dbPath)
     val tiers = sql"SELECT cost, min_count, max_count FROM unit_cost WHERE datasheet_id = '000000231' ORDER BY min_count"
