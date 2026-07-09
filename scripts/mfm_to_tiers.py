@@ -3,8 +3,9 @@
 
 Reads the JSON produced by scripts/parse_mfm.py plus the wahapedia
 Datasheets.csv / Datasheets_models_cost.csv, and emits
-Datasheets_models_cost_tiers.csv rows for units that have more than one
-pricing tier (11th-edition escalating unit costs).
+Datasheets_models_cost_tiers.csv rows for every unit on the page, so the
+patch carries the MFM point values (single open-ended tier for normal units,
+multiple ordinal ranges for units with 11th-edition escalating costs).
 
 Each output row is: datasheet_id|line|description|cost|min_count|max_count
 - line matches the wahapedia size-option line for that model count
@@ -71,8 +72,6 @@ def main():
 
     rows, unmatched, unmatched_size = [], [], []
     for unit in data["units"]:
-        if len(unit["tiers"]) < 2:
-            continue
         ds_id = ids.get(norm(unit["name"]))
         if ds_id is None:
             unmatched.append(unit["name"])

@@ -56,18 +56,37 @@ class DataLoaderSpec extends AnyFlatSpec with Matchers {
     }
   }
 
-  it should "leave datasheets absent from the patch untouched" in {
+  it should "override the base cost of a non-tiered unit with its MFM value" in {
     val path = Files.createTempFile("wp40k-tier-", ".db")
     try {
       val xa = Database.singleTransactor(path.toAbsolutePath.toString)
       Schema.initializeRefSchema(xa).unsafeRunSync()
-
+      // Azrael: single open-ended tier in the patch, replaces the wahapedia base
       sql"INSERT INTO unit_cost (datasheet_id, line, description, cost) VALUES ('000000218', 1, '1 model', 125)"
         .update.run.transact(xa).unsafeRunSync()
 
       DataLoader.applyTierPatch(xa).unsafeRunSync()
 
       val rows = sql"SELECT cost, min_count, max_count FROM unit_cost WHERE datasheet_id = '000000218'"
+        .query[(Int, Int, Option[Int])].to[List].transact(xa).unsafeRunSync()
+      rows shouldBe List((140, 1, None))
+    } finally {
+      Files.deleteIfExists(path)
+    }
+  }
+
+  it should "leave datasheets absent from the patch untouched" in {
+    val path = Files.createTempFile("wp40k-tier-", ".db")
+    try {
+      val xa = Database.singleTransactor(path.toAbsolutePath.toString)
+      Schema.initializeRefSchema(xa).unsafeRunSync()
+
+      sql"INSERT INTO unit_cost (datasheet_id, line, description, cost) VALUES ('999999999', 1, '1 model', 125)"
+        .update.run.transact(xa).unsafeRunSync()
+
+      DataLoader.applyTierPatch(xa).unsafeRunSync()
+
+      val rows = sql"SELECT cost, min_count, max_count FROM unit_cost WHERE datasheet_id = '999999999'"
         .query[(Int, Int, Option[Int])].to[List].transact(xa).unsafeRunSync()
 
       rows shouldBe List((125, 1, None))
