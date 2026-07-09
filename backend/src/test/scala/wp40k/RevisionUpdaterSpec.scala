@@ -37,7 +37,7 @@ class RevisionUpdaterSpec extends AnyFlatSpec with Matchers {
 
     val (baseId, _) = buildBaseRevision(dir, userXa)
 
-    val result = RevisionUpdater.ensurePatchedRevision(baseId, dir.resolve(s"wp40k-ref-$baseId.db").toString, dir.toString, userXa).unsafeRunSync()
+    val result = RevisionUpdater.ensurePatchedRevision(baseId, dir.resolve(s"wp40k-ref-$baseId.db").toString, dir.toString, userXa, rebuild = false).unsafeRunSync()
     result.map(_.revisionId) shouldBe Some(s"$baseId-mfm-dark-angels")
 
     val revs = RevisionUpdater.listAll(userXa).unsafeRunSync()
@@ -58,10 +58,33 @@ class RevisionUpdaterSpec extends AnyFlatSpec with Matchers {
     Schema.initializeUserSchema(userXa).unsafeRunSync()
     val (baseId, _) = buildBaseRevision(dir, userXa)
 
-    val ensure = RevisionUpdater.ensurePatchedRevision(baseId, dir.resolve(s"wp40k-ref-$baseId.db").toString, dir.toString, userXa)
+    val ensure = RevisionUpdater.ensurePatchedRevision(baseId, dir.resolve(s"wp40k-ref-$baseId.db").toString, dir.toString, userXa, rebuild = false)
     ensure.unsafeRunSync()
     ensure.unsafeRunSync()
 
     RevisionUpdater.listAll(userXa).unsafeRunSync().count(_.id == s"$baseId-mfm-dark-angels") shouldBe 1
+  }
+
+  it should "rebuild an existing sibling in place without changing the active choice" in {
+    val dir = Files.createTempDirectory("wp40k-rev-test")
+    val userXa = Database.singleTransactor(dir.resolve("user.db").toString)
+    Schema.initializeUserSchema(userXa).unsafeRunSync()
+    val (baseId, basePath) = buildBaseRevision(dir, userXa)
+
+    RevisionUpdater.ensurePatchedRevision(baseId, basePath, dir.toString, userXa, rebuild = false).unsafeRunSync()
+    // user switches back to the vanilla base
+    sql"UPDATE revisions SET is_active = 0".update.run.transact(userXa).unsafeRunSync()
+    sql"UPDATE revisions SET is_active = 1 WHERE id = $baseId".update.run.transact(userXa).unsafeRunSync()
+
+    val result = RevisionUpdater.ensurePatchedRevision(baseId, basePath, dir.toString, userXa, rebuild = true).unsafeRunSync()
+    result shouldBe None
+
+    val revs = RevisionUpdater.listAll(userXa).unsafeRunSync()
+    revs.find(_.id == baseId).get.isActive shouldBe true
+    val patched = revs.find(_.id == s"$baseId-mfm-dark-angels").get
+    patched.isActive shouldBe false
+    val patchedXa = Database.singleTransactor(patched.dbPath)
+    sql"SELECT cost, min_count, max_count FROM unit_cost WHERE datasheet_id = '000000231' ORDER BY min_count"
+      .query[(Int, Int, Option[Int])].to[List].transact(patchedXa).unsafeRunSync() shouldBe List((240, 1, Some(1)), (260, 2, None))
   }
 }
