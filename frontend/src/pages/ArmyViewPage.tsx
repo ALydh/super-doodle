@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useParams, useNavigate, useMatch } from "react-router-dom";
-import type { Stratagem } from "../types";
-import { BATTLE_SIZE_POINTS, BattleSize } from "../types";
+import type { Stratagem, DetachmentInfo } from "../types";
+import { BATTLE_SIZE_POINTS, BATTLE_SIZE_DETACHMENT_POINTS, DEFAULT_DETACHMENT_DP_COST, BattleSize } from "../types";
 import { deleteArmy } from "../api";
 import { getFactionTheme } from "../factionTheme";
 import { getChapterTheme, isSpaceMarines, SM_CHAPTERS, CHAPTER_DETACHMENTS, ALL_CHAPTER_DETACHMENT_IDS } from "../chapters";
@@ -78,7 +78,8 @@ export function ArmyViewPage() {
   const {
     editName, setEditName,
     editBattleSize, setEditBattleSize,
-    editDetachmentId, setEditDetachmentId,
+    editDetachmentIds, setEditDetachmentIds,
+    editForceDisposition, setEditForceDisposition,
     editWarlordId, editChapterId, setEditChapterId,
     editUnits,
     validationErrors,
@@ -244,7 +245,26 @@ export function ArmyViewPage() {
     return map;
   })();
   const editMaxPoints = BATTLE_SIZE_POINTS[editBattleSize] ?? 0;
-  const editDetachmentName = detachments.find((d) => d.detachmentId === editDetachmentId)?.name ?? "";
+  const editSelectedIdSet = new Set(editDetachmentIds);
+  const editSelectedDetachments = editDetachmentIds
+    .map((id) => detachments.find((d) => d.detachmentId === id))
+    .filter((d): d is DetachmentInfo => d != null);
+  const editDetachmentName = editSelectedDetachments.map((d) => d.name).join(" + ");
+  const editDpBudget = BATTLE_SIZE_DETACHMENT_POINTS[editBattleSize] ?? 0;
+  const editDpSpent = editSelectedDetachments.reduce((sum, d) => sum + (d.dpCost ?? DEFAULT_DETACHMENT_DP_COST), 0);
+  const editDpOverBudget = editDpSpent > editDpBudget;
+  const editKeywordConflicts = (() => {
+    const counts = new Map<string, number>();
+    for (const d of editSelectedDetachments) if (d.keyword) counts.set(d.keyword, (counts.get(d.keyword) ?? 0) + 1);
+    return [...counts.entries()].filter(([, n]) => n > 1).map(([k]) => k);
+  })();
+  const editAvailableDispositions = [...new Set(editSelectedDetachments.flatMap((d) => d.forceDispositions))];
+  const toggleEditDetachment = (id: string) => {
+    const next = editDetachmentIds.includes(id) ? editDetachmentIds.filter((x) => x !== id) : [...editDetachmentIds, id];
+    setEditDetachmentIds(next);
+    const avail = next.flatMap((i) => detachments.find((d) => d.detachmentId === i)?.forceDispositions ?? []);
+    if (editForceDisposition && !avail.includes(editForceDisposition)) setEditForceDisposition("");
+  };
   const editChapterDetachmentIds = editChapterId ? new Set(CHAPTER_DETACHMENTS[editChapterId] ?? []) : null;
   const editSortedDetachments = editChapterDetachmentIds
     ? detachments
@@ -252,7 +272,7 @@ export function ArmyViewPage() {
         .sort((a, b) => (editChapterDetachmentIds.has(a.detachmentId) ? 0 : 1) - (editChapterDetachmentIds.has(b.detachmentId) ? 0 : 1))
     : detachments;
   const editSelectedChapter = isSM ? SM_CHAPTERS.find((c) => c.id === editChapterId) ?? null : null;
-  const editFilteredStratagems = stratagems.filter((s) => s.detachmentId === editDetachmentId);
+  const editFilteredStratagems = stratagems.filter((s) => s.detachmentId != null && editSelectedIdSet.has(s.detachmentId));
 
   return (
     <>
@@ -349,7 +369,7 @@ export function ArmyViewPage() {
             <ValidationErrors errors={validationErrors} datasheets={editLoadedDatasheets} />
             <ReferenceDataProvider
               costs={editCombinedCosts}
-              enhancements={enhancements.filter((e) => !e.detachmentId || e.detachmentId === editDetachmentId)}
+              enhancements={enhancements.filter((e) => !e.detachmentId || editSelectedIdSet.has(e.detachmentId))}
               leaders={leaders}
               datasheets={editLoadedDatasheets}
               options={allOptions}
@@ -474,12 +494,39 @@ export function ArmyViewPage() {
                     </select>
                   </label>
                 )}
-                <label>
-                  Detachment
-                  <select className={styles.detachmentSelect} value={editDetachmentId} onChange={(e) => setEditDetachmentId(e.target.value)}>
-                    {editSortedDetachments.map((d) => <option key={d.detachmentId} value={d.detachmentId}>{d.name}</option>)}
-                  </select>
-                </label>
+                <div className={builderStyles.detachmentField}>
+                  <div className={builderStyles.detachmentFieldHeader}>
+                    <span>Detachments</span>
+                    <span className={editDpOverBudget ? builderStyles.overBudget : builderStyles.pointsOk}>{editDpSpent}/{editDpBudget} DP</span>
+                  </div>
+                  <div className={builderStyles.detachmentList}>
+                    {editSortedDetachments.map((d) => {
+                      const selected = editSelectedIdSet.has(d.detachmentId);
+                      return (
+                        <label key={d.detachmentId} className={selected ? builderStyles.detachmentOptionSelected : builderStyles.detachmentOption}>
+                          <input type="checkbox" checked={selected} onChange={() => toggleEditDetachment(d.detachmentId)} />
+                          <span className={builderStyles.detachmentOptionName}>{d.name}</span>
+                          <span className={builderStyles.detachmentOptionDp}>{d.dpCost ?? DEFAULT_DETACHMENT_DP_COST} DP</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  {editDpOverBudget && (
+                    <p className={builderStyles.detachmentWarning}>Detachment points exceeded: {editDpSpent} used of {editDpBudget} available.</p>
+                  )}
+                  {editKeywordConflicts.length > 0 && (
+                    <p className={builderStyles.detachmentWarning}>Detachments cannot share a keyword: {editKeywordConflicts.join(", ")}.</p>
+                  )}
+                </div>
+                {editAvailableDispositions.length > 0 && (
+                  <label>
+                    Force Disposition
+                    <select value={editForceDisposition} onChange={(e) => setEditForceDisposition(e.target.value)}>
+                      <option value="">No Disposition</option>
+                      {editAvailableDispositions.map((disp) => <option key={disp} value={disp}>{disp}</option>)}
+                    </select>
+                  </label>
+                )}
               </div>
               <PointsDisplay total={editPointsTotal} battleSize={editBattleSize} />
               <DetachmentAbilitiesSection abilities={editDetachmentAbilities} />

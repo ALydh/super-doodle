@@ -44,6 +44,10 @@ function unitsByRole(units: BattleUnitData[], warlordId: string): RoleGroup[] {
 }
 
 function migrateBattleData(data: ArmyBattleData): ArmyBattleData {
+  if (!data.detachments || data.detachments.length === 0) {
+    data.detachments = data.detachmentId ? [data.detachmentId] : [];
+  }
+  if (data.forceDisposition === undefined) data.forceDisposition = null;
   const claimedIndices = new Set<number>();
   data.units = data.units.map(bu => {
     if (!bu.unit.attachedLeaderId || bu.unit.attachedToUnitIndex != null) return bu;

@@ -23,7 +23,8 @@ export function useEditMode(
   const init = isEditRoute && battleData;
   const [editName, setEditName] = useState(init ? battleData.name : "");
   const [editBattleSize, setEditBattleSize] = useState<BattleSize>(init ? battleData.battleSize as BattleSize : "StrikeForce");
-  const [editDetachmentId, setEditDetachmentId] = useState(init ? battleData.detachmentId : "");
+  const [editDetachmentIds, setEditDetachmentIds] = useState<string[]>(init ? battleData.detachments : []);
+  const [editForceDisposition, setEditForceDisposition] = useState(init ? (battleData.forceDisposition ?? "") : "");
   const [editWarlordId, setEditWarlordId] = useState(init ? battleData.warlordId : "");
   const [editChapterId, setEditChapterId] = useState<string | null>(init ? battleData.chapterId : null);
   const [editUnits, setEditUnits] = useState<ArmyUnit[]>(init ? battleData.units.map(bu => bu.unit) : []);
@@ -36,19 +37,24 @@ export function useEditMode(
   const editInitRef = useRef(!!init);
 
   useEffect(() => {
-    if (!isEditing || !editDetachmentId) return;
-    fetchDetachmentAbilities(editDetachmentId).then(setEditDetachmentAbilities);
-  }, [isEditing, editDetachmentId]);
+    if (!isEditing) return;
+    let cancelled = false;
+    Promise.all(editDetachmentIds.map(fetchDetachmentAbilities)).then((lists) => {
+      if (!cancelled) setEditDetachmentAbilities(lists.flat());
+    });
+    return () => { cancelled = true; };
+  }, [isEditing, editDetachmentIds]);
 
   useEffect(() => {
-    if (!isEditing || !editDetachmentId || !battleData) return;
+    if (!isEditing || editDetachmentIds.length === 0 || !battleData) return;
     clearTimeout(validateTimerRef.current);
     validateTimerRef.current = setTimeout(() => {
       if (editUnits.length > 0) {
         const army: Army = {
           factionId: battleData.factionId,
           battleSize: editBattleSize,
-          detachmentId: editDetachmentId,
+          detachments: editDetachmentIds,
+          forceDisposition: editForceDisposition || null,
           warlordId: editWarlordId || (editUnits[0]?.datasheetId ?? ""),
           units: editUnits,
           chapterId: editChapterId,
@@ -59,14 +65,15 @@ export function useEditMode(
       }
     }, 500);
     return () => clearTimeout(validateTimerRef.current);
-  }, [isEditing, editUnits, editBattleSize, editDetachmentId, editWarlordId, editChapterId, battleData]);
+  }, [isEditing, editUnits, editBattleSize, editDetachmentIds, editForceDisposition, editWarlordId, editChapterId, battleData]);
 
   const enterEdit = () => {
     if (!battleData) return;
     editInitRef.current = true;
     setEditName(battleData.name);
     setEditBattleSize(battleData.battleSize as BattleSize);
-    setEditDetachmentId(battleData.detachmentId);
+    setEditDetachmentIds(battleData.detachments);
+    setEditForceDisposition(battleData.forceDisposition ?? "");
     setEditWarlordId(battleData.warlordId);
     setEditChapterId(battleData.chapterId);
     setEditUnits(battleData.units.map(bu => bu.unit));
@@ -84,7 +91,8 @@ export function useEditMode(
     const army: Army = {
       factionId: battleData.factionId,
       battleSize: editBattleSize,
-      detachmentId: editDetachmentId,
+      detachments: editDetachmentIds,
+      forceDisposition: editForceDisposition || null,
       warlordId: editWarlordId || (editUnits[0]?.datasheetId ?? ""),
       units: editUnits,
       chapterId: editChapterId,
@@ -116,7 +124,8 @@ export function useEditMode(
   return {
     editName, setEditName,
     editBattleSize, setEditBattleSize,
-    editDetachmentId, setEditDetachmentId,
+    editDetachmentIds, setEditDetachmentIds,
+    editForceDisposition, setEditForceDisposition,
     editWarlordId, editChapterId, setEditChapterId,
     editUnits,
     validationErrors,
