@@ -89,6 +89,20 @@ export const BATTLE_SIZE_POINTS: Record<BattleSize, number> = {
   Onslaught: 3000,
 };
 
+export const BATTLE_SIZE_DETACHMENT_POINTS: Record<BattleSize, number> = {
+  Incursion: 2,
+  StrikeForce: 3,
+  Onslaught: 4,
+};
+
+export const BATTLE_SIZE_MAX_ENHANCEMENTS: Record<BattleSize, number> = {
+  Incursion: 2,
+  StrikeForce: 4,
+  Onslaught: 6,
+};
+
+export const DEFAULT_DETACHMENT_DP_COST = 2;
+
 export interface WargearSelection {
   optionLine: number;
   selected: boolean;
@@ -109,7 +123,9 @@ export interface ArmyUnit {
 export interface Army {
   factionId: string;
   battleSize: BattleSize;
-  detachmentId: string;
+  detachmentId?: string;
+  detachments?: string[];
+  forceDisposition?: string | null;
   warlordId: string;
   units: ArmyUnit[];
   chapterId: string | null;
@@ -169,6 +185,9 @@ export interface Enhancement {
 export interface DetachmentInfo {
   name: string;
   detachmentId: string;
+  dpCost: number;
+  keyword: string | null;
+  forceDispositions: string[];
 }
 
 export interface DatasheetLeader {
@@ -279,6 +298,8 @@ export interface ArmyBattleData {
   factionId: string;
   battleSize: string;
   detachmentId: string;
+  detachments: string[];
+  forceDisposition: string | null;
   warlordId: string;
   chapterId: string | null;
   checklistNotes: Record<string, string>;

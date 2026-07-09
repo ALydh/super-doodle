@@ -274,7 +274,7 @@ object McpTools:
       for
         user <- requireAuth(in.token, xa)
         battleSize <- IO.fromEither(BattleSize.parse(in.battleSize).leftMap(e => new RuntimeException(e)))
-        army = Army(FactionId(in.factionId), battleSize, DetachmentId(in.detachmentId), DatasheetId(in.warlordId), List.empty, in.chapterId)
+        army = Army(FactionId(in.factionId), battleSize, List(DetachmentId(in.detachmentId)), DatasheetId(in.warlordId), List.empty, in.chapterId)
         id = UUID.randomUUID().toString
         persisted <- ArmyRepository.create(id, in.name, army, Some(user.id))(xa)
       yield ArmyOut.from(persisted)
@@ -308,7 +308,7 @@ object McpTools:
           case None => existing.army.units
         army = existing.army.copy(
           factionId = FactionId(in.factionId), battleSize = battleSize,
-          detachmentId = DetachmentId(in.detachmentId), warlordId = DatasheetId(in.warlordId),
+          detachments = List(DetachmentId(in.detachmentId)), warlordId = DatasheetId(in.warlordId),
           chapterId = in.chapterId, units = units)
         result <- ArmyRepository.update(in.armyId, in.name, army)(xa).flatMap {
           case Some(p) => IO.pure(ArmyOut.from(p))
@@ -349,7 +349,7 @@ object McpTools:
         warlordId = in.warlordId.map(DatasheetId(_))
           .orElse(units.headOption.map(_.datasheetId))
           .getOrElse(DatasheetId("000000000"))
-        army = Army(FactionId(in.factionId), battleSize, DetachmentId(in.detachmentId), warlordId, units, in.chapterId)
+        army = Army(FactionId(in.factionId), battleSize, List(DetachmentId(in.detachmentId)), warlordId, units, in.chapterId)
         ref <- ReferenceDataRepository.loadReferenceDataCached(refXa)
         errors = ArmyValidator.validate(army, ref)
       yield ValidationResultOut(errors.isEmpty, errors.map(_.toString))

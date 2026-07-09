@@ -23,7 +23,7 @@ import { StrategemsSection } from "./StrategemsSection";
 import { PointsDisplay } from "./PointsDisplay";
 import { SM_CHAPTERS, CHAPTER_DETACHMENTS, ALL_CHAPTER_DETACHMENT_IDS, getChapterTheme, isSpaceMarines } from "../chapters";
 import { Spinner } from "../components/Spinner";
-import { BATTLE_SIZE_POINTS } from "../types";
+import { BATTLE_SIZE_POINTS, BATTLE_SIZE_DETACHMENT_POINTS, DEFAULT_DETACHMENT_DP_COST } from "../types";
 import { armyPointsTotal } from "../points";
 import styles from "./ArmyBuilderPage.module.css";
 
@@ -34,7 +34,8 @@ export function ArmyBuilderPage() {
 
   const [name, setName] = useState("");
   const [battleSize, setBattleSize] = useState<BattleSize>("StrikeForce");
-  const [detachmentId, setDetachmentId] = useState("");
+  const [detachmentIds, setDetachmentIds] = useState<string[]>([]);
+  const [forceDisposition, setForceDisposition] = useState("");
   const [units, setUnits] = useState<ArmyUnit[]>([]);
   const [warlordId, setWarlordId] = useState("");
   const [chapterId, setChapterId] = useState<string | null>(null);
@@ -82,7 +83,7 @@ export function ArmyBuilderPage() {
       setAllStratagems(strat);
       setAlliedFactions(allies);
       if (!detachmentInitializedRef.current && det.length > 0) {
-        setDetachmentId(det[0].detachmentId);
+        setDetachmentIds([det[0].detachmentId]);
         detachmentInitializedRef.current = true;
       }
       const costs = details.flatMap((d) => d.costs);
@@ -107,9 +108,12 @@ export function ArmyBuilderPage() {
   }, [effectiveFactionId]);
 
   useEffect(() => {
-    if (!detachmentId) return;
-    fetchDetachmentAbilities(detachmentId).then(setDetachmentAbilities);
-  }, [detachmentId]);
+    let cancelled = false;
+    Promise.all(detachmentIds.map(fetchDetachmentAbilities)).then((lists) => {
+      if (!cancelled) setDetachmentAbilities(lists.flat());
+    });
+    return () => { cancelled = true; };
+  }, [detachmentIds]);
 
   useEffect(() => {
     if (!user) return;
@@ -121,9 +125,17 @@ export function ArmyBuilderPage() {
   }, [user]);
 
   const buildArmy = useCallback((): Army | null => {
-    if (!effectiveFactionId || !detachmentId) return null;
-    return { factionId: effectiveFactionId, battleSize, detachmentId, warlordId: warlordId || (units[0]?.datasheetId ?? ""), units, chapterId };
-  }, [effectiveFactionId, battleSize, detachmentId, warlordId, units, chapterId]);
+    if (!effectiveFactionId || detachmentIds.length === 0) return null;
+    return {
+      factionId: effectiveFactionId,
+      battleSize,
+      detachments: detachmentIds,
+      forceDisposition: forceDisposition || null,
+      warlordId: warlordId || (units[0]?.datasheetId ?? ""),
+      units,
+      chapterId,
+    };
+  }, [effectiveFactionId, battleSize, detachmentIds, forceDisposition, warlordId, units, chapterId]);
 
   useEffect(() => {
     if (loading) return;
@@ -137,7 +149,7 @@ export function ArmyBuilderPage() {
       }
     }, 500);
     return () => clearTimeout(validateTimerRef.current);
-  }, [units, battleSize, detachmentId, warlordId, loading, buildArmy]);
+  }, [units, battleSize, detachmentIds, forceDisposition, warlordId, loading, buildArmy]);
 
   const combinedCosts = [...allCosts, ...alliedCosts];
   const pointsTotal = armyPointsTotal(units, combinedCosts, enhancements);
@@ -184,9 +196,28 @@ export function ArmyBuilderPage() {
     ? detachments.filter((d) => chapterDetachmentIds.has(d.detachmentId) || !ALL_CHAPTER_DETACHMENT_IDS.has(d.detachmentId))
         .sort((a, b) => (chapterDetachmentIds.has(a.detachmentId) ? 0 : 1) - (chapterDetachmentIds.has(b.detachmentId) ? 0 : 1))
     : detachments;
-  const filteredStratagems = allStratagems.filter((s) => s.detachmentId === detachmentId);
+  const selectedIdSet = new Set(detachmentIds);
+  const filteredStratagems = allStratagems.filter((s) => s.detachmentId != null && selectedIdSet.has(s.detachmentId));
   const maxPoints = BATTLE_SIZE_POINTS[battleSize] ?? 0;
-  const detachmentName = detachments.find((d) => d.detachmentId === detachmentId)?.name ?? "";
+  const selectedDetachments = detachmentIds
+    .map((id) => detachments.find((d) => d.detachmentId === id))
+    .filter((d): d is DetachmentInfo => d != null);
+  const detachmentName = selectedDetachments.map((d) => d.name).join(" + ");
+  const dpBudget = BATTLE_SIZE_DETACHMENT_POINTS[battleSize] ?? 0;
+  const dpSpent = selectedDetachments.reduce((sum, d) => sum + (d.dpCost ?? DEFAULT_DETACHMENT_DP_COST), 0);
+  const dpOverBudget = dpSpent > dpBudget;
+  const keywordConflicts = (() => {
+    const counts = new Map<string, number>();
+    for (const d of selectedDetachments) if (d.keyword) counts.set(d.keyword, (counts.get(d.keyword) ?? 0) + 1);
+    return [...counts.entries()].filter(([, n]) => n > 1).map(([k]) => k);
+  })();
+  const availableDispositions = [...new Set(selectedDetachments.flatMap((d) => d.forceDispositions))];
+  const toggleDetachment = (id: string) => {
+    const next = detachmentIds.includes(id) ? detachmentIds.filter((x) => x !== id) : [...detachmentIds, id];
+    setDetachmentIds(next);
+    const avail = next.flatMap((i) => detachments.find((d) => d.detachmentId === i)?.forceDispositions ?? []);
+    if (forceDisposition && !avail.includes(forceDisposition)) setForceDisposition("");
+  };
 
   // ── Shared content blocks ────────────────────────────────────────────────
 
@@ -195,7 +226,7 @@ export function ArmyBuilderPage() {
       <ValidationErrors errors={validationErrors} datasheets={loadedDatasheets} />
       <ReferenceDataProvider
         costs={combinedCosts}
-        enhancements={enhancements.filter((e) => !e.detachmentId || e.detachmentId === detachmentId)}
+        enhancements={enhancements.filter((e) => !e.detachmentId || selectedIdSet.has(e.detachmentId))}
         leaders={leaders}
         datasheets={loadedDatasheets}
         options={allOptions}
@@ -286,12 +317,39 @@ export function ArmyBuilderPage() {
               </select>
             </label>
           )}
-          <label>
-            Detachment
-            <select className={styles.detachmentSelect} value={detachmentId} onChange={(e) => setDetachmentId(e.target.value)}>
-              {sortedDetachments.map((d) => <option key={d.detachmentId} value={d.detachmentId}>{d.name}</option>)}
-            </select>
-          </label>
+          <div className={styles.detachmentField}>
+            <div className={styles.detachmentFieldHeader}>
+              <span>Detachments</span>
+              <span className={dpOverBudget ? styles.overBudget : styles.pointsOk}>{dpSpent}/{dpBudget} DP</span>
+            </div>
+            <div className={styles.detachmentList}>
+              {sortedDetachments.map((d) => {
+                const selected = selectedIdSet.has(d.detachmentId);
+                return (
+                  <label key={d.detachmentId} className={selected ? styles.detachmentOptionSelected : styles.detachmentOption}>
+                    <input type="checkbox" checked={selected} onChange={() => toggleDetachment(d.detachmentId)} />
+                    <span className={styles.detachmentOptionName}>{d.name}</span>
+                    <span className={styles.detachmentOptionDp}>{d.dpCost ?? DEFAULT_DETACHMENT_DP_COST} DP</span>
+                  </label>
+                );
+              })}
+            </div>
+            {dpOverBudget && (
+              <p className={styles.detachmentWarning}>Detachment points exceeded: {dpSpent} used of {dpBudget} available.</p>
+            )}
+            {keywordConflicts.length > 0 && (
+              <p className={styles.detachmentWarning}>Detachments cannot share a keyword: {keywordConflicts.join(", ")}.</p>
+            )}
+          </div>
+          {availableDispositions.length > 0 && (
+            <label>
+              Force Disposition
+              <select value={forceDisposition} onChange={(e) => setForceDisposition(e.target.value)}>
+                <option value="">No Disposition</option>
+                {availableDispositions.map((disp) => <option key={disp} value={disp}>{disp}</option>)}
+              </select>
+            </label>
+          )}
         </div>
         <PointsDisplay total={pointsTotal} battleSize={battleSize} />
         <DetachmentAbilitiesSection abilities={detachmentAbilities} />

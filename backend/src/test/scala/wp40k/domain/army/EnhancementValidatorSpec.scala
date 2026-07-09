@@ -50,7 +50,7 @@ class EnhancementValidatorSpec extends AnyFlatSpec with Matchers {
   def baseArmy: Army = Army(
     factionId = orkFaction,
     battleSize = BattleSize.StrikeForce,
-    detachmentId = detId,
+    detachments = List(detId),
     warlordId = warbossId,
     units = List(
       ArmyUnit(warbossId, 1, None, None),
@@ -79,17 +79,30 @@ class EnhancementValidatorSpec extends AnyFlatSpec with Matchers {
     errors shouldBe empty
   }
 
-  it should "reject more than 3 enhancements" in {
+  it should "reject more enhancements than the battle size allows" in {
     val thirdCharId: DatasheetId = DatasheetId("000000007")
     val fourthCharId: DatasheetId = DatasheetId("000000008")
+    val fifthCharId: DatasheetId = DatasheetId("000000009")
     val army = baseArmy.copy(units = List(
       ArmyUnit(warbossId, 1, Some(enhId1), None),
       ArmyUnit(painboyId, 1, Some(enhId2), None),
       ArmyUnit(thirdCharId, 1, Some(enhId3), None),
-      ArmyUnit(fourthCharId, 1, Some(enhId4), None)
+      ArmyUnit(fourthCharId, 1, Some(enhId4), None),
+      ArmyUnit(fifthCharId, 1, Some(EnhancementId("enh5")), None)
     ))
     val errors = EnhancementValidator.validateCount(army)
-    errors should contain(TooManyEnhancements(4))
+    errors should contain(TooManyEnhancements(5))
+  }
+
+  it should "reject more than 2 enhancements at Incursion" in {
+    val thirdCharId: DatasheetId = DatasheetId("000000007")
+    val army = baseArmy.copy(battleSize = BattleSize.Incursion, units = List(
+      ArmyUnit(warbossId, 1, Some(enhId1), None),
+      ArmyUnit(painboyId, 1, Some(enhId2), None),
+      ArmyUnit(thirdCharId, 1, Some(enhId3), None)
+    ))
+    val errors = EnhancementValidator.validateCount(army)
+    errors should contain(TooManyEnhancements(3))
   }
 
   it should "accept an army with no enhancements" in {
@@ -158,7 +171,7 @@ class EnhancementValidatorSpec extends AnyFlatSpec with Matchers {
       ArmyUnit(boyzId, 1, None, None)
     ))
     val errors = EnhancementValidator.validateDetachment(army, enhancementIndex)
-    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, detId))
+    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, DetachmentId("bully-boyz")))
   }
 
   it should "accept enhancements with no detachment restriction" in {

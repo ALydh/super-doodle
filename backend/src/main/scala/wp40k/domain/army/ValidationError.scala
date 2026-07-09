@@ -67,6 +67,17 @@ case class EnhancementDetachmentMismatch(
   expectedDetachment: DetachmentId
 ) extends ValidationError
 
+case class NoDetachment() extends ValidationError
+
+case class DetachmentPointsExceeded(
+  spent: Int,
+  limit: Int
+) extends ValidationError
+
+case class DetachmentKeywordConflict(
+  keyword: String
+) extends ValidationError
+
 case class UnitCostNotFound(
   datasheetId: DatasheetId,
   sizeOptionLine: Int

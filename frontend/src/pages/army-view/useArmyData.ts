@@ -115,7 +115,9 @@ export function useArmyData(armyId: string | undefined, isEditRoute: boolean) {
           fetchStratagemsByFaction(data.factionId),
           fetchEnhancementsByFaction(data.factionId),
           fetchDetachmentsByFaction(data.factionId),
-          data.detachmentId ? fetchDetachmentAbilities(data.detachmentId) : Promise.resolve([]),
+          (data.detachments && data.detachments.length > 0)
+            ? Promise.all(data.detachments.map(fetchDetachmentAbilities)).then((lists) => lists.flat())
+            : data.detachmentId ? fetchDetachmentAbilities(data.detachmentId) : Promise.resolve([]),
         ]);
       })
       .then((results) => {

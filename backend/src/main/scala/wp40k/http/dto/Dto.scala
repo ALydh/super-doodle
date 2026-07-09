@@ -1,6 +1,6 @@
 package wp40k.http.dto
 
-import io.circe.Encoder
+import io.circe.Encoder
 import io.circe.syntax.*
 import wp40k.domain.types.*
 import wp40k.domain.models.*
@@ -37,6 +37,9 @@ object ValidationErrorDto {
   case class EnhancementOnNonCharacter(errorType: String, datasheetId: String, enhancementId: String) extends ValidationErrorDto
   case class MultipleEnhancementsOnUnit(errorType: String, datasheetId: String) extends ValidationErrorDto
   case class EnhancementDetachmentMismatch(errorType: String, enhancementId: String, expectedDetachment: String) extends ValidationErrorDto
+  case class NoDetachment(errorType: String) extends ValidationErrorDto
+  case class DetachmentPointsExceeded(errorType: String, spent: Int, limit: Int) extends ValidationErrorDto
+  case class DetachmentKeywordConflict(errorType: String, keyword: String) extends ValidationErrorDto
   case class UnitCostNotFound(errorType: String, datasheetId: String, sizeOptionLine: Int) extends ValidationErrorDto
   case class DatasheetNotFound(errorType: String, datasheetId: String) extends ValidationErrorDto
   case class AlliedWarlord(errorType: String, datasheetId: String) extends ValidationErrorDto
@@ -76,6 +79,12 @@ object ValidationErrorDto {
       MultipleEnhancementsOnUnit("MultipleEnhancementsOnUnit", DatasheetId.value(e.datasheetId))
     case e: wp40k.domain.army.EnhancementDetachmentMismatch =>
       EnhancementDetachmentMismatch("EnhancementDetachmentMismatch", EnhancementId.value(e.enhancementId), DetachmentId.value(e.expectedDetachment))
+    case _: wp40k.domain.army.NoDetachment =>
+      NoDetachment("NoDetachment")
+    case e: wp40k.domain.army.DetachmentPointsExceeded =>
+      DetachmentPointsExceeded("DetachmentPointsExceeded", e.spent, e.limit)
+    case e: wp40k.domain.army.DetachmentKeywordConflict =>
+      DetachmentKeywordConflict("DetachmentKeywordConflict", e.keyword)
     case e: wp40k.domain.army.UnitCostNotFound =>
       UnitCostNotFound("UnitCostNotFound", DatasheetId.value(e.datasheetId), e.sizeOptionLine)
     case e: wp40k.domain.army.DatasheetNotFound =>
@@ -109,6 +118,9 @@ object ValidationErrorDto {
     case e: EnhancementOnNonCharacter => e.asJson(using Encoder.AsObject.derived[EnhancementOnNonCharacter])
     case e: MultipleEnhancementsOnUnit => e.asJson(using Encoder.AsObject.derived[MultipleEnhancementsOnUnit])
     case e: EnhancementDetachmentMismatch => e.asJson(using Encoder.AsObject.derived[EnhancementDetachmentMismatch])
+    case e: NoDetachment => e.asJson(using Encoder.AsObject.derived[NoDetachment])
+    case e: DetachmentPointsExceeded => e.asJson(using Encoder.AsObject.derived[DetachmentPointsExceeded])
+    case e: DetachmentKeywordConflict => e.asJson(using Encoder.AsObject.derived[DetachmentKeywordConflict])
     case e: UnitCostNotFound => e.asJson(using Encoder.AsObject.derived[UnitCostNotFound])
     case e: DatasheetNotFound => e.asJson(using Encoder.AsObject.derived[DatasheetNotFound])
     case e: AlliedWarlord => e.asJson(using Encoder.AsObject.derived[AlliedWarlord])
@@ -156,6 +168,8 @@ case class ArmyBattleData(
   factionId: String,
   battleSize: String,
   detachmentId: String,
+  detachments: List[String],
+  forceDisposition: Option[String],
   warlordId: String,
   chapterId: Option[String],
   checklistNotes: Map[String, String],

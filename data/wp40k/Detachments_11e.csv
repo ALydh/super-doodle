@@ -1,0 +1,15 @@
+﻿id|faction_id|name|dp_cost|keyword|force_dispositions|
+000000765|AC|Shield Host|2|Guardian|Attackers,Defenders|
+000000861|AC|Talons Of The Emperor|3|Talons|Vanguard|
+000000862|AC|Null Maiden Vigil|2|Anathema|Rearguard,Defenders|
+000000986|AC|Solar Spearhead|2|Armoured|Vanguard|
+000000863|AC|Auric Champions|1|Guardian|Attackers|
+000001018|AE|Windrider Host|2|Saim-Hann|Vanguard,Attackers|
+000001024|AE|Aspect Host|2|Aspect|Attackers|
+000000760|AM|Combined Arms|3|Regiment|Attackers,Defenders|
+000001012|AM|Hammer of the Emperor|2|Armoured|Vanguard|
+000000750|SM|Gladius Task Force|3|Codex|Attackers,Defenders,Vanguard|
+000000794|SM|Ironstorm Spearhead|2|Armoured|Vanguard|
+000000793|SM|Anvil Siege Force|2|Bastion|Defenders,Rearguard|
+000000798|SM|1st Company Task Force|2|Vanguard|Attackers|
+000000795|SM|Firestorm Assault Force|2|Assault|Attackers|

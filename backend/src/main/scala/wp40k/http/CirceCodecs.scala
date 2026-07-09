@@ -35,19 +35,32 @@ object CirceCodecs {
     } yield ArmyUnit(datasheetId, sizeOptionLine, enhancementId, attachedLeaderId, wargearSelections, isAllied)
   }
 
-  given Encoder[Army] = Encoder.forProduct7("factionId", "battleSize", "detachmentId", "warlordId", "units", "chapterId", "checklistNotes")(
-    (a: Army) => (a.factionId, a.battleSize, a.detachmentId, a.warlordId, a.units, a.chapterId, a.checklistNotes)
-  )
+  given Encoder[Army] = Encoder.instance { a =>
+    Json.obj(
+      "factionId" -> a.factionId.asJson,
+      "battleSize" -> a.battleSize.asJson,
+      "detachmentId" -> a.primaryDetachment.map(_.asJson).getOrElse(Json.fromString("")),
+      "detachments" -> a.detachments.asJson,
+      "forceDisposition" -> a.forceDisposition.asJson,
+      "warlordId" -> a.warlordId.asJson,
+      "units" -> a.units.asJson,
+      "chapterId" -> a.chapterId.asJson,
+      "checklistNotes" -> a.checklistNotes.asJson
+    )
+  }
   given Decoder[Army] = Decoder.instance { cursor =>
     for {
       factionId <- cursor.get[FactionId]("factionId")
       battleSize <- cursor.get[BattleSize]("battleSize")
-      detachmentId <- cursor.get[DetachmentId]("detachmentId")
+      detachments <- cursor.get[List[DetachmentId]]("detachments").orElse(
+        cursor.get[DetachmentId]("detachmentId").map(List(_))
+      )
+      forceDisposition <- cursor.getOrElse[Option[String]]("forceDisposition")(None)
       warlordId <- cursor.get[DatasheetId]("warlordId")
       units <- cursor.get[List[ArmyUnit]]("units")
       chapterId <- cursor.getOrElse[Option[String]]("chapterId")(None)
       checklistNotes <- cursor.getOrElse[Map[String, String]]("checklistNotes")(Map.empty)
-    } yield Army(factionId, battleSize, detachmentId, warlordId, units, chapterId, checklistNotes)
+    } yield Army(factionId, battleSize, detachments, warlordId, units, chapterId, checklistNotes, forceDisposition)
   }
 
   given Encoder[Datasheet] = Encoder.forProduct14(
@@ -123,7 +136,7 @@ object CirceCodecs {
     )
   }
 
-  given Encoder[ArmyBattleData] = Encoder.forProduct9(
-    "id", "name", "factionId", "battleSize", "detachmentId", "warlordId", "chapterId", "checklistNotes", "units"
-  )((a: ArmyBattleData) => (a.id, a.name, a.factionId, a.battleSize, a.detachmentId, a.warlordId, a.chapterId, a.checklistNotes, a.units))
+  given Encoder[ArmyBattleData] = Encoder.forProduct11(
+    "id", "name", "factionId", "battleSize", "detachmentId", "detachments", "forceDisposition", "warlordId", "chapterId", "checklistNotes", "units"
+  )((a: ArmyBattleData) => (a.id, a.name, a.factionId, a.battleSize, a.detachmentId, a.detachments, a.forceDisposition, a.warlordId, a.chapterId, a.checklistNotes, a.units))
 }

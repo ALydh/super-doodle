@@ -13,6 +13,10 @@ object Constants {
     val EpicHero = "Epic Hero"
   }
 
+  object Detachments {
+    val DefaultDpCost = 2
+  }
+
   object Defaults {
     val UnknownDatasheet = "Unknown"
   }

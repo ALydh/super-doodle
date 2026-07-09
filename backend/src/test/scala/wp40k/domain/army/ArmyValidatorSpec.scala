@@ -151,7 +151,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
   def validArmy: Army = Army(
     factionId = orkFaction,
     battleSize = BattleSize.StrikeForce,
-    detachmentId = detId,
+    detachments = List(detId),
     warlordId = warbossId,
     units = List(
       ArmyUnit(warbossId, 1, None, None),
@@ -183,7 +183,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     val army = Army(
       factionId = orkFaction,
       battleSize = BattleSize.Incursion,
-      detachmentId = detId,
+      detachments = List(detId),
       warlordId = warbossId,
       units = List(
         ArmyUnit(warbossId, 1, None, None),
@@ -209,7 +209,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     val army = Army(
       factionId = orkFaction,
       battleSize = BattleSize.Incursion,
-      detachmentId = detId,
+      detachments = List(detId),
       warlordId = warbossId,
       units = List(
         ArmyUnit(warbossId, 1, Some(enhId1), None), // 65 + 25 = 90
@@ -244,7 +244,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     val army = Army(
       factionId = orkFaction,
       battleSize = BattleSize.Incursion,
-      detachmentId = detId,
+      detachments = List(detId),
       warlordId = warbossId,
       units = List(
         ArmyUnit(warbossId, 1, None, None), // 65
@@ -263,7 +263,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     val army = Army(
       factionId = orkFaction,
       battleSize = BattleSize.StrikeForce,
-      detachmentId = detId,
+      detachments = List(detId),
       warlordId = boyzId, // not a character, but tested separately
       units = List(
         ArmyUnit(boyzId, 1, None, None),
@@ -404,8 +404,8 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
   }
 
   // Rule 9: max 3 enhancements, all different
-  "enhancement count validation" should "reject more than 3 enhancements" in {
-    val army = validArmy.copy(units = List(
+  "enhancement count validation" should "reject more enhancements than the battle size allows" in {
+    val army = validArmy.copy(battleSize = BattleSize.Incursion, units = List(
       ArmyUnit(warbossId, 1, Some(enhId1), None),
       ArmyUnit(ghazId, 1, Some(enhId2), None),
       ArmyUnit(painboyId, 1, Some(enhId3), None),
@@ -483,7 +483,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
       ArmyUnit(boyzId, 1, None, None)
     ))
     val errors = ArmyValidator.validate(army, baseRef)
-    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, detId))
+    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, DetachmentId("bully-boyz")))
   }
 
   it should "accept enhancement from the correct detachment" in {
@@ -499,7 +499,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
   def imperiumArmy: Army = Army(
     factionId = smFaction,
     battleSize = BattleSize.StrikeForce,
-    detachmentId = detId,
+    detachments = List(detId),
     warlordId = smCaptainId,
     units = List(
       ArmyUnit(smCaptainId, 1, None, None)
@@ -629,7 +629,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     )
     val errors = ArmyValidator.validate(army, baseRef)
     errors should contain(InvalidWarlord(boyzId))
-    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, detId))
+    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, DetachmentId("bully-boyz")))
   }
 
   it should "report TooManyLeaders for two normal leaders on same bodyguard" in {
@@ -674,7 +674,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
       ArmyUnit(boyzId, 1, None, None)
     ))
     val errors = ArmyValidator.validate(army, baseRef)
-    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, detId))
+    errors should contain(EnhancementDetachmentMismatch(wrongDetEnhId, DetachmentId("bully-boyz")))
     errors.collect { case e: TooManyEnhancements => e } shouldBe empty
   }
 
@@ -691,7 +691,7 @@ class ArmyValidatorSpec extends AnyFlatSpec with Matchers {
     val army = Army(
       factionId = orkFaction,
       battleSize = BattleSize.StrikeForce,
-      detachmentId = detId,
+      detachments = List(detId),
       warlordId = warbossId,
       units = List.empty
     )
