@@ -86,8 +86,18 @@ object RevisionUpdater {
           Logger[IO].info("No active revision found, migrating existing ref DB") *>
             migrateExisting(revisionsDir, existingRefDbPath, userXa)
       }
-      patched <- ensurePatchedRevision(state.revisionId, state.refDbPath, revisionsDir, userXa)
-    } yield patched.getOrElse(state)
+      onPatched = state.revisionId.endsWith(patchSuffix)
+      baseInfo <- if (onPatched)
+                    findRevision(state.revisionId.dropRight(patchSuffix.length), userXa)
+                      .map(_.map(b => (b.id, resolveDbPath(b.dbPath, revisionsDir))))
+                  else IO.pure(Some((state.revisionId, state.refDbPath)))
+      patched <- baseInfo match {
+        case Some((baseId, basePath)) =>
+          Schema.initializeRefSchema(Database.singleTransactor(basePath)) *>
+            ensurePatchedRevision(baseId, basePath, revisionsDir, userXa, rebuild = true)
+        case None => IO.pure(None)
+      }
+    } yield if (onPatched) state else patched.getOrElse(state)
 
   private def migrateExisting(
     revisionsDir: String,
@@ -169,7 +179,7 @@ object RevisionUpdater {
               fetchAndBuild(client, revisionsDir, remoteTimestamp, userXa, activeRef)
           }
           current <- activeRef.get
-          patched <- ensurePatchedRevision(current.revisionId, current.refDbPath, revisionsDir, userXa)
+          patched <- ensurePatchedRevision(current.revisionId, current.refDbPath, revisionsDir, userXa, rebuild = false)
           _ <- patched.traverse_(activeRef.set)
           _ <- cleanup(revisionsDir, userXa, activeRef)
         } yield ()
@@ -249,38 +259,51 @@ object RevisionUpdater {
            VALUES ($revisionId, $timestamp, $dbPath, $now, 1)""".update.run).transact(userXa).void
   }
 
-  // Ensures the tiered sibling of a base revision exists. When it has to build
-  // one it makes it the active revision (MFM tiers are the default), and returns
-  // its state so callers can point the server at it. Returns None when the
-  // sibling already exists, leaving the current active choice untouched.
+  def resolveDbPath(dbPath: String, revisionsDir: String): String =
+    if (Paths.get(dbPath).isAbsolute) dbPath
+    else Paths.get(revisionsDir, Paths.get(dbPath).getFileName.toString).toString
+
+  // Ensures the tiered sibling of a base revision exists and is up to date. A
+  // brand-new sibling is registered as the active revision (MFM tiers are the
+  // default) and its state returned so callers can point the server at it. When
+  // it already exists we return None, leaving the active choice untouched; with
+  // rebuild = true its DB is regenerated in place so schema/patch fixes land.
   def ensurePatchedRevision(
     baseId: String,
     baseDbPath: String,
     revisionsDir: String,
-    userXa: Transactor[IO]
+    userXa: Transactor[IO],
+    rebuild: Boolean
   )(using Logger[IO]): IO[Option[RevisionState]] =
     if (baseId.endsWith(patchSuffix)) IO.pure(None)
-    else findRevision(baseId + patchSuffix, userXa).flatMap {
-      case Some(_) => IO.pure(None)
-      case None    => buildPatchedRevision(baseId, baseDbPath, revisionsDir, userXa).map(Some(_))
+    else {
+      val patchedId = baseId + patchSuffix
+      findRevision(patchedId, userXa).flatMap {
+        case Some(_) =>
+          if (rebuild) buildPatchedDb(patchedId, baseDbPath, revisionsDir).as(None)
+          else IO.pure(None)
+        case None =>
+          for {
+            dbPath <- buildPatchedDb(patchedId, baseDbPath, revisionsDir)
+            _ <- registerPatchedRevision(patchedId, dbPath, userXa)
+            _ <- Logger[IO].info(s"Activated patched revision $patchedId as default")
+          } yield Some(RevisionState(patchedId, dbPath))
+      }
     }
 
-  private def buildPatchedRevision(
-    baseId: String,
+  private def buildPatchedDb(
+    patchedId: String,
     baseDbPath: String,
-    revisionsDir: String,
-    userXa: Transactor[IO]
-  )(using Logger[IO]): IO[RevisionState] = {
-    val patchedId = baseId + patchSuffix
+    revisionsDir: String
+  )(using Logger[IO]): IO[String] = {
     val dbPath = Paths.get(revisionsDir, s"wp40k-ref-$patchedId.db")
     for {
       _ <- IO(Files.copy(Paths.get(baseDbPath), dbPath, StandardCopyOption.REPLACE_EXISTING))
       buildXa = Database.singleTransactor(dbPath.toString)
       _ <- Schema.initializeRefSchema(buildXa)
       _ <- DataLoader.applyTierPatch(buildXa)
-      _ <- registerPatchedRevision(patchedId, dbPath.toString, userXa)
-      _ <- Logger[IO].info(s"Built patched revision $patchedId and activated it")
-    } yield RevisionState(patchedId, dbPath.toString)
+      _ <- Logger[IO].info(s"Built patched revision DB $patchedId")
+    } yield dbPath.toString
   }
 
   private def registerPatchedRevision(

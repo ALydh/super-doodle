@@ -364,10 +364,30 @@ object Schema {
     _ <- if (!cols.contains("force_disposition")) sql"ALTER TABLE armies ADD COLUMN force_disposition TEXT".update.run else FC.unit
   } yield ()
 
+  // Legacy ref DBs keyed unit_cost on (datasheet_id, line). Tiers need
+  // min_count in the primary key so multiple cost rows can share a line; since
+  // SQLite can't add a PK column via ALTER, rebuild the table when it's missing.
+  private val rebuildUnitCostWithTierKey: ConnectionIO[Unit] =
+    sql"""CREATE TABLE unit_cost_new (
+      datasheet_id TEXT NOT NULL,
+      line INTEGER NOT NULL,
+      description TEXT NOT NULL,
+      cost INTEGER NOT NULL,
+      min_count INTEGER NOT NULL DEFAULT 1,
+      max_count INTEGER,
+      PRIMARY KEY (datasheet_id, line, min_count)
+    )""".update.run *>
+    sql"INSERT INTO unit_cost_new SELECT datasheet_id, line, description, cost, min_count, max_count FROM unit_cost".update.run *>
+    sql"DROP TABLE unit_cost".update.run *>
+    sql"ALTER TABLE unit_cost_new RENAME TO unit_cost".update.run.void
+
   private val migrateUnitCostTiers: ConnectionIO[Unit] = for {
-    cols <- sql"PRAGMA table_info(unit_cost)".query[(Int, String, String, Int, Option[String], Int)].to[List].map(_.map(_._2).toSet)
+    info <- sql"PRAGMA table_info(unit_cost)".query[(Int, String, String, Int, Option[String], Int)].to[List]
+    cols = info.map(_._2).toSet
     _ <- if (!cols.contains("min_count")) sql"ALTER TABLE unit_cost ADD COLUMN min_count INTEGER NOT NULL DEFAULT 1".update.run else FC.unit
     _ <- if (!cols.contains("max_count")) sql"ALTER TABLE unit_cost ADD COLUMN max_count INTEGER".update.run else FC.unit
+    minCountInKey = info.exists(c => c._2 == "min_count" && c._6 > 0)
+    _ <- if (minCountInKey) FC.unit else rebuildUnitCostWithTierKey
   } yield ()
 
   private val populateFactionGroups: ConnectionIO[Unit] = {
