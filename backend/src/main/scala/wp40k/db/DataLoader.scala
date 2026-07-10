@@ -321,6 +321,7 @@ object DataLoader {
       for {
         _ <- loadLocalIfEmpty("weapon_abilities", "Weapon_abilities.csv", WeaponAbilityParser, insertWeaponAbility, counts, tempDir, xa)
         _ <- loadLocalIfEmpty("parsed_wargear_options", "Datasheets_wargear_options_parsed.csv", ParsedWargearOptionParser, insertParsedWargearOption, counts, tempDir, xa)
+        _ <- loadLocalIfEmpty("detachments", "Detachments_11e.csv", DetachmentParser, insertDetachment, counts, tempDir, xa)
       } yield ()
     } { tempDir =>
       IO {
