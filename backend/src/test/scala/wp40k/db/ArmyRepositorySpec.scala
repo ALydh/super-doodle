@@ -97,6 +97,30 @@ class ArmyRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfterEa
     sm.size shouldBe 1
   }
 
+  "listSummariesByFaction totalPoints" should "pick one cost tier per unit by ordinal, not sum all tiers" in {
+    val tierDs = "000000009"
+    val none = Option.empty[Int]
+    sql"INSERT INTO unit_cost (datasheet_id, line, description, cost, min_count, max_count) VALUES ($tierDs, 1, '1st unit', 100, 1, 1)".update.run.transact(xa).unsafeRunSync()
+    sql"INSERT INTO unit_cost (datasheet_id, line, description, cost, min_count, max_count) VALUES ($tierDs, 1, '2nd+ unit', 180, 2, $none)".update.run.transact(xa).unsafeRunSync()
+
+    val tauFaction = FactionId("TAU")
+    val tierArmy = Army(
+      factionId = tauFaction,
+      battleSize = BattleSize.StrikeForce,
+      detachments = List(detId),
+      warlordId = DatasheetId(tierDs),
+      units = List(
+        ArmyUnit(DatasheetId(tierDs), 1, None, None),
+        ArmyUnit(DatasheetId(tierDs), 1, None, None)
+      )
+    )
+    ArmyRepository.create(UUID.randomUUID().toString, "Tier Army", tierArmy, None)(xa).unsafeRunSync()
+
+    val summaries = ArmyRepository.listSummariesByFaction(tauFaction)(xa).unsafeRunSync()
+    summaries.size shouldBe 1
+    summaries.head.totalPoints shouldBe 280
+  }
+
   "update" should "modify an existing army" in {
     val id = UUID.randomUUID().toString
     val created = ArmyRepository.create(id, "Old Name", testArmy, None)(xa).unsafeRunSync()

@@ -204,7 +204,19 @@ object ArmyRepository {
     val baseQuery = fr"""SELECT
           a.id, a.name, a.faction_id, a.battle_size, a.updated_at,
           d.name,
-          COALESCE((SELECT SUM(uc.cost) FROM army_units au JOIN """ ++ unitCost ++ fr""" uc ON au.datasheet_id = uc.datasheet_id AND au.size_option_line = uc.line WHERE au.army_id = a.id), 0)
+          COALESCE((SELECT SUM(
+              COALESCE(
+                (SELECT tc.cost FROM """ ++ unitCost ++ fr""" tc
+                   WHERE tc.datasheet_id = r.datasheet_id AND tc.line = r.line
+                     AND r.ordinal >= tc.min_count AND (tc.max_count IS NULL OR r.ordinal <= tc.max_count)
+                   ORDER BY tc.min_count LIMIT 1),
+                (SELECT bc.cost FROM """ ++ unitCost ++ fr""" bc
+                   WHERE bc.datasheet_id = r.datasheet_id AND bc.line = r.line
+                   ORDER BY bc.min_count LIMIT 1),
+                0))
+            FROM (SELECT au.datasheet_id AS datasheet_id, au.size_option_line AS line,
+                     ROW_NUMBER() OVER (PARTITION BY au.datasheet_id ORDER BY au.id) AS ordinal
+                   FROM army_units au WHERE au.army_id = a.id) r), 0)
           + COALESCE((SELECT SUM(e.cost) FROM army_units au JOIN """ ++ enhancements ++ fr""" e ON au.enhancement_id = e.id WHERE au.army_id = a.id), 0),
           a.owner_id,
           u.username,
