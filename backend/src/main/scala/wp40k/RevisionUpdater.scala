@@ -29,7 +29,8 @@ object RevisionUpdater {
   // and copied into the build dir for every revision so the tables stay populated.
   private val localCsvFiles = List(
     "Weapon_abilities.csv",
-    "Datasheets_wargear_options_parsed.csv"
+    "Datasheets_wargear_options_parsed.csv",
+    "Detachments_11e.csv"
   )
 
   // Suffix and label for the derived revision that overlays the Munitorum Field
